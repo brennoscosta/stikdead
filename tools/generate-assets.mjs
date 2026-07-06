@@ -4,7 +4,7 @@
 //   HF_CREDENTIALS="KEY_ID:KEY_SECRET" node generate-assets.mjs --group=arenas
 // Grupos: arenas | praca | katana | lote2 | lote3 | lote4 | tudo
 // Flags: --only=<id>  --force (regenera mesmo se o arquivo existir)
-import { higgsfield } from '@higgsfield/client/v2';
+import { higgsfield, config } from '@higgsfield/client/v2';
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -93,10 +93,16 @@ const args = Object.fromEntries(process.argv.slice(2).map((a) => {
   return [k, v ?? true];
 }));
 
-if (!process.env.HF_CREDENTIALS && !(process.env.HF_API_KEY && process.env.HF_API_SECRET)) {
+const rawCreds = (process.env.HF_CREDENTIALS
+  || (process.env.HF_API_KEY && process.env.HF_API_SECRET
+      ? `${process.env.HF_API_KEY}:${process.env.HF_API_SECRET}` : ''))
+  .trim().replace(/^["']|["']$/g, ''); // tolera aspas coladas no export
+if (!rawCreds.includes(':')) {
   console.error('Defina HF_CREDENTIALS="KEY_ID:KEY_SECRET" (painel de API do Higgsfield).');
   process.exit(1);
 }
+config({ credentials: rawCreds });
+console.log(`Credenciais: ${rawCreds.split(':')[0].slice(0, 6)}…:•••  ✓`);
 const group = ASSETS[args.group];
 if (!group) {
   console.error(`--group obrigatório. Opções: ${Object.keys(ASSETS).join(' | ')}`);
