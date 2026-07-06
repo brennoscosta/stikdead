@@ -1,0 +1,333 @@
+/* STIKDEAD :: modo batalha */
+
+.bt-root {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.bt-canvas, .bt-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ===== HUD topo ===== */
+.bt-hud {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px 16px;
+  background: linear-gradient(180deg, rgba(5,5,5,0.85), transparent);
+  pointer-events: none;
+}
+.bt-plate { flex: 1; }
+.bt-plate.right { text-align: right; }
+.bt-name {
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: clamp(13px, 2.2vw, 17px);
+  color: #f2efe9;
+  text-shadow: 0 1px 3px #000;
+}
+.bt-bar {
+  height: 16px;
+  margin-top: 5px;
+  background: #2a0a10;
+  border: 2px solid #050505;
+  transform: skewX(-14deg);
+  overflow: hidden;
+}
+.bt-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #7a0417, #d90429);
+  transition: width 0.15s ease-out;
+}
+.bt-plate.right .bt-bar { transform: skewX(14deg); }
+.bt-plate.right .bt-fill { margin-left: auto; }
+
+.bt-dots { margin-top: 6px; }
+.bt-dots i {
+  display: inline-block;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  border: 2px solid #d90429;
+  margin: 0 3px;
+  background: transparent;
+}
+.bt-dots[data-wins="1"] i:first-child,
+.bt-dots[data-wins="2"] i { background: #d90429; }
+
+.bt-timer {
+  min-width: 78px;
+  text-align: center;
+  font-family: 'Rubik Wet Paint', cursive;
+  font-size: clamp(34px, 6vw, 52px);
+  color: #fff;
+  text-shadow: 0 0 18px rgba(217, 4, 41, 0.6), 0 2px 4px #000;
+  line-height: 1;
+}
+
+/* ===== anúncios ===== */
+.bt-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Rubik Wet Paint', cursive;
+  font-size: clamp(70px, 16vw, 150px);
+  color: #f2efe9;
+  text-shadow: 0 0 30px rgba(217, 4, 41, 0.8), 0 4px 10px #000;
+  opacity: 0;
+  transform: scale(1.6);
+  pointer-events: none;
+  transition: opacity 0.12s, transform 0.12s;
+}
+.bt-center.show { opacity: 1; transform: scale(1); }
+
+.bt-announce {
+  position: absolute;
+  top: 20%;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: 'Rubik Wet Paint', cursive;
+  font-size: clamp(26px, 6vw, 48px);
+  color: #f2efe9;
+  text-shadow: 0 3px 8px #000;
+  opacity: 0;
+  transform: translateY(-12px);
+  pointer-events: none;
+  transition: all 0.15s;
+}
+.bt-announce.show { opacity: 1; transform: none; }
+.bt-announce.red { color: #ff2244; text-shadow: 0 0 24px rgba(217, 4, 41, 0.9), 0 3px 8px #000; }
+
+.bt-combo {
+  position: absolute;
+  top: 26%;
+  left: 5%;
+  font-family: 'Rubik Wet Paint', cursive;
+  color: #ff2244;
+  font-size: clamp(20px, 4vw, 32px);
+  text-shadow: 0 2px 6px #000;
+  opacity: 0;
+  transform: rotate(-6deg) scale(0.8);
+  transition: all 0.1s;
+  pointer-events: none;
+}
+.bt-combo.show { opacity: 1; transform: rotate(-6deg) scale(1); }
+.bt-combo b { font-size: 1.9em; color: #fff; margin-right: 6px; }
+.bt-combo i { display: block; font-style: normal; color: #e0a10b; font-size: 0.62em; }
+
+/* ===== pause ===== */
+.bt-pausebtn {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 2px solid #3a3a3a;
+  background: rgba(10,10,10,0.6);
+  color: #f2efe9;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+
+/* ===== overlays ===== */
+.bt-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 5, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+}
+.bt-panel {
+  width: min(90vw, 360px);
+  text-align: center;
+  background: #121212;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 26px 22px;
+}
+.bt-panel h2 {
+  font-family: 'Rubik Wet Paint', cursive;
+  font-weight: 400;
+  margin: 0 0 18px;
+  letter-spacing: 0.06em;
+}
+.bt-result {
+  font-family: 'Rubik Wet Paint', cursive;
+  font-weight: 400;
+  font-size: clamp(44px, 9vw, 64px);
+  margin: 0 0 6px;
+  line-height: 1;
+}
+.bt-result.win { color: #f2efe9; text-shadow: 0 0 26px rgba(217, 4, 41, 0.7); }
+.bt-result.lose { color: #d90429; }
+.bt-score {
+  font-size: 30px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  letter-spacing: 0.2em;
+}
+.bt-score span { color: #d90429; font-size: 0.6em; margin: 0 8px; }
+
+/* ===== controles touch ===== */
+.bt-touch { display: none; }
+@media (pointer: coarse) {
+  .bt-touch { display: block; }
+}
+.bt-stick {
+  position: absolute;
+  left: 4vw;
+  bottom: 6vh;
+  width: 128px; height: 128px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.22);
+  background: rgba(20,20,20,0.35);
+  touch-action: none;
+}
+.bt-knob {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 54px; height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  background: rgba(240,240,240,0.32);
+  border: 2px solid rgba(255,255,255,0.35);
+  pointer-events: none;
+}
+.bt-actions {
+  position: absolute;
+  right: 3vw;
+  bottom: 5vh;
+  width: 220px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  justify-items: center;
+  align-items: center;
+}
+.bt-btn {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(24,24,24,0.55);
+  color: #fff;
+  font: 600 11px 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.08em;
+  touch-action: none;
+}
+.bt-btn:active { filter: brightness(1.5); transform: scale(0.94); }
+.bt-btn.sm { width: 54px; height: 54px; }
+.bt-btn.gold { border-color: #e0a10b; color: #ffd66b; grid-column: 2; }
+.bt-btn.red { border-color: #d90429; color: #ff8fa3; width: 74px; height: 74px; }
+.bt-btn.blue { border-color: #3d7bd9; color: #9cc0ff; }
+.bt-btn.green { border-color: #3dbd6e; color: #9df0bc; }
+
+/* ===== aviso de orientação (mobile vertical) ===== */
+.bt-rotate { display: none; }
+@media (pointer: coarse) and (orientation: portrait) {
+  .bt-rotate {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    font-family: 'Rubik Wet Paint', cursive;
+    font-size: clamp(22px, 7vw, 34px);
+    color: #f2efe9;
+    text-align: center;
+    padding: 0 30px;
+    text-shadow: 0 0 20px rgba(217, 4, 41, 0.6);
+  }
+  .bt-rotate-icon {
+    width: 54px; height: 92px;
+    border: 4px solid #d90429;
+    border-radius: 10px;
+    animation: bt-rot 1.6s ease-in-out infinite;
+  }
+  @keyframes bt-rot {
+    0%, 25% { transform: rotate(0); }
+    60%, 100% { transform: rotate(90deg); }
+  }
+}
+
+/* ===== entrada cinematográfica: VS ===== */
+.bt-vs {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4vw;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(5,5,5,0.55));
+  z-index: 5;
+}
+.bt-vs.show { opacity: 1; }
+.bt-vs-name {
+  font-family: 'Rubik Wet Paint', cursive;
+  font-size: clamp(22px, 5vw, 44px);
+  color: #f2efe9;
+  text-shadow: 0 3px 10px #000;
+  transform: translateX(-40px);
+  transition: transform 0.5s ease-out;
+}
+.bt-vs-name.right { transform: translateX(40px); }
+.bt-vs.show .bt-vs-name { transform: none; }
+.bt-vs-mark {
+  font-family: 'Rubik Wet Paint', cursive;
+  font-size: clamp(40px, 9vw, 80px);
+  color: #d90429;
+  text-shadow: 0 0 30px rgba(217, 4, 41, 0.9);
+}
+
+/* ===== recompensas ===== */
+.bt-rewards { margin-bottom: 18px; }
+.bt-reward {
+  display: inline-block;
+  margin: 0 10px 8px;
+  font-size: 26px;
+  font-weight: 600;
+}
+.bt-reward span { font-size: 14px; color: #9a938a; letter-spacing: 0.15em; }
+.bt-reward.xp { color: #b98cff; }
+.bt-reward.gold { color: #e0a10b; }
+.bt-bonus { color: #9a938a; font-size: 15px; margin: 2px 0; }
+.bt-bonus span { color: #b98cff; }
+.bt-levelup {
+  font-family: 'Rubik Wet Paint', cursive;
+  color: #e0a10b;
+  font-size: 26px;
+  margin: 10px 0 4px;
+  text-shadow: 0 0 20px rgba(224, 161, 11, 0.5);
+}
+.bt-prog {
+  height: 10px;
+  background: #241a2e;
+  border: 1px solid #3a2a4a;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+.bt-prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5a2d91, #b98cff);
+  transition: width 1s ease-out;
+}
+.bt-prog-label { color: #9a938a; font-size: 14px; margin-top: 5px; letter-spacing: 0.1em; }
