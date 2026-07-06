@@ -14,7 +14,7 @@ export default function Navbar({ profile }) {
   return (
     <header className="topnav">
       <button className="topnav-logo" onClick={() => nav('/perfil')}>
-        STIK<span className="red">DEAD</span>
+        <img src="/logo.webp" alt="STIKDEAD" />
       </button>
       <nav className="topnav-links">
         {LINKS.map((l) => (

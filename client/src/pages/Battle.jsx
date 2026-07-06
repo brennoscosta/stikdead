@@ -269,6 +269,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       <div className="bt-canvas" ref={hostRef} />
       {loading && (
         <div className="bt-loading">
+          <img className="bt-loading-logo" src="/logo.webp" alt="STIKDEAD" />
           <div className="ink-spinner" />
           <div className="bt-loading-title">PREPARANDO A ARENA…</div>
           <div className="bt-loading-tip">Dica: {['Segure BLOQUEAR no momento do golpe para aparar', 'O dash tem invencibilidade nos primeiros instantes', 'Chutes quebram bloqueios baixos de energia', 'Vença 3 seguidas no online e ganhe um item', 'Complete as 3 missões do dia para abrir o baú'][Math.floor(Math.random() * 5)]}</div>
