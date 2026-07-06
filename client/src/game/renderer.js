@@ -5,6 +5,7 @@ import { drawFighter } from './rig.js';
 import { buildArena, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
 
 export async function createRenderer(host, theme = 'dojo') {
+  console.log('[stikdead] renderer v7.3 — cobertura dinâmica ativa');
   const app = new Application();
   await app.init({ background: '#e7dfcf', resizeTo: host, antialias: true });
   host.appendChild(app.canvas);
@@ -18,21 +19,22 @@ export async function createRenderer(host, theme = 'dojo') {
 
   // arena pintada (se existir em /arenas/{tema}.webp) com fallback vetorial
   let painted = false;
+  let arenaSpr = null;
   try {
     const tex = await Assets.load(`/arenas/${theme}.webp`);
-    const spr = new Sprite(tex);
-    const wTotal = WORLD.width + 400;
-    const k = wTotal / tex.width;
-    spr.scale.set(k);
-    // terço inferior da arte = faixa de luta: o chão (y=0) cai em ~82% da altura
-    spr.position.set(WORLD.left - 200, -tex.height * k * 0.82);
-    world.addChild(spr);
+    const backing = new Graphics();
+    backing.rect(-6000, -6000, 12000, 12000).fill(0x0b0709);
+    world.addChild(backing);
+    arenaSpr = new Sprite(tex);
+    world.addChild(arenaSpr);
     painted = true;
+    app.renderer.background.color = 0x0b0709; // qualquer folga fica escura, nunca branca
   } catch {
     world.addChild(buildArena(theme));
   }
   const fighterHalos = new Graphics();
   world.addChild(fighterHalos);
+  if (painted) { tagStyle.fill = 0xf2efe9; tagStyle.dropShadow = { distance: 2, blur: 3, alpha: 0.8 }; }
   const gA = new Graphics();
   const gB = new Graphics();
   world.addChild(gA, gB);
@@ -74,6 +76,22 @@ export async function createRenderer(host, theme = 'dojo') {
   function frame(match, events, dt) {
     elapsed += dt;
     layout(match);
+
+    // a arte pintada cobre SEMPRE o retângulo visível da câmera (âncora no chão)
+    if (arenaSpr) {
+      const w = app.renderer.width / app.renderer.resolution;
+      const h = app.renderer.height / app.renderer.resolution;
+      const s = world.scale.x;
+      const vx0 = (0 - world.x) / s;
+      const vy1 = (h - world.y) / s;
+      const vw = w / s;
+      const vh = h / s;
+      const tw = arenaSpr.texture.width;
+      const th = arenaSpr.texture.height;
+      const k = Math.max(vw / tw, vh / th);
+      arenaSpr.scale.set(k);
+      arenaSpr.position.set(vx0 - (tw * k - vw) / 2, vy1 - th * k);
+    }
 
     for (const e of events) {
       if (e.type === 'fightstart') fx.shake = Math.max(fx.shake, 10);
