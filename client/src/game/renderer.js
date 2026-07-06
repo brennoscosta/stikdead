@@ -86,14 +86,16 @@ export async function createRenderer(host, theme = 'dojo') {
     dmgLayer.addChild(t);
     dmgLive.push({ t, wx, wy: wy0 + stack * 24, vy: 95, life: 0.95, maxLife: 0.95 });
   };
-  // vermelho sobre a cabeça de quem PERDEU; verde sobre quem CAUSOU
+  // UM balão por golpe, na perspectiva do jogador:
+  // eu ataquei -> +X verde sobre o oponente | fui atacado -> -X vermelho sobre mim
+  let mySide = 0;
   const spawnDmg = (e, match) => {
-    const atk = match?.fighters?.[e.attacker];
     const def = match?.fighters?.[1 - e.attacker];
-    const headY = (f) => (f?.y || 0) + 178;
+    if (!def) return;
     const sc = e.blocked ? 0.7 : e.heavy ? 1.3 : 1;
-    if (def) spawnOne(def.x, headY(def), `-${e.dmg}`, 0xff3b52, sc);
-    if (atk && !e.blocked) spawnOne(atk.x, headY(atk), `+${e.dmg}`, 0x4ade80, sc * 0.85);
+    const iAttacked = e.attacker === mySide;
+    spawnOne(def.x, (def.y || 0) + 178, iAttacked ? `+${e.dmg}` : `-${e.dmg}`,
+      iAttacked ? 0x4ade80 : 0xff3b52, sc);
   };
   const stepDmg = (dt) => {
     for (let i = dmgLive.length - 1; i >= 0; i--) {
@@ -258,6 +260,7 @@ export async function createRenderer(host, theme = 'dojo') {
   }
 
   return {
+    setMySide(side) { mySide = side; },
     app,
     frame,
     setLoadouts(la, lb) {

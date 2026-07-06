@@ -4,7 +4,7 @@ import { createMatch, stepMatch } from '../game/sim.js';
 import { createBot, botDecide, DIFFICULTIES } from '../game/bot.js';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
-import { ARENAS } from '../game/arena.js';
+import { ARENAS, ARENA_KEYS } from '../game/arena.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { api } from '../lib/api.js';
 import '../battle.css';
@@ -37,7 +37,7 @@ export default function Battle({ profile, onProfile }) {
     <Fight
       profile={profile}
       difficulty={difficulty}
-      arena={arena === 'random' ? ['dojo', 'temple', 'prison'][Math.floor(Math.random() * 3)] : arena}
+      arena={arena === 'random' ? ARENA_KEYS[Math.floor(Math.random() * ARENA_KEYS.length)] : arena}
       onExit={exitGameMode}
       onProfile={onProfile}
     />
@@ -54,7 +54,7 @@ function DifficultySelect({ onPick, arena, setArena }) {
       <div className="tagline">Escolha a arena e a dificuldade do bot</div>
       <div className="card">
         <div className="arena-row">
-          {['random', 'dojo', 'temple', 'prison'].map((a) => (
+          {['random', ...ARENA_KEYS].map((a) => (
             <button
               key={a}
               className={`arena-btn ${arena === a ? 'on' : ''}`}
@@ -156,6 +156,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       if (!alive) return renderer.destroy();
       renderer.setLoadouts(myLoadout, [{ slot: 'body', template: 'scarf', params: { color: '#777777' } }]);
       renderer.setNames(profile.fighter_name, `BOT · ${DIFF_LABEL[difficulty]}`);
+      renderer.setMySide(0);
       clearTimeout(watchdog);
       setLoading(false);
       console.log('[stikdead] luta pronta');

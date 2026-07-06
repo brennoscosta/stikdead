@@ -398,6 +398,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         renderer = await createRenderer(hostRef.current, session.arena || 'dojo');
         renderer.setLoadouts(session.players[0]?.loadout, session.players[1]?.loadout);
         renderer.setNames(names[0], names[1]);
+        renderer.setMySide(me);
         clearTimeout(watchdog);
         setLoading(false);
         console.log('[stikdead] luta online pronta');

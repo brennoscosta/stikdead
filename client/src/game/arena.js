@@ -7,7 +7,11 @@ export const ARENAS = {
   dojo: { label: 'Dojo', desc: 'Tradição e disciplina.' },
   temple: { label: 'Templo', desc: 'Equilíbrio e poder espiritual.' },
   prison: { label: 'Prisão', desc: 'Sem regras. Sem piedade.' },
+  neve: { label: 'Neve', desc: 'Frio que morde antes do golpe.' },
+  deserto: { label: 'Deserto', desc: 'Só os fortes atravessam.' },
+  praia: { label: 'Praia', desc: 'Maré vermelha ao luar.' },
 };
+export const ARENA_KEYS = Object.keys(ARENAS);
 
 export function buildArena(theme = 'dojo') {
   if (theme === 'temple') return buildTemple();
