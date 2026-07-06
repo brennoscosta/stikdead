@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createMatch, stepMatch } from '../game/sim.js';
 import { createBot, botDecide, DIFFICULTIES } from '../game/bot.js';
 import { createInput } from '../game/input.js';
@@ -12,8 +12,10 @@ import '../battle.css';
 const DIFF_LABEL = { facil: 'Fácil', medio: 'Médio', dificil: 'Difícil', insano: 'Insano' };
 
 export default function Battle({ profile, onProfile }) {
+  const [params] = useSearchParams();
+  const initialD = ['facil', 'medio', 'dificil', 'insano'].includes(params.get('d')) ? params.get('d') : 'medio';
   const [screen, setScreen] = useState('select'); // select | fight
-  const [difficulty, setDifficulty] = useState('medio');
+  const [difficulty, setDifficulty] = useState(initialD);
   const [arena, setArena] = useState('random');
 
   const enterGameMode = (d) => {

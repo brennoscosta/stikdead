@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../lib/socket.js';
 import { createPlaza } from '../game/praca.js';
 import Navbar from '../lib/Navbar.jsx';
+import { api } from '../lib/api.js';
+import ItemIcon from '../lib/ItemIcon.jsx';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
@@ -23,10 +25,13 @@ export default function Lobby({ profile, onProfile }) {
   const plazaHost = useRef(null);
   const plazaRef = useRef(null);
   const playersRef = useRef([]);
+  const [missions, setMissions] = useState([]);
+  const [myLoadout, setMyLoadout] = useState([]);
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
     const socket = getSocket();
+
 
     const onPresence = ({ players }) => {
       setPlayers(players);
@@ -86,6 +91,12 @@ export default function Lobby({ profile, onProfile }) {
   }, [incoming]);
 
   useEffect(() => {
+    if (session) return;
+    api('/api/missions').then((d) => setMissions(d.missions)).catch(() => {});
+    api('/api/inventory').then((d) => setMyLoadout(d.loadout)).catch(() => {});
+  }, [session]);
+
+  useEffect(() => {
     if (session || !plazaHost.current) return;
     let alive = true;
     createPlaza(plazaHost.current).then((p) => {
@@ -119,87 +130,128 @@ export default function Lobby({ profile, onProfile }) {
 
   return (
     <><Navbar profile={profile} />
-    {/* destrava o áudio no primeiro gesto */}
-    <div className="scene" onPointerDown={unlockAudio}>
-      <h1 className="brand" style={{ fontSize: 'clamp(40px, 8vw, 60px)' }}>
-        LOBBY <span className="red">ONLINE</span>
-      </h1>
-      <div className="tagline">
-        {players.length} lutador{players.length === 1 ? '' : 'es'} online
-      </div>
+    <div className="lobby2" onPointerDown={unlockAudio}>
+      {notice && <div className="shop-notice err" role="status" style={{ margin: '10px auto 0', maxWidth: 700 }}>{notice}</div>}
 
-      <div className="card" style={{ maxWidth: 460 }}>
-        {notice && <div className="error" role="status">{notice}</div>}
-
-        <button
-          className={`btn ${inQueue ? 'btn-ghost' : 'btn-blood'}`}
-          onClick={() => socket.emit(inQueue ? 'queue:leave' : 'queue:join')}
-        >
-          {inQueue ? 'Procurando oponente... (cancelar)' : '⚔ Buscar partida'}
-        </button>
-
-        <div className="plaza" ref={plazaHost} />
-        <div className="chat-box">
-          <div className="chat-msgs">
-            {chat.map((m, i) => (
-              <div key={i} className="chat-msg"><strong>{m.name}:</strong> {m.text}</div>
-            ))}
-            {chat.length === 0 && <div className="chat-msg" style={{ opacity: 0.5 }}>Diga olá para o lobby…</div>}
-          </div>
-          <form
-            className="chat-input"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const t = chatText.trim();
-              if (!t) return;
-              getSocket().emit('chat:send', { text: t });
-              setChatText('');
-            }}
-          >
-            <input
-              value={chatText}
-              onChange={(e) => setChatText(e.target.value)}
-              maxLength={200}
-              placeholder="Digite sua mensagem…"
-            />
-            <button type="submit">➤</button>
-          </form>
-        </div>
-        <div className="divider">JOGADORES ONLINE</div>
-
-        {others.length === 0 && (
-          <p className="switch-line" style={{ marginTop: 4 }}>
-            Ninguém mais online agora. Use "Buscar partida" ou abra outra aba para testar.
-          </p>
-        )}
-
-        <ul className="lobby-list">
-          {others.map((p) => (
-            <li key={p.id}>
-              <span className="lobby-dot" data-busy={p.inMatch} />
-              <span className="lobby-name">{p.name}</span>
-              <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}</span>
-              {p.inMatch ? (
-                <span className="lobby-busy">EM LUTA</span>
-              ) : (
-                <button
-                  className="lobby-challenge"
-                  disabled={!!sent}
-                  onClick={() => socket.emit('challenge:send', { to: p.id })}
-                >
-                  DESAFIAR
-                </button>
+      <div className="lobby-grid">
+        {/* ===== coluna esquerda: jogadores + chat ===== */}
+        <aside className="lobby-col">
+          <section className="dash-card">
+            <h2>JOGADORES ONLINE ({players.length})</h2>
+            <ul className="lobby-list">
+              {others.length === 0 && (
+                <p className="dash-empty">Ninguém mais online agora. Chame os amigos!</p>
               )}
-            </li>
-          ))}
-        </ul>
+              {others.map((p) => (
+                <li key={p.id}>
+                  <span className="lobby-dot" data-busy={p.inMatch} />
+                  <span className="lobby-name">{p.name}</span>
+                  <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}</span>
+                  {p.inMatch ? (
+                    <span className="lobby-busy">EM LUTA</span>
+                  ) : (
+                    <button
+                      className="lobby-challenge"
+                      disabled={!!sent}
+                      onClick={() => socket.emit('challenge:send', { to: p.id })}
+                    >
+                      DESAFIAR
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+            {sent && <p className="dash-empty">Desafio enviado para {sent}. Aguardando…</p>}
+          </section>
 
-        {sent && <p className="switch-line">Desafio enviado para {sent}. Aguardando...</p>}
+          <section className="dash-card" style={{ flex: 1 }}>
+            <h2>CHAT DO LOBBY</h2>
+            <div className="chat-msgs" style={{ maxHeight: 220 }}>
+              {chat.map((m, i) => (
+                <div key={i} className="chat-msg"><strong>{m.name}:</strong> {m.text}</div>
+              ))}
+              {chat.length === 0 && <div className="chat-msg" style={{ opacity: 0.5 }}>Diga olá para o lobby…</div>}
+            </div>
+            <form
+              className="chat-input"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const t = chatText.trim();
+                if (!t) return;
+                getSocket().emit('chat:send', { text: t });
+                setChatText('');
+              }}
+            >
+              <input
+                value={chatText}
+                onChange={(e) => setChatText(e.target.value)}
+                maxLength={200}
+                placeholder="Digite sua mensagem…"
+              />
+              <button type="submit">➤</button>
+            </form>
+          </section>
+        </aside>
 
-        <button className="btn btn-ghost" style={{ marginTop: 18 }} onClick={() => nav('/perfil')}>
-          Voltar ao perfil
-        </button>
+        {/* ===== centro: praça + ação principal ===== */}
+        <main className="lobby-center">
+          <div className="plaza plaza-big" ref={plazaHost} />
+          <button
+            className="lobby-cta"
+            onClick={() => socket.emit(inQueue ? 'queue:leave' : 'queue:join')}
+          >
+            {inQueue ? '⏳ PROCURANDO OPONENTE… (cancelar)' : '⚔ BUSCAR PARTIDA'}
+            <small>{inQueue ? 'pareamento automático' : 'partida rápida 1v1'}</small>
+          </button>
+          <div className="lobby-quick">
+            <button onClick={() => nav('/treino')}>🤖 TREINO</button>
+            <button onClick={() => nav('/loja')}>🛒 LOJA</button>
+            <button onClick={() => nav('/missoes')}>📜 MISSÕES</button>
+            <button className="soon">🏆 TORNEIO<small>em breve</small></button>
+          </div>
+        </main>
+
+        {/* ===== coluna direita: bot + missões ===== */}
+        <aside className="lobby-col">
+          <section className="dash-card">
+            <h2>JOGAR COM BOT</h2>
+            <p className="dash-empty" style={{ marginBottom: 10 }}>Treine suas habilidades contra a IA.</p>
+            <div className="lobby-bot-row">
+              {[['facil', 'FÁCIL'], ['medio', 'MÉDIO'], ['dificil', 'DIFÍCIL'], ['insano', 'INSANO']].map(([d, l]) => (
+                <button key={d} className={d === 'insano' ? 'hot' : ''} onClick={() => nav(`/treino?d=${d}`)}>{l}</button>
+              ))}
+            </div>
+          </section>
+
+          <section className="dash-card">
+            <h2>MISSÕES DIÁRIAS</h2>
+            {missions.slice(0, 3).map((m) => (
+              <div key={m.id} className="lobby-mission">
+                <span>{m.label}</span>
+                <div className="mission-bar"><div className="mission-fill" style={{ width: `${Math.min(100, (m.progress / m.goal) * 100)}%` }} /></div>
+                <small>{Math.min(m.progress, m.goal)}/{m.goal} · 🪙 {m.coins}</small>
+              </div>
+            ))}
+            <button className="btn btn-ghost" style={{ marginTop: 10 }} onClick={() => nav('/missoes')}>
+              VER TODAS
+            </button>
+          </section>
+        </aside>
       </div>
+
+      {/* ===== barra da build atual ===== */}
+      <section className="lobby-build">
+        <h2>SUA BUILD ATUAL</h2>
+        <div className="lobby-build-row">
+          {myLoadout.length === 0 && <p className="dash-empty">Nada equipado — visite a loja!</p>}
+          {myLoadout.map((it) => (
+            <button key={it.slot} className={`item-card mini r-${it.rarity}`} onClick={() => nav('/inventario')}>
+              <ItemIcon item={it} size={38} />
+              <span className="item-name">{it.name}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
       {incoming && (
         <div className="bt-overlay">

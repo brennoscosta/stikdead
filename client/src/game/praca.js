@@ -7,7 +7,7 @@ const MAX_WALKERS = 14;
 
 export async function createPlaza(host) {
   const app = new Application();
-  await app.init({ background: '#e7dfcf', resizeTo: host, antialias: true });
+  await app.init({ background: '#120a0e', resizeTo: host, antialias: true });
   host.appendChild(app.canvas);
   app.canvas.style.display = 'block';
 
@@ -19,31 +19,48 @@ export async function createPlaza(host) {
   world.addChild(bg);
 
   const actors = new Map(); // id -> { f, g, tag, name, speed, timer }
+  const halos = new Graphics();
   const layer = new Container();
-  world.addChild(layer);
+  world.addChild(halos, layer);
 
   let elapsed = 0;
   let W = 0, H = 0;
 
   const drawBg = () => {
     bg.clear();
-    bg.rect(0, 0, W, H).fill(0xece5d6);
-    bg.circle(W * 0.82, H * 0.28, Math.min(64, H * 0.3)).fill({ color: 0xb0031f, alpha: 0.85 });
-    bg.circle(W * 0.82, H * 0.28, Math.min(64, H * 0.3) + 10).stroke({ width: 3, color: 0xb0031f, alpha: 0.25 });
-    // silhueta de templo ao fundo
-    const tx = W * 0.14, ty = H - 46;
-    bg.moveTo(tx - 60, ty).lineTo(tx - 60, ty - 54).lineTo(tx - 74, ty - 54).lineTo(tx, ty - 92)
-      .lineTo(tx + 74, ty - 54).lineTo(tx + 60, ty - 54).lineTo(tx + 60, ty).closePath()
-      .fill({ color: 0x2b2620, alpha: 0.16 });
-    bg.rect(0, H - 40, W, 40).fill(0xcdb891);
-    bg.moveTo(0, H - 40).lineTo(W, H - 40).stroke({ width: 4, color: 0x6d5a3c });
+    bg.rect(0, 0, W, H).fill(0x120a0e);
+    // lua vermelha grande
+    const mx = W * 0.5, my = H * 0.3, mr = Math.min(H * 0.42, 90);
+    bg.circle(mx, my, mr * 1.5).fill({ color: 0x3d0713, alpha: 0.5 });
+    bg.circle(mx, my, mr).fill(0x8f0620);
+    bg.circle(mx, my, mr).fill({ color: 0xb0031f, alpha: 0.6 });
+    bg.circle(mx - mr * 0.3, my - mr * 0.2, mr * 0.2).fill({ color: 0x6b0417, alpha: 0.5 });
+    // templo em silhueta atrás da lua
+    const ty = H - 44;
+    for (const [tx, sc] of [[W * 0.14, 1], [W * 0.86, 0.8]]) {
+      bg.moveTo(tx - 60 * sc, ty).lineTo(tx - 60 * sc, ty - 50 * sc).lineTo(tx - 76 * sc, ty - 50 * sc)
+        .lineTo(tx, ty - 90 * sc).lineTo(tx + 76 * sc, ty - 50 * sc).lineTo(tx + 60 * sc, ty - 50 * sc)
+        .lineTo(tx + 60 * sc, ty).closePath().fill({ color: 0x1c1014, alpha: 0.95 });
+      // lanternas penduradas
+      for (const lx of [-40 * sc, 40 * sc]) {
+        bg.circle(tx + lx, ty - 34 * sc, 5).fill({ color: 0xff5a3c, alpha: 0.85 });
+        bg.circle(tx + lx, ty - 34 * sc, 11).fill({ color: 0xd93c1f, alpha: 0.16 });
+      }
+    }
+    // faixa STIKDEAD ao fundo
+    bg.rect(mx - 90, my - mr - 26, 180, 6).fill({ color: 0x2a161c, alpha: 0.9 });
+    // chão de pedra escuro
+    bg.rect(0, H - 40, W, 40).fill(0x1c1216);
+    bg.moveTo(0, H - 40).lineTo(W, H - 40).stroke({ width: 3, color: 0x8f0620, alpha: 0.6 });
+    for (let i = 0; i < Math.ceil(W / 90); i++)
+      bg.moveTo(i * 90 + 20, H - 40).lineTo(i * 90, H).stroke({ width: 2, color: 0x2a1a20 });
   };
 
   const spawn = (p) => {
     const g = new Graphics();
     const tag = new Text({
       text: p.name,
-      style: { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, fill: 0x2b2620, letterSpacing: 1 },
+      style: { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, fill: 0xe8e4da, letterSpacing: 1 },
     });
     tag.anchor.set(0.5, 1);
     layer.addChild(g, tag);
@@ -66,6 +83,11 @@ export async function createPlaza(host) {
     if (w !== W || h !== H) { W = w; H = h; drawBg(); }
 
     const scale = Math.min(0.62, H / 300);
+    halos.clear();
+    for (const a of actors.values()) {
+      halos.ellipse(a.f.x * scale, H - 40 - 60 * scale, 40 * scale, 70 * scale).fill({ color: 0xffe8d6, alpha: 0.045 });
+      halos.ellipse(a.f.x * scale, H - 42, 30 * scale, 6).fill({ color: 0xd90429, alpha: 0.12 });
+    }
     for (const a of actors.values()) {
       a.f.t += dt;
       a.timer -= dt;
@@ -81,6 +103,7 @@ export async function createPlaza(host) {
         if (a.f.x < margin) { a.f.x = margin; a.f.face = 1; }
         if (a.f.x > W / scale - margin) { a.f.x = W / scale - margin; a.f.face = -1; }
       }
+      // halo de luz da lua atrás do boneco (contraste no escuro)
       a.g.position.set(0, H - 40);
       a.g.scale.set(scale);
       drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, a.loadout);
