@@ -13,12 +13,15 @@ export function tierFor(points) {
   return `${TIERS[Math.floor(step / 3)]}_${SUB[step % 3]}`;
 }
 
-export function computeRewards({ won, stats = {}, winsB = 0, diffMult = 1, factor = 1, streak = 0 }) {
-  const base = won ? BASE.win : BASE.loss;
+export function computeRewards({ won, stats = {}, winsB = 0, diffMult = 1, factor = 1, streak = 0, training = false }) {
+  // derrota: 0 XP; no online, multa fixa de 200 moedas (treino não multa)
+  if (!won) return { xp: 0, coins: training ? 0 : -200, bonuses: [] };
+
+  const base = BASE.win;
   let xp = base.xp;
   const bonuses = [];
 
-  if (won && winsB === 0) { xp += 50; bonuses.push({ label: 'Perfeito', xp: 50 }); }
+  if (winsB === 0) { xp += 50; bonuses.push({ label: 'Perfeito', xp: 50 }); }
   if ((stats.maxCombo || 0) >= 8) { xp += 30; bonuses.push({ label: 'Combo insano', xp: 30 }); }
   if (won && stats.finisher) { xp += 20; bonuses.push({ label: 'Finalização', xp: 20 }); }
   if (won && streak >= 2) {

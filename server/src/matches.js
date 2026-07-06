@@ -38,7 +38,7 @@ router.post('/training', requireAuth, async (req, res) => {
     finisher: !!stats.finisher,
   };
 
-  const rewards = computeRewards({ won, difficulty, stats: safeStats, winsB: wins[1] });
+  const rewards = computeRewards({ won, difficulty, stats: safeStats, winsB: wins[1], training: true });
 
   const client = await pool.connect();
   try {
@@ -50,7 +50,7 @@ router.post('/training', requireAuth, async (req, res) => {
     const p = rows[0];
     const lv = applyXp(p.level, p.xp, rewards.xp);
     await client.query(
-      `UPDATE profiles SET level = $1, xp = $2, coins = coins + $3, updated_at = now()
+      `UPDATE profiles SET level = $1, xp = $2, coins = GREATEST(0, coins + $3), updated_at = now()
         WHERE user_id = $4`,
       [lv.level, lv.xp, rewards.coins, req.userId]
     );

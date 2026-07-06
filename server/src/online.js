@@ -172,7 +172,7 @@ export function attachOnline(io) {
         bumpMissions(room.users[side], m.stats[side] || {}, won);
 
         await client.query(
-          `UPDATE profiles SET level=$1, xp=$2, coins=coins+$3, rank_points=$4, tier=$5,
+          `UPDATE profiles SET level=$1, xp=$2, coins=GREATEST(0, coins+$3), rank_points=$4, tier=$5,
                   wins=wins+$6, losses=losses+$7, win_streak=$8, updated_at=now()
             WHERE user_id=$9`,
           [lv.level, lv.xp, rewards.coins, newRank, tier, won ? 1 : 0, won ? 0 : 1, streak, room.users[side]]
