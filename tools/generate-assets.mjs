@@ -137,7 +137,7 @@ for (const a of queue) {
     process.stdout.write(`⏳ ${a.id}... `);
     const size = a.kind === 'icon' ? '1536x1536' : '2048x1152';
     const runOnce = (prompt) => higgsfield.subscribe(ENDPOINT, {
-      input: { prompt, width_and_height: size, quality: '1080p', batch_size: 1, enhance_prompt: false },
+      input: { params: { prompt, width_and_height: size, quality: '1080p', batch_size: 1, enhance_prompt: false } },
       withPolling: true,
     });
     let jobSet = await runOnce(a.prompt);
