@@ -5,6 +5,7 @@ import { drawFighter } from './rig.js';
 import { buildArena, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
 
 export async function createRenderer(host, theme = 'dojo') {
+  console.log('[stikdead] renderer v7.3 — cobertura dinâmica ativa');
   const app = new Application();
   await app.init({ background: '#e7dfcf', resizeTo: host, antialias: true });
   host.appendChild(app.canvas);
@@ -21,6 +22,9 @@ export async function createRenderer(host, theme = 'dojo') {
   let arenaSpr = null;
   try {
     const tex = await Assets.load(`/arenas/${theme}.webp`);
+    const backing = new Graphics();
+    backing.rect(-6000, -6000, 12000, 12000).fill(0x0b0709);
+    world.addChild(backing);
     arenaSpr = new Sprite(tex);
     world.addChild(arenaSpr);
     painted = true;
@@ -30,6 +34,7 @@ export async function createRenderer(host, theme = 'dojo') {
   }
   const fighterHalos = new Graphics();
   world.addChild(fighterHalos);
+  if (painted) { tagStyle.fill = 0xf2efe9; tagStyle.dropShadow = { distance: 2, blur: 3, alpha: 0.8 }; }
   const gA = new Graphics();
   const gB = new Graphics();
   world.addChild(gA, gB);
