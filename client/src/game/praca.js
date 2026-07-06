@@ -1,5 +1,5 @@
 // STIKDEAD :: praça do lobby — jogadores online passeando com suas builds
-import { Application, Container, Graphics, Text } from 'pixi.js';
+import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
 import { drawFighter } from './rig.js';
 import { MOVES } from './sim.js';
 
@@ -14,9 +14,14 @@ export async function createPlaza(host) {
   const world = new Container();
   app.stage.addChild(world);
 
-  // cenário: papel, lua vermelha, faixa e chão
+  // cenário: pintado (se existir) com fallback vetorial noturno
   const bg = new Graphics();
   world.addChild(bg);
+  let paintedSpr = null;
+  Assets.load('/arenas/praca.webp').then((tex) => {
+    paintedSpr = new Sprite(tex);
+    world.addChildAt(paintedSpr, 1);
+  }).catch(() => {});
 
   const actors = new Map(); // id -> { f, g, tag, name, speed, timer }
   const halos = new Graphics();
@@ -81,6 +86,12 @@ export async function createPlaza(host) {
     const w = app.renderer.width / app.renderer.resolution;
     const h = app.renderer.height / app.renderer.resolution;
     if (w !== W || h !== H) { W = w; H = h; drawBg(); }
+    if (paintedSpr) {
+      bg.visible = false;
+      const k = Math.max(W / paintedSpr.texture.width, H / paintedSpr.texture.height);
+      paintedSpr.scale.set(k);
+      paintedSpr.position.set((W - paintedSpr.texture.width * k) / 2, (H - paintedSpr.texture.height * k) / 2);
+    }
 
     const scale = Math.min(0.62, H / 300);
     halos.clear();

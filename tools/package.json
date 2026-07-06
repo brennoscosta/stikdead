@@ -1,0 +1,9 @@
+{
+  "name": "stikdead-tools",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@higgsfield/client": "^0.2.1",
+    "sharp": "^0.33.0"
+  }
+}

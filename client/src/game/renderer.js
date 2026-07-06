@@ -1,5 +1,5 @@
 // STIKDEAD :: renderizador da batalha (PixiJS)
-import { Application, Container, Graphics, Text } from 'pixi.js';
+import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
 import { MOVES } from './sim.js';
 import { drawFighter } from './rig.js';
 import { buildArena, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
@@ -16,7 +16,23 @@ export async function createRenderer(host, theme = 'dojo') {
   const world = new Container();
   camera.addChild(world);
 
-  world.addChild(buildArena(theme));
+  // arena pintada (se existir em /arenas/{tema}.webp) com fallback vetorial
+  let painted = false;
+  try {
+    const tex = await Assets.load(`/arenas/${theme}.webp`);
+    const spr = new Sprite(tex);
+    const wTotal = WORLD.width + 400;
+    const k = wTotal / tex.width;
+    spr.scale.set(k);
+    // terço inferior da arte = faixa de luta: o chão (y=0) cai em ~82% da altura
+    spr.position.set(WORLD.left - 200, -tex.height * k * 0.82);
+    world.addChild(spr);
+    painted = true;
+  } catch {
+    world.addChild(buildArena(theme));
+  }
+  const fighterHalos = new Graphics();
+  world.addChild(fighterHalos);
   const gA = new Graphics();
   const gB = new Graphics();
   world.addChild(gA, gB);
@@ -67,6 +83,13 @@ export async function createRenderer(host, theme = 'dojo') {
     }
 
     const [a, b] = match.fighters;
+    fighterHalos.clear();
+    if (painted) {
+      for (const f of [a, b]) {
+        fighterHalos.ellipse(f.x, -(f.y + 66), 44, 78).fill({ color: 0xffe8d6, alpha: 0.05 });
+        fighterHalos.ellipse(f.x, -2, 34, 7).fill({ color: 0xd90429, alpha: 0.14 });
+      }
+    }
     drawFighter(gA, a, MOVES, 0xd90429, elapsed, loadouts[0]);
     drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, loadouts[1]);
     tagA.text = names[0];

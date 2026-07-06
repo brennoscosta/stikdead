@@ -1,0 +1,148 @@
+// STIKDEAD :: fábrica de assets via Higgsfield SDK
+// Uso (no VPS, dentro de tools/):
+//   npm install
+//   HF_CREDENTIALS="KEY_ID:KEY_SECRET" node generate-assets.mjs --group=arenas
+// Grupos: arenas | praca | katana | lote2 | lote3 | lote4 | tudo
+// Flags: --only=<id>  --force (regenera mesmo se o arquivo existir)
+import { higgsfield } from '@higgsfield/client/v2';
+import sharp from 'sharp';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const ITEMS_DIR = path.join(ROOT, 'client/public/items');
+const ARENAS_DIR = path.join(ROOT, 'client/public/arenas');
+const ENDPOINT = 'flux-pro/kontext/max/text-to-image';
+
+const STYLE_ICON = (subject, vign) =>
+  `Video game shop item icon for a dark fantasy stick-figure fighting game. ${subject} ` +
+  `Floating and perfectly centered. Very dark charcoal black background with ${vign}. ` +
+  `Painterly AAA mobile game art style, dramatic rim lighting, high contrast, rich detail. ` +
+  `No text, no watermark, no border, no frame.`;
+
+const VIGN = {
+  comum: 'a subtle neutral dark vignette, faint gray dust wisps',
+  raro: 'a deep cold blue vignette glow, cold blue mist wisps',
+  epico: 'a deep purple vignette glow, purple arcane mist wisps',
+  lendario: 'a deep red vignette glow, fiery red ember particles and smoke wisps',
+};
+
+const STYLE_ARENA = (scene) =>
+  `Fighting game arena background, dark fantasy painterly style, cinematic moody lighting, ` +
+  `deep shadows, blood-red accents, ink-splatter details. ${scene} ` +
+  `The lower third of the image is a clean flat empty ground strip with no objects, ready for game characters. ` +
+  `No characters, no people, no text, no watermark, no UI.`;
+
+const ASSETS = {
+  arenas: [
+    { id: 'dojo', kind: 'arena', prompt: STYLE_ARENA('Interior of a sinister Japanese dojo at night: worn dark wooden floor, torn shoji paper walls lit dimly from behind, hanging paper lanterns with faint red glow, a large torn scroll with a red brush circle mark, wooden pillars, faint mist.') },
+    { id: 'temple', kind: 'arena', prompt: STYLE_ARENA('Ancient temple courtyard at night: a giant weathered stone Buddha statue looming in the back with a faint red halo, stone columns with red banners, incense smoke curling up, cracked stone floor, embers floating.') },
+    { id: 'prison', kind: 'arena', prompt: STYLE_ARENA('Grim prison yard at night: massive stone walls with barred windows, heavy chains hanging, a barred iron gate in the center back, red claw marks on the wall, cold moonlight, cracked concrete floor.') },
+  ],
+  praca: [
+    { id: 'praca', kind: 'arena', prompt: STYLE_ARENA('Wide night plaza of an ancient Japanese temple village under a giant blood-red moon: stone courtyard, pagoda silhouettes on both sides, glowing paper lanterns strung between poles, red banners, drifting embers and mist. The center of the plaza is open and empty.') },
+  ],
+  katana: [
+    { id: 'katana_infernal', kind: 'icon', rarity: 'lendario', prompt: STYLE_ICON('A legendary Japanese katana with a glowing blood-red blade, dark wrapped handle with red cord, floating diagonally.', VIGN.lendario) },
+  ],
+  lote2: [
+    { id: 'faixa_vermelha', kind: 'icon', prompt: STYLE_ICON('A red ninja headband with long flowing tails, fabric texture.', VIGN.comum) },
+    { id: 'faixa_branca', kind: 'icon', prompt: STYLE_ICON('A white ninja headband with long flowing tails, fabric texture.', VIGN.comum) },
+    { id: 'chapeu_palha', kind: 'icon', prompt: STYLE_ICON('A traditional Asian conical straw hat (kasa), woven texture, slightly worn.', VIGN.raro) },
+    { id: 'capuz_sombrio', kind: 'icon', prompt: STYLE_ICON('A dark assassin hood, deep black fabric with heavy shadow inside, tattered edges.', VIGN.epico) },
+    { id: 'coroa', kind: 'icon', prompt: STYLE_ICON('A golden royal crown with sharp points and a single red gem in the center.', VIGN.lendario) },
+    { id: 'bandana_preta', kind: 'icon', prompt: STYLE_ICON('A black cloth face bandana mask, lower-face cover with tied knot.', VIGN.comum) },
+    { id: 'bandana_vermelha', kind: 'icon', prompt: STYLE_ICON('A red cloth face bandana mask, lower-face cover with tied knot.', VIGN.comum) },
+    { id: 'olhos_vermelhos', kind: 'icon', prompt: STYLE_ICON('Two glowing angry red eyes floating in darkness, fierce anime style, red energy trails.', VIGN.raro) },
+    { id: 'mascara_caveira', kind: 'icon', prompt: STYLE_ICON('A white skull face mask, bone texture, dark eye sockets, sinister.', VIGN.raro) },
+    { id: 'mascara_hockey', kind: 'icon', prompt: STYLE_ICON('A worn white hockey mask with air holes, horror style, scratches.', VIGN.raro) },
+    { id: 'mascara_oni', kind: 'icon', prompt: STYLE_ICON('A japanese red oni demon mask with white horns, fierce white eyes and grimacing mouth.', VIGN.epico) },
+  ],
+  lote3: [
+    { id: 'cachecol_cinza', kind: 'icon', prompt: STYLE_ICON('A gray fabric scarf with flowing windswept tails.', VIGN.comum) },
+    { id: 'cachecol_vermelho', kind: 'icon', prompt: STYLE_ICON('A vivid red fabric scarf with flowing windswept tails.', VIGN.raro) },
+    { id: 'colete', kind: 'icon', prompt: STYLE_ICON('A dark leather combat vest with straps and buckles.', VIGN.raro) },
+    { id: 'armadura_ronin', kind: 'icon', prompt: STYLE_ICON('A dark red ronin samurai chest armor with lacquered plates and red cords.', VIGN.epico) },
+    { id: 'armadura_infernal', kind: 'icon', prompt: STYLE_ICON('A black demonic chest armor with glowing red cracks and ember veins.', VIGN.lendario) },
+    { id: 'bainha', kind: 'icon', prompt: STYLE_ICON('A black katana sheath (saya) with red cord wrap, diagonal.', VIGN.comum) },
+    { id: 'capa_curta', kind: 'icon', prompt: STYLE_ICON('A short dark gray cape with tattered edge, flowing.', VIGN.raro) },
+    { id: 'capa_guerreiro', kind: 'icon', prompt: STYLE_ICON('A deep crimson warrior cape, heavy fabric, flowing dramatically, tattered edge.', VIGN.epico) },
+    { id: 'bracadeiras', kind: 'icon', prompt: STYLE_ICON('A pair of dark gray cloth arm wraps / wristbands.', VIGN.comum) },
+    { id: 'luvas_combate', kind: 'icon', prompt: STYLE_ICON('A pair of black combat gloves with padded knuckles.', VIGN.raro) },
+    { id: 'luvas_vermelhas', kind: 'icon', prompt: STYLE_ICON('A pair of red fighting gloves with dark straps.', VIGN.raro) },
+    { id: 'manoplas', kind: 'icon', prompt: STYLE_ICON('A pair of heavy steel gauntlets with red rivets, battle-worn metal.', VIGN.epico) },
+  ],
+  lote4: [
+    { id: 'shorts_treino', kind: 'icon', prompt: STYLE_ICON('Dark training shorts with a thin red waistband stripe.', VIGN.comum) },
+    { id: 'calca_ninja', kind: 'icon', prompt: STYLE_ICON('Dark ninja pants with ankle wraps, loose fabric.', VIGN.comum) },
+    { id: 'joelheiras', kind: 'icon', prompt: STYLE_ICON('A pair of dark protective knee pads with straps.', VIGN.raro) },
+    { id: 'tenis_classico', kind: 'icon', prompt: STYLE_ICON('A pair of classic white sneakers with a red stripe.', VIGN.comum) },
+    { id: 'botas', kind: 'icon', prompt: STYLE_ICON('A pair of dark brown leather combat boots, worn.', VIGN.raro) },
+    { id: 'botas_sombrias', kind: 'icon', prompt: STYLE_ICON('A pair of black shadow boots with faint purple glow at the soles.', VIGN.epico) },
+    { id: 'poeira_pes', kind: 'icon', prompt: STYLE_ICON('Stylized gray dust clouds puffing, motion effect.', VIGN.raro) },
+    { id: 'aura_vermelha', kind: 'icon', prompt: STYLE_ICON('A fierce red energy aura flame silhouette rising, particles.', VIGN.epico) },
+    { id: 'aura_caos', kind: 'icon', prompt: STYLE_ICON('A violent purple chaos energy aura with lightning wisps rising.', VIGN.lendario) },
+  ],
+};
+ASSETS.tudo = Object.values(ASSETS).flat();
+
+// ===== execução =====
+const args = Object.fromEntries(process.argv.slice(2).map((a) => {
+  const [k, v] = a.replace(/^--/, '').split('=');
+  return [k, v ?? true];
+}));
+
+if (!process.env.HF_CREDENTIALS && !(process.env.HF_API_KEY && process.env.HF_API_SECRET)) {
+  console.error('Defina HF_CREDENTIALS="KEY_ID:KEY_SECRET" (painel de API do Higgsfield).');
+  process.exit(1);
+}
+const group = ASSETS[args.group];
+if (!group) {
+  console.error(`--group obrigatório. Opções: ${Object.keys(ASSETS).join(' | ')}`);
+  process.exit(1);
+}
+
+fs.mkdirSync(ITEMS_DIR, { recursive: true });
+fs.mkdirSync(ARENAS_DIR, { recursive: true });
+
+const outPath = (a) => a.kind === 'icon'
+  ? path.join(ITEMS_DIR, `${a.id}.webp`)
+  : path.join(ARENAS_DIR, `${a.id}.webp`);
+
+const queue = group.filter((a) => (!args.only || a.id === args.only));
+console.log(`Gerando ${queue.length} asset(s) do grupo "${args.group}"...\n`);
+
+let ok = 0, skip = 0, fail = 0;
+for (const a of queue) {
+  const out = outPath(a);
+  if (fs.existsSync(out) && !args.force) {
+    console.log(`↷ ${a.id} já existe (use --force para regenerar)`);
+    skip++; continue;
+  }
+  try {
+    process.stdout.write(`⏳ ${a.id}... `);
+    const jobSet = await higgsfield.subscribe(ENDPOINT, {
+      input: {
+        prompt: a.prompt,
+        aspect_ratio: a.kind === 'icon' ? '1:1' : '16:9',
+        safety_tolerance: 2,
+      },
+      withPolling: true,
+    });
+    const url = jobSet.jobs?.[0]?.results?.raw?.url;
+    if (!jobSet.isCompleted || !url) throw new Error(`job não completou (${jobSet.jobs?.[0]?.status})`);
+    const buf = Buffer.from(await (await fetch(url)).arrayBuffer());
+    const img = sharp(buf);
+    if (a.kind === 'icon') await img.resize(256, 256).webp({ quality: 82 }).toFile(out);
+    else await img.resize({ width: 1920 }).webp({ quality: 80 }).toFile(out);
+    const kb = Math.round(fs.statSync(out).size / 1024);
+    console.log(`✓ salvo (${kb} KB)`);
+    ok++;
+  } catch (err) {
+    console.log(`✗ FALHOU: ${err.message}`);
+    fail++;
+  }
+}
+console.log(`\nResumo: ${ok} gerados, ${skip} pulados, ${fail} falhas.`);
+if (ok > 0) console.log('Agora: cd ../client && npm run build   (e commit dos novos assets)');
