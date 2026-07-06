@@ -751,5 +751,8 @@ body {
 .item-slot { color: #9a938a; }
 
 /* ===== logo pintada ===== */
-.topnav-logo img { height: 30px; display: block; }
-.bt-loading-logo { width: min(280px, 60vw); filter: drop-shadow(0 4px 18px rgba(217, 4, 41, 0.35)); }
+.topnav-logo img { height: 46px; display: block; }
+.bt-loading-logo { width: min(400px, 78vw); filter: drop-shadow(0 4px 18px rgba(217, 4, 41, 0.35)); }
+
+/* logo dentro de títulos de página */
+.h1-logo { height: 0.95em; vertical-align: -0.14em; margin-left: 0.18em; }

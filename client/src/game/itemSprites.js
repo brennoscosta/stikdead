@@ -19,13 +19,13 @@ const CFG = {
   dual_blades: { attach: 'hand', len: 46, grip: 0.85 },
   arco: { attach: 'hand', len: 66, grip: 0.5 },
   // ----- cabeça (assenta no topo) -----
-  chapeu_palha: { attach: 'head', len: 26, maxW: 52, overlap: 9 },
-  coroa: { attach: 'head', len: 18, maxW: 26, overlap: 5 },
-  capuz_sombrio: { attach: 'head', len: 40, maxW: 42, overlap: 26 },
+  chapeu_palha: { attach: 'head', len: 36, maxW: 74, overlap: 12 },
+  coroa: { attach: 'head', len: 26, maxW: 36, overlap: 7 },
+  capuz_sombrio: { attach: 'head', len: 54, maxW: 54, overlap: 34 },
   // ----- rosto (centrado na cabeça) -----
-  mascara_caveira: { attach: 'face', len: 27, maxW: 25 },
-  mascara_oni: { attach: 'face', len: 29, maxW: 27 },
-  mascara_hockey: { attach: 'face', len: 27, maxW: 25 },
+  mascara_caveira: { attach: 'face', len: 36, maxW: 34 },
+  mascara_oni: { attach: 'face', len: 38, maxW: 36 },
+  mascara_hockey: { attach: 'face', len: 36, maxW: 34 },
   // ----- costas -----
   bainha: { attach: 'back', len: 58, grip: 0.5, rot: 0.6, maxW: 16 },
 };

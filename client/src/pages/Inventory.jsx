@@ -65,7 +65,7 @@ export default function Inventory({ profile }) {
     <div className="scene scene-nav">
       <Navbar profile={profile} />
       <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
-        MEU <span className="red">STICK</span>
+        MEU <img className="h1-logo" src="/logo.webp" alt="STIKDEAD" />
       </h1>
       <div className="tagline">Arraste do baú para equipar (ou toque no item)</div>
       {notice && <div className="shop-notice err" role="alert">{notice}</div>}

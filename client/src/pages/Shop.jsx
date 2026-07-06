@@ -47,7 +47,7 @@ export default function Shop({ profile, onProfile }) {
     <div className="scene scene-nav">
       <Navbar profile={profile} />
       <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
-        LOJA <span className="red">STIKDEAD</span>
+        LOJA <img className="h1-logo" src="/logo.webp" alt="STIKDEAD" />
       </h1>
       <div className="coins-pill">🪙 {coins.toLocaleString('pt-BR')} moedas</div>
 
