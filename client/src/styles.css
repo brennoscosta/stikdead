@@ -716,3 +716,32 @@ body {
 .lobby-build h2 { font: 700 14px 'Barlow Condensed', sans-serif; letter-spacing: 0.14em; color: var(--muted); margin: 0 0 8px; }
 .lobby-build-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
 .lobby-build-row .item-card.mini { min-width: 96px; }
+
+/* ===== ícones: fundo fundido + hover vivo (loja/baú) ===== */
+.item-icon img,
+.item-icon svg {
+  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 98%);
+  mask-image: radial-gradient(closest-side, #000 58%, transparent 98%);
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+.item-card { transition: transform 0.18s ease, box-shadow 0.25s ease; }
+.item-card:hover { transform: translateY(-3px); }
+.item-card:hover .item-icon img,
+.item-card:hover .item-icon svg {
+  animation: item-spin 0.7s cubic-bezier(0.34, 1.4, 0.5, 1);
+  filter: brightness(1.35) saturate(1.15);
+}
+@keyframes item-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.22); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+/* brilho na cor da raridade */
+.item-card.r-comum:hover { box-shadow: 0 0 18px rgba(138, 131, 119, 0.35); }
+.item-card.r-comum:hover .item-icon img { filter: brightness(1.35) drop-shadow(0 0 8px rgba(200, 195, 185, 0.7)); }
+.item-card.r-raro:hover { box-shadow: 0 0 20px rgba(61, 123, 217, 0.45); }
+.item-card.r-raro:hover .item-icon img { filter: brightness(1.35) drop-shadow(0 0 10px rgba(61, 123, 217, 0.9)); }
+.item-card.r-epico:hover { box-shadow: 0 0 22px rgba(139, 92, 246, 0.5); }
+.item-card.r-epico:hover .item-icon img { filter: brightness(1.35) drop-shadow(0 0 12px rgba(139, 92, 246, 0.95)); }
+.item-card.r-lendario:hover { box-shadow: 0 0 26px rgba(224, 161, 11, 0.55); }
+.item-card.r-lendario:hover .item-icon img { filter: brightness(1.4) drop-shadow(0 0 14px rgba(255, 60, 60, 0.95)); }
