@@ -155,7 +155,8 @@ const outPath = (a) => a.kind === 'icon'
     ? path.join(SPRITES_DIR, `${a.id}.webp`)
     : path.join(ARENAS_DIR, `${a.id}.webp`);
 
-const queue = group.filter((a) => (!args.only || a.id === args.only));
+const onlySet = args.only ? new Set(String(args.only).split(',')) : null;
+const queue = group.filter((a) => (!onlySet || onlySet.has(a.id)));
 console.log(`Gerando ${queue.length} asset(s) do grupo "${args.group}"...\n`);
 
 let ok = 0, skip = 0, fail = 0;
@@ -196,7 +197,20 @@ for (const a of queue) {
         else if (lum > 208 && Math.abs(r - g2) < 14 && Math.abs(g2 - b) < 14)
           data[i + 3] = Math.round(255 * (1 - (lum - 208) / 28));
       }
-      await sharp(data, { raw: info }).trim().resize({ height: 320 }).webp({ quality: 88 }).toFile(out);
+      const trimmed = await sharp(data, { raw: info }).trim({ threshold: 45 }).png().toBuffer();
+      const meta = await sharp(trimmed).metadata();
+      const size = Math.max(meta.width, meta.height);
+      const padL = Math.floor((size - meta.width) / 2);
+      const padT = Math.floor((size - meta.height) / 2);
+      await sharp(trimmed)
+        .extend({
+          top: padT, bottom: size - meta.height - padT,
+          left: padL, right: size - meta.width - padL,
+          background: { r: 0, g: 0, b: 0, alpha: 0 },
+        })
+        .resize({ height: 320 })
+        .webp({ quality: 88 })
+        .toFile(out);
     }
     else await img.resize({ width: 1920 }).webp({ quality: 80 }).toFile(out);
     const kb = Math.round(fs.statSync(out).size / 1024);
