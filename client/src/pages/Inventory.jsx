@@ -50,6 +50,7 @@ export default function Inventory({ profile }) {
     try {
       const d = await api('/api/loadout', { method: 'PUT', body: { slot, itemId } });
       setLoadout(d.loadout);
+      console.log('[stikdead] loadout salvo:', d.loadout.map((l) => `${l.slot}=${l.id}`).join(' '));
       try { getSocket().emit('loadout:refresh'); } catch { /* offline, sem problema */ }
     } catch (err) {
       setNotice(err.message);

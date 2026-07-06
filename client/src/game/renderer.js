@@ -68,8 +68,8 @@ export async function createRenderer(host, theme = 'dojo') {
   world.addChild(dmgLayer);
   const dmgPool = [];
   const dmgLive = [];
-  const spawnDmg = (e) => {
-    const stack = dmgLive.filter((d) => Math.abs(d.wx - e.x) < 55 && d.life > 0.35).length;
+  const spawnOne = (wx, wy0, text, color, scale) => {
+    const stack = dmgLive.filter((d) => Math.abs(d.wx - wx) < 50 && d.life > 0.3).length;
     const t = dmgPool.pop() || new Text({
       text: '',
       style: {
@@ -79,12 +79,21 @@ export async function createRenderer(host, theme = 'dojo') {
       },
     });
     t.anchor.set(0.5);
-    t.text = `-${e.dmg}`;
-    t.style.fill = e.blocked ? 0x9fd8ff : e.heavy ? 0xff2244 : 0xffffff;
-    t.scale.set(e.blocked ? 0.7 : e.heavy ? 1.35 : 1);
+    t.text = text;
+    t.style.fill = color;
+    t.scale.set(scale);
     t.visible = true;
     dmgLayer.addChild(t);
-    dmgLive.push({ t, wx: e.x, wy: e.y + 14 + stack * 24, vy: 95, life: 0.95, maxLife: 0.95 });
+    dmgLive.push({ t, wx, wy: wy0 + stack * 24, vy: 95, life: 0.95, maxLife: 0.95 });
+  };
+  // vermelho sobre a cabeça de quem PERDEU; verde sobre quem CAUSOU
+  const spawnDmg = (e, match) => {
+    const atk = match?.fighters?.[e.attacker];
+    const def = match?.fighters?.[1 - e.attacker];
+    const headY = (f) => (f?.y || 0) + 178;
+    const sc = e.blocked ? 0.7 : e.heavy ? 1.3 : 1;
+    if (def) spawnOne(def.x, headY(def), `-${e.dmg}`, 0xff3b52, sc);
+    if (atk && !e.blocked) spawnOne(atk.x, headY(atk), `+${e.dmg}`, 0x4ade80, sc * 0.85);
   };
   const stepDmg = (dt) => {
     for (let i = dmgLive.length - 1; i >= 0; i--) {
@@ -157,7 +166,7 @@ export async function createRenderer(host, theme = 'dojo') {
 
     for (const e of events) {
       if (e.type === 'fightstart') fx.shake = Math.max(fx.shake, 10);
-      if (e.type === 'hit') { fxHit(fx, e.x, e.y, e.attacker === 0 ? 1 : -1, e); spawnDmg(e); }
+      if (e.type === 'hit') { fxHit(fx, e.x, e.y, e.attacker === 0 ? 1 : -1, e); spawnDmg(e, match); }
       if (e.type === 'ko') fxKo(fx, e.x, e.y, e.winner === 0 ? 1 : -1);
       if (e.type === 'dash') fxDash(fx, e.x);
     }

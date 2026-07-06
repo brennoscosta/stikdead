@@ -43,8 +43,11 @@ export function createWeaponSprite(container) {
   return {
     async setLoadout(loadout) {
       const wanted = new Map();
-      for (const it of loadout || [])
+      for (const it of loadout || []) {
         if (SPRITE_SLOTS.has(it.slot) && CFG[it.id]) wanted.set(it.slot, it.id);
+        else if (SPRITE_SLOTS.has(it.slot) && it.id)
+          console.log(`[stikdead] ${it.slot}=${it.id}: sem sprite configurado, vetor assume`);
+      }
 
       // remove o que saiu
       for (const slot of [...active.keys()])
@@ -60,7 +63,10 @@ export function createWeaponSprite(container) {
           spr.anchor.set(0.5, cfg.grip);
           container.addChild(spr);
           active.set(slot, { spr, cfg, id });
-        } catch { /* sem sprite: vetor assume este item */ }
+          console.log(`[stikdead] sprite pintado ativo: ${slot}=${id} (${tex.width}x${tex.height})`);
+        } catch (err) {
+          console.warn(`[stikdead] sprite ${id} indisponível (${err.message}) — usando vetor`);
+        }
       }
     },
     hasSprite: (slot = 'weapon') => active.has(slot),
