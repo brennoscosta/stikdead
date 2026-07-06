@@ -127,12 +127,22 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       el.classList.toggle('show', !!text);
     };
 
+    const watchdog = setTimeout(() => {
+      if (!alive || !hostRef.current) return;
+      console.error('[stikdead] vigia: carregamento excedeu 12s');
+      setLoading(false);
+      hostRef.current.innerHTML =
+        '<div style="color:#f2efe9;padding:40px;text-align:center;font-family:sans-serif">Falha ao preparar a arena.<br/><a href="/perfil" style="color:#ff8fa3">← Voltar ao perfil</a></div>';
+    }, 12000);
     (async () => {
       let myLoadout = [];
       try {
-        const inv = await api('/api/inventory');
+        const inv = await Promise.race([
+          api('/api/inventory'),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout inventário')), 4000)),
+        ]);
         myLoadout = inv.loadout;
-      } catch { /* segue sem itens */ }
+      } catch (e) { console.warn('[stikdead] sem loadout:', e.message); }
       try {
         renderer = await createRenderer(hostRef.current, arena);
       } catch (err) {
@@ -146,7 +156,9 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       if (!alive) return renderer.destroy();
       renderer.setLoadouts(myLoadout, [{ slot: 'body', template: 'scarf', params: { color: '#777777' } }]);
       renderer.setNames(profile.fighter_name, `BOT · ${DIFF_LABEL[difficulty]}`);
+      clearTimeout(watchdog);
       setLoading(false);
+      console.log('[stikdead] luta pronta');
 
       let last = performance.now();
       let lastCount = null;

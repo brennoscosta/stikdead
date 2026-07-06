@@ -4,10 +4,14 @@ import { MOVES } from './sim.js';
 import { drawFighter } from './rig.js';
 import { buildArena, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
 
+const withTimeout = (p, ms, label) =>
+  Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`timeout: ${label}`)), ms))]);
+
 export async function createRenderer(host, theme = 'dojo') {
-  console.log('[stikdead] renderer v7.3 — cobertura dinâmica ativa');
+  console.log('[stikdead] renderer v7.4 — iniciando, arena =', theme);
   const app = new Application();
-  await app.init({ background: '#e7dfcf', resizeTo: host, antialias: true });
+  await withTimeout(app.init({ background: '#e7dfcf', resizeTo: host, antialias: true }), 10000, 'pixi init');
+  console.log('[stikdead] pixi ok');
   host.appendChild(app.canvas);
   app.canvas.style.display = 'block';
 
@@ -21,7 +25,8 @@ export async function createRenderer(host, theme = 'dojo') {
   let painted = false;
   let arenaSpr = null;
   try {
-    const tex = await Assets.load(`/arenas/${theme}.webp`);
+    const tex = await withTimeout(Assets.load(`/arenas/${theme}.webp`), 8000, 'arte da arena');
+    console.log('[stikdead] arena pintada carregada');
     const backing = new Graphics();
     backing.rect(-6000, -6000, 12000, 12000).fill(0x0b0709);
     world.addChild(backing);
@@ -29,7 +34,8 @@ export async function createRenderer(host, theme = 'dojo') {
     world.addChild(arenaSpr);
     painted = true;
     app.renderer.background.color = 0x0b0709; // qualquer folga fica escura, nunca branca
-  } catch {
+  } catch (err) {
+    console.warn('[stikdead] arte indisponível, usando arena vetorial:', err.message);
     world.addChild(buildArena(theme));
   }
   const fighterHalos = new Graphics();

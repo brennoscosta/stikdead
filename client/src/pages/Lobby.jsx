@@ -382,12 +382,21 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     let lastSentJson = '';
     let lastHeartbeat = 0;
 
+    const watchdog = setTimeout(() => {
+      if (!alive || !hostRef.current) return;
+      console.error('[stikdead] vigia: carregamento online excedeu 12s');
+      setLoading(false);
+      hostRef.current.innerHTML =
+        '<div style="color:#f2efe9;padding:40px;text-align:center;font-family:sans-serif">Falha ao preparar a arena.<br/><a href="/lobby" style="color:#ff8fa3">← Voltar ao lobby</a></div>';
+    }, 12000);
     (async () => {
       try {
         renderer = await createRenderer(hostRef.current, session.arena || 'dojo');
         renderer.setLoadouts(session.players[0]?.loadout, session.players[1]?.loadout);
         renderer.setNames(names[0], names[1]);
+        clearTimeout(watchdog);
         setLoading(false);
+        console.log('[stikdead] luta online pronta');
       } catch (err) {
         console.error(err);
         if (hostRef.current)
