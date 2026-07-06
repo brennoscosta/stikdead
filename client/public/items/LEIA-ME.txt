@@ -1,0 +1,1 @@
+# Coloque aqui os ícones IA: {item_id}.webp (ex: katana_infernal.webp)

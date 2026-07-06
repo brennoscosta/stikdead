@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import { createMatch, stepMatch, EMPTY_INPUT } from '../../shared/sim.js';
 import { q, pool } from './db.js';
 import { computeRewards, applyXp, rankDelta, tierFor, xpForLevel } from './rewards.js';
+import { getLoadout, grantStreakDrop } from './shop.js';
+import { bumpMissions } from './missions.js';
 
 const TICK = 1 / 30;
 const CHALLENGE_TTL = 30_000;
@@ -40,11 +42,14 @@ export function attachOnline(io) {
   });
 
   const presencePayload = () =>
-    [...online.values()].map(({ user }) => ({
+    [...online.values()].map(({ user, loadout }) => ({
       id: user.id, name: user.name, level: user.level, tier: user.tier,
-      inMatch: userRoom.has(user.id),
+      inMatch: userRoom.has(user.id), loadout: loadout || [],
     }));
   const broadcastPresence = () => io.emit('presence', { players: presencePayload() });
+
+  const chatHistory = [];
+  const chatLast = new Map();
 
   const dequeue = (userId) => {
     const i = queue.indexOf(userId);
@@ -66,6 +71,7 @@ export function attachOnline(io) {
     const players = [online.get(idA), online.get(idB)];
     const room = {
       id: roomId,
+      arena: ['dojo', 'temple', 'prison'][Math.floor(Math.random() * 3)],
       users: [idA, idB],
       names: [players[0].user.name, players[1].user.name],
       match: createMatch(),
@@ -80,14 +86,17 @@ export function attachOnline(io) {
     userRoom.set(idA, roomId);
     userRoom.set(idB, roomId);
 
-    players.forEach(({ socket }, side) => {
-      socket.join(roomId);
-      socket.emit('match:start', {
-        roomId, side,
-        players: room.users.map((uid) => {
-          const u = online.get(uid).user;
-          return { name: u.name, level: u.level, tier: u.tier };
-        }),
+    Promise.all(room.users.map((uid) => getLoadout(uid))).then((louts) => {
+      room.loadouts = louts;
+      players.forEach(({ socket }, side) => {
+        socket.join(roomId);
+        socket.emit('match:start', {
+          roomId, side, arena: room.arena,
+          players: room.users.map((uid, s) => {
+            const u = online.get(uid).user;
+            return { name: u.name, level: u.level, tier: u.tier, loadout: louts[s] };
+          }),
+        });
       });
     });
 
@@ -157,6 +166,9 @@ export function attachOnline(io) {
         const lv = applyXp(p.level, p.xp, rewards.xp);
         const newRank = Math.max(0, p.rank_points + (won ? delta.win : -delta.loss));
         const tier = tierFor(newRank);
+        let itemDrop = null;
+        if (won && streak > 0 && streak % 3 === 0) itemDrop = await grantStreakDrop(client, room.users[side]);
+        bumpMissions(room.users[side], m.stats[side] || {}, won);
 
         await client.query(
           `UPDATE profiles SET level=$1, xp=$2, coins=coins+$3, rank_points=$4, tier=$5,
@@ -171,7 +183,7 @@ export function attachOnline(io) {
            Math.round(m.elapsed), m.stats[side], rewards.xp, rewards.coins]
         );
         results[side] = {
-          winnerSide, wo, wins: m.wins,
+          winnerSide, wo, wins: m.wins, itemDrop,
           rewards: { ...rewards, levelsUp: lv.levelsUp },
           rank: { points: newRank, delta: won ? delta.win : -delta.loss, tier },
           profile: { level: lv.level, xp: lv.xp, xpNext: xpForLevel(lv.level), coins: p.coins + rewards.coins },
@@ -205,6 +217,30 @@ export function attachOnline(io) {
     const prev = online.get(user.id);
     if (prev) prev.socket.disconnect(true);
     online.set(user.id, { socket, user });
+    getLoadout(user.id).then((l) => {
+      const entry = online.get(user.id);
+      if (entry && entry.socket === socket) { entry.loadout = l; broadcastPresence(); }
+    }).catch(() => {});
+
+    // chat do lobby
+    socket.emit('chat:history', { messages: chatHistory });
+    socket.on('chat:send', (payload) => {
+      const text = String(payload?.text || '').trim().slice(0, 200);
+      if (!text) return;
+      const now = Date.now();
+      if (now - (chatLast.get(user.id) || 0) < 1000) return; // 1 msg/s
+      chatLast.set(user.id, now);
+      const msg = { name: user.name, text, ts: now };
+      chatHistory.push(msg);
+      if (chatHistory.length > 50) chatHistory.shift();
+      io.emit('chat:msg', msg);
+    });
+    socket.on('loadout:refresh', () => {
+      getLoadout(user.id).then((l) => {
+        const entry = online.get(user.id);
+        if (entry) { entry.loadout = l; broadcastPresence(); }
+      }).catch(() => {});
+    });
 
     // reconexão a uma sala ativa
     const roomId = userRoom.get(user.id);
@@ -218,10 +254,13 @@ export function attachOnline(io) {
         io.to(roomId).emit('match:resumed');
       }
       socket.emit('match:start', {
-        roomId, side, rejoin: true,
+        roomId, side, rejoin: true, arena: room.arena || 'dojo',
         players: room.users.map((uid, s) => {
           const u = online.get(uid)?.user;
-          return { name: u?.name || room.names[s], level: u?.level || 1, tier: u?.tier || 'BRONZE_III' };
+          return {
+            name: u?.name || room.names[s], level: u?.level || 1,
+            tier: u?.tier || 'BRONZE_III', loadout: room.loadouts?.[s] || [],
+          };
         }),
       });
     }

@@ -1,10 +1,10 @@
 // STIKDEAD :: renderizador da batalha (PixiJS)
-import { Application, Container, Graphics } from 'pixi.js';
+import { Application, Container, Graphics, Text } from 'pixi.js';
 import { MOVES } from './sim.js';
 import { drawFighter } from './rig.js';
-import { buildDojo, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
+import { buildArena, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
 
-export async function createRenderer(host) {
+export async function createRenderer(host, theme = 'dojo') {
   const app = new Application();
   await app.init({ background: '#e7dfcf', resizeTo: host, antialias: true });
   host.appendChild(app.canvas);
@@ -16,11 +16,20 @@ export async function createRenderer(host) {
   const world = new Container();
   camera.addChild(world);
 
-  world.addChild(buildDojo());
+  world.addChild(buildArena(theme));
   const gA = new Graphics();
   const gB = new Graphics();
   world.addChild(gA, gB);
   const fx = createFx(world);
+
+  const tagStyle = { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fill: 0x2b2620, letterSpacing: 1 };
+  const tagA = new Text({ text: '', style: tagStyle });
+  const tagB = new Text({ text: '', style: tagStyle });
+  tagA.anchor.set(0.5, 1);
+  tagB.anchor.set(0.5, 1);
+  world.addChild(tagA, tagB);
+  let loadouts = [null, null];
+  let names = ['', ''];
 
   const flash = new Graphics();
   app.stage.addChild(flash);
@@ -58,8 +67,12 @@ export async function createRenderer(host) {
     }
 
     const [a, b] = match.fighters;
-    drawFighter(gA, a, MOVES, 0xd90429, elapsed);
-    drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed);
+    drawFighter(gA, a, MOVES, 0xd90429, elapsed, loadouts[0]);
+    drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, loadouts[1]);
+    tagA.text = names[0];
+    tagB.text = names[1];
+    tagA.position.set(a.x, -(a.y + 152));
+    tagB.position.set(b.x, -(b.y + 152));
 
     fxStep(fx, dt);
 
@@ -84,6 +97,8 @@ export async function createRenderer(host) {
   return {
     app,
     frame,
+    setLoadouts(la, lb) { loadouts = [la || null, lb || null]; },
+    setNames(na, nb) { names = [na || '', nb || '']; },
     destroy() {
       app.destroy(true, { children: true });
     },

@@ -7,6 +7,10 @@ import Register from './pages/Register.jsx';
 import Profile from './pages/Profile.jsx';
 import Battle from './pages/Battle.jsx';
 import Lobby from './pages/Lobby.jsx';
+import Shop from './pages/Shop.jsx';
+import Inventory from './pages/Inventory.jsx';
+import Missions from './pages/Missions.jsx';
+import Rankings from './pages/Rankings.jsx';
 
 export default function App() {
   const [profile, setProfile] = useState(null);
@@ -55,6 +59,22 @@ export default function App() {
               <Navigate to="/" replace />
             )
           }
+        />
+        <Route
+          path="/loja"
+          element={profile ? <Shop profile={profile} onProfile={setProfile} /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/inventario"
+          element={profile ? <Inventory profile={profile} /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/missoes"
+          element={profile ? <Missions onProfile={setProfile} /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/rankings"
+          element={profile ? <Rankings /> : <Navigate to="/" replace />}
         />
         <Route
           path="/lobby"

@@ -118,6 +118,18 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             <button className="btn btn-ghost" onClick={() => nav('/treino')}>
               Modo treino — lutar contra bot
             </button>
+            <button className="btn btn-ghost" onClick={() => nav('/loja')}>
+              🛒 Loja de itens
+            </button>
+            <button className="btn btn-ghost" onClick={() => nav('/inventario')}>
+              🎒 Baú e inventário
+            </button>
+            <button className="btn btn-ghost" onClick={() => nav('/missoes')}>
+              📜 Missões diárias
+            </button>
+            <button className="btn btn-ghost" onClick={() => nav('/rankings')}>
+              🏆 Ranking Top 100
+            </button>
             <button className="btn btn-ghost" onClick={() => setEditing(true)}>
               Editar nome de lutador
             </button>

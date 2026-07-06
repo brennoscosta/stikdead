@@ -1,17 +1,35 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, setToken } from '../lib/api.js';
+import { createHero } from '../game/hero.js';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export function Brand() {
+  const host = useRef(null);
+  useEffect(() => {
+    let alive = true;
+    let hero = null;
+    createHero(host.current).then((h) => {
+      if (!alive) return h.destroy();
+      hero = h;
+    });
+    return () => {
+      alive = false;
+      hero?.destroy();
+    };
+  }, []);
   return (
     <>
-      <div className="mascot" aria-hidden="true" />
-      <h1 className="brand">
-        STIK<span className="red">DEAD</span>
-      </h1>
-      <div className="tagline">Lute. Morra. Evolua.</div>
+      <div className="hero-wrap">
+        <div className="hero-canvas" ref={host} aria-hidden="true" />
+        <div className="hero-title">
+          <h1 className="brand">
+            STIK<span className="red">DEAD</span>
+          </h1>
+          <div className="tagline hero-tagline">— LUTE. MORRA. EVOLUA. —</div>
+        </div>
+      </div>
     </>
   );
 }

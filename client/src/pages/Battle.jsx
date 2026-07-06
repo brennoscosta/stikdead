@@ -4,6 +4,7 @@ import { createMatch, stepMatch } from '../game/sim.js';
 import { createBot, botDecide, DIFFICULTIES } from '../game/bot.js';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
+import { ARENAS } from '../game/arena.js';
 import { api } from '../lib/api.js';
 import '../battle.css';
 
@@ -12,6 +13,7 @@ const DIFF_LABEL = { facil: 'Fácil', medio: 'Médio', dificil: 'Difícil', insa
 export default function Battle({ profile, onProfile }) {
   const [screen, setScreen] = useState('select'); // select | fight
   const [difficulty, setDifficulty] = useState('medio');
+  const [arena, setArena] = useState('random');
 
   const enterGameMode = (d) => {
     setDifficulty(d);
@@ -25,26 +27,38 @@ export default function Battle({ profile, onProfile }) {
   };
 
   return screen === 'select' ? (
-    <DifficultySelect onPick={enterGameMode} />
+    <DifficultySelect onPick={enterGameMode} arena={arena} setArena={setArena} />
   ) : (
     <Fight
       profile={profile}
       difficulty={difficulty}
+      arena={arena === 'random' ? ['dojo', 'temple', 'prison'][Math.floor(Math.random() * 3)] : arena}
       onExit={exitGameMode}
       onProfile={onProfile}
     />
   );
 }
 
-function DifficultySelect({ onPick }) {
+function DifficultySelect({ onPick, arena, setArena }) {
   const nav = useNavigate();
   return (
     <div className="scene">
       <h1 className="brand" style={{ fontSize: 'clamp(40px, 8vw, 60px)' }}>
         MODO <span className="red">TREINO</span>
       </h1>
-      <div className="tagline">Escolha a dificuldade do bot</div>
+      <div className="tagline">Escolha a arena e a dificuldade do bot</div>
       <div className="card">
+        <div className="arena-row">
+          {['random', 'dojo', 'temple', 'prison'].map((a) => (
+            <button
+              key={a}
+              className={`arena-btn ${arena === a ? 'on' : ''}`}
+              onClick={() => setArena(a)}
+            >
+              {a === 'random' ? '🎲 Aleatória' : ARENAS[a].label}
+            </button>
+          ))}
+        </div>
         {Object.keys(DIFFICULTIES).map((d) => (
           <button
             key={d}
@@ -62,7 +76,7 @@ function DifficultySelect({ onPick }) {
   );
 }
 
-function Fight({ profile, difficulty, onExit, onProfile }) {
+function Fight({ profile, difficulty, arena, onExit, onProfile }) {
   const hostRef = useRef(null);
   const hud = {
     hpA: useRef(null), hpB: useRef(null),
@@ -107,8 +121,13 @@ function Fight({ profile, difficulty, onExit, onProfile }) {
     };
 
     (async () => {
+      let myLoadout = [];
       try {
-        renderer = await createRenderer(hostRef.current);
+        const inv = await api('/api/inventory');
+        myLoadout = inv.loadout;
+      } catch { /* segue sem itens */ }
+      try {
+        renderer = await createRenderer(hostRef.current, arena);
       } catch (err) {
         console.error(err);
         if (hostRef.current)
@@ -118,6 +137,8 @@ function Fight({ profile, difficulty, onExit, onProfile }) {
         return;
       }
       if (!alive) return renderer.destroy();
+      renderer.setLoadouts(myLoadout, [{ slot: 'body', template: 'scarf', params: { color: '#777777' } }]);
+      renderer.setNames(profile.fighter_name, `BOT · ${DIFF_LABEL[difficulty]}`);
 
       let last = performance.now();
       let lastCount = null;
@@ -219,7 +240,7 @@ function Fight({ profile, difficulty, onExit, onProfile }) {
       renderer?.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [difficulty, runId]);
+  }, [difficulty, arena, runId]);
 
   return (
     <div className="bt-root">

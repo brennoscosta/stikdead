@@ -6,6 +6,8 @@ import { attachOnline } from './online.js';
 import cors from 'cors';
 import authRouter from './auth.js';
 import matchesRouter from './matches.js';
+import shopRouter from './shop.js';
+import missionsRouter from './missions.js';
 import { q } from './db.js';
 
 if (!process.env.JWT_SECRET) {
@@ -29,6 +31,8 @@ app.get('/api/health', async (_req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/matches', matchesRouter);
+app.use('/api', shopRouter);
+app.use('/api', missionsRouter);
 
 app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 

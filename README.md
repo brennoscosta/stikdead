@@ -117,6 +117,29 @@ O jogo agora é multiplayer de verdade. Botão **"Lobby online"** no perfil.
 
 Este é o momento de subir: siga o **DEPLOY.md** (Nginx + SSL + PM2 + firewall + backup prontos em `deploy/`).
 
+## Fase 5 — Economia (incluída neste pacote)
+
+O loop central está fechado: lutar → ganhar → comprar → equipar → lutar mais estiloso.
+
+- **Boneco glossy**: o lutador ganhou o acabamento do model sheet (contorno, volume, brilho) — desenhado por código a cada frame, e nametags sobre os lutadores.
+- **Catálogo de 42 itens** (migração `003_economy.sql`): armas, cabeça, rosto, corpo, costas, braços, pernas, pés e efeitos, em 4 raridades com preços do blueprint. Cada item = template paramétrico desenhado **preso aos ossos do rig** (`itemsArt.js`) — a katana balança com o braço, a capa voa, a aura pulsa.
+- **Loja** (`/loja`): cards com borda de raridade, filtro por slot, compra validada no servidor (saldo, duplicata).
+- **Baú + inventário** (`/inventario`): preview ao vivo do boneco equipado (com botões de pose), arrastar do baú para o slot (ou clique/toque para equipar), validação de slot no servidor.
+- **Itens em combate**: sua build aparece na luta (treino e online — o oponente vê a sua). O bot usa cachecol cinza.
+- **Baú de sequência**: a cada 3 vitórias seguidas no PvP, o servidor sorteia um item comum/raro que você ainda não tem — "🎁 NOVO ITEM" na tela de resultado.
+- **Arte IA plugável**: coloque `client/public/items/{id}.webp` (gerados no Higgsfield) e o ícone ilustrado substitui o vetor automaticamente.
+- **Rotas novas**: `GET /api/shop`, `POST /api/shop/buy`, `GET /api/inventory`, `PUT /api/loadout`.
+
+## Fase 6 — Lobby vivo (incluída neste pacote)
+
+- **3 arenas em nanquim** (`arena.js`): Dojo, Templo (estátua, colunas, incenso) e Prisão (grades, correntes, marca de garra). No treino você escolhe (ou 🎲 Aleatória); no online o servidor sorteia por sala e todos veem a mesma.
+- **Praça viva no lobby** (`praca.js`): os jogadores online passeiam como bonecos glossy **usando as builds reais** (a presença agora carrega o loadout, atualizado ao equipar), com nametag, lua vermelha e templo ao fundo.
+- **Chat do lobby**: histórico de 50 mensagens, envio via socket com limite de 1 msg/s e 200 caracteres.
+- **Missões diárias** (migração `004_missions.sql`): 3 por dia sorteadas de um pool de 6, progresso alimentado pelas estatísticas reais de treino e PvP no servidor. Coleta paga moedas; completar as 3 libera o **baú diário** (item comum inédito, ou +300 moedas se já tiver todos).
+- **Ranking Top 100** (`/rankings`): tabela com tier colorido, vitórias/derrotas, pontos, medalhas no top 3, sua linha destacada e sua posição global.
+- **Ícones IA**: as 10 armas já têm arte ilustrada do Higgsfield em `client/public/items/`.
+- **Rotas novas**: `GET /api/missions`, `POST /api/missions/claim`, `POST /api/missions/chest`, `GET /api/rankings`.
+
 ## Próxima fase
 
-**Fase 5 — Economia:** loja, baú, inventário com drag & drop, catálogo de itens desenhados, itens equipados visíveis no boneco em luta.
+**Fase 7 — Polimento e deploy final:** sons, tela de carregamento, ajustes de balanceamento e revisão de produção. Depois, **Fase 8 — beta fechado**.

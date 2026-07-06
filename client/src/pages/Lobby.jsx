@@ -15,12 +15,21 @@ export default function Lobby({ profile, onProfile }) {
   const [incoming, setIncoming] = useState(null); // {id, from, expiresAt}
   const [sent, setSent] = useState(null);
   const [session, setSession] = useState(null); // {side, players}
+  const [chat, setChat] = useState([]);
+  const [chatText, setChatText] = useState('');
+  const plazaHost = useRef(null);
+  const plazaRef = useRef(null);
+  const playersRef = useRef([]);
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
     const socket = getSocket();
 
-    const onPresence = ({ players }) => setPlayers(players);
+    const onPresence = ({ players }) => {
+      setPlayers(players);
+      playersRef.current = players;
+      plazaRef.current?.setPlayers(players);
+    };
     const onQueue = ({ inQueue }) => setInQueue(inQueue);
     const onChallenge = ({ id, from, ttl }) =>
       setIncoming({ id, from, expiresAt: Date.now() + ttl });
@@ -31,11 +40,11 @@ export default function Lobby({ profile, onProfile }) {
       setTimeout(() => setNotice(''), 3000);
     };
     const onSent = ({ to }) => setSent(to);
-    const onStart = ({ side, players, rejoin }) => {
+    const onStart = ({ side, players, rejoin, arena }) => {
       setIncoming(null);
       setSent(null);
       setInQueue(false);
-      setSession({ side, players, rejoin });
+      setSession({ side, players, rejoin, arena });
       document.documentElement.requestFullscreen?.().catch(() => {});
     };
 
@@ -45,6 +54,10 @@ export default function Lobby({ profile, onProfile }) {
     socket.on('challenge:cancel', onCancel);
     socket.on('challenge:sent', onSent);
     socket.on('match:start', onStart);
+    const onChatHistory = ({ messages }) => setChat(messages);
+    const onChatMsg = (msg) => setChat((c) => [...c.slice(-49), msg]);
+    socket.on('chat:history', onChatHistory);
+    socket.on('chat:msg', onChatMsg);
 
     return () => {
       socket.off('presence', onPresence);
@@ -53,6 +66,8 @@ export default function Lobby({ profile, onProfile }) {
       socket.off('challenge:cancel', onCancel);
       socket.off('challenge:sent', onSent);
       socket.off('match:start', onStart);
+      socket.off('chat:history', onChatHistory);
+      socket.off('chat:msg', onChatMsg);
     };
   }, []);
 
@@ -66,6 +81,22 @@ export default function Lobby({ profile, onProfile }) {
     }, 250);
     return () => clearInterval(iv);
   }, [incoming]);
+
+  useEffect(() => {
+    if (session || !plazaHost.current) return;
+    let alive = true;
+    createPlaza(plazaHost.current).then((p) => {
+      if (!alive) return p.destroy();
+      plazaRef.current = p;
+      p.setPlayers(playersRef.current);
+    });
+    return () => {
+      alive = false;
+      plazaRef.current?.destroy();
+      plazaRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   if (session)
     return (
@@ -102,6 +133,33 @@ export default function Lobby({ profile, onProfile }) {
           {inQueue ? 'Procurando oponente... (cancelar)' : '⚔ Buscar partida'}
         </button>
 
+        <div className="plaza" ref={plazaHost} />
+        <div className="chat-box">
+          <div className="chat-msgs">
+            {chat.map((m, i) => (
+              <div key={i} className="chat-msg"><strong>{m.name}:</strong> {m.text}</div>
+            ))}
+            {chat.length === 0 && <div className="chat-msg" style={{ opacity: 0.5 }}>Diga olá para o lobby…</div>}
+          </div>
+          <form
+            className="chat-input"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const t = chatText.trim();
+              if (!t) return;
+              getSocket().emit('chat:send', { text: t });
+              setChatText('');
+            }}
+          >
+            <input
+              value={chatText}
+              onChange={(e) => setChatText(e.target.value)}
+              maxLength={200}
+              placeholder="Digite sua mensagem…"
+            />
+            <button type="submit">➤</button>
+          </form>
+        </div>
         <div className="divider">JOGADORES ONLINE</div>
 
         {others.length === 0 && (
@@ -257,7 +315,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
 
     (async () => {
       try {
-        renderer = await createRenderer(hostRef.current);
+        renderer = await createRenderer(hostRef.current, session.arena || 'dojo');
       } catch (err) {
         console.error(err);
         if (hostRef.current)
@@ -482,6 +540,11 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
                 {result.rewards.bonuses?.map((b) => (
                   <div key={b.label} className="bt-bonus">★ {b.label} <span>+{b.xp}</span></div>
                 ))}
+                {result.itemDrop && (
+                  <div className="bt-levelup" style={{ color: '#3d7bd9' }}>
+                    🎁 NOVO ITEM: {result.itemDrop.name}
+                  </div>
+                )}
                 {result.rewards.levelsUp > 0 && (
                   <div className="bt-levelup">LEVEL UP! Nível {result.profile.level}</div>
                 )}
