@@ -30,6 +30,13 @@ const CFG = {
   bainha: { attach: 'back', len: 58, grip: 0.5, rot: 0.6, maxW: 16 },
 };
 
+// ============================================================
+// INTERRUPTOR MESTRE: sprites pintados no boneco (experimental).
+// false = todo o visual em jogo usa o vetor glossy (estável).
+// Para reativar no futuro: true + rodar tools/normalize-sprites.mjs no VPS.
+// ============================================================
+const SPRITES_ENABLED = false;
+
 const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back']);
 
 export function createWeaponSprite(container) {
@@ -42,6 +49,7 @@ export function createWeaponSprite(container) {
 
   return {
     async setLoadout(loadout) {
+      if (!SPRITES_ENABLED) return;
       const wanted = new Map();
       for (const it of loadout || []) {
         if (SPRITE_SLOTS.has(it.slot) && CFG[it.id]) wanted.set(it.slot, it.id);
