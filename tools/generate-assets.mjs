@@ -61,6 +61,13 @@ const ASSETS = {
     { id: 'foice_sangrenta', kind: 'sprite', prompt: STYLE_SPRITE('A cursed scythe with black thorned handle and curved blade glowing crimson red.') },
     { id: 'dual_blades', kind: 'sprite', prompt: STYLE_SPRITE('A single short dark dagger blade with purple mist, vertical.') },
     { id: 'arco', kind: 'sprite', prompt: STYLE_SPRITE('A dark curved bow with taut string and faint purple runes, vertical.') },
+    { id: 'chapeu_palha', kind: 'sprite', prompt: STYLE_SPRITE('A traditional Asian conical straw hat (kasa), FRONT VIEW, wide brim, woven texture.') },
+    { id: 'coroa', kind: 'sprite', prompt: STYLE_SPRITE('A golden royal crown with sharp points and a red gem, FRONT VIEW.') },
+    { id: 'capuz_sombrio', kind: 'sprite', prompt: STYLE_SPRITE('A dark assassin hood shell seen from the FRONT, deep shadow inside, tattered edges.') },
+    { id: 'mascara_caveira', kind: 'sprite', prompt: STYLE_SPRITE('A white skull face mask, FRONT VIEW, dark eye sockets.') },
+    { id: 'mascara_oni', kind: 'sprite', prompt: STYLE_SPRITE('A japanese red oni demon mask with white horns and fierce eyes, FRONT VIEW.') },
+    { id: 'mascara_hockey', kind: 'sprite', prompt: STYLE_SPRITE('A worn white hockey mask with air holes and scratches, FRONT VIEW.') },
+    { id: 'bainha', kind: 'sprite', prompt: STYLE_SPRITE('A black katana sheath (saya) with red cord wrap, perfectly vertical.') },
   ],
   arenas: [
     { id: 'dojo', kind: 'arena', prompt: STYLE_ARENA('Interior of a sinister Japanese dojo at night: worn dark wooden floor, torn shoji paper walls lit dimly from behind, hanging paper lanterns with faint red glow, a large torn scroll with a red brush circle mark, wooden pillars, faint mist.') },

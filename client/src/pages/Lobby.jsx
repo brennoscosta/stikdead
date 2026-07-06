@@ -72,6 +72,9 @@ export default function Lobby({ profile, onProfile }) {
     const onChatMsg = (msg) => setChat((c) => [...c.slice(-49), msg]);
     socket.on('chat:history', onChatHistory);
     socket.on('chat:msg', onChatMsg);
+    socket.emit('presence:get');
+    const onReconnect = () => socket.emit('presence:get');
+    socket.on('connect', onReconnect);
 
     return () => {
       socket.off('presence', onPresence);
@@ -82,6 +85,7 @@ export default function Lobby({ profile, onProfile }) {
       socket.off('match:start', onStart);
       socket.off('chat:history', onChatHistory);
       socket.off('chat:msg', onChatMsg);
+      socket.off('connect', onReconnect);
     };
   }, []);
 

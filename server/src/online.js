@@ -235,6 +235,9 @@ export function attachOnline(io) {
       if (chatHistory.length > 50) chatHistory.shift();
       io.emit('chat:msg', msg);
     });
+    socket.on('presence:get', () => {
+      socket.emit('presence', { players: presencePayload() });
+    });
     socket.on('loadout:refresh', () => {
       getLoadout(user.id).then((l) => {
         const entry = online.get(user.id);
