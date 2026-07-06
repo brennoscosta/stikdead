@@ -537,3 +537,110 @@ body {
   border: 1px solid rgba(217, 4, 41, 0.12);
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
 }
+
+/* ===== navbar do jogo ===== */
+.topnav {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; padding: 10px 18px;
+  background: rgba(12, 9, 11, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #241318;
+}
+.topnav-logo {
+  background: none; border: none; cursor: pointer;
+  font-family: 'Rubik Wet Paint', cursive; font-size: 24px; color: #f2efe9;
+}
+.topnav-logo .red { color: var(--blood); }
+.topnav-links { display: flex; gap: 4px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+.topnav-links a, .topnav-soon {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--muted); text-decoration: none; white-space: nowrap;
+  font: 600 14px 'Barlow Condensed', sans-serif; letter-spacing: 0.08em;
+  padding: 7px 12px; border-radius: 8px;
+}
+.topnav-links a:hover { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+.topnav-links a.on { color: #fff; background: rgba(217, 4, 41, 0.18); }
+.topnav-soon { opacity: 0.35; cursor: default; }
+.topnav-right { display: flex; align-items: center; gap: 12px; }
+.topnav-coins { color: #e0a10b; font-weight: 700; font-size: 15px; white-space: nowrap; }
+.topnav-me { background: none; border: 1px solid var(--line); border-radius: 10px; padding: 5px 12px; cursor: pointer; text-align: right; }
+.topnav-name { display: block; color: var(--text); font-weight: 700; font-size: 14px; }
+.topnav-level { color: var(--muted); font-size: 11.5px; }
+@media (max-width: 640px) { .topnav-label { display: none; } .topnav-name { display: none; } }
+
+/* ===== perfil 2.0 (dashboard) ===== */
+.dash { min-height: 100vh; width: 100%; }
+.dash-hero {
+  position: relative;
+  background: url('/banner.webp') center 30% / cover no-repeat;
+  border-bottom: 1px solid #241318;
+}
+.dash-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(11, 7, 9, 0.94) 0%, rgba(11, 7, 9, 0.72) 45%, rgba(11, 7, 9, 0.28) 100%);
+}
+.dash-hero-info { position: relative; max-width: 1060px; margin: 0 auto; padding: 30px 22px 26px; }
+.dash-name { font-family: 'Rubik Wet Paint', cursive; font-size: clamp(30px, 5vw, 44px); margin: 0; display: flex; align-items: center; gap: 10px; }
+.dash-sub { display: flex; align-items: center; gap: 12px; margin: 8px 0 12px; color: var(--muted); font-size: 16px; }
+.dash-sub .tier-badge { border: 1px solid; border-radius: 999px; padding: 3px 12px; font-size: 12.5px; letter-spacing: 0.08em; }
+.dash-xp { max-width: 380px; }
+.dash-xp span { font-size: 12.5px; color: var(--muted); }
+.dash-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.dash-actions .btn { width: auto; padding: 11px 22px; }
+.dash-edit { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dash-edit input {
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+  color: var(--text); padding: 9px 12px; font: 600 18px 'Barlow Condensed', sans-serif;
+}
+.dash-err { color: #ff8fa3; font-size: 13px; width: 100%; }
+.btn-link { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; }
+.btn-link:hover { color: var(--text); }
+
+.dash-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  max-width: 1060px; margin: 18px auto 40px; padding: 0 22px;
+}
+.dash-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px 18px; display: flex; flex-direction: column; text-align: left; min-width: 0;
+}
+.dash-card h2 { font: 700 14px 'Barlow Condensed', sans-serif; letter-spacing: 0.14em; color: var(--muted); margin: 0 0 12px; }
+.dash-card.span2 { grid-column: span 2; }
+@media (max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } .dash-card.span2 { grid-column: span 1; } }
+
+.dash-stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+@media (max-width: 640px) { .dash-stats-row { grid-template-columns: repeat(3, 1fr); } }
+.dash-stat { background: var(--panel-2); border-radius: 10px; padding: 12px 6px; text-align: center; }
+.dash-stat b { display: block; font-size: 22px; }
+.dash-stat span { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+
+.dash-rank { display: flex; flex-direction: column; gap: 7px; }
+.dash-rank-tier { font: 700 24px 'Barlow Condensed', sans-serif; letter-spacing: 0.06em; }
+.dash-rank-pts { color: var(--muted); font-size: 14px; }
+.dash-rank-next { color: var(--muted); font-size: 12.5px; }
+
+.dash-build { display: flex; gap: 14px; align-items: stretch; }
+.dash-build-preview { width: 150px; min-height: 190px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #141414; flex-shrink: 0; }
+.dash-build-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; flex: 1; align-content: start; }
+@media (max-width: 640px) { .dash-build { flex-direction: column; } .dash-build-preview { width: 100%; height: 170px; } }
+
+.dash-matches { display: flex; flex-direction: column; gap: 7px; }
+.dash-match {
+  display: grid; grid-template-columns: 70px 1fr 42px 60px; gap: 8px; align-items: center;
+  background: var(--panel-2); border-left: 3px solid; border-radius: 8px; padding: 8px 12px; font-size: 13.5px;
+}
+.dash-match.win { border-color: #3dbd6e; } .dash-match.win b { color: #7de0a8; }
+.dash-match.loss { border-color: var(--blood); } .dash-match.loss b { color: #ff8fa3; }
+.dash-match span { color: var(--muted); }
+.dash-match-xp { text-align: right; color: #b39af5 !important; }
+
+.dash-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 700px) { .dash-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+.dash-stats-grid > div { background: var(--panel-2); border-radius: 10px; padding: 10px 12px; }
+.dash-stats-grid span { display: block; font-size: 10.5px; color: var(--muted); letter-spacing: 0.1em; }
+.dash-stats-grid b { font-size: 18px; }
+
+.dash-empty { color: var(--muted); font-size: 14px; margin: 4px 0; }
+.dash-card.soon { opacity: 0.9; }

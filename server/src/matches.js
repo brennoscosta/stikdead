@@ -89,4 +89,19 @@ router.get('/history', requireAuth, async (req, res) => {
   res.json({ matches: rows });
 });
 
+router.get('/summary', requireAuth, async (req, res) => {
+  const { rows } = await q(
+    `SELECT COUNT(*)::int AS partidas,
+            COALESCE(SUM(duration_s), 0)::int AS tempo_s,
+            COALESCE(SUM((stats->>'damage')::int), 0)::int AS dano,
+            COALESCE(SUM((stats->>'hits')::int), 0)::int AS golpes,
+            COALESCE(SUM((stats->>'blocked')::int), 0)::int AS bloqueios,
+            COALESCE(MAX((stats->>'maxCombo')::int), 0)::int AS combo_max,
+            COALESCE(SUM(CASE WHEN (stats->>'finisher')::boolean THEN 1 ELSE 0 END), 0)::int AS finalizacoes
+       FROM matches WHERE user_id = $1`,
+    [req.userId]
+  );
+  res.json(rows[0]);
+});
+
 export default router;

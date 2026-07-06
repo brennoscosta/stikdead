@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import Navbar from '../lib/Navbar.jsx';
 import ItemIcon from '../lib/ItemIcon.jsx';
 
 export const SLOT_LABEL = {
@@ -43,7 +44,8 @@ export default function Shop({ profile, onProfile }) {
   const shown = items.filter((i) => filter === 'all' || i.slot === filter);
 
   return (
-    <div className="scene">
+    <div className="scene scene-nav">
+      <Navbar profile={profile} />
       <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
         LOJA <span className="red">STIKDEAD</span>
       </h1>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../lib/socket.js';
 import { createPlaza } from '../game/praca.js';
+import Navbar from '../lib/Navbar.jsx';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
 import { TouchControls } from './Battle.jsx';
@@ -116,6 +117,7 @@ export default function Lobby({ profile, onProfile }) {
   const socket = getSocket();
 
   return (
+    <><Navbar profile={profile} />
     <div className="scene">
       <h1 className="brand" style={{ fontSize: 'clamp(40px, 8vw, 60px)' }}>
         LOBBY <span className="red">ONLINE</span>
@@ -226,7 +228,7 @@ export default function Lobby({ profile, onProfile }) {
           </div>
         </div>
       )}
-    </div>
+    </div></>
   );
 }
 

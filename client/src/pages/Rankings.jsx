@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import Navbar from '../lib/Navbar.jsx';
 
 const TIER_COLOR = {
   BRONZE: '#a9713d', PRATA: '#b9c2cc', OURO: '#e0a10b',
@@ -9,14 +10,15 @@ const TIER_COLOR = {
 const tierName = (tier) => (tier || 'BRONZE_III').replace('_', ' ');
 const tierColor = (tier) => TIER_COLOR[(tier || 'BRONZE').split('_')[0]] || '#8a8377';
 
-export default function Rankings() {
+export default function Rankings({ profile }) {
   const nav = useNavigate();
   const [data, setData] = useState(null);
 
   useEffect(() => { api('/api/rankings').then(setData); }, []);
 
   return (
-    <div className="scene">
+    <div className="scene scene-nav">
+      <Navbar profile={profile} />
       <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
         TOP 100 <span className="red">BRASIL</span>
       </h1>

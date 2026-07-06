@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import Navbar from '../lib/Navbar.jsx';
 
-export default function Missions({ onProfile }) {
+export default function Missions({ profile, onProfile }) {
   const nav = useNavigate();
   const [missions, setMissions] = useState([]);
   const [chestClaimed, setChestClaimed] = useState(false);
@@ -46,7 +47,8 @@ export default function Missions({ onProfile }) {
   const doneCount = missions.filter((m) => m.progress >= m.goal).length;
 
   return (
-    <div className="scene">
+    <div className="scene scene-nav">
+      <Navbar profile={profile} />
       <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
         MISSÕES <span className="red">DIÁRIAS</span>
       </h1>

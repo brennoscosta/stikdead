@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import Navbar from '../lib/Navbar.jsx';
 import { getSocket } from '../lib/socket.js';
 import { createPreview } from '../game/preview.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
@@ -60,7 +61,8 @@ export default function Inventory({ profile }) {
   const shown = chest.filter((i) => filter === 'all' || i.slot === filter);
 
   return (
-    <div className="scene">
+    <div className="scene scene-nav">
+      <Navbar profile={profile} />
       <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
         MEU <span className="red">STICK</span>
       </h1>

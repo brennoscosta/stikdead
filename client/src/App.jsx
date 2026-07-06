@@ -70,11 +70,11 @@ export default function App() {
         />
         <Route
           path="/missoes"
-          element={profile ? <Missions onProfile={setProfile} /> : <Navigate to="/" replace />}
+          element={profile ? <Missions profile={profile} onProfile={setProfile} /> : <Navigate to="/" replace />}
         />
         <Route
           path="/rankings"
-          element={profile ? <Rankings /> : <Navigate to="/" replace />}
+          element={profile ? <Rankings profile={profile} /> : <Navigate to="/" replace />}
         />
         <Route
           path="/lobby"
