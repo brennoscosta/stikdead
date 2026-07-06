@@ -4,7 +4,7 @@
 //   HF_CREDENTIALS="KEY_ID:KEY_SECRET" node generate-assets.mjs --group=arenas
 // Grupos: arenas | praca | katana | lote2 | lote3 | lote4 | tudo
 // Flags: --only=<id>  --force (regenera mesmo se o arquivo existir)
-import { higgsfield, config } from '@higgsfield/client/v2';
+import { HiggsfieldClient } from '@higgsfield/client';
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -108,8 +108,9 @@ if (!rawCreds.includes(':')) {
   console.error('Defina HF_CREDENTIALS="KEY_ID:KEY_SECRET" (painel de API do Higgsfield).');
   process.exit(1);
 }
-config({ credentials: rawCreds });
-console.log(`Credenciais: ${rawCreds.split(':')[0].slice(0, 6)}…:•••  ✓`);
+const [KEY_ID, KEY_SECRET] = [rawCreds.slice(0, rawCreds.indexOf(':')), rawCreds.slice(rawCreds.indexOf(':') + 1)];
+const hf = new HiggsfieldClient({ apiKey: KEY_ID, apiSecret: KEY_SECRET, maxPollTime: 240000 });
+console.log(`Credenciais: ${KEY_ID.slice(0, 6)}…:•••  ✓`);
 const group = ASSETS[args.group];
 if (!group) {
   console.error(`--group obrigatório. Opções: ${Object.keys(ASSETS).join(' | ')}`);
@@ -136,13 +137,12 @@ for (const a of queue) {
   try {
     process.stdout.write(`⏳ ${a.id}... `);
     const size = a.kind === 'icon' ? '1536x1536' : '2048x1152';
-    const runOnce = (prompt) => higgsfield.subscribe(ENDPOINT, {
-      input: { params: { prompt, width_and_height: size, quality: '1080p', batch_size: 1, enhance_prompt: false } },
-      withPolling: true,
-    });
+    const runOnce = (prompt) => hf.generate(ENDPOINT, {
+      prompt, width_and_height: size, quality: '1080p', batch_size: 1, enhance_prompt: false,
+    }, { withPolling: true });
     let jobSet = await runOnce(a.prompt);
     let url = jobSet.jobs?.[0]?.results?.raw?.url || jobSet.jobs?.[0]?.results?.min?.url;
-    const st = () => jobSet.jobs?.[0]?.status || jobSet.status;
+    const st = () => jobSet.jobs?.[0]?.status ?? 'desconhecido';
     if ((!url) && st() === 'nsfw') {
       process.stdout.write('(moderação, tentando versão saneada) ');
       jobSet = await runOnce(sanitize(a.prompt));
