@@ -43,7 +43,25 @@ const STYLE_ARENA = (scene) =>
   `The entire image stays dark and moody from top to bottom — absolutely no white or bright areas. ` +
   `No characters, no people, no text, no watermark, no UI.`;
 
+const STYLE_SPRITE = (subject) =>
+  `${subject} Single object game sprite. Perfectly VERTICAL orientation: tip pointing straight up, ` +
+  `grip/handle at the very bottom. Centered, isolated on a PURE WHITE background (#ffffff). ` +
+  `No shadow, no smoke, no mist, no vignette, no ground, no reflections outside the object. ` +
+  `Painterly dark fantasy game art, rich detail, dramatic rim lighting. No text, no watermark.`;
+
 const ASSETS = {
+  sprites: [
+    { id: 'katana', kind: 'sprite', prompt: STYLE_SPRITE('A japanese katana with dark wrapped handle and silver blade.') },
+    { id: 'katana_infernal', kind: 'sprite', prompt: STYLE_SPRITE('A legendary japanese katana with glowing crimson red blade and dark handle with red cord.') },
+    { id: 'bastao_bo', kind: 'sprite', prompt: STYLE_SPRITE('A wooden bo staff with red cord wrapped at the center.') },
+    { id: 'nunchaku', kind: 'sprite', prompt: STYLE_SPRITE('Nunchaku: two dark wooden sticks with steel caps connected by a chain, held vertically aligned.') },
+    { id: 'machado', kind: 'sprite', prompt: STYLE_SPRITE('A battle axe with dark wooden handle and cold steel blade with faint blue glow.') },
+    { id: 'lanca', kind: 'sprite', prompt: STYLE_SPRITE('A spear with dark wooden shaft and steel leaf-shaped tip with faint cold mist.') },
+    { id: 'foice', kind: 'sprite', prompt: STYLE_SPRITE('A scythe with dark handle and curved steel blade at the top.') },
+    { id: 'foice_sangrenta', kind: 'sprite', prompt: STYLE_SPRITE('A cursed scythe with black thorned handle and curved blade glowing crimson red.') },
+    { id: 'dual_blades', kind: 'sprite', prompt: STYLE_SPRITE('A single short dark dagger blade with purple mist, vertical.') },
+    { id: 'arco', kind: 'sprite', prompt: STYLE_SPRITE('A dark curved bow with taut string and faint purple runes, vertical.') },
+  ],
   arenas: [
     { id: 'dojo', kind: 'arena', prompt: STYLE_ARENA('Interior of a sinister Japanese dojo at night: worn dark wooden floor, torn shoji paper walls lit dimly from behind, hanging paper lanterns with faint red glow, a large torn scroll with a red brush circle mark, wooden pillars, faint mist.') },
     { id: 'temple', kind: 'arena', prompt: STYLE_ARENA('Ancient temple courtyard at night: a giant weathered stone Buddha statue looming in the back with a faint red halo, stone columns with red banners, incense smoke curling up, cracked stone floor, embers floating.') },
@@ -122,9 +140,13 @@ if (!group) {
 fs.mkdirSync(ITEMS_DIR, { recursive: true });
 fs.mkdirSync(ARENAS_DIR, { recursive: true });
 
+const SPRITES_DIR = path.join(ROOT, 'client/public/sprites');
+fs.mkdirSync(SPRITES_DIR, { recursive: true });
 const outPath = (a) => a.kind === 'icon'
   ? path.join(ITEMS_DIR, `${a.id}.webp`)
-  : path.join(ARENAS_DIR, `${a.id}.webp`);
+  : a.kind === 'sprite'
+    ? path.join(SPRITES_DIR, `${a.id}.webp`)
+    : path.join(ARENAS_DIR, `${a.id}.webp`);
 
 const queue = group.filter((a) => (!args.only || a.id === args.only));
 console.log(`Gerando ${queue.length} asset(s) do grupo "${args.group}"...\n`);
@@ -157,6 +179,18 @@ for (const a of queue) {
     const buf = Buffer.from(await (await fetch(url)).arrayBuffer());
     const img = sharp(buf);
     if (a.kind === 'icon') await img.resize(256, 256).webp({ quality: 82 }).toFile(out);
+    else if (a.kind === 'sprite') {
+      // branco puro -> transparente (com banda suave), depois recorta e normaliza
+      const { data, info } = await img.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g2 = data[i + 1], b = data[i + 2];
+        const lum = Math.min(r, g2, b);
+        if (r > 236 && g2 > 236 && b > 236) data[i + 3] = 0;
+        else if (lum > 208 && Math.abs(r - g2) < 14 && Math.abs(g2 - b) < 14)
+          data[i + 3] = Math.round(255 * (1 - (lum - 208) / 28));
+      }
+      await sharp(data, { raw: info }).trim().resize({ height: 320 }).webp({ quality: 88 }).toFile(out);
+    }
     else await img.resize({ width: 1920 }).webp({ quality: 80 }).toFile(out);
     const kb = Math.round(fs.statSync(out).size / 1024);
     console.log(`✓ salvo (${kb} KB)`);

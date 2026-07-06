@@ -1,6 +1,7 @@
 // STIKDEAD :: praça do lobby — jogadores online passeando com suas builds
 import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
 import { drawFighter } from './rig.js';
+import { createWeaponSprite, filterForVector } from './itemSprites.js';
 import { MOVES } from './sim.js';
 
 const MAX_WALKERS = 14;
@@ -62,15 +63,19 @@ export async function createPlaza(host) {
   };
 
   const spawn = (p) => {
+    const wrap = new Container();
     const g = new Graphics();
+    wrap.addChild(g);
+    const ws = createWeaponSprite(wrap);
+    ws.setLoadout(p.loadout || []);
     const tag = new Text({
       text: p.name,
       style: { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, fill: 0xe8e4da, letterSpacing: 1 },
     });
     tag.anchor.set(0.5, 1);
-    layer.addChild(g, tag);
+    layer.addChild(wrap, tag);
     return {
-      g, tag, name: p.name, loadout: p.loadout || [],
+      wrap, g, ws, tag, name: p.name, loadout: p.loadout || [],
       f: {
         x: 60 + Math.random() * Math.max(120, W - 120), y: 0, vx: 0, vy: 0,
         face: Math.random() < 0.5 ? 1 : -1, hp: 100, state: 'walk', t: Math.random() * 3, hitstun: 0, combo: 0,
@@ -115,9 +120,10 @@ export async function createPlaza(host) {
         if (a.f.x > W / scale - margin) { a.f.x = W / scale - margin; a.f.face = -1; }
       }
       // halo de luz da lua atrás do boneco (contraste no escuro)
-      a.g.position.set(0, H - 40);
-      a.g.scale.set(scale);
-      drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, a.loadout);
+      a.wrap.position.set(0, H - 40);
+      a.wrap.scale.set(scale);
+      drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, filterForVector(a.loadout, a.ws));
+      a.ws.update(a.f, MOVES);
       a.tag.position.set(a.f.x * scale, H - 40 - 158 * scale);
       a.tag.text = a.name;
     }
@@ -131,6 +137,7 @@ export async function createPlaza(host) {
         const existing = actors.get(p.id);
         if (existing) {
           existing.loadout = p.loadout || [];
+          existing.ws.setLoadout(existing.loadout);
           existing.name = p.name;
         } else {
           actors.set(p.id, spawn(p));
@@ -138,7 +145,8 @@ export async function createPlaza(host) {
       }
       for (const [id, a] of actors) {
         if (!keep.has(id)) {
-          a.g.destroy();
+          a.ws.destroy();
+          a.wrap.destroy({ children: true });
           a.tag.destroy();
           actors.delete(id);
         }

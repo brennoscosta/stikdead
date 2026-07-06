@@ -2,6 +2,7 @@
 import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
 import { MOVES } from './sim.js';
 import { drawFighter } from './rig.js';
+import { createWeaponSprite, filterForVector } from './itemSprites.js';
 import { buildArena, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
 
 const withTimeout = (p, ms, label) =>
@@ -44,6 +45,8 @@ export async function createRenderer(host, theme = 'dojo') {
   const gA = new Graphics();
   const gB = new Graphics();
   world.addChild(gA, gB);
+  const wsA = createWeaponSprite(world);
+  const wsB = createWeaponSprite(world);
   const fx = createFx(world);
 
   const tagStyle = { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fill: 0x2b2620, letterSpacing: 1 };
@@ -120,8 +123,10 @@ export async function createRenderer(host, theme = 'dojo') {
         fighterHalos.ellipse(f.x, -2, 34, 7).fill({ color: 0xd90429, alpha: 0.14 });
       }
     }
-    drawFighter(gA, a, MOVES, 0xd90429, elapsed, loadouts[0]);
-    drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, loadouts[1]);
+    drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA));
+    drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB));
+    wsA.update(a, MOVES);
+    wsB.update(b, MOVES);
     tagA.text = names[0];
     tagB.text = names[1];
     tagA.position.set(a.x, -(a.y + 152));
@@ -150,7 +155,9 @@ export async function createRenderer(host, theme = 'dojo') {
   return {
     app,
     frame,
-    setLoadouts(la, lb) { loadouts = [la || null, lb || null]; },
+    setLoadouts(la, lb) {
+      wsA.setLoadout(arguments[0]);
+      wsB.setLoadout(arguments[1]); loadouts = [la || null, lb || null]; },
     setNames(na, nb) { names = [na || '', nb || '']; },
     destroy() {
       app.destroy(true, { children: true });
