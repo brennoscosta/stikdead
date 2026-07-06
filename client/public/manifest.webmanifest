@@ -1,0 +1,13 @@
+{
+  "name": "STIKDEAD",
+  "short_name": "STIKDEAD",
+  "description": "Lute. Morra. Evolua.",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0b0709",
+  "theme_color": "#d90429",
+  "icons": [
+    { "src": "/items/katana_infernal.webp", "sizes": "256x256", "type": "image/webp" }
+  ]
+}

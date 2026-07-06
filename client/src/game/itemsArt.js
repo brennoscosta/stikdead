@@ -28,9 +28,33 @@ function dir(a, b) {
   const L = Math.hypot(dx, dy) || 1;
   return [dx / L, dy / L, L];
 }
-function seg(g, a, b, w, color, outline = true) {
+function seg(g, a, b, w, color, outline = true, hi = false) {
   if (outline) g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w + 4, color: OUT, cap: 'round' });
   g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w, color, cap: 'round' });
+  if (hi) {
+    const ux = b[0] - a[0], uy = b[1] - a[1];
+    const L = Math.hypot(ux, uy) || 1;
+    const nx = -uy / L, ny = ux / L;
+    const off = w * 0.2;
+    g.moveTo(a[0] + ux * 0.15 + nx * off, a[1] + uy * 0.15 + ny * off)
+      .lineTo(a[0] + ux * 0.5 + nx * off, a[1] + uy * 0.5 + ny * off)
+      .stroke({ width: Math.max(2, w * 0.28), color: 0xffffff, alpha: 0.3, cap: 'round' });
+  }
+}
+// fio de luz na borda de uma lâmina
+function edge(g, a, b, w) {
+  const ux = b[0] - a[0], uy = b[1] - a[1];
+  const L = Math.hypot(ux, uy) || 1;
+  const nx = -uy / L, ny = ux / L;
+  const off = w * 0.32;
+  g.moveTo(a[0] + nx * off, a[1] + ny * off).lineTo(b[0] + nx * off, b[1] + ny * off)
+    .stroke({ width: 1.6, color: 0xffffff, alpha: 0.55, cap: 'round' });
+}
+// glow em duas camadas (halo largo + núcleo)
+function glow2(g, a, b, w, color) {
+  g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w * 3.2, color, alpha: 0.16, cap: 'round' });
+  g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w * 1.4, color, alpha: 0.35, cap: 'round' });
+  g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: 2, color, alpha: 0.95, cap: 'round' });
 }
 
 // ===== templates =====
@@ -52,6 +76,12 @@ const TEMPLATES = {
       .closePath()
       .fill(col)
       .stroke({ width: 3, color: OUT });
+    g.moveTo(nx + bx * 10, ny + 8)
+      .quadraticCurveTo(nx + bx * 20 + w1 * 0.4, (ny + hy2) / 2 + 10, hx2 + bx * 24 + w2 * 0.8, hy2 + 8)
+      .stroke({ width: 2.5, color: 0x000000, alpha: 0.3 });
+    g.moveTo(nx + bx * 5, ny + 2)
+      .lineTo(nx + bx * 14 + w1 * 0.3, ny + 18)
+      .stroke({ width: 2, color: 0xffffff, alpha: 0.2 });
   },
   sheath({ g, T, sk, face }, p) {
     const [nx, ny] = T(sk.neck);
@@ -78,6 +108,10 @@ const TEMPLATES = {
     g.moveTo(nx - 12, ny - 2).quadraticCurveTo(nx, ny + 10, nx + 12, ny - 2)
       .lineTo(nx + 9, ny + 8).quadraticCurveTo(nx, ny + 14, nx - 9, ny + 8)
       .closePath().fill(col).stroke({ width: 2.5, color: OUT });
+    g.moveTo(nx - 9, ny + 1).quadraticCurveTo(nx, ny + 8, nx + 9, ny + 1)
+      .stroke({ width: 1.6, color: 0x000000, alpha: 0.3 });
+    g.moveTo(nx - 8, ny - 1).quadraticCurveTo(nx, ny + 4, nx + 8, ny - 1)
+      .stroke({ width: 1.6, color: 0xffffff, alpha: 0.25 });
     if (!ko) {
       const w = Math.sin(elapsed * 7) * 6;
       g.moveTo(nx - face * 8, ny + 4)
@@ -89,7 +123,7 @@ const TEMPLATES = {
   },
   vest({ g, T, sk }, p) {
     const col = C(p.color ?? '#2a2a2a');
-    seg(g, T(sk.neck), T(sk.hip), 26, col);
+    seg(g, T(sk.neck), T(sk.hip), 26, col, true, true);
     if (p.trim) {
       const [nx, ny] = T(sk.neck);
       g.circle(nx - 12, ny + 4, 6).fill(C(p.trim));
@@ -110,6 +144,7 @@ const TEMPLATES = {
       const [x, y] = T(h);
       g.circle(x, y, 9).fill(OUT);
       g.circle(x, y, 7).fill(col);
+      g.ellipse(x - 2.2, y - 2.6, 2.4, 1.6).fill({ color: 0xffffff, alpha: 0.35 });
     }
   },
   gauntlets({ g, T, sk }, p) {
@@ -166,7 +201,7 @@ const TEMPLATES = {
       const k = T(kne), ft = T(foot);
       const [dx, dy] = dir(k, ft);
       const tip = [ft[0] + dx * 4 + face * 6, ft[1] + dy * 4];
-      seg(g, [ft[0] - dx * 4, ft[1] - dy * 4], tip, 12, col);
+      seg(g, [ft[0] - dx * 4, ft[1] - dy * 4], tip, 12, col, true, true);
       if (p.stripe) g.circle((ft[0] + tip[0]) / 2, (ft[1] + tip[1]) / 2, 2.6).fill(C(p.stripe));
     }
   },
@@ -175,7 +210,7 @@ const TEMPLATES = {
     for (const [kne, foot] of [[sk.kneB, sk.footB], [sk.kneF, sk.footF]]) {
       const k = T(kne), ft = T(foot);
       const [dx, dy] = dir(k, ft);
-      seg(g, [ft[0] - dx * 14, ft[1] - dy * 14], [ft[0] + dx * 3 + face * 6, ft[1] + dy * 3], 14, col);
+      seg(g, [ft[0] - dx * 14, ft[1] - dy * 14], [ft[0] + dx * 3 + face * 6, ft[1] + dy * 3], 14, col, true, true);
       if (p.glow) g.circle(ft[0], ft[1], 3).fill({ color: C(p.glow), alpha: 0.9 });
     }
   },
@@ -266,13 +301,11 @@ const TEMPLATES = {
     weaponAlongArm(ctx, (g, h, d2, face) => {
       const blade = C(p.blade ?? '#d8d3c8');
       const tip = [h[0] + d2[0] * 52, h[1] + d2[1] * 52];
-      seg(g, [h[0] - d2[0] * 10, h[1] - d2[1] * 10], h, 5, C(p.grip ?? '#3a1216'));
+      seg(g, [h[0] - d2[0] * 10, h[1] - d2[1] * 10], h, 5, C(p.grip ?? '#3a1216'), true, true);
       g.moveTo(h[0] - d2[1] * 6, h[1] + d2[0] * 6).lineTo(h[0] + d2[1] * 6, h[1] - d2[0] * 6).stroke({ width: 4, color: OUT });
+      if (p.glow) glow2(g, h, tip, 4.5, C(p.glow));
       seg(g, h, tip, 4.5, blade);
-      if (p.glow) {
-        g.moveTo(h[0], h[1]).lineTo(tip[0], tip[1]).stroke({ width: 9, color: C(p.glow), alpha: 0.3, cap: 'round' });
-        g.moveTo(h[0], h[1]).lineTo(tip[0], tip[1]).stroke({ width: 2, color: C(p.glow), alpha: 0.95, cap: 'round' });
-      }
+      edge(g, h, tip, 4.5);
     });
   },
   bo(ctx, p) {
@@ -303,12 +336,15 @@ const TEMPLATES = {
         .lineTo(tip[0] + n[0] * 20 + d2[0] * 6, tip[1] + n[1] * 20 + d2[1] * 6)
         .quadraticCurveTo(tip[0] + n[0] * 24 - d2[0] * 10, tip[1] + n[1] * 24 - d2[1] * 10, tip[0] + n[0] * 16 - d2[0] * 14, tip[1] + n[1] * 16 - d2[1] * 14)
         .closePath().fill(C(p.blade ?? '#8f8a80')).stroke({ width: 3, color: OUT });
+      g.moveTo(tip[0] + n[0] * 19, tip[1] + n[1] * 19 + 2)
+        .lineTo(tip[0] + n[0] * 15 - d2[0] * 11, tip[1] + n[1] * 15 - d2[1] * 11)
+        .stroke({ width: 1.6, color: 0xffffff, alpha: 0.5, cap: 'round' });
     });
   },
   spear(ctx, p) {
     weaponAlongArm(ctx, (g, h, d2) => {
       const tip = [h[0] + d2[0] * 58, h[1] + d2[1] * 58];
-      seg(g, [h[0] - d2[0] * 26, h[1] - d2[1] * 26], tip, 4.5, C(p.color ?? '#5a4630'));
+      seg(g, [h[0] - d2[0] * 26, h[1] - d2[1] * 26], tip, 4.5, C(p.color ?? '#5a4630'), true, true);
       g.moveTo(tip[0] + d2[0] * 14, tip[1] + d2[1] * 14)
         .lineTo(tip[0] - d2[1] * 5, tip[1] + d2[0] * 5)
         .lineTo(tip[0] + d2[1] * 5, tip[1] - d2[0] * 5)
@@ -318,13 +354,19 @@ const TEMPLATES = {
   scythe(ctx, p) {
     weaponAlongArm(ctx, (g, h, d2, face) => {
       const top = [h[0] + d2[0] * 46, h[1] + d2[1] * 46];
-      seg(g, [h[0] - d2[0] * 16, h[1] - d2[1] * 16], top, 5, C(p.handle ?? '#2b2b2b'));
+      seg(g, [h[0] - d2[0] * 16, h[1] - d2[1] * 16], top, 5, C(p.handle ?? '#2b2b2b'), true, true);
       const n = [-d2[1] * face, d2[0] * face];
       g.moveTo(top[0], top[1])
         .quadraticCurveTo(top[0] + n[0] * 34, top[1] + n[1] * 34, top[0] + n[0] * 30 + d2[0] * 26, top[1] + n[1] * 30 + d2[1] * 26)
         .quadraticCurveTo(top[0] + n[0] * 22, top[1] + n[1] * 22, top[0] + d2[0] * 2, top[1] + d2[1] * 2)
         .closePath().fill(C(p.blade ?? '#b8b2a6')).stroke({ width: 3, color: OUT });
-      if (p.glow) g.circle(top[0], top[1], 4).fill({ color: C(p.glow), alpha: 0.9 });
+      g.moveTo(top[0] + n[0] * 30, top[1] + n[1] * 30)
+        .quadraticCurveTo(top[0] + n[0] * 30 + d2[0] * 14, top[1] + n[1] * 30 + d2[1] * 14, top[0] + n[0] * 27 + d2[0] * 24, top[1] + n[1] * 27 + d2[1] * 24)
+        .stroke({ width: 1.6, color: 0xffffff, alpha: 0.5, cap: 'round' });
+      if (p.glow) {
+        g.circle(top[0], top[1], 9).fill({ color: C(p.glow), alpha: 0.25 });
+        g.circle(top[0], top[1], 4).fill({ color: C(p.glow), alpha: 0.9 });
+      }
     });
   },
   dual({ g, T, sk, face, elapsed }, p) {
@@ -333,8 +375,9 @@ const TEMPLATES = {
       const eh = T(e), hh = T(h);
       const [dx, dy] = dir(eh, hh);
       const tip = [hh[0] + dx * 38, hh[1] + dy * 38];
+      if (p.glow) glow2(g, hh, tip, 4, C(p.glow));
       seg(g, [hh[0] - dx * 6, hh[1] - dy * 6], tip, 4, blade);
-      if (p.glow) g.moveTo(hh[0], hh[1]).lineTo(tip[0], tip[1]).stroke({ width: 7, color: C(p.glow), alpha: 0.3, cap: 'round' });
+      edge(g, [hh[0], hh[1]], tip, 4);
     }
   },
   bow(ctx, p) {

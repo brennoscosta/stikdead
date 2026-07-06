@@ -11,6 +11,12 @@ import { createRenderer } from '../game/renderer.js';
 import { TouchControls } from './Battle.jsx';
 import '../battle.css';
 
+
+const goFullscreen = () => {
+  document.documentElement.requestFullscreen?.().catch(() => {});
+  try { screen.orientation?.lock?.('landscape').catch(() => {}); } catch { /* iOS */ }
+};
+
 const TIER_LABEL = (t) => (t || 'BRONZE_III').replace('_', ' ');
 
 export default function Lobby({ profile, onProfile }) {
@@ -153,7 +159,7 @@ export default function Lobby({ profile, onProfile }) {
                     <button
                       className="lobby-challenge"
                       disabled={!!sent}
-                      onClick={() => socket.emit('challenge:send', { to: p.id })}
+                      onClick={() => { goFullscreen(); socket.emit('challenge:send', { to: p.id }); }}
                     >
                       DESAFIAR
                     </button>
@@ -198,7 +204,7 @@ export default function Lobby({ profile, onProfile }) {
           <div className="plaza plaza-big" ref={plazaHost} />
           <button
             className="lobby-cta"
-            onClick={() => socket.emit(inQueue ? 'queue:leave' : 'queue:join')}
+            onClick={() => { if (!inQueue) goFullscreen(); socket.emit(inQueue ? 'queue:leave' : 'queue:join'); }}
           >
             {inQueue ? '⏳ PROCURANDO OPONENTE… (cancelar)' : '⚔ BUSCAR PARTIDA'}
             <small>{inQueue ? 'pareamento automático' : 'partida rápida 1v1'}</small>
@@ -266,7 +272,7 @@ export default function Lobby({ profile, onProfile }) {
             </p>
             <button
               className="btn btn-blood"
-              onClick={() => getSocket().emit('challenge:answer', { id: incoming.id, accept: true })}
+              onClick={() => { goFullscreen(); getSocket().emit('challenge:answer', { id: incoming.id, accept: true }); }}
             >
               Aceitar
             </button>
