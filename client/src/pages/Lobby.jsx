@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../lib/socket.js';
+import { createPlaza } from '../game/praca.js';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
 import { TouchControls } from './Battle.jsx';
@@ -316,6 +317,8 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     (async () => {
       try {
         renderer = await createRenderer(hostRef.current, session.arena || 'dojo');
+        renderer.setLoadouts(session.players[0]?.loadout, session.players[1]?.loadout);
+        renderer.setNames(names[0], names[1]);
       } catch (err) {
         console.error(err);
         if (hostRef.current)
