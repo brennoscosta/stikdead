@@ -62,6 +62,46 @@ export async function createRenderer(host, theme = 'dojo') {
   tagA.anchor.set(0.5, 1);
   tagB.anchor.set(0.5, 1);
   world.addChild(tagA, tagB);
+
+  // balões de dano
+  const dmgLayer = new Container();
+  world.addChild(dmgLayer);
+  const dmgPool = [];
+  const dmgLive = [];
+  const spawnDmg = (e) => {
+    const stack = dmgLive.filter((d) => Math.abs(d.wx - e.x) < 55 && d.life > 0.35).length;
+    const t = dmgPool.pop() || new Text({
+      text: '',
+      style: {
+        fontFamily: 'Barlow Condensed, sans-serif', fontWeight: '700', fontSize: 26,
+        fill: 0xffffff, letterSpacing: 1,
+        stroke: { color: 0x080808, width: 5, join: 'round' },
+      },
+    });
+    t.anchor.set(0.5);
+    t.text = `-${e.dmg}`;
+    t.style.fill = e.blocked ? 0x9fd8ff : e.heavy ? 0xff2244 : 0xffffff;
+    t.scale.set(e.blocked ? 0.7 : e.heavy ? 1.35 : 1);
+    t.visible = true;
+    dmgLayer.addChild(t);
+    dmgLive.push({ t, wx: e.x, wy: e.y + 14 + stack * 24, vy: 95, life: 0.95, maxLife: 0.95 });
+  };
+  const stepDmg = (dt) => {
+    for (let i = dmgLive.length - 1; i >= 0; i--) {
+      const d = dmgLive[i];
+      d.life -= dt;
+      if (d.life <= 0) {
+        d.t.visible = false;
+        dmgPool.push(d.t);
+        dmgLive.splice(i, 1);
+        continue;
+      }
+      d.vy *= 1 - dt * 1.6;
+      d.wy += d.vy * dt;
+      d.t.position.set(d.wx, -d.wy);
+      d.t.alpha = Math.min(1, d.life / 0.3);
+    }
+  };
   if (painted) {
     for (const t of [tagA, tagB]) {
       t.style.fill = 0xf2efe9;
@@ -117,7 +157,7 @@ export async function createRenderer(host, theme = 'dojo') {
 
     for (const e of events) {
       if (e.type === 'fightstart') fx.shake = Math.max(fx.shake, 10);
-      if (e.type === 'hit') fxHit(fx, e.x, e.y, e.attacker === 0 ? 1 : -1, e);
+      if (e.type === 'hit') { fxHit(fx, e.x, e.y, e.attacker === 0 ? 1 : -1, e); spawnDmg(e); }
       if (e.type === 'ko') fxKo(fx, e.x, e.y, e.winner === 0 ? 1 : -1);
       if (e.type === 'dash') fxDash(fx, e.x);
     }
@@ -183,6 +223,7 @@ export async function createRenderer(host, theme = 'dojo') {
     tagB.position.set(b.x, -(b.y + 152));
 
     fxStep(fx, dt);
+    stepDmg(dt);
 
     // tremor de tela
     if (fx.shake > 0.3) {

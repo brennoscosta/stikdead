@@ -745,3 +745,7 @@ body {
 .item-card.r-epico:hover .item-icon img { filter: brightness(1.35) drop-shadow(0 0 12px rgba(139, 92, 246, 0.95)); }
 .item-card.r-lendario:hover { box-shadow: 0 0 26px rgba(224, 161, 11, 0.55); }
 .item-card.r-lendario:hover .item-icon img { filter: brightness(1.4) drop-shadow(0 0 14px rgba(255, 60, 60, 0.95)); }
+
+/* nomes de itens sempre claros */
+.item-name { color: #f2efe9; }
+.item-slot { color: #9a938a; }

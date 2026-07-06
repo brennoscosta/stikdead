@@ -19,15 +19,15 @@ const CFG = {
   dual_blades: { attach: 'hand', len: 46, grip: 0.85 },
   arco: { attach: 'hand', len: 66, grip: 0.5 },
   // ----- cabeça (assenta no topo) -----
-  chapeu_palha: { attach: 'head', len: 34, grip: 0.92 },
-  coroa: { attach: 'head', len: 22, grip: 0.95 },
-  capuz_sombrio: { attach: 'head', len: 40, grip: 0.75 },
+  chapeu_palha: { attach: 'head', len: 30, grip: 0.92, maxW: 54 },
+  coroa: { attach: 'head', len: 20, grip: 0.95, maxW: 26 },
+  capuz_sombrio: { attach: 'head', len: 38, grip: 0.75, maxW: 40 },
   // ----- rosto (centrado na cabeça) -----
-  mascara_caveira: { attach: 'face', len: 26, grip: 0.5 },
-  mascara_oni: { attach: 'face', len: 28, grip: 0.5 },
-  mascara_hockey: { attach: 'face', len: 26, grip: 0.5 },
+  mascara_caveira: { attach: 'face', len: 26, grip: 0.5, maxW: 24 },
+  mascara_oni: { attach: 'face', len: 28, grip: 0.5, maxW: 26 },
+  mascara_hockey: { attach: 'face', len: 26, grip: 0.5, maxW: 24 },
   // ----- costas -----
-  bainha: { attach: 'back', len: 58, grip: 0.5, rot: 0.6 },
+  bainha: { attach: 'back', len: 58, grip: 0.5, rot: 0.6, maxW: 16 },
 };
 
 const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back']);
@@ -75,7 +75,9 @@ export function createWeaponSprite(container) {
       for (const [slot, { spr, cfg }] of active) {
         if (ko) { spr.visible = false; continue; }
         spr.visible = true;
-        spr.scale.set(cfg.len / spr.texture.height);
+        let s = cfg.len / spr.texture.height;
+        if (cfg.maxW) s = Math.min(s, cfg.maxW / spr.texture.width);
+        spr.scale.set(s);
 
         if (slot === 'weapon') {
           const e = T(sk.elbF);
@@ -90,17 +92,17 @@ export function createWeaponSprite(container) {
           const top = T([sk.head[0], sk.head[1] + RIG.headR * 0.55]);
           spr.position.set(top[0], top[1]);
           spr.rotation = -sk.lean * 0.5 * face;
-          spr.scale.x = (cfg.len / spr.texture.height) * face;
+          spr.scale.x = Math.abs(spr.scale.y) * face;
         } else if (slot === 'face') {
           const c = T([sk.head[0] + 4, sk.head[1] - 1]);
           spr.position.set(c[0], c[1]);
           spr.rotation = -sk.lean * 0.4 * face;
-          spr.scale.x = (cfg.len / spr.texture.height) * face;
+          spr.scale.x = Math.abs(spr.scale.y) * face;
         } else if (slot === 'back') {
           const bk = T([sk.neck[0] - 10, sk.neck[1] - 6]);
           spr.position.set(bk[0], bk[1]);
           spr.rotation = (cfg.rot || 0.6) * face;
-          spr.scale.x = (cfg.len / spr.texture.height) * face;
+          spr.scale.x = Math.abs(spr.scale.y) * face;
         }
       }
     },

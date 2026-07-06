@@ -193,7 +193,6 @@ export function fxHit(fx, x, y, dir, { blocked, heavy }) {
     });
   }
   if (heavy) fx.kick = Math.max(fx.kick, 0.05);
-  fx.flash = 0.06;
   fx.shake = Math.max(fx.shake, heavy ? 11 : 5);
 }
 

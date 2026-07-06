@@ -140,7 +140,7 @@ export default function Inventory({ profile }) {
                 >
                   <ItemIcon item={item} size={46} />
                   <span className="item-name">{item.name}</span>
-                  <span className="item-slot">{isOn ? 'EQUIPADO ✓' : RARITY_LABEL[item.rarity]}</span>
+                  <span className="item-slot">{isOn ? 'EQUIPADO ✓' : `${SLOT_LABEL[item.slot]} · ${RARITY_LABEL[item.rarity]}`}</span>
                 </button>
               );
             })}

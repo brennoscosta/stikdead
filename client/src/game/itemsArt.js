@@ -121,21 +121,43 @@ const TEMPLATES = {
         .closePath().fill(col).stroke({ width: 2.5, color: OUT });
     }
   },
-  vest({ g, T, sk }, p) {
+  vest({ g, T, sk, face }, p) {
     const col = C(p.color ?? '#2a2a2a');
-    seg(g, T(sk.neck), T(sk.hip), 26, col, true, true);
+    const n = T(sk.neck), h = T(sk.hip);
+    seg(g, n, h, 26, col, true, true);
+    // sombra do lado de trás do torso
+    g.moveTo(n[0] - face * 8, n[1] + 3).lineTo(h[0] - face * 8, h[1] - 3)
+      .stroke({ width: 7, color: 0x000000, alpha: 0.22, cap: 'round' });
+    // ombreiras
+    g.circle(n[0] - 11, n[1] + 2, 6.5).fill(col).stroke({ width: 2.5, color: OUT });
+    g.circle(n[0] + 11, n[1] + 2, 6.5).fill(col).stroke({ width: 2.5, color: OUT });
+    g.ellipse(n[0] - 12.5, n[1], 2.2, 1.5).fill({ color: 0xffffff, alpha: 0.3 });
+    g.ellipse(n[0] + 9.5, n[1], 2.2, 1.5).fill({ color: 0xffffff, alpha: 0.3 });
+    // gola V
+    g.moveTo(n[0] - 8, n[1] - 1).lineTo(n[0], n[1] + 9).lineTo(n[0] + 8, n[1] - 1)
+      .stroke({ width: 3, color: OUT, join: 'round' });
+    // placas horizontais costuradas
+    for (let i = 1; i <= 3; i++) {
+      const t = i / 4;
+      const x = n[0] + (h[0] - n[0]) * t;
+      const y = n[1] + (h[1] - n[1]) * t;
+      g.moveTo(x - 11, y).quadraticCurveTo(x, y + 3.5, x + 11, y)
+        .stroke({ width: 2, color: 0x000000, alpha: 0.4 });
+    }
     if (p.trim) {
-      const [nx, ny] = T(sk.neck);
-      g.circle(nx - 12, ny + 4, 6).fill(C(p.trim));
-      g.circle(nx + 12, ny + 4, 6).fill(C(p.trim));
+      g.moveTo(n[0] - 12, n[1] + 6).lineTo(n[0] + 12, n[1] + 6).stroke({ width: 3, color: C(p.trim) });
+      g.moveTo(h[0] - 11, h[1] - 4).lineTo(h[0] + 11, h[1] - 4).stroke({ width: 2.6, color: C(p.trim), alpha: 0.9 });
     }
     if (p.glow) {
-      const [nx, ny] = T(sk.neck);
-      const [hx2, hy2] = T(sk.hip);
-      g.moveTo((nx + hx2) / 2 - 5, (ny + hy2) / 2 - 8)
-        .lineTo((nx + hx2) / 2 + 5, (ny + hy2) / 2)
-        .lineTo((nx + hx2) / 2 - 3, (ny + hy2) / 2 + 8)
-        .stroke({ width: 3, color: C(p.glow), alpha: 0.9 });
+      // veias de energia rachando o peitoral
+      const mx = (n[0] + h[0]) / 2, my = (n[1] + h[1]) / 2;
+      for (const sx of [-6, 1, 7]) {
+        g.moveTo(mx + sx, my - 10)
+          .lineTo(mx + sx + (sx > 0 ? 3 : -3), my - 2)
+          .lineTo(mx + sx - 1, my + 6)
+          .stroke({ width: 2.2, color: C(p.glow), alpha: 0.9, join: 'round' });
+      }
+      g.moveTo(mx - 6, my - 10).lineTo(mx + 7, my - 10).stroke({ width: 6, color: C(p.glow), alpha: 0.14 });
     }
   },
   gloves({ g, T, sk }, p) {
@@ -144,6 +166,10 @@ const TEMPLATES = {
       const [x, y] = T(h);
       g.circle(x, y, 9).fill(OUT);
       g.circle(x, y, 7).fill(col);
+      // placa dos nós dos dedos
+      g.arc(x, y, 5.2, -2.4, 0.6).stroke({ width: 2.4, color: 0x000000, alpha: 0.45 });
+      // punho
+      g.moveTo(x - 6, y + 6).lineTo(x + 6, y + 6).stroke({ width: 2.6, color: 0x111111 });
       g.ellipse(x - 2.2, y - 2.6, 2.4, 1.6).fill({ color: 0xffffff, alpha: 0.35 });
     }
   },
@@ -173,26 +199,49 @@ const TEMPLATES = {
     const col = C(p.color ?? '#242424');
     for (const [hip, kne] of [[sk.hip, sk.kneB], [sk.hip, sk.kneF]]) {
       const a = T(hip), b = T(kne);
-      seg(g, a, [a[0] + (b[0] - a[0]) * 0.6, a[1] + (b[1] - a[1]) * 0.6], 16, col);
+      const end = [a[0] + (b[0] - a[0]) * 0.6, a[1] + (b[1] - a[1]) * 0.6];
+      seg(g, a, end, 16, col, true, true);
+      // bainha da perna
+      const [dx, dy] = dir(a, end);
+      g.moveTo(end[0] - dy * 8, end[1] + dx * 8).lineTo(end[0] + dy * 8, end[1] - dx * 8)
+        .stroke({ width: 2.5, color: 0x000000, alpha: 0.4 });
+      if (p.trim)
+        g.moveTo(end[0] - dy * 8, end[1] + dx * 8 - 2).lineTo(end[0] + dy * 8, end[1] - dx * 8 - 2)
+          .stroke({ width: 2, color: C(p.trim), alpha: 0.9 });
     }
-    if (p.trim) {
-      const a = T(sk.hip);
-      g.rect(a[0] - 12, a[1] - 3, 24, 5).fill(C(p.trim));
-    }
+    // cós
+    const a = T(sk.hip);
+    g.roundRect(a[0] - 12, a[1] - 5, 24, 6, 3).fill(C(p.trim ?? '#111111')).stroke({ width: 2, color: OUT });
   },
   pants({ g, T, sk }, p) {
     const col = C(p.color ?? '#202020');
     for (const [hip, kne, foot] of [[sk.hip, sk.kneB, sk.footB], [sk.hip, sk.kneF, sk.footF]]) {
-      seg(g, T(hip), T(kne), 15, col);
-      const k = T(kne), ft = T(foot);
-      seg(g, k, [k[0] + (ft[0] - k[0]) * 0.8, k[1] + (ft[1] - k[1]) * 0.8], 13, col);
+      const a = T(hip), k = T(kne), ft = T(foot);
+      seg(g, a, k, 15, col, true, true);
+      const end = [k[0] + (ft[0] - k[0]) * 0.82, k[1] + (ft[1] - k[1]) * 0.82];
+      seg(g, k, end, 13, col);
+      // vinco escuro da coxa
+      g.moveTo(a[0] + 3, a[1] + 2).lineTo(k[0] + 2, k[1] - 2)
+        .stroke({ width: 2, color: 0x000000, alpha: 0.3, cap: 'round' });
+      // punho amarrado no tornozelo
+      const [dx, dy] = dir(k, end);
+      g.moveTo(end[0] - dy * 7, end[1] + dx * 7).lineTo(end[0] + dy * 7, end[1] - dx * 7)
+        .stroke({ width: 3.5, color: C(p.cuff ?? '#3a1216') });
     }
+    const a = T(sk.hip);
+    g.roundRect(a[0] - 11, a[1] - 5, 22, 5, 2.5).fill(0x111111).stroke({ width: 2, color: OUT });
   },
   kneepads({ g, T, sk }, p) {
     const col = C(p.color ?? '#333333');
     for (const kne of [sk.kneB, sk.kneF]) {
       const [x, y] = T(kne);
+      // tiras
+      g.moveTo(x - 9, y - 5).lineTo(x + 9, y - 5).stroke({ width: 3, color: 0x111111 });
+      g.moveTo(x - 9, y + 5).lineTo(x + 9, y + 5).stroke({ width: 3, color: 0x111111 });
+      // cúpula
       g.circle(x, y, 8).fill(col).stroke({ width: 2.5, color: OUT });
+      g.circle(x, y, 4.5).stroke({ width: 1.8, color: 0x000000, alpha: 0.35 });
+      g.ellipse(x - 2.5, y - 3, 2.6, 1.7).fill({ color: 0xffffff, alpha: 0.35 });
     }
   },
   shoes({ g, T, sk, face }, p) {
@@ -200,9 +249,18 @@ const TEMPLATES = {
     for (const [kne, foot] of [[sk.kneB, sk.footB], [sk.kneF, sk.footF]]) {
       const k = T(kne), ft = T(foot);
       const [dx, dy] = dir(k, ft);
-      const tip = [ft[0] + dx * 4 + face * 6, ft[1] + dy * 4];
-      seg(g, [ft[0] - dx * 4, ft[1] - dy * 4], tip, 12, col, true, true);
-      if (p.stripe) g.circle((ft[0] + tip[0]) / 2, (ft[1] + tip[1]) / 2, 2.6).fill(C(p.stripe));
+      const back = [ft[0] - dx * 4, ft[1] - dy * 4];
+      const tip = [ft[0] + dx * 4 + face * 7, ft[1] + dy * 4];
+      seg(g, back, tip, 12, col, true, true);
+      // sola
+      g.moveTo(back[0] - face * 1, back[1] + 5).lineTo(tip[0] + face * 2, tip[1] + 5)
+        .stroke({ width: 3.5, color: 0x2a2a2a, cap: 'round' });
+      // risco lateral
+      if (p.stripe)
+        g.moveTo(back[0] + face * 2, back[1] - 1).quadraticCurveTo((back[0] + tip[0]) / 2, back[1] + 3, tip[0] - face * 2, tip[1] - 2)
+          .stroke({ width: 2.2, color: C(p.stripe), cap: 'round' });
+      // biqueira
+      g.circle(tip[0], tip[1] + 1, 3).fill({ color: 0xffffff, alpha: 0.25 });
     }
   },
   boots({ g, T, sk, face }, p) {
@@ -210,8 +268,24 @@ const TEMPLATES = {
     for (const [kne, foot] of [[sk.kneB, sk.footB], [sk.kneF, sk.footF]]) {
       const k = T(kne), ft = T(foot);
       const [dx, dy] = dir(k, ft);
-      seg(g, [ft[0] - dx * 14, ft[1] - dy * 14], [ft[0] + dx * 3 + face * 6, ft[1] + dy * 3], 14, col, true, true);
-      if (p.glow) g.circle(ft[0], ft[1], 3).fill({ color: C(p.glow), alpha: 0.9 });
+      const top = [ft[0] - dx * 14, ft[1] - dy * 14];
+      const tip = [ft[0] + dx * 3 + face * 7, ft[1] + dy * 3];
+      seg(g, top, tip, 14, col, true, true);
+      // dobra do cano
+      g.moveTo(top[0] - dy * 8, top[1] + dx * 8).lineTo(top[0] + dy * 8, top[1] - dx * 8)
+        .stroke({ width: 3.5, color: 0x000000, alpha: 0.45 });
+      // sola pesada
+      g.moveTo(ft[0] - dx * 5, ft[1] + 6).lineTo(tip[0] + face * 2, tip[1] + 6)
+        .stroke({ width: 4, color: 0x0d0d0d, cap: 'round' });
+      // cadarço (ou brasas, se tiver glow)
+      if (p.glow) {
+        g.circle(ft[0], ft[1], 6).fill({ color: C(p.glow), alpha: 0.25 });
+        g.circle(ft[0], ft[1], 3).fill({ color: C(p.glow), alpha: 0.9 });
+      } else {
+        const mx = (top[0] + ft[0]) / 2, my = (top[1] + ft[1]) / 2;
+        g.moveTo(mx - 4, my - 3).lineTo(mx + 4, my + 2).stroke({ width: 1.6, color: 0x555555 });
+        g.moveTo(mx + 4, my - 3).lineTo(mx - 4, my + 2).stroke({ width: 1.6, color: 0x555555 });
+      }
     }
   },
 
