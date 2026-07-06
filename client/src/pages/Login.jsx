@@ -23,12 +23,6 @@ export function Brand() {
     <>
       <div className="hero-wrap">
         <div className="hero-canvas" ref={host} aria-hidden="true" />
-        <div className="hero-title">
-          <h1 className="brand">
-            STIK<span className="red">DEAD</span>
-          </h1>
-          <div className="tagline hero-tagline">— LUTE. MORRA. EVOLUA. —</div>
-        </div>
       </div>
     </>
   );

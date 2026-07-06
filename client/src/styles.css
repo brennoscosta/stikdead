@@ -522,7 +522,8 @@ body {
   margin-bottom: 4px;
 }
 .hero-canvas {
-  height: clamp(240px, 38vh, 340px);
+  aspect-ratio: 1024 / 660;
+  max-height: 46vh;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #241318;
