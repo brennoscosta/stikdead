@@ -767,8 +767,12 @@ h1.brand { display: flex; align-items: center; justify-content: center; flex-wra
 
 /* ===== botão/indicador de skill ===== */
 .bt-skill {
-  position: absolute; right: 118px; bottom: 20px; z-index: 22;
-  width: 78px; height: 78px; border-radius: 50%;
+  /* ancorado ACIMA do botão JUMP (3ª coluna do cluster .bt-actions) */
+  position: absolute;
+  right: calc(3vw + 6px);
+  bottom: calc(5vh + 148px);
+  z-index: 22;
+  width: 66px; height: 66px; border-radius: 50%;
   background: conic-gradient(#d90429 var(--cd, 0%), #2a1218 0);
   border: 2px solid #3a1a20; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
@@ -782,8 +786,8 @@ h1.brand { display: flex; align-items: center; justify-content: center; flex-wra
 .bt-skill > * { position: relative; z-index: 1; }
 .bt-skill[data-ready="1"] { box-shadow: 0 0 22px rgba(217, 4, 41, 0.65); border-color: #d90429; }
 .bt-skill[data-ready="1"]:active { transform: scale(0.93); }
-.bt-skill-name { font: 700 10px "Barlow Condensed", sans-serif; letter-spacing: 0.06em; text-align: center; line-height: 1.05; max-width: 62px; }
-.bt-skill-cd { font: 800 22px "Barlow Condensed", sans-serif; color: #ff8fa3; min-height: 22px; }
+.bt-skill-name { font: 700 9px "Barlow Condensed", sans-serif; letter-spacing: 0.05em; text-align: center; line-height: 1.05; max-width: 56px; }
+.bt-skill-cd { font: 800 19px "Barlow Condensed", sans-serif; color: #ff8fa3; min-height: 19px; }
 
 /* ===== seletor de estilo ===== */
 .style-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
