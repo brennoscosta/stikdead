@@ -38,7 +38,9 @@ const VIGN = {
 const STYLE_ARENA = (scene) =>
   `Fighting game arena background, dark fantasy painterly style, cinematic moody lighting, ` +
   `deep shadows, blood-red accents, ink-splatter details. ${scene} ` +
-  `The lower third of the image is a clean flat empty ground strip with no objects, ready for game characters. ` +
+  `The lower third of the image is the fighting ground: a flat, empty strip of VERY DARK stone floor ` +
+  `(deep charcoal gray, almost black, subtle red reflections), with no objects on it. ` +
+  `The entire image stays dark and moody from top to bottom — absolutely no white or bright areas. ` +
   `No characters, no people, no text, no watermark, no UI.`;
 
 const ASSETS = {
