@@ -40,7 +40,7 @@ export async function createRenderer(host, theme = 'dojo') {
   }
   const fighterHalos = new Graphics();
   world.addChild(fighterHalos);
-  if (painted) { tagStyle.fill = 0xf2efe9; tagStyle.dropShadow = { distance: 2, blur: 3, alpha: 0.8 }; }
+
   const gA = new Graphics();
   const gB = new Graphics();
   world.addChild(gA, gB);
@@ -52,6 +52,12 @@ export async function createRenderer(host, theme = 'dojo') {
   tagA.anchor.set(0.5, 1);
   tagB.anchor.set(0.5, 1);
   world.addChild(tagA, tagB);
+  if (painted) {
+    for (const t of [tagA, tagB]) {
+      t.style.fill = 0xf2efe9;
+      t.style.dropShadow = { distance: 2, blur: 3, alpha: 0.8, color: 0x000000 };
+    }
+  }
   let loadouts = [null, null];
   let names = ['', ''];
 
