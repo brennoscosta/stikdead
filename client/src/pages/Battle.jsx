@@ -7,6 +7,7 @@ import { createRenderer } from '../game/renderer.js';
 import { ARENAS, ARENA_KEYS } from '../game/arena.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
+import Navbar from '../lib/Navbar.jsx';
 import { api } from '../lib/api.js';
 import '../battle.css';
 
@@ -33,7 +34,7 @@ export default function Battle({ profile, onProfile }) {
   };
 
   return screen === 'select' ? (
-    <DifficultySelect onPick={enterGameMode} arena={arena} setArena={setArena} />
+    <DifficultySelect profile={profile} onPick={enterGameMode} arena={arena} setArena={setArena} />
   ) : (
     <Fight
       profile={profile}
@@ -45,10 +46,11 @@ export default function Battle({ profile, onProfile }) {
   );
 }
 
-function DifficultySelect({ onPick, arena, setArena }) {
+function DifficultySelect({ onPick, arena, setArena, profile }) {
   const nav = useNavigate();
   return (
     <div className="scene">
+      <Navbar profile={profile} />
       <h1 className="brand" style={{ fontSize: 'clamp(40px, 8vw, 60px)' }}>
         MODO <span className="red">TREINO</span>
       </h1>

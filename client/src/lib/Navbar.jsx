@@ -12,6 +12,7 @@ const LINKS = [
 export default function Navbar({ profile }) {
   const nav = useNavigate();
   return (
+    <>
     <header className="topnav">
       <button className="topnav-logo" onClick={() => nav('/perfil')}>
         <img src="/logo.webp" alt="STIKDEAD" />
@@ -33,5 +34,7 @@ export default function Navbar({ profile }) {
         </button>
       </div>
     </header>
+    <div className="topnav-spacer" aria-hidden="true" />
+    </>
   );
 }
