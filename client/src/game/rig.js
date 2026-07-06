@@ -123,7 +123,7 @@ export function skeleton(pose) {
 }
 
 const INK = 0x111111;
-const PAPERSHADOW = 0x00000022;
+const PAPERSHADOW = { color: 0x000000, alpha: 0.13 };
 
 // Desenha o lutador num Graphics. accent: 0xd90429 (player) ou 0x8a8a8a (bot).
 export function drawFighter(g, f, moves, accent, elapsed) {

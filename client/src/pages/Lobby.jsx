@@ -256,7 +256,16 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     let lastHeartbeat = 0;
 
     (async () => {
-      renderer = await createRenderer(hostRef.current);
+      try {
+        renderer = await createRenderer(hostRef.current);
+      } catch (err) {
+        console.error(err);
+        if (hostRef.current)
+          hostRef.current.innerHTML =
+            '<div style="color:#ff8fa3;font:600 18px Barlow Condensed,sans-serif;padding:80px 24px;text-align:center">' +
+            'Erro ao iniciar o jogo: ' + String(err?.message || err) + '</div>';
+        return;
+      }
       if (!alive) return renderer.destroy();
       let last = performance.now();
       let lastCount = null;

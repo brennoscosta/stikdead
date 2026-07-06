@@ -12,7 +12,7 @@ export function buildDojo() {
   g.rect(WORLD.left - 200, -WORLD.skyH, WORLD.width + 400, WORLD.skyH).fill(0xece5d6);
 
   // faixa de sombra no topo (tinta diluída)
-  g.rect(WORLD.left - 200, -WORLD.skyH, WORLD.width + 400, 46).fill(0x1a1a1a12);
+  g.rect(WORLD.left - 200, -WORLD.skyH, WORLD.width + 400, 46).fill({ color: 0x1a1a1a, alpha: 0.07 });
 
   // janelas shoji
   for (const wx of [-330, 250]) {
@@ -43,7 +43,7 @@ export function buildDojo() {
   // respingos de tinta no chão
   const seeds = [-380, -260, -120, 40, 170, 300, 390];
   seeds.forEach((x, i) => {
-    g.circle(x, 30 + (i % 4) * 34, 4 + (i % 3) * 2).fill(0x1a1a1a14);
+    g.circle(x, 30 + (i % 4) * 34, 4 + (i % 3) * 2).fill({ color: 0x1a1a1a, alpha: 0.08 });
   });
   g.moveTo(WORLD.left - 200, 0).lineTo(WORLD.right + 200, 0).stroke({ width: 5, color: 0x6d5a3c });
 
@@ -77,7 +77,7 @@ export function fxKo(fx, x, y, dir) {
 }
 
 export function fxDash(fx, x) {
-  for (let i = 0; i < 6; i++) spawn(fx, x, 8, 0, 0x99908066, 120, 0.3);
+  for (let i = 0; i < 6; i++) spawn(fx, x, 8, 0, 0x999080, 120, 0.3);
 }
 
 function spawn(fx, x, y, dir, color, power, life) {
