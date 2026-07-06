@@ -13,7 +13,14 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ITEMS_DIR = path.join(ROOT, 'client/public/items');
 const ARENAS_DIR = path.join(ROOT, 'client/public/arenas');
-const ENDPOINT = 'flux-pro/kontext/max/text-to-image';
+const ENDPOINT = '/v1/text2image/soul';
+// palavras que podem tropeçar na moderação — retry automático saneado
+const SANITIZE = [
+  [/blood-red/gi, 'crimson'], [/blood/gi, 'crimson'], [/demonic/gi, 'dark oni'],
+  [/sinister/gi, 'ominous'], [/reaper/gi, 'harvest'], [/claw marks/gi, 'slash marks'],
+  [/horror/gi, 'grim'], [/dripping/gi, 'glowing'],
+];
+const sanitize = (p) => SANITIZE.reduce((acc, [re, sub]) => acc.replace(re, sub), p);
 
 const STYLE_ICON = (subject, vign) =>
   `Video game shop item icon for a dark fantasy stick-figure fighting game. ${subject} ` +
@@ -128,16 +135,23 @@ for (const a of queue) {
   }
   try {
     process.stdout.write(`⏳ ${a.id}... `);
-    const jobSet = await higgsfield.subscribe(ENDPOINT, {
-      input: {
-        prompt: a.prompt,
-        aspect_ratio: a.kind === 'icon' ? '1:1' : '16:9',
-        safety_tolerance: 2,
-      },
+    const size = a.kind === 'icon' ? '1536x1536' : '2048x1152';
+    const runOnce = (prompt) => higgsfield.subscribe(ENDPOINT, {
+      input: { prompt, width_and_height: size, quality: '1080p', batch_size: 1, enhance_prompt: false },
       withPolling: true,
     });
-    const url = jobSet.jobs?.[0]?.results?.raw?.url;
-    if (!jobSet.isCompleted || !url) throw new Error(`job não completou (${jobSet.jobs?.[0]?.status})`);
+    let jobSet = await runOnce(a.prompt);
+    let url = jobSet.jobs?.[0]?.results?.raw?.url || jobSet.jobs?.[0]?.results?.min?.url;
+    const st = () => jobSet.jobs?.[0]?.status || jobSet.status;
+    if ((!url) && st() === 'nsfw') {
+      process.stdout.write('(moderação, tentando versão saneada) ');
+      jobSet = await runOnce(sanitize(a.prompt));
+      url = jobSet.jobs?.[0]?.results?.raw?.url || jobSet.jobs?.[0]?.results?.min?.url;
+    }
+    if (!url) {
+      const dump = JSON.stringify(jobSet).slice(0, 500);
+      throw new Error(`sem resultado (status=${st()}) :: ${dump}`);
+    }
     const buf = Buffer.from(await (await fetch(url)).arrayBuffer());
     const img = sharp(buf);
     if (a.kind === 'icon') await img.resize(256, 256).webp({ quality: 82 }).toFile(out);
