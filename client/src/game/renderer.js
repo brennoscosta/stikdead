@@ -171,10 +171,28 @@ export async function createRenderer(host, theme = 'dojo') {
       if (e.type === 'hit') { fxHit(fx, e.x, e.y, e.attacker === 0 ? 1 : -1, e); spawnDmg(e, match); }
       if (e.type === 'ko') fxKo(fx, e.x, e.y, e.winner === 0 ? 1 : -1);
       if (e.type === 'dash') fxDash(fx, e.x);
+      if (e.type === 'skill') {
+        const col = { ronin: 0xffffff, shinobi: 0x8b5cf6, monge: 0xffc14d, berserker: 0xff2244, espectro: 0x9fd8ff }[e.style] || 0xffffff;
+        fx.rings.push({ x: e.x, y: e.y, r: 8, vr: 460, life: 0.32, maxLife: 0.32, color: col, w: 4 });
+        fx.sparks.push({ x: e.x, y: e.y, life: 0.2, maxLife: 0.2, size: 24, color: col });
+      }
+      if (e.type === 'skillwave')
+        fx.rings.push({ x: e.x, y: e.y || 60, r: 12, vr: 900, life: 0.4, maxLife: 0.4, color: 0xffc14d, w: 6 });
+      if (e.type === 'skillslam') {
+        fx.rings.push({ x: e.x, y: 8, r: 10, vr: 700, life: 0.35, maxLife: 0.35, color: 0x9fd8ff, w: 5 });
+        fx.shake = Math.max(fx.shake, 9);
+      }
     }
 
     const [a, b] = match.fighters;
     fighterHalos.clear();
+    for (const f of [a, b]) {
+      if (f.fury > 0) {
+        const pulse = 0.16 + 0.1 * Math.sin(elapsed * 12);
+        fighterHalos.ellipse(f.x, -(f.y + 80), 46, 96).fill({ color: 0xd90429, alpha: pulse });
+        fighterHalos.ellipse(f.x, -(f.y + 80), 30, 70).fill({ color: 0xff2244, alpha: pulse * 0.7 });
+      }
+    }
     if (painted) {
       for (const f of [a, b]) {
         fighterHalos.ellipse(f.x, -(f.y + 66), 44, 78).fill({ color: 0xffe8d6, alpha: 0.05 });

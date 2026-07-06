@@ -14,7 +14,7 @@ export function createBot(difficulty = 'medio', rng = Math.random) {
 }
 
 const emptyIntent = () => ({
-  left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false,
+  left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false,
 });
 
 export function botDecide(bot, match, selfIdx, dt) {
@@ -32,11 +32,13 @@ export function botDecide(bot, match, selfIdx, dt) {
   bot.intent.light = false;
   bot.intent.heavy = false;
   bot.intent.dash = false;
+  bot.intent.skill = false;
   bot.intent.jump = false;
 
   // reação: bloquear quando o oponente inicia um ataque
   const oppAttacking = opp.state === 'light' || opp.state === 'heavy';
   const dist = Math.abs(opp.x - self.x);
+  if (me.skillCd === 0 && dist < 170 && Math.random() < p.attack * 0.02) bot.intent.skill = true;
   if (oppAttacking && dist < 170 && rng() < p.block) {
     bot.intent.block = true;
     bot.intent.left = bot.intent.right = false;

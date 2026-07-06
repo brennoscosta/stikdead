@@ -6,6 +6,8 @@ import Navbar from '../lib/Navbar.jsx';
 import { api } from '../lib/api.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
+import { STYLES } from '../game/sim.js';
+import { SkillButton } from './Battle.jsx';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
 import { TouchControls } from './Battle.jsx';
@@ -305,6 +307,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     dotsA: useRef(null), dotsB: useRef(null),
     timer: useRef(null), announce: useRef(null),
     combo: useRef(null), center: useRef(null), vs: useRef(null),
+    skill: useRef(null),
   };
   const inputRef = useRef(null);
   const [paused, setPaused] = useState(false);
@@ -460,6 +463,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           if (e.type === 'fightstart') { centerText('LUTE!'); setTimeout(() => centerText(''), 650); }
           if (e.type === 'roundstart') { centerText(`ROUND ${e.round}`); setTimeout(() => centerText(''), 900); }
           if (e.type === 'firstblood') announce('PRIMEIRO SANGUE!');
+          if (e.type === 'skill') announce(e.name.toUpperCase(), e.idx === me ? '' : 'red');
           if (e.type === 'suddendeath') announce('MORTE SÚBITA!', 'red');
           if (e.type === 'ko') announce(e.finisher ? 'FINALIZAÇÃO!' : 'K.O.!', 'red');
           if (e.type === 'roundend' && e.winner >= 0)
@@ -500,6 +504,13 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         }
 
         renderer.frame(clientMatch, events, dt);
+        if (hud.skill?.current && curSnap?.f?.[me]) {
+          const cd = curSnap.f[me].skillCd || 0;
+          const max = (STYLES[curSnap.f[me].style] || STYLES.ronin).cd;
+          hud.skill.current.style.setProperty('--cd', `${Math.min(1, 1 - cd / max) * 100}%`);
+          hud.skill.current.dataset.ready = cd <= 0 ? '1' : '';
+          hud.skill.current.querySelector('.bt-skill-cd').textContent = cd > 0 ? Math.ceil(cd) : '';
+        }
       };
       raf = requestAnimationFrame(loop);
     })();
@@ -572,6 +583,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
 
       <button className="bt-pausebtn" onClick={() => setPaused(true)} aria-label="Menu">II</button>
 
+      <SkillButton inputRef={inputRef} hudRef={hud} style={session.players?.[me]?.style || 'ronin'} />
       <TouchControls inputRef={inputRef} />
 
       <div className="bt-rotate">

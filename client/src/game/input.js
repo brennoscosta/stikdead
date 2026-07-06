@@ -7,11 +7,12 @@ const KEYMAP = {
   KeyJ: 'light',
   KeyK: 'heavy',
   KeyL: 'block',
+  KeyE: 'skill', ShiftLeft: 'skill',
   ShiftLeft: 'dash', ShiftRight: 'dash',
 };
 
 export function createInput() {
-  const keys = { left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false };
+  const keys = { left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false };
   const touch = { ...keys };
 
   const down = (e) => {

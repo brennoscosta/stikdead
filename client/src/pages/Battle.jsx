@@ -6,6 +6,7 @@ import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
 import { ARENAS, ARENA_KEYS } from '../game/arena.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
+import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import { api } from '../lib/api.js';
 import '../battle.css';
 
@@ -88,6 +89,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
     dotsA: useRef(null), dotsB: useRef(null),
     timer: useRef(null), announce: useRef(null),
     combo: useRef(null), center: useRef(null), vs: useRef(null),
+    skill: useRef(null),
   };
   const inputRef = useRef(null);
   const pausedRef = useRef(false);
@@ -106,7 +108,8 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
     let alive = true;
     let renderer = null;
     let raf = 0;
-    const match = createMatch();
+    const botStyle = STYLE_KEYS[Math.floor(Math.random() * STYLE_KEYS.length)];
+    const match = createMatch({ styles: [profile.style || 'ronin', botStyle] });
     const bot = createBot(difficulty);
     const input = createInput();
     inputRef.current = input;
@@ -181,6 +184,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
           playEvent(e, 0);
           if (e.type === 'fightstart') { centerText('LUTE!'); setTimeout(() => centerText(''), 650); }
           if (e.type === 'firstblood') announce('PRIMEIRO SANGUE!');
+          if (e.type === 'skill') announce(e.name.toUpperCase(), e.idx === 0 ? '' : 'red');
           if (e.type === 'suddendeath') announce('MORTE SÚBITA!', 'red');
           if (e.type === 'ko') announce(e.finisher ? 'FINALIZAÇÃO!' : 'K.O.!', 'red');
           if (e.type === 'roundstart') { centerText(`ROUND ${e.round}`); setTimeout(() => centerText(''), 900); }
@@ -224,6 +228,13 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
 
         if (hud.vs.current)
           hud.vs.current.classList.toggle('show', match.phase === 'countdown' && match.round === 1 && match.phaseT < 2.2);
+          if (hud.skill?.current) {
+            const cd = match.fighters[0].skillCd;
+            const max = (STYLES[match.fighters[0].style] || STYLES.ronin).cd;
+            hud.skill.current.style.setProperty('--cd', `${Math.min(1, 1 - cd / max) * 100}%`);
+            hud.skill.current.dataset.ready = cd <= 0 ? '1' : '';
+            hud.skill.current.querySelector('.bt-skill-cd').textContent = cd > 0 ? Math.ceil(cd) : '';
+          }
 
         if (match.phase === 'countdown') {
           const n = Math.ceil(3.4 - match.phaseT - 0.3);
@@ -306,6 +317,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
 
       <button className="bt-pausebtn" onClick={() => setPause(true)} aria-label="Pausar">II</button>
 
+      <SkillButton inputRef={inputRef} hudRef={hud} style={profile.style || 'ronin'} />
       <TouchControls inputRef={inputRef} />
 
       <div className="bt-rotate">
@@ -362,6 +374,30 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
         </div>
       )}
     </div>
+  );
+}
+
+export function SkillButton({ inputRef, hudRef, style }) {
+  const info = STYLES[style] || STYLES.ronin;
+  const press = (v) => {
+    if (inputRef.current) {
+      inputRef.current.touch.skill = v;
+      if (!inputRef.current.keys) return;
+    }
+  };
+  return (
+    <button
+      ref={hudRef.skill}
+      className="bt-skill"
+      title={`${info.skill} (E)`}
+      onPointerDown={() => press(true)}
+      onPointerUp={() => press(false)}
+      onPointerLeave={() => press(false)}
+    >
+      <span className="bt-skill-ring" aria-hidden="true" />
+      <span className="bt-skill-name">{info.skill}</span>
+      <span className="bt-skill-cd" />
+    </button>
   );
 }
 

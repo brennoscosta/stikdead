@@ -24,8 +24,37 @@ const COUNTDOWN = 3.4;
 const ROUND_END_PAUSE = 2.4;
 const COMBO_WINDOW = 0.9;
 
+// ===== estilos de luta (skill ativa + passivo) =====
+export const STYLES = {
+  ronin: {
+    label: 'Ronin', skill: 'Corte Rápido', cd: 9, dur: 0.5,
+    desc: '3 cortes instantâneos. Passivo: +10% de velocidade.',
+  },
+  shinobi: {
+    label: 'Shinobi', skill: 'Dash Sombrio', cd: 10, dur: 0.35,
+    desc: 'Atravessa o oponente cortando (invencível). Passivo: dash recarrega 25% mais rápido.',
+  },
+  monge: {
+    label: 'Monge', skill: 'Explosão de Ki', cd: 10, dur: 0.45,
+    desc: 'Onda de choque radial com empurrão brutal. Passivo: bloqueio reflete 2 de dano.',
+  },
+  berserker: {
+    label: 'Berserker', skill: 'Fúria', cd: 14, dur: 0.3,
+    desc: '4s de +50% dano e armadura contra golpes leves. Passivo: +15% dano com vida baixa.',
+  },
+  espectro: {
+    label: 'Espectro', skill: 'Golpe Aéreo', cd: 11, dur: 0.9,
+    desc: 'Salta e esmaga a área ao aterrissar. Passivo: pulo 15% mais alto.',
+  },
+};
+export const STYLE_KEYS = Object.keys(STYLES);
+
+// multiplicador de dano do atacante (fúria + passivo do berserker)
+const dmgMod = (atk) =>
+  (atk.fury > 0 ? 1.5 : 1) * (atk.style === 'berserker' && atk.hp < 40 ? 1.15 : 1);
+
 export const EMPTY_INPUT = Object.freeze({
-  left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false,
+  left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false,
 });
 
 function createFighter(x, face) {
@@ -33,12 +62,13 @@ function createFighter(x, face) {
     x, y: 0, vx: 0, vy: 0, face,
     hp: 100, state: 'idle', t: 0,
     dashCd: 0, invuln: 0, hitDone: false,
+    style: 'ronin', skillCd: 0, fury: 0, skillPhase: 0,
     combo: 0, comboT: 0,
-    prev: { jump: false, light: false, heavy: false, dash: false },
+    prev: { jump: false, light: false, heavy: false, dash: false, skill: false },
   };
 }
 
-export function createMatch({ bestOf = 3 } = {}) {
+export function createMatch({ bestOf = 3, styles = ['ronin', 'ronin'] } = {}) {
   return {
     phase: 'countdown', // countdown | fight | roundend | matchend
     phaseT: 0,
@@ -51,7 +81,7 @@ export function createMatch({ bestOf = 3 } = {}) {
     freeze: 0,
     timescale: 1,
     timescaleT: 0,
-    fighters: [createFighter(-170, 1), createFighter(170, -1)],
+    fighters: [Object.assign(createFighter(-170, 1), { style: STYLE_KEYS.includes(styles[0]) ? styles[0] : 'ronin' }), Object.assign(createFighter(170, -1), { style: STYLE_KEYS.includes(styles[1]) ? styles[1] : 'ronin' })],
     roundWinner: -1,
     winner: -1,
     elapsed: 0,
@@ -97,7 +127,8 @@ function applyHit(m, atkIdx, move, ev) {
   const atk = m.fighters[atkIdx];
   const def = m.fighters[1 - atkIdx];
   const blocked = def.state === 'block' && def.face === -atk.face;
-  const dmg = blocked ? move.chip : move.dmg;
+  const dmg = Math.max(1, Math.round((blocked ? move.chip : move.dmg) * (blocked ? 1 : dmgMod(atk))));
+  if (blocked && def.style === 'monge') atk.hp = Math.max(1, atk.hp - 2); // reflexo de Ki
   const kb = move.kb * (blocked ? BLOCK_KB_FACTOR : 1);
 
   def.hp = Math.max(0, def.hp - dmg);
@@ -109,9 +140,12 @@ function applyHit(m, atkIdx, move, ev) {
   else st.hits++;
 
   if (!blocked) {
-    def.state = 'hit';
-    def.t = 0;
-    def.hitstun = move.hitstun;
+    const armored = def.fury > 0 && move !== MOVES.heavy; // fúria ignora hitstun de leves
+    if (!armored) {
+      def.state = 'hit';
+      def.t = 0;
+      def.hitstun = move.hitstun;
+    }
     atk.combo = atk.comboT > 0 ? atk.combo + 1 : 1;
     atk.comboT = COMBO_WINDOW + move.hitstun;
     st.maxCombo = Math.max(st.maxCombo, atk.combo);
@@ -147,12 +181,77 @@ function applyHit(m, atkIdx, move, ev) {
   }
 }
 
+// golpe de skill: gate de alcance e direção, depois o applyHit padrão
+// (KO, stats, combo, freeze e eventos vêm de graça)
+function skillStrike(m, atkIdx, { dmg, range, kb, hitstun, bidir = false }, ev) {
+  const atk = m.fighters[atkIdx];
+  const def = m.fighters[1 - atkIdx];
+  const dx = def.x - atk.x;
+  if (Math.abs(dx) > range) return false;
+  if (!bidir && Math.sign(dx || atk.face) !== atk.face) return false;
+  applyHit(m, atkIdx, { dmg, hitstun, kb, chip: Math.max(1, Math.ceil(dmg / 4)), freeze: 0.06 }, ev);
+  return true;
+}
+
+function castSkill(m, idx, ev) {
+  const f = m.fighters[idx];
+  const st = STYLES[f.style] || STYLES.ronin;
+  f.skillCd = st.cd;
+  f.t = 0;
+  f.skillPhase = 0;
+  f.vx = 0;
+  ev.push({ type: 'skill', idx, style: f.style, name: st.skill, x: f.x, y: f.y + 90 });
+
+  if (f.style === 'berserker') {
+    f.fury = 4.0;
+    f.state = 'skill';
+  } else if (f.style === 'shinobi') {
+    const opp = m.fighters[1 - idx];
+    const from = f.x;
+    f.x = Math.max(ARENA.left, Math.min(ARENA.right, f.x + f.face * 150));
+    f.invuln = 0.35;
+    // cortou ao atravessar?
+    const crossed = (opp.x - from) * (opp.x - f.x) <= 0;
+    if (crossed) skillStrike(m, idx, { dmg: 12, range: 200, kb: 160, hitstun: 0.35, bidir: true }, ev);
+    f.state = 'skill';
+  } else if (f.style === 'espectro') {
+    f.vy = 560;
+    f.y = 0.01;
+    f.vx = f.face * 240;
+    f.state = 'skillair';
+  } else {
+    f.state = 'skill'; // ronin e monge resolvem no stepSkill
+  }
+}
+
+function stepSkill(m, idx, ev) {
+  const f = m.fighters[idx];
+  const st = STYLES[f.style] || STYLES.ronin;
+  f.vx = 0;
+
+  if (f.style === 'ronin') {
+    const cuts = [0.08, 0.2, 0.32];
+    while (f.skillPhase < cuts.length && f.t >= cuts[f.skillPhase]) {
+      skillStrike(m, idx, { dmg: 6, range: 105, kb: 90, hitstun: 0.22 }, ev);
+      f.skillPhase++;
+    }
+  } else if (f.style === 'monge' && f.skillPhase === 0 && f.t >= 0.18) {
+    f.skillPhase = 1;
+    skillStrike(m, idx, { dmg: 10, range: 140, kb: 520, hitstun: 0.45, bidir: true }, ev);
+    ev.push({ type: 'skillwave', idx, x: f.x, y: f.y + 60 });
+  }
+
+  if (f.t >= st.dur) { f.state = 'idle'; }
+}
+
 function updateFighter(m, idx, inp, dt, ev) {
   const f = m.fighters[idx];
   const opp = m.fighters[1 - idx];
   f.t += dt;
   f.dashCd = Math.max(0, f.dashCd - dt);
   f.invuln = Math.max(0, f.invuln - dt);
+  f.skillCd = Math.max(0, f.skillCd - dt);
+  f.fury = Math.max(0, f.fury - dt);
   f.comboT = Math.max(0, f.comboT - dt);
   if (f.comboT === 0) f.combo = 0;
 
@@ -170,15 +269,17 @@ function updateFighter(m, idx, inp, dt, ev) {
     case 'idle':
     case 'walk': {
       f.face = opp.x >= f.x ? 1 : -1;
-      f.vx = dir * SPEED;
+      f.vx = dir * SPEED * (f.style === 'ronin' ? 1.1 : 1);
       f.state = dir !== 0 ? 'walk' : 'idle';
       if (pressed(inp, f.prev, 'jump') && grounded) {
-        f.vy = JUMP_VY; f.y = 0.01; f.state = 'jump'; f.t = 0;
+        f.vy = JUMP_VY * (f.style === 'espectro' ? 1.15 : 1); f.y = 0.01; f.state = 'jump'; f.t = 0;
         ev.push({ type: 'jump', idx });
       } else if (pressed(inp, f.prev, 'dash') && f.dashCd === 0) {
-        f.state = 'dash'; f.t = 0; f.dashCd = DASH_CD; f.invuln = DASH_INVULN;
+        f.state = 'dash'; f.t = 0; f.dashCd = DASH_CD * (f.style === 'shinobi' ? 0.75 : 1); f.invuln = DASH_INVULN;
         f.dashDir = dir !== 0 ? dir : f.face;
         ev.push({ type: 'dash', idx, x: f.x });
+      } else if (pressed(inp, f.prev, 'skill') && grounded && f.skillCd === 0) {
+        castSkill(m, idx, ev);
       } else if (pressed(inp, f.prev, 'light') && grounded) {
         f.state = 'light'; f.t = 0; f.hitDone = false; f.vx = 0;
       } else if (pressed(inp, f.prev, 'heavy') && grounded) {
@@ -196,6 +297,19 @@ function updateFighter(m, idx, inp, dt, ev) {
     case 'dash': {
       f.vx = DASH_SPEED * f.dashDir;
       if (f.t >= DASH_TIME) { f.state = 'idle'; f.vx = 0; }
+      break;
+    }
+    case 'skill': {
+      stepSkill(m, idx, ev);
+      break;
+    }
+    case 'skillair': {
+      // Espectro no ar: cai com força e esmaga ao aterrissar
+      if (grounded && f.t > 0.08) {
+        f.state = 'idle'; f.vx = 0;
+        skillStrike(m, idx, { dmg: 14, range: 115, kb: 420, hitstun: 0.45, bidir: true }, ev);
+        ev.push({ type: 'skillslam', idx, x: f.x });
+      }
       break;
     }
     case 'block': {
@@ -237,7 +351,7 @@ function updateFighter(m, idx, inp, dt, ev) {
 
   f.x += f.vx * dt;
   f.x = Math.max(ARENA.left, Math.min(ARENA.right, f.x));
-  f.prev = { jump: inp.jump, light: inp.light, heavy: inp.heavy, dash: inp.dash };
+  f.prev = { jump: inp.jump, light: inp.light, heavy: inp.heavy, dash: inp.dash, skill: inp.skill };
 }
 
 function separate(m) {

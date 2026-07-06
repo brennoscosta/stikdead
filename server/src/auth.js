@@ -28,7 +28,7 @@ export function requireAuth(req, res, next) {
 
 async function fetchProfile(userId) {
   const { rows } = await q(
-    `SELECT u.id, u.email, p.fighter_name, p.level, p.xp, p.coins,
+    `SELECT u.id, u.email, p.fighter_name, p.style, p.level, p.xp, p.coins,
             p.rank_points, p.tier, p.wins, p.losses, p.win_streak, p.title
        FROM users u JOIN profiles p ON p.user_id = u.id
       WHERE u.id = $1`,
@@ -166,7 +166,16 @@ router.get('/me', requireAuth, async (req, res) => {
   res.json({ profile });
 });
 
+const VALID_STYLES = new Set(['ronin', 'shinobi', 'monge', 'berserker', 'espectro']);
+
 router.patch('/me', requireAuth, async (req, res) => {
+  // troca de estilo de luta (sem mexer no nome)
+  if (req.body.style !== undefined && req.body.fighterName === undefined) {
+    const style = String(req.body.style || '');
+    if (!VALID_STYLES.has(style)) return res.status(400).json({ error: 'Estilo inválido.' });
+    await q('UPDATE profiles SET style = $1, updated_at = now() WHERE user_id = $2', [style, req.userId]);
+    return res.json({ profile: await fetchProfile(req.userId) });
+  }
   const fighterName = String(req.body.fighterName || '').trim();
   if (!NAME_RE.test(fighterName))
     return res.status(400).json({

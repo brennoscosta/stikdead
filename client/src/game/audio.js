@@ -108,6 +108,11 @@ export const sfx = {
   defeat() { [330, 262, 196].forEach((f, i) => tone(f, 0.42, 0.2, 'triangle', i * 0.16)); },
   drop() { [660, 880, 1108].forEach((f, i) => tone(f, 0.2, 0.18, 'sine', i * 0.08)); },
   click() { noise({ dur: 0.04, from: 3000, to: 1500, vol: 0.15 }); },
+  skill() {
+    noise({ dur: 0.22, from: 400, to: 4600, vol: 0.4, q: 3 });      // energia subindo
+    tone(220, 0.3, 0.25, 'sawtooth', 0.02, 660);
+  },
+  skillHeavy() { thump(60, 0.4, 1.2); noise({ dur: 0.25, from: 2400, to: 300, vol: 0.5 }); },
 };
 
 // roteia eventos da simulação para os sons certos
@@ -124,6 +129,9 @@ export function playEvent(e, mySide = null) {
     case 'roundstart': sfx.round(); break;
     case 'fightstart': sfx.round(); break;
     case 'suddendeath': sfx.firstblood(); break;
+    case 'skill': sfx.skill(); break;
+    case 'skillwave': sfx.skillHeavy(); break;
+    case 'skillslam': sfx.skillHeavy(); break;
     case 'matchend':
       if (mySide != null) (e.winner === mySide ? sfx.victory() : sfx.defeat());
       else sfx.victory();

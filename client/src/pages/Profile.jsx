@@ -6,6 +6,7 @@ import Navbar from '../lib/Navbar.jsx';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import { createPreview } from '../game/preview.js';
 import { RARITY_LABEL } from './Shop.jsx';
+import { STYLES, STYLE_KEYS } from '../game/sim.js';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
 const TIER_COLOR = {
@@ -176,6 +177,35 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             <div><span>FINALIZAÇÕES</span><b>{fmt(summary?.finalizacoes)}</b></div>
             <div><span>MOEDAS</span><b style={{ color: '#e0a10b' }}>{fmt(profile.coins)}</b></div>
           </div>
+        </section>
+
+        {/* estilo de luta */}
+        <section className="dash-card span2">
+          <h2>SEU ESTILO DE LUTA</h2>
+          <div className="style-grid">
+            {STYLE_KEYS.map((k) => {
+              const st = STYLES[k];
+              const on = (profile.style || 'ronin') === k;
+              return (
+                <button
+                  key={k}
+                  className={`style-card ${on ? 'on' : ''}`}
+                  onClick={async () => {
+                    try {
+                      const d = await api('/api/auth/me', { method: 'PATCH', body: { style: k } });
+                      onUpdate(d.profile);
+                    } catch { /* mantém o atual */ }
+                  }}
+                >
+                  <b>{st.label}</b>
+                  <span className="style-skill">⚡ {st.skill}</span>
+                  <small>{st.desc}</small>
+                  {on && <span className="style-on">SELECIONADO ✓</span>}
+                </button>
+              );
+            })}
+          </div>
+          <p className="dash-empty" style={{ marginTop: 8 }}>A skill dispara com <b>E</b> (ou o botão redondo no celular) e tem cooldown próprio.</p>
         </section>
 
         {/* em breve */}

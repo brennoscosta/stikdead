@@ -12,7 +12,7 @@ const RECONNECT_GRACE = 15_000;
 
 const sanitizeInput = (i) => ({
   left: !!i?.left, right: !!i?.right, jump: !!i?.jump,
-  light: !!i?.light, heavy: !!i?.heavy, block: !!i?.block, dash: !!i?.dash,
+  light: !!i?.light, heavy: !!i?.heavy, block: !!i?.block, dash: !!i?.dash, skill: !!i?.skill,
 });
 
 export function attachOnline(io) {
@@ -74,7 +74,7 @@ export function attachOnline(io) {
       arena: ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia'][Math.floor(Math.random() * 6)],
       users: [idA, idB],
       names: [players[0].user.name, players[1].user.name],
-      match: createMatch(),
+      match: createMatch({ styles: [players[0]?.style || 'ronin', players[1]?.style || 'ronin'] }),
       inputs: [{ ...EMPTY_INPUT }, { ...EMPTY_INPUT }],
       connected: [true, true],
       paused: false,
@@ -94,7 +94,7 @@ export function attachOnline(io) {
           roomId, side, arena: room.arena,
           players: room.users.map((uid, s) => {
             const u = online.get(uid).user;
-            return { name: u.name, level: u.level, tier: u.tier, loadout: louts[s] };
+            return { name: u.name, level: u.level, tier: u.tier, loadout: louts[s], style: online.get(uid)?.style || 'ronin' };
           }),
         });
       });
@@ -113,6 +113,7 @@ export function attachOnline(io) {
         x: Math.round(f.x * 10) / 10, y: Math.round(f.y * 10) / 10,
         face: f.face, hp: f.hp, state: f.state, t: f.t,
         vy: Math.round(f.vy), hitstun: f.hitstun || 0, combo: f.combo,
+        skillCd: Math.round(f.skillCd * 10) / 10, fury: Math.round(f.fury * 10) / 10, style: f.style,
       })),
       ev,
     };
@@ -217,6 +218,9 @@ export function attachOnline(io) {
     const prev = online.get(user.id);
     if (prev) prev.socket.disconnect(true);
     online.set(user.id, { socket, user });
+    q('SELECT style FROM profiles WHERE user_id = $1', [user.id])
+      .then(({ rows }) => { const e = online.get(user.id); if (e) e.style = rows[0]?.style || 'ronin'; })
+      .catch(() => {});
     getLoadout(user.id).then((l) => {
       const entry = online.get(user.id);
       if (entry && entry.socket === socket) { entry.loadout = l; broadcastPresence(); }
@@ -263,6 +267,7 @@ export function attachOnline(io) {
           return {
             name: u?.name || room.names[s], level: u?.level || 1,
             tier: u?.tier || 'BRONZE_III', loadout: room.loadouts?.[s] || [],
+            style: online.get(uid)?.style || 'ronin',
           };
         }),
       });
