@@ -42,12 +42,19 @@ export async function createRenderer(host, theme = 'dojo') {
   const fighterHalos = new Graphics();
   world.addChild(fighterHalos);
 
+  const slashG = new Graphics();
+  const ghostA = new Graphics();
+  const ghostB = new Graphics();
+  ghostA.alpha = 0.22;
+  ghostB.alpha = 0.22;
+  world.addChild(ghostA, ghostB, slashG);
   const gA = new Graphics();
   const gB = new Graphics();
   world.addChild(gA, gB);
   const wsA = createWeaponSprite(world);
   const wsB = createWeaponSprite(world);
   const fx = createFx(world);
+  const fxRef = fx;
 
   const tagStyle = { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fill: 0x2b2620, letterSpacing: 1 };
   const tagA = new Text({ text: '', style: tagStyle });
@@ -83,7 +90,7 @@ export async function createRenderer(host, theme = 'dojo') {
       const [a, b] = match.fighters;
       focusX = ((a.x + b.x) / 2) * (1 - k);
     }
-    world.scale.set(scale);
+    world.scale.set(scale * (1 + (fxRef?.kick || 0)));
     world.x = w / 2 - focusX * scale;
     world.y = h * 0.82 + (match && match.phase === 'countdown' ? 40 * (world.scale.x / scale) * 0 : 0);
   }
@@ -123,6 +130,49 @@ export async function createRenderer(host, theme = 'dojo') {
         fighterHalos.ellipse(f.x, -2, 34, 7).fill({ color: 0xd90429, alpha: 0.14 });
       }
     }
+    // arcos de corte durante a janela ativa dos golpes
+    slashG.clear();
+    const weaponGlow = (lo) => {
+      const w = (lo || []).find((it) => it.slot === 'weapon');
+      const hex = w?.params?.glow || w?.params?.blade;
+      return hex ? parseInt(hex.replace('#', ''), 16) : null;
+    };
+    const drawSlash = (f, lo) => {
+      const mv = MOVES[f.state];
+      if (!mv || !mv.active) return;
+      const t0 = mv.startup * 0.55;
+      const t1 = mv.startup + mv.active + 0.05;
+      if (f.t < t0 || f.t > t1) return;
+      const p = (f.t - t0) / (t1 - t0);
+      const heavy = f.state === 'heavy';
+      const col = weaponGlow(lo) ?? (heavy ? 0xff2244 : 0xffffff);
+      const cx = f.x + f.face * 14;
+      const cy = -(f.y + 96);
+      const R = heavy ? 62 : 46;
+      const a0 = f.face === 1 ? -1.9 + p * 2.4 : Math.PI - 0.5 - p * 2.4 + 1.9 - 1.9;
+      const start = f.face === 1 ? -1.9 : Math.PI + 1.9 - 2.4;
+      const sweep = 2.4 * p;
+      for (let i = 0; i < 3; i++) {
+        const rr = R - i * (heavy ? 9 : 7);
+        const alpha = (1 - p) * (0.75 - i * 0.22);
+        if (alpha <= 0) continue;
+        const s0 = f.face === 1 ? start : Math.PI - start - sweep;
+        slashG.arc(cx, cy, rr, s0, s0 + sweep).stroke({ width: (heavy ? 7 : 5) - i * 1.5, color: col, alpha, cap: 'round' });
+      }
+      // gume brilhante na ponta do arco
+      const tipA = (f.face === 1 ? start : Math.PI - start - sweep) + (f.face === 1 ? sweep : 0);
+      slashG.circle(cx + Math.cos(tipA) * R, cy + Math.sin(tipA) * R, heavy ? 5 : 3.5)
+        .fill({ color: 0xffffff, alpha: (1 - p) * 0.9 });
+    };
+    drawSlash(a, loadouts[0]);
+    drawSlash(b, loadouts[1]);
+
+    // fantasmas de dash (afterimage)
+    ghostA.clear();
+    ghostB.clear();
+    if (a.state === 'dash') drawFighter(ghostA, { ...a, x: a.x - a.face * 20 }, MOVES, 0xd90429, elapsed, null);
+    if (b.state === 'dash') drawFighter(ghostB, { ...b, x: b.x - b.face * 20 }, MOVES, 0x6e6e6e, elapsed, null);
+
     drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA));
     drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB));
     wsA.update(a, MOVES);
@@ -149,6 +199,11 @@ export async function createRenderer(host, theme = 'dojo') {
       const w = app.renderer.width / app.renderer.resolution;
       const h = app.renderer.height / app.renderer.resolution;
       flash.rect(0, 0, w, h).fill({ color: 0xffffff, alpha: Math.min(0.5, fx.flash * 6) });
+    }
+    if (fx.flashRed > 0) {
+      const w = app.renderer.width / app.renderer.resolution;
+      const h = app.renderer.height / app.renderer.resolution;
+      flash.rect(0, 0, w, h).fill({ color: 0xd90429, alpha: Math.min(0.3, fx.flashRed * 0.8) });
     }
   }
 

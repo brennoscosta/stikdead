@@ -165,22 +165,44 @@ export function buildPrison() {
 export function createFx(stage) {
   const layer = new Graphics();
   stage.addChild(layer);
-  return { layer, parts: [], shake: 0, flash: 0 };
+  return { layer, parts: [], rings: [], lines: [], sparks: [], shake: 0, flash: 0, flashRed: 0, kick: 0 };
 }
 
 export function fxHit(fx, x, y, dir, { blocked, heavy }) {
   if (blocked) {
     for (let i = 0; i < 8; i++) spawn(fx, x, y, dir, 0xffffff, 180, 0.25);
+    fx.sparks.push({ x, y, life: 0.16, maxLife: 0.16, size: 16, color: 0x9fd8ff });
+    fx.rings.push({ x, y, r: 6, vr: 260, life: 0.22, maxLife: 0.22, color: 0x9fd8ff, w: 3 });
     fx.shake = Math.max(fx.shake, 3);
     return;
   }
   const n = heavy ? 26 : 13;
   for (let i = 0; i < n; i++) spawn(fx, x, y, dir, 0xb0031f, heavy ? 420 : 280, heavy ? 0.7 : 0.45);
+  // estrela de impacto (clarão em cruz)
+  fx.sparks.push({ x, y, life: heavy ? 0.22 : 0.14, maxLife: heavy ? 0.22 : 0.14, size: heavy ? 34 : 20, color: 0xffffff });
+  // anel de choque expandindo
+  fx.rings.push({ x, y, r: 8, vr: heavy ? 620 : 380, life: heavy ? 0.3 : 0.2, maxLife: heavy ? 0.3 : 0.2, color: heavy ? 0xff2244 : 0xffffff, w: heavy ? 5 : 3 });
+  // linhas de velocidade na direção do golpe
+  const nl = heavy ? 7 : 4;
+  for (let i = 0; i < nl; i++) {
+    const spread = (Math.random() - 0.5) * 50;
+    fx.lines.push({
+      x, y: y + spread * 0.6, dir, len: 30 + Math.random() * (heavy ? 60 : 34),
+      v: (heavy ? 900 : 620) * (0.7 + Math.random() * 0.5),
+      life: 0.18, maxLife: 0.18, w: 2 + Math.random() * 2,
+    });
+  }
+  if (heavy) fx.kick = Math.max(fx.kick, 0.05);
   fx.flash = 0.06;
   fx.shake = Math.max(fx.shake, heavy ? 11 : 5);
 }
 
 export function fxKo(fx, x, y, dir) {
+  fx.sparks.push({ x, y, life: 0.35, maxLife: 0.35, size: 60, color: 0xffffff });
+  fx.rings.push({ x, y, r: 10, vr: 900, life: 0.5, maxLife: 0.5, color: 0xff2244, w: 7 });
+  fx.rings.push({ x, y, r: 4, vr: 500, life: 0.42, maxLife: 0.42, color: 0xffffff, w: 3 });
+  fx.flashRed = 0.35;
+  fx.kick = Math.max(fx.kick, 0.07);
   for (let i = 0; i < 46; i++) spawn(fx, x, y, dir, 0xb0031f, 560, 1.1);
   fx.shake = 16;
   fx.flash = 0.1;
@@ -205,8 +227,45 @@ function spawn(fx, x, y, dir, color, power, life) {
 export function fxStep(fx, dt) {
   fx.shake = Math.max(0, fx.shake - dt * 34);
   fx.flash = Math.max(0, fx.flash - dt);
+  fx.flashRed = Math.max(0, fx.flashRed - dt * 1.6);
+  fx.kick = Math.max(0, fx.kick - dt * 0.35);
   const g = fx.layer;
   g.clear();
+
+  // anéis de choque
+  fx.rings = fx.rings.filter((r) => {
+    r.life -= dt;
+    if (r.life <= 0) return false;
+    r.r += r.vr * dt;
+    const alpha = (r.life / r.maxLife) * 0.9;
+    g.circle(r.x, -r.y, r.r).stroke({ width: r.w * (r.life / r.maxLife) + 1, color: r.color, alpha });
+    return true;
+  });
+
+  // estrelas de impacto (cruz de clarão)
+  fx.sparks = fx.sparks.filter((s) => {
+    s.life -= dt;
+    if (s.life <= 0) return false;
+    const k = s.life / s.maxLife;
+    const R = s.size * (1.6 - k * 0.6);
+    for (const [ax, ay] of [[1, 0], [0, 1], [0.7, 0.7], [-0.7, 0.7]]) {
+      g.moveTo(s.x - ax * R, -(s.y + ay * R)).lineTo(s.x + ax * R, -(s.y - ay * R))
+        .stroke({ width: 3.5 * k + 0.6, color: s.color, alpha: k });
+    }
+    g.circle(s.x, -s.y, 5 * k + 1).fill({ color: 0xffffff, alpha: k });
+    return true;
+  });
+
+  // linhas de velocidade
+  fx.lines = fx.lines.filter((l) => {
+    l.life -= dt;
+    if (l.life <= 0) return false;
+    l.x += l.dir * l.v * dt;
+    const k = l.life / l.maxLife;
+    g.moveTo(l.x, -l.y).lineTo(l.x - l.dir * l.len, -l.y)
+      .stroke({ width: l.w * k, color: 0xffffff, alpha: k * 0.7, cap: 'round' });
+    return true;
+  });
   fx.parts = fx.parts.filter((p) => {
     p.life -= dt;
     if (p.life <= 0) return false;
