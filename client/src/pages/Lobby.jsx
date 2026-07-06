@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../lib/socket.js';
 import { createPlaza } from '../game/praca.js';
 import Navbar from '../lib/Navbar.jsx';
+import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
 import { TouchControls } from './Battle.jsx';
@@ -118,7 +119,8 @@ export default function Lobby({ profile, onProfile }) {
 
   return (
     <><Navbar profile={profile} />
-    <div className="scene">
+    {/* destrava o áudio no primeiro gesto */}
+    <div className="scene" onPointerDown={unlockAudio}>
       <h1 className="brand" style={{ fontSize: 'clamp(40px, 8vw, 60px)' }}>
         LOBBY <span className="red">ONLINE</span>
       </h1>
@@ -247,6 +249,8 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
   const [waiting, setWaiting] = useState(false); // oponente caiu
   const [reconnecting, setReconnecting] = useState(false); // eu caí
   const [result, setResult] = useState(null);
+  const [mutedUi, setMutedUi] = useState(isMuted());
+  const [loading, setLoading] = useState(true);
 
   const me = session.side;
   const opp = 1 - me;
@@ -283,7 +287,11 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     };
     const onEnd = (r) => {
       if (r.profile) onProfile?.((p) => ({ ...p, level: r.profile.level, xp: r.profile.xp, coins: r.profile.coins }));
-      setTimeout(() => setResult(r), r.wo ? 0 : 1100);
+      setTimeout(() => {
+        setResult(r);
+        (r.winnerSide === me ? sfx.victory() : sfx.defeat());
+        if (r.itemDrop) setTimeout(() => sfx.drop(), 700);
+      }, r.wo ? 0 : 1100);
     };
     const onPausedEv = () => setWaiting(true);
     const onResumed = () => setWaiting(false);
@@ -321,6 +329,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         renderer = await createRenderer(hostRef.current, session.arena || 'dojo');
         renderer.setLoadouts(session.players[0]?.loadout, session.players[1]?.loadout);
         renderer.setNames(names[0], names[1]);
+        setLoading(false);
       } catch (err) {
         console.error(err);
         if (hostRef.current)
@@ -375,6 +384,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         const events = pendingEv;
         pendingEv = [];
         for (const e of events) {
+          if (e.type !== 'matchend') playEvent(e, me);
           if (e.type === 'fightstart') { centerText('LUTE!'); setTimeout(() => centerText(''), 650); }
           if (e.type === 'roundstart') { centerText(`ROUND ${e.round}`); setTimeout(() => centerText(''), 900); }
           if (e.type === 'firstblood') announce('PRIMEIRO SANGUE!');
@@ -450,7 +460,19 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
   return (
     <div className="bt-root">
       <div className="bt-canvas" ref={hostRef} />
+      {loading && (
+        <div className="bt-loading">
+          <div className="ink-spinner" />
+          <div className="bt-loading-title">PREPARANDO A ARENA…</div>
+          <div className="bt-loading-tip">Dica: {['Segure BLOQUEAR no momento do golpe para aparar', 'O dash tem invencibilidade nos primeiros instantes', 'Chutes quebram bloqueios baixos de energia', 'Vença 3 seguidas no online e ganhe um item', 'Complete as 3 missões do dia para abrir o baú'][Math.floor(Math.random() * 5)]}</div>
+        </div>
+      )}
 
+      <button
+        className="bt-mute"
+        onClick={() => setMutedUi(toggleMute())}
+        aria-label="Som"
+      >{mutedUi ? '🔇' : '🔊'}</button>
       <div className="bt-hud">
         <div className="bt-plate left">
           <div className="bt-name">{names[me]}</div>

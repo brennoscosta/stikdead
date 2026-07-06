@@ -5,6 +5,7 @@ import { createBot, botDecide, DIFFICULTIES } from '../game/bot.js';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
 import { ARENAS } from '../game/arena.js';
+import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { api } from '../lib/api.js';
 import '../battle.css';
 
@@ -16,6 +17,7 @@ export default function Battle({ profile, onProfile }) {
   const [arena, setArena] = useState('random');
 
   const enterGameMode = (d) => {
+    unlockAudio();
     setDifficulty(d);
     setScreen('fight');
     // ainda dentro do gesto de clique: fullscreen é permitido aqui
@@ -88,6 +90,8 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
   const pausedRef = useRef(false);
   const [paused, setPaused] = useState(false);
   const [result, setResult] = useState(null);
+  const [mutedUi, setMutedUi] = useState(isMuted());
+  const [loading, setLoading] = useState(true);
   const [runId, setRunId] = useState(0);
 
   const setPause = useCallback((v) => {
@@ -139,6 +143,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       if (!alive) return renderer.destroy();
       renderer.setLoadouts(myLoadout, [{ slot: 'body', template: 'scarf', params: { color: '#777777' } }]);
       renderer.setNames(profile.fighter_name, `BOT · ${DIFF_LABEL[difficulty]}`);
+      setLoading(false);
 
       let last = performance.now();
       let lastCount = null;
@@ -157,6 +162,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
         }
 
         for (const e of events) {
+          playEvent(e, 0);
           if (e.type === 'fightstart') { centerText('LUTE!'); setTimeout(() => centerText(''), 650); }
           if (e.type === 'firstblood') announce('PRIMEIRO SANGUE!');
           if (e.type === 'suddendeath') announce('MORTE SÚBITA!', 'red');
@@ -245,7 +251,19 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
   return (
     <div className="bt-root">
       <div className="bt-canvas" ref={hostRef} />
+      {loading && (
+        <div className="bt-loading">
+          <div className="ink-spinner" />
+          <div className="bt-loading-title">PREPARANDO A ARENA…</div>
+          <div className="bt-loading-tip">Dica: {['Segure BLOQUEAR no momento do golpe para aparar', 'O dash tem invencibilidade nos primeiros instantes', 'Chutes quebram bloqueios baixos de energia', 'Vença 3 seguidas no online e ganhe um item', 'Complete as 3 missões do dia para abrir o baú'][Math.floor(Math.random() * 5)]}</div>
+        </div>
+      )}
 
+      <button
+        className="bt-mute"
+        onClick={() => setMutedUi(toggleMute())}
+        aria-label="Som"
+      >{mutedUi ? '🔇' : '🔊'}</button>
       <div className="bt-hud">
         <div className="bt-plate left">
           <div className="bt-name">{profile.fighter_name}</div>
