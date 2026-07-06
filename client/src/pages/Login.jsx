@@ -21,9 +21,8 @@ export function Brand() {
   }, []);
   return (
     <>
-      <div className="hero-wrap">
-        <div className="hero-canvas" ref={host} aria-hidden="true" />
-      </div>
+      <div className="hero-bg" ref={host} aria-hidden="true" />
+      <div className="hero-spacer" aria-hidden="true" />
     </>
   );
 }

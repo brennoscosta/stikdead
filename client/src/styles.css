@@ -515,36 +515,25 @@ body {
   .rank-tier, .rank-record { display: none; }
 }
 
-/* ===== hero da tela inicial ===== */
-.hero-wrap {
-  position: relative;
-  width: min(560px, calc(100vw - 24px));
-  margin-bottom: 4px;
-}
-.hero-canvas {
-  aspect-ratio: 1024 / 660;
-  max-height: 46vh;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid #241318;
-  box-shadow: 0 12px 50px rgba(217, 4, 41, 0.14), inset 0 0 60px rgba(0, 0, 0, 0.5);
-}
-.hero-title {
-  position: absolute;
-  left: 0; right: 0; bottom: 10px;
-  display: flex; flex-direction: column; align-items: center;
+
+/* ===== hero fullscreen da tela inicial ===== */
+.hero-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   pointer-events: none;
 }
-.hero-title .brand {
-  font-size: clamp(46px, 11vw, 72px);
-  margin: 0;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.9), 0 0 40px rgba(217, 4, 41, 0.35);
+.hero-bg canvas { width: 100% !important; height: 100% !important; }
+.hero-spacer {
+  width: 100vw;
+  height: min(calc(100vw * 0.645), 58vh);
+  margin-bottom: -3vh;
 }
-.hero-tagline {
-  color: #ff2244;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  font-size: clamp(12px, 2.6vw, 15px);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
-  margin-top: 2px;
+/* o conteúdo flutua sobre o fundo vivo */
+.scene { position: relative; z-index: 1; background: transparent; }
+.scene .card {
+  background: rgba(16, 12, 14, 0.82);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(217, 4, 41, 0.12);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
 }
