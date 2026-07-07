@@ -287,7 +287,7 @@ fs.mkdirSync(ARENAS_DIR, { recursive: true });
 
 const SPRITES_DIR = path.join(ROOT, 'client/public/sprites');
 fs.mkdirSync(SPRITES_DIR, { recursive: true });
-const outPath = (a) => a.kind === 'icon'
+const outPath = (a) => (a.kind === 'icon' || a.kind === 'nbicon')
   ? path.join(ITEMS_DIR, `${a.id}.webp`)
   : a.kind === 'sprite'
     ? path.join(SPRITES_DIR, `${a.id}.webp`)
