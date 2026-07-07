@@ -31,6 +31,7 @@ app.get('/api/health', async (_req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin', (await import('./admin.js')).default);
+app.use('/api/diamonds', (await import('./diamonds.js')).default);
 app.use('/api/matches', matchesRouter);
 app.use('/api', shopRouter);
 app.use('/api', missionsRouter);

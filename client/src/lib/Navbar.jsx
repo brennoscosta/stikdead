@@ -44,7 +44,10 @@ export default function Navbar({ profile }) {
         <span className="topnav-soon" title="Em breve">🛡️ Clã</span>
       </nav>
       <div className="topnav-right">
-        <span className="topnav-coins">🪙 {Number(profile.coins).toLocaleString('pt-BR')}</span>
+        <span className="topnav-wallet">
+          <span className="topnav-coins">🪙 {Number(profile.coins).toLocaleString('pt-BR')}</span>
+          <span className="topnav-diamonds">💎 {Number(profile.diamonds || 0).toLocaleString('pt-BR')}</span>
+        </span>
         <button className="topnav-me" onClick={() => nav('/perfil')}>
           <span className="topnav-name">{profile.fighter_name}</span>
           <span className="topnav-level">Nv. {profile.level}</span>

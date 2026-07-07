@@ -28,7 +28,7 @@ export function requireAuth(req, res, next) {
 
 async function fetchProfile(userId) {
   const { rows } = await q(
-    `SELECT u.id, u.email, p.fighter_name, p.style, p.level, p.xp, p.coins,
+    `SELECT u.id, u.email, p.fighter_name, p.style, p.level, p.xp, p.coins, p.diamonds,
             (SELECT array_agg(item_id) FROM user_items ui WHERE ui.user_id = u.id AND ui.item_id LIKE 'estilo_%') AS owned_styles,
             p.rank_points, p.tier, p.wins, p.losses, p.win_streak, p.title
        FROM users u JOIN profiles p ON p.user_id = u.id

@@ -11,6 +11,23 @@ export const SLOT_LABEL = {
 export const RARITY_LABEL = { comum: 'Comum', raro: 'Raro', epico: 'Épico', lendario: 'Lendário' };
 
 export default function Shop({ profile, onProfile }) {
+  const [packs, setPacks] = useState([]);
+  const [mpNotice, setMpNotice] = useState(null);
+  useEffect(() => {
+    api('/api/diamonds/packs').then((d) => setPacks(d.packs || [])).catch(() => {});
+    const pg = new URLSearchParams(window.location.search).get('pg');
+    if (pg === 'ok') setMpNotice('💎 Pagamento aprovado! Seus diamantes chegam em instantes...');
+    if (pg === 'pendente') setMpNotice('⏳ Pagamento em processamento — os diamantes entram assim que aprovar.');
+    if (pg === 'erro') setMpNotice('❌ Pagamento não concluído. Nenhum valor foi cobrado.');
+    if (pg === 'ok' || pg === 'pendente') setTimeout(() => window.location.replace('/loja'), 6000);
+  }, []);
+  const buyPack = async (id) => {
+    try {
+      const d = await api('/api/diamonds/checkout', { method: 'POST', body: { pack: id } });
+      window.location.href = d.init_point;
+    } catch (e) { alert(e.message || 'Pagamentos indisponíveis no momento.'); }
+  };
+
   const nav = useNavigate();
   const [items, setItems] = useState([]);
   const [coins, setCoins] = useState(profile.coins);
@@ -62,6 +79,20 @@ export default function Shop({ profile, onProfile }) {
         <div className={`shop-notice ${notice.ok ? 'ok' : 'err'}`} role="status">{notice.text}</div>
       )}
 
+      {mpNotice && <div className="mp-notice">{mpNotice}</div>}
+      <section className="diamond-shop">
+        <h2 className="diamond-title">💎 DIAMANTES</h2>
+        <p className="dash-empty" style={{ marginTop: -6 }}>Moeda premium — compra segura via Mercado Pago (Pix ou cartão)</p>
+        <div className="diamond-packs">
+          {packs.map((p) => (
+            <button key={p.id} className="diamond-pack" onClick={() => buyPack(p.id)}>
+              <span className="dp-gems">💎 {p.diamonds.toLocaleString('pt-BR')}</span>
+              <span className="dp-label">{p.label.replace(' de Diamantes', '')}</span>
+              <span className="dp-price">R$ {(p.cents / 100).toFixed(2).replace('.', ',')}</span>
+            </button>
+          ))}
+        </div>
+      </section>
       <div className="shop-grid">
         {shown.map((item) => (
           <div key={item.id} className={`item-card r-${item.rarity}`}>
