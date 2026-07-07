@@ -645,3 +645,10 @@ body.is-mobile .bottombar { display: flex; }
 .scene-nav, .dash, .lobby2, .scene:has(> .topnav) {
   padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
 }
+
+/* ===== logo do topo +30% ===== */
+.topnav-logo img { height: 120px !important; margin: -34px 0 !important; }   /* 92 → 120 (desktop) */
+@media (max-width: 760px) {
+  .topnav-logo img { height: 84px !important; margin: -22px 0 !important; }  /* 64 → 84 (mobile) */
+}
+body.is-mobile .topnav-logo img { height: 84px !important; margin: -22px 0 !important; }
