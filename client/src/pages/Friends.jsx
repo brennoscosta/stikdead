@@ -48,7 +48,9 @@ export default function Friends({ profile }) {
       if (!m.private && !m.system) plazaRef.current?.say?.(m.name, m.text);
     };
     socket.on('clan:msg', onMsg);
-    return () => socket.off('clan:msg', onMsg);
+    const onPing = () => load();
+    socket.on('social:ping', onPing);
+    return () => { socket.off('clan:msg', onMsg); socket.off('social:ping', onPing); };
   }, []);
 
   useEffect(() => { boxRef.current?.scrollTo(0, 999999); }, [chat]);

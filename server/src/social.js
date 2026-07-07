@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { q } from './db.js';
 import { requireAuth } from './auth.js';
 import { getLoadout } from './shop.js';
-import { getOnlineIds, getClanIds } from './online.js';
+import { getOnlineIds, getClanIds, notifyUser } from './online.js';
 
 const router = Router();
 
@@ -73,6 +73,23 @@ router.post('/friends/request', requireAuth, async (req, res) => {
   const target = rows[0]?.user_id;
   if (!target) return res.status(404).json({ error: 'Lutador não encontrado.' });
   if (target === req.userId) return res.status(400).json({ error: 'Você já é seu melhor amigo.' });
+  // disciplina: 5 recusas -> 7 dias de espera
+  const den = await q(
+    'SELECT count, last_at FROM friend_denials WHERE requester_id = $1 AND addressee_id = $2',
+    [req.userId, target]
+  );
+  if (den.rows[0]) {
+    const d = den.rows[0];
+    const seteDias = 7 * 24 * 3600 * 1000;
+    const desde = Date.now() - new Date(d.last_at).getTime();
+    if (d.count >= 5 && desde < seteDias) {
+      const dias = Math.ceil((seteDias - desde) / (24 * 3600 * 1000));
+      return res.status(429).json({ error: `Limite de 5 pedidos atingido. Tente novamente em ${dias} dia${dias === 1 ? '' : 's'}.` });
+    }
+    if (d.count >= 5 && desde >= seteDias) {
+      await q('DELETE FROM friend_denials WHERE requester_id = $1 AND addressee_id = $2', [req.userId, target]);
+    }
+  }
   const existing = await q(
     `SELECT id, status, requester_id FROM friendships
       WHERE (requester_id = $1 AND addressee_id = $2) OR (requester_id = $2 AND addressee_id = $1)`,
@@ -90,6 +107,7 @@ router.post('/friends/request', requireAuth, async (req, res) => {
   const meName = await q('SELECT fighter_name FROM profiles WHERE user_id = $1', [req.userId]);
   const { logActivity } = await import('./activities.js');
   logActivity(target, 'friend_request', { from: meName.rows[0]?.fighter_name, requestId: ins.rows[0].id });
+  notifyUser(target, 'social:ping', { type: 'friend_request', from: meName.rows[0]?.fighter_name });
   res.json({ ok: true, status: 'pending_out' });
 });
 
@@ -113,8 +131,19 @@ router.post('/friends/respond', requireAuth, async (req, res) => {
       const { logActivity } = await import('./activities.js');
       logActivity(pair.rows[0].requester_id, 'friend_accept', { with: nameOf[Number(pair.rows[0].addressee_id)] });
       logActivity(pair.rows[0].addressee_id, 'friend_accept', { with: nameOf[Number(pair.rows[0].requester_id)] });
+      notifyUser(pair.rows[0].requester_id, 'social:ping', { type: 'friend_accept', with: nameOf[Number(pair.rows[0].addressee_id)] });
     }
-  } else await q('DELETE FROM friendships WHERE id = $1', [id]);
+  } else {
+    const pair = await q('SELECT requester_id, addressee_id FROM friendships WHERE id = $1', [id]);
+    await q('DELETE FROM friendships WHERE id = $1', [id]);
+    if (pair.rows[0]) {
+      await q(
+        `INSERT INTO friend_denials (requester_id, addressee_id, count, last_at) VALUES ($1, $2, 1, now())
+         ON CONFLICT (requester_id, addressee_id) DO UPDATE SET count = friend_denials.count + 1, last_at = now()`,
+        [pair.rows[0].requester_id, pair.rows[0].addressee_id]
+      );
+    }
+  }
   res.json({ ok: true });
 });
 

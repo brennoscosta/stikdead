@@ -1,6 +1,7 @@
 // STIKDEAD :: presente recebido — a cerimônia da revelação 🎁
 import { useEffect, useState } from 'react';
 import { api } from './api.js';
+import { getSocket } from './socket.js';
 import ItemIcon from './ItemIcon.jsx';
 import { RARITY_LABEL } from '../pages/Shop.jsx';
 
@@ -17,8 +18,10 @@ export default function GiftModal({ onSenderClick }) {
       } catch { /* segue */ }
     };
     check();
-    const t = setInterval(check, 30000);
-    return () => { dead = true; clearInterval(t); };
+    const t = setInterval(check, 30000); // rede de segurança
+    const s = getSocket();
+    s.on('gift:new', check);
+    return () => { dead = true; clearInterval(t); s.off('gift:new', check); };
     // eslint-disable-next-line
   }, [gift]);
 

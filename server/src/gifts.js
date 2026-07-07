@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { q, pool } from './db.js';
 import { requireAuth } from './auth.js';
 import { logActivity } from './activities.js';
+import { notifyUser } from './online.js';
 
 const router = Router();
 
@@ -45,6 +46,7 @@ router.post('/send', requireAuth, async (req, res) => {
     const me = await q('SELECT fighter_name FROM profiles WHERE user_id = $1', [req.userId]);
     logActivity(req.userId, 'gift_sent', { to: to.fighter_name, item: item.rows[0]?.name, itemId });
     logActivity(to.user_id, 'gift_received', { from: me.rows[0]?.fighter_name, item: item.rows[0]?.name, itemId, giftId: g.rows[0].id });
+    notifyUser(to.user_id, 'gift:new', {});
     res.json({ ok: true });
   } catch (e) {
     await client.query('ROLLBACK');

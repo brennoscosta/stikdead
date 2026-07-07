@@ -19,9 +19,15 @@ const ONLINE_IDS = new Set();
 export const getOnlineIds = () => ONLINE_IDS;
 const CLAN_ROOM = new Set(); // quem está com a aba Clã aberta
 export const getClanIds = () => CLAN_ROOM;
+let ONLINE_REF = null; // preenchido no attachOnline
+export function notifyUser(userId, event, payload = {}) {
+  const e = ONLINE_REF?.get(Number(userId));
+  if (e) e.socket.emit(event, payload);
+}
 
 export function attachOnline(io) {
   const online = new Map();   // userId -> { socket, user }
+  ONLINE_REF = online;
   const queue = [];           // userIds
   const challenges = new Map(); // id -> { from, to, timer }
   const rooms = new Map();    // roomId -> Room

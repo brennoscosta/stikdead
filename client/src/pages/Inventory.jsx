@@ -139,6 +139,7 @@ export default function Inventory({ profile }) {
                   onClick={() => (isOn ? setSlot(item.slot, null) : equip(item))}
                   title={isOn ? 'Clique para remover' : 'Clique para equipar'}
                 >
+                  {item.source === 'gift' && <span className="inv-gift-badge" title="Ganho de presente">🎁</span>}
                   <ItemIcon item={item} size={46} />
                   <span className="item-name">{item.name}</span>
                   <span className="item-slot">{isOn ? 'EQUIPADO ✓' : `${SLOT_LABEL[item.slot]} · ${RARITY_LABEL[item.rarity]}`}</span>

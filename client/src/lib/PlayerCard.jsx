@@ -95,7 +95,7 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
             ) : <p className="dash-empty">Luta no estilo raiz — nada equipado.</p>}
             <div className="pc-actions">
               {p.friendship === 'none' && <button className="btn btn-blood" disabled={busy} onClick={request}>➕ Pedir amizade</button>}
-              {p.friendship === 'pending_out' && <button className="btn btn-ghost" disabled>⏳ Pedido enviado</button>}
+              {p.friendship === 'pending_out' && <button className="btn btn-ghost" disabled>✓ Solicitado</button>}
               {p.friendship === 'pending_in' && (
                 <>
                   <button className="btn btn-blood" disabled={busy} onClick={() => respond(true)}>✓ Aceitar amizade</button>
