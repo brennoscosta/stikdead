@@ -726,7 +726,7 @@ body.in-fight .topnav-spacer { display: none; }
   100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 .bt-result {
-  font-size: 2.6em !important;
+  font-size: clamp(1.5em, 6vh, 2.1em) !important;
   letter-spacing: 0.12em;
   animation: result-slam 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 }
@@ -826,3 +826,17 @@ body.in-fight .topnav-spacer { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .item-card.mini.equipped, .inv-slot[class*="r-"], .dash-build-items .item-card { animation: none !important; }
 }
+
+/* ===== modal de resultado: sempre dentro da tela ===== */
+.bt-panel {
+  max-width: min(92vw, 420px) !important;
+  max-height: 88dvh !important;
+  overflow-y: auto !important;
+  padding: clamp(12px, 3vh, 22px) clamp(14px, 4vw, 26px) !important;
+  scrollbar-width: thin;
+}
+.bt-panel h1, .bt-panel h2 { margin-top: 0; }
+.bt-rewards { gap: 6px !important; flex-wrap: wrap; justify-content: center; }
+.bt-reward { padding: 6px 10px !important; font-size: 13px; }
+.bt-score { margin: 4px 0 8px; }
+.bt-panel .btn { padding-top: 10px; padding-bottom: 10px; }
