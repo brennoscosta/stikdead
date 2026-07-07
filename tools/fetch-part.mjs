@@ -7,15 +7,25 @@ import { fileURLToPath } from 'node:url';
 import { mkdirSync } from 'node:fs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const [, , name, url] = process.argv;
-if (!name || !url) { console.error('Uso: node fetch-part.mjs <nome> <url>'); process.exit(1); }
+const [, , name, url, ...rest] = process.argv;
+if (!name || !url) { console.error('Uso: node fetch-part.mjs <nome> <url> [--crop x,y,w,h]'); process.exit(1); }
+const cropArg = rest.find((a) => a.startsWith('--crop'));
+const CROP = cropArg ? (cropArg.includes('=') ? cropArg.split('=')[1] : rest[rest.indexOf(cropArg) + 1]).split(',').map(Number) : null;
 
 const res = await fetch(url);
 if (!res.ok) { console.error('Download falhou:', res.status); process.exit(1); }
 const buf = Buffer.from(await res.arrayBuffer());
 
+// 0) recorte da região (dissecação de corpo inteiro em peças)
+let src = buf;
+if (CROP) {
+  const [cx, cy, cw, ch] = CROP;
+  src = await sharp(buf).extract({ left: cx, top: cy, width: cw, height: ch }).png().toBuffer();
+  console.log(`recorte: ${cw}x${ch} em (${cx},${cy})`);
+}
+
 // 1) branco -> transparente
-const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+const { data, info } = await sharp(src).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 for (let i = 0; i < data.length; i += 4) {
   const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
   if (r > 236 && g > 236 && b > 236) data[i + 3] = 0;
