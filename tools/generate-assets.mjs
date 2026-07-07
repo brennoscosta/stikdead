@@ -308,16 +308,18 @@ for (const a of queue) {
       }
       // nano banana: tenta endpoints e formatos de corpo até um aceitar
       let lastErr = null;
+      const CANVAS = 'https://game.stikdead.com/nb-canvas.png'; // tela branca: NB é motor de edição
       for (const ep of NB_ENDPOINTS) {
         for (const body of [
-          { prompt, aspect_ratio: '1:1', batch_size: 1 },
-          { prompt, width_and_height: '1024x1024', batch_size: 1 },
+          { prompt, input_images: [CANVAS], aspect_ratio: '1:1', batch_size: 1 },
+          { prompt, input_images: [{ type: 'image_url', image_url: CANVAS }], aspect_ratio: '1:1', batch_size: 1 },
+          { prompt, input_images: [CANVAS], width_and_height: '1024x1024', batch_size: 1 },
         ]) {
           try {
             return await hf.generate(ep, body, { withPolling: true });
           } catch (e) {
             lastErr = e;
-            if (!String(e.message).match(/404|not found|unknown|invalid/i)) throw e;
+            if (!String(e.message).match(/404|not found|unknown|invalid|required|input_images|unprocessable/i)) throw e;
           }
         }
       }
