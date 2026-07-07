@@ -29,9 +29,10 @@ export default function Register({ onAuth }) {
   };
 
   return (
-    <div className="scene login-scene">
+    <div className="scene login-scene" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '16px', position: 'relative', background: '#050304', overflow: 'hidden' }}>
+      <img src="/login-bg.webp" alt="" aria-hidden="true" style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center top', pointerEvents: 'none', zIndex: 0 }} />
       <Brand />
-      <div className="card">
+      <div className="card" style={{ position: 'relative', zIndex: 1 }}>
         <h2>Crie seu lutador</h2>
         {error && <div className="error" role="alert">{error}</div>}
         <GoogleButton onAuth={onAuth} onError={setError} />

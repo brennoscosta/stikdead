@@ -78,7 +78,8 @@ export default function Login({ onAuth }) {
 
   return (
     <div
-      className="scene"
+      className="scene login-scene"
+      style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '16px', position: 'relative', background: '#050304', overflow: 'hidden' }}
       onPointerDown={() => {
         if (!window.__stikDark) {
           window.__stikDark = 1;
@@ -86,8 +87,14 @@ export default function Login({ onAuth }) {
         }
       }}
     >
+      <img
+        src="/login-bg.webp"
+        alt=""
+        aria-hidden="true"
+        style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center top', pointerEvents: 'none', zIndex: 0 }}
+      />
       <Brand />
-      <div className="card">
+      <div className="card" style={{ position: 'relative', zIndex: 1 }}>
         <h2>Faça login para continuar</h2>
         {error && <div className="error" role="alert">{error}</div>}
         <GoogleButton onAuth={onAuth} onError={setError} />
@@ -122,7 +129,7 @@ export default function Login({ onAuth }) {
           Ainda não tem uma conta? <Link to="/criar-conta">Criar conta</Link>
         </p>
       </div>
-      <div className="footer-links">Termos de uso · Política de privacidade</div>
+      <div className="footer-links" style={{ position: 'relative', zIndex: 1 }}>Termos de uso · Política de privacidade</div>
     </div>
   );
 }
