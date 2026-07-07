@@ -34,6 +34,18 @@ export default function Navbar({ profile }) {
         </button>
       </div>
     </header>
+    <nav className="bottombar" aria-label="Navegação">
+      {LINKS.map((l) => (
+        <NavLink key={l.to} to={l.to} className={({ isActive }) => (isActive ? 'on' : '')}>
+          <span className="bb-ico">{l.icon}</span>
+          <span className="bb-label">{l.label}</span>
+        </NavLink>
+      ))}
+      <span className="bb-soon">
+        <span className="bb-ico">🛡️</span>
+        <span className="bb-label">Clã</span>
+      </span>
+    </nav>
     <div className="topnav-spacer" aria-hidden="true" />
     </>
   );

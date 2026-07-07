@@ -511,3 +511,58 @@ body.is-mobile .topnav { justify-content: space-between !important; }
 body.is-mobile .scene-nav, body.is-mobile .dash, body.is-mobile .lobby2 {
   padding-bottom: calc(86px + env(safe-area-inset-bottom)) !important;
 }
+
+/* ============================================================
+   BOTTOMBAR (estrutural): irmã do header — imune ao sequestro
+   do position:fixed pelo backdrop-filter do .topnav
+   ============================================================ */
+.bottombar { display: none; }
+
+@media (max-width: 760px) {
+  .topnav-links { display: none !important; }   /* links saem do topo */
+  .bottombar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 120;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(20, 9, 13, 0.97), rgba(8, 5, 7, 0.99));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(217, 4, 41, 0.4);
+    box-shadow: 0 -4px 26px rgba(0, 0, 0, 0.6), 0 -1px 14px rgba(217, 4, 41, 0.15);
+  }
+  .bottombar a, .bottombar .bb-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    padding: 4px 2px;
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s, transform 0.12s;
+  }
+  .bottombar .bb-ico { font-size: 21px; line-height: 1; }
+  .bottombar a.on { color: var(--bone); }
+  .bottombar a.on .bb-ico {
+    filter: drop-shadow(0 0 10px rgba(255, 34, 68, 0.9));
+    transform: translateY(-1px) scale(1.12);
+  }
+  .bottombar a.on::after {
+    content: '';
+    width: 18px; height: 2.5px;
+    border-radius: 2px;
+    background: var(--blood);
+    box-shadow: 0 0 10px rgba(217, 4, 41, 0.9);
+  }
+  .bottombar a:active { transform: scale(0.94); }
+  .bottombar .bb-soon { opacity: 0.45; }
+}
+body.is-mobile .topnav-links { display: none !important; }
+body.is-mobile .bottombar { display: flex; }
