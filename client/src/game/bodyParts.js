@@ -23,10 +23,10 @@ export async function loadPartTextures() {
 
 // tuning de encaixe por peça (len = distância entre as juntas)
 const FIT = {
-  torso:   { stretch: 1.62, widthK: 1.0, anchorY: 0.5 },
-  thigh:   { stretch: 1.45, widthK: 1.0, anchorY: 0.42 },
-  boot:    { size: 2.05, anchorY: 0.42, rotK: 0.55 }, // size em headR; rot amortecida
-  forearm: { stretch: 1.75, widthK: 1.0, anchorY: 0.32 }, // inclui a luva na ponta
+  torso:   { stretch: 1.68, widthK: 0.82, anchorY: 0.5 },
+  thigh:   { stretch: 1.22, widthK: 0.46, anchorY: 0.45 },   // dieta: metade da largura
+  boot:    { size: 2.3, anchorY: 0.42, rotK: 0.55 },
+  forearm: { stretch: 1.55, widthK: 0.6, anchorY: 0.32 },
 };
 
 export function createFighterParts(world) {
