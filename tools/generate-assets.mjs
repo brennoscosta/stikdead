@@ -257,16 +257,21 @@ const args = Object.fromEntries(process.argv.slice(2).map((a) => {
   return [k, v ?? true];
 }));
 
-const rawCreds = (process.env.HF_CREDENTIALS
-  || (process.env.HF_API_KEY && process.env.HF_API_SECRET
-      ? `${process.env.HF_API_KEY}:${process.env.HF_API_SECRET}` : ''))
-  .trim().replace(/^["']|["']$/g, ''); // tolera aspas coladas no export
-if (!rawCreds.includes(':')) {
-  console.error('Defina HF_CREDENTIALS="KEY_ID:KEY_SECRET" (painel de API do Higgsfield).');
-  process.exit(1);
+// credenciais do SDK: exigidas só para grupos que usam o motor SDK (o catalogo usa a CLI)
+const needsSdk = (args.group !== 'catalogo');
+let hf = null;
+if (needsSdk) {
+  const rawCreds = (process.env.HF_CREDENTIALS || '').trim();
+  const [KEY_ID, KEY_SECRET] = rawCreds.split(':');
+  if (!KEY_ID || !KEY_SECRET) {
+    console.error('Defina HF_CREDENTIALS="KEY_ID:KEY_SECRET" (painel de API do Higgsfield).');
+    process.exit(1);
+  }
+  console.log(`Credenciais: ${KEY_ID.slice(0, 6)}…:•••  ✓`);
+  hf = new HiggsfieldClient({ apiKey: KEY_ID, apiSecret: KEY_SECRET, maxPollTime: 240000 });
+} else {
+  console.log('Motor: CLI oficial higgsfield (sessão do auth login) ✓');
 }
-const [KEY_ID, KEY_SECRET] = [rawCreds.slice(0, rawCreds.indexOf(':')), rawCreds.slice(rawCreds.indexOf(':') + 1)];
-const hf = new HiggsfieldClient({ apiKey: KEY_ID, apiSecret: KEY_SECRET, maxPollTime: 240000 });
 console.log(`Credenciais: ${KEY_ID.slice(0, 6)}…:•••  ✓`);
 const group = ASSETS[args.group];
 if (!group) {
