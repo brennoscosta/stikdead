@@ -73,7 +73,7 @@ const RAR_FLAIR = {
 const NB_PROMPT = (item) =>
   `Video game inventory item icon: "${item.name}" — ${SLOT_DESC[item.slot] || 'a single item'}. ` +
   `${RAR_FLAIR[item.rarity] || ''}. Painterly dark fantasy game art, rich detail, dramatic rim lighting, ` +
-  `perfectly centered, isolated on a PURE WHITE background (#ffffff), no shadow on the ground, ` +
+  `perfectly centered, isolated on a PURE WHITE background (#ffffff), completely flat and uniform background, no vignette, no gradient, no shadow on the ground, ` +
   `no smoke outside the object, no character, no text, no watermark, no frame, no border.`;
 
 const CATALOGO = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'items-catalog.json'), 'utf8'))
@@ -351,6 +351,14 @@ for (const a of queue) {
       // transparência real: inundação a partir das bordas (só o fundo conectado some)
       const { data, info } = await img.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
       const W = info.width, H = info.height;
+      // cor real do fundo = mediana dos pixels do perímetro
+      const bR = [], bG = [], bB = [];
+      const sampleAt = (x, y) => { const p = (y * W + x) * 4; bR.push(data[p]); bG.push(data[p + 1]); bB.push(data[p + 2]); };
+      for (let x = 0; x < W; x += 3) { sampleAt(x, 0); sampleAt(x, H - 1); }
+      for (let y = 0; y < H; y += 3) { sampleAt(0, y); sampleAt(W - 1, y); }
+      const med = (arr) => arr.sort((a, b) => a - b)[Math.floor(arr.length / 2)];
+      const bg = [med(bR), med(bG), med(bB)];
+      const dist = (p) => Math.max(Math.abs(data[p] - bg[0]), Math.abs(data[p + 1] - bg[1]), Math.abs(data[p + 2] - bg[2]));
       const seen = new Uint8Array(W * H);
       const stack = [];
       for (let x = 0; x < W; x++) { stack.push(x, 0, x, H - 1); }
@@ -362,8 +370,9 @@ for (const a of queue) {
         if (seen[i]) continue;
         seen[i] = 1;
         const p = i * 4;
-        if (Math.min(data[p], data[p + 1], data[p + 2]) < 214) continue;
-        data[p + 3] = 0;
+        const d = dist(p);
+        if (d > 58) continue;             // não é fundo: para aqui
+        data[p + 3] = d < 34 ? 0 : Math.round(255 * ((d - 34) / 24)); // banda suave na fronteira
         stack.push(x + 1, y, x - 1, y, x, y + 1, x, y - 1);
       }
       const trimmed = await sharp(data, { raw: info }).trim({ threshold: 25 }).png().toBuffer();
