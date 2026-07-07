@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { q } from './db.js';
 import { requireAuth } from './auth.js';
 import { getLoadout } from './shop.js';
-import { getOnlineIds } from './online.js';
+import { getOnlineIds, getClanIds } from './online.js';
 
 const router = Router();
 
@@ -120,6 +120,7 @@ router.post('/friends/respond', requireAuth, async (req, res) => {
 
 router.get('/friends', requireAuth, async (req, res) => {
   const onlineIds = getOnlineIds();
+  const clanIds = getClanIds();
   const friends = await q(
     `SELECT f.id AS friendship_id, u.id AS user_id, p.fighter_name, p.level, p.tier, p.rank_points, p.last_seen
        FROM friendships f
@@ -137,7 +138,7 @@ router.get('/friends', requireAuth, async (req, res) => {
     [req.userId]
   );
   res.json({
-    friends: friends.rows.map((f) => ({ ...f, online: onlineIds.has(Number(f.user_id)) })),
+    friends: friends.rows.map((f) => ({ ...f, online: onlineIds.has(Number(f.user_id)), inClan: clanIds.has(Number(f.user_id)) })),
     requests: requests.rows,
   });
 });

@@ -10,28 +10,32 @@ export default function Friends({ profile }) {
   const [data, setData] = useState({ friends: [], requests: [] });
   const [chat, setChat] = useState([]);
   const [text, setText] = useState('');
-  const [card, setCard] = useState(null);
+  const [card, setCard] = useState(null); // { name, gift? }
   const plazaHost = useRef(null);
   const plazaRef = useRef(null);
   const boxRef = useRef(null);
   const inputRef = useRef(null);
 
   const load = () => api('/api/friends').then(setData).catch(() => {});
-  useEffect(() => { load(); const t = setInterval(load, 12000); return () => clearInterval(t); }, []);
+  useEffect(() => { load(); const t = setInterval(load, 6000); return () => clearInterval(t); }, []);
 
-  // praça do clã: só os amigos online caminham aqui
+  // sala do clã: presença real — só quem está COM A ABA ABERTA caminha aqui
   useEffect(() => {
     let alive = true;
-    createPlaza(plazaHost.current, { variant: 'cla' }).then((p) => {
+    getSocket().emit('clan:enter');
+    createPlaza(plazaHost.current, { variant: 'cla', onNameClick: (n) => setCard({ name: n }) }).then((p) => {
       if (!alive) return p.destroy();
       plazaRef.current = p;
     });
-    return () => { alive = false; plazaRef.current?.destroy(); plazaRef.current = null; };
+    return () => {
+      alive = false;
+      getSocket().emit('clan:leave');
+      plazaRef.current?.destroy(); plazaRef.current = null;
+    };
   }, []);
   useEffect(() => {
-    const walkers = data.friends.filter((f) => f.online)
+    const walkers = data.friends.filter((f) => f.inClan)
       .map((f) => ({ id: f.user_id, name: f.fighter_name, loadout: [] }));
-    // o dono da sala também aparece
     walkers.push({ id: profile.id, name: profile.fighter_name, loadout: [] });
     plazaRef.current?.setPlayers(walkers);
   }, [data, profile]);
@@ -81,7 +85,7 @@ export default function Friends({ profile }) {
           <h3 className="pc-section">PEDIDOS DE AMIZADE</h3>
           {data.requests.map((r) => (
             <div key={r.id} className="fr-request">
-              <button className="fr-name" onClick={() => setCard(r.fighter_name)}>{r.fighter_name}</button>
+              <button className="fr-name" onClick={() => setCard({ name: r.fighter_name })}>{r.fighter_name}</button>
               <small>Nível {r.level} · {r.tier}</small>
               <span className="fr-req-actions">
                 <button className="adm-btn" onClick={() => respond(r.id, true)}>✓ aceitar</button>
@@ -104,9 +108,10 @@ export default function Friends({ profile }) {
           {data.friends.map((f) => (
             <div key={f.user_id} className="fr-friend">
               <span className={`fr-dot ${f.online ? 'online' : ''}`} />
-              <button className="fr-name" onClick={() => setCard(f.fighter_name)}>{f.fighter_name}</button>
+              <button className="fr-name" onClick={() => setCard({ name: f.fighter_name })}>{f.fighter_name}</button>
               <small>Nv {f.level} · 🏆 {Number(f.rank_points || 0).toLocaleString('pt-BR')}</small>
               <button className="adm-btn" onClick={() => whisper(f.fighter_name)}>💬</button>
+              <button className="adm-btn" title="Enviar presente" onClick={() => setCard({ name: f.fighter_name, gift: true })}>🎁</button>
             </div>
           ))}
         </div>
@@ -118,7 +123,7 @@ export default function Friends({ profile }) {
               <div key={i} className={`clan-line ${m.private ? 'pv' : ''} ${m.system ? 'sys' : ''}`}>
                 {m.system ? <em>{m.text}</em> : (
                   <>
-                    <strong className="chat-name" onClick={() => setCard(m.name)}>{m.name}</strong>
+                    <strong className="chat-name" onClick={() => setCard({ name: m.name })}>{m.name}</strong>
                     {m.private && <span className="pv-tag">{Number(m.userId) === Number(profile.id) ? `➜ ${m.to}` : 'sussurro'}</span>}
                     : {m.text}
                   </>
@@ -134,7 +139,7 @@ export default function Friends({ profile }) {
         </div>
       </div>
 
-      {card && <PlayerCard name={card} onClose={() => setCard(null)} onWhisper={whisper} />}
+      {card && <PlayerCard name={card.name} autoGift={card.gift} onClose={() => setCard(null)} onWhisper={whisper} />}
     </div>
   );
 }

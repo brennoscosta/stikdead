@@ -4,24 +4,27 @@ import { api } from './api.js';
 import ItemIcon from './ItemIcon.jsx';
 import { SLOT_LABEL, RARITY_LABEL } from '../pages/Shop.jsx';
 
-export default function PlayerCard({ name, onClose, onWhisper, onGifted }) {
+export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGift }) {
   const [p, setP] = useState(null);
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
   const [picking, setPicking] = useState(false);
   const [chest, setChest] = useState(null);
+  const [chosen, setChosen] = useState(null);      // item escolhido para presente
+  const [giftMsg, setGiftMsg] = useState('');
+  useEffect(() => { if (autoGift) openPicker(); /* eslint-disable-next-line */ }, [autoGift]);
   const openPicker = async () => {
     setPicking(true);
     if (!chest) {
       try { const d = await api('/api/inventory'); setChest(d.chest || []); } catch { setChest([]); }
     }
   };
-  const sendGift = async (itemId) => {
-    if (!confirm('Enviar este item de presente? Ele sai do seu baú.')) return;
+  const sendGift = async () => {
+    if (!chosen) return;
     setBusy(true);
     try {
-      await api('/api/gifts/send', { method: 'POST', body: { toName: name, itemId } });
-      setPicking(false);
+      await api('/api/gifts/send', { method: 'POST', body: { toName: name, itemId: chosen.id, message: giftMsg.trim() || undefined } });
+      setPicking(false); setChosen(null); setGiftMsg('');
       onGifted?.();
       alert('🎁 Presente enviado!');
     } catch (e) { alert(e.message); }
@@ -116,15 +119,35 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted }) {
                 <h3 className="pc-section">ESCOLHA O PRESENTE (sai do seu baú)</h3>
                 {!chest && <p className="dash-empty">Abrindo seu baú...</p>}
                 {chest && chest.length === 0 && <p className="dash-empty">Seu baú está vazio.</p>}
-                <div className="pc-loadout">
-                  {(chest || []).map((it) => (
-                    <button key={it.id} className={`pc-item r-${it.rarity}`} disabled={busy} onClick={() => sendGift(it.id)} title={it.name}>
-                      <ItemIcon item={it} />
-                      <small>{it.name.slice(0, 14)}</small>
-                    </button>
-                  ))}
-                </div>
-                <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px', marginTop: 8 }} onClick={() => setPicking(false)}>Cancelar</button>
+                {!chosen ? (
+                  <div className="pc-loadout">
+                    {(chest || []).map((it, idx) => (
+                      <button key={`${it.id}_${idx}`} className={`pc-item r-${it.rarity}`} disabled={busy} onClick={() => setChosen(it)} title={it.name}>
+                        <ItemIcon item={it} />
+                        <small>{it.name.slice(0, 14)}</small>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="gift-confirm">
+                    <div className={`pc-item r-${chosen.rarity}`} style={{ display: 'inline-block' }}>
+                      <ItemIcon item={chosen} />
+                      <small>{chosen.name.slice(0, 16)}</small>
+                    </div>
+                    <textarea
+                      className="em-body" rows={2} maxLength={200}
+                      placeholder="Mensagem para acompanhar o presente (opcional)..."
+                      value={giftMsg} onChange={(e) => setGiftMsg(e.target.value)}
+                    />
+                    <div className="pc-actions" style={{ marginTop: 8 }}>
+                      <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 20px' }} disabled={busy} onClick={sendGift}>
+                        🎁 Enviar presente
+                      </button>
+                      <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 16px' }} onClick={() => setChosen(null)}>← Trocar item</button>
+                    </div>
+                  </div>
+                )}
+                {!chosen && <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px', marginTop: 8 }} onClick={() => setPicking(false)}>Cancelar</button>}
               </div>
             )}
           </>

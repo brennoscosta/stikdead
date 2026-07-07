@@ -17,6 +17,8 @@ const sanitizeInput = (i) => ({
 
 const ONLINE_IDS = new Set();
 export const getOnlineIds = () => ONLINE_IDS;
+const CLAN_ROOM = new Set(); // quem está com a aba Clã aberta
+export const getClanIds = () => CLAN_ROOM;
 
 export function attachOnline(io) {
   const online = new Map();   // userId -> { socket, user }
@@ -286,6 +288,8 @@ export function attachOnline(io) {
 
     socket.on('chat:send', (payload) => handleSend(payload, 'chat:msg'));
     socket.on('clan:send', (payload) => handleSend(payload, 'clan:msg'));
+    socket.on('clan:enter', () => { CLAN_ROOM.add(user.id); });
+    socket.on('clan:leave', () => { CLAN_ROOM.delete(user.id); });
     socket.on('presence:get', () => {
       socket.emit('presence', { players: presencePayload() });
     });
@@ -386,7 +390,7 @@ export function attachOnline(io) {
     });
 
     socket.on('disconnect', () => {
-      if (online.get(user.id)?.socket === socket) ONLINE_IDS.delete(user.id);
+      if (online.get(user.id)?.socket === socket) { ONLINE_IDS.delete(user.id); CLAN_ROOM.delete(user.id); }
       if (online.get(user.id)?.socket === socket) online.delete(user.id);
       dequeue(user.id);
       const rid = userRoom.get(user.id);

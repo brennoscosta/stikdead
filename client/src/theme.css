@@ -1065,3 +1065,7 @@ body.in-fight .topnav-spacer { display: none; }
 .pi-l { color: #ff5a70; font-weight: 700; }
 .pi-sep { color: var(--muted); }
 .pi-zoeira { margin-left: auto; color: var(--muted); font-size: 12px; font-style: italic; }
+
+.gift-msg { font-style: italic; color: #e8ddc8; background: rgba(224,161,11,0.08); border-left: 3px solid rgba(224,161,11,0.5); border-radius: 6px; padding: 8px 12px; margin: 6px 0; }
+.gift-confirm { text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.gift-confirm .em-body { width: 100%; }

@@ -8,6 +8,7 @@ const MAX_WALKERS = 14;
 
 export async function createPlaza(host, opts = {}) {
   const VARIANT = opts.variant || 'praca';
+  const onNameClick = opts.onNameClick || null;
   const app = new Application();
   await app.init({ background: '#120a0e', resizeTo: host, antialias: true });
   host.appendChild(app.canvas);
@@ -77,6 +78,11 @@ export async function createPlaza(host, opts = {}) {
       style: { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, fill: 0xe8e4da, letterSpacing: 1 },
     });
     tag.anchor.set(0.5, 1);
+    if (onNameClick) {
+      tag.eventMode = 'static';
+      tag.cursor = 'pointer';
+      tag.on('pointertap', () => onNameClick(p.name));
+    }
     layer.addChild(wrap, tag);
     return {
       wrap, g, ws, tag, name: p.name, loadout: p.loadout || [], bubble: null, bubbleUntil: 0,

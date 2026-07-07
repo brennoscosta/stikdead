@@ -50,6 +50,9 @@ export default function GiftModal({ onSenderClick }) {
             </div>
             <h2 className="gift-item-name">{gift.name}</h2>
             <div className="gift-rarity">{RARITY_LABEL[gift.rarity] || gift.rarity}</div>
+            {gift.message && (
+              <p className="gift-msg">“{gift.message}”</p>
+            )}
             <p className="gift-from">
               presente de{' '}
               <button className="fr-name" onClick={() => { onSenderClick?.(gift.from_name); close(); }}>

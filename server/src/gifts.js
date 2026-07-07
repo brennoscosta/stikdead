@@ -10,6 +10,7 @@ const router = Router();
 router.post('/send', requireAuth, async (req, res) => {
   const toName = String(req.body?.toName || '').trim();
   const itemId = String(req.body?.itemId || '');
+  const message = String(req.body?.message || '').trim().slice(0, 200) || null;
   const target = await q('SELECT user_id, fighter_name FROM profiles WHERE lower(fighter_name) = lower($1)', [toName]);
   const to = target.rows[0];
   if (!to) return res.status(404).json({ error: 'Lutador não encontrado.' });
@@ -35,8 +36,8 @@ router.post('/send', requireAuth, async (req, res) => {
       [to.user_id, itemId]
     );
     const g = await client.query(
-      'INSERT INTO gifts (from_id, to_id, item_id) VALUES ($1, $2, $3) RETURNING id',
-      [req.userId, to.user_id, itemId]
+      'INSERT INTO gifts (from_id, to_id, item_id, message) VALUES ($1, $2, $3, $4) RETURNING id',
+      [req.userId, to.user_id, itemId, message]
     );
     await client.query('COMMIT');
 
@@ -57,7 +58,7 @@ router.post('/send', requireAuth, async (req, res) => {
 // presentes fechados esperando o destinatário
 router.get('/pending', requireAuth, async (req, res) => {
   const { rows } = await q(
-    `SELECT g.id, g.created_at, i.id AS item_id, i.name, i.rarity, i.slot, i.template, i.params,
+    `SELECT g.id, g.created_at, g.message, i.id AS item_id, i.name, i.rarity, i.slot, i.template, i.params,
             p.fighter_name AS from_name
        FROM gifts g
        JOIN items i ON i.id = g.item_id
