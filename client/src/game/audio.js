@@ -104,6 +104,12 @@ export const sfx = {
   },
   firstblood() { tone(220, 0.12, 0.3, 'sawtooth'); tone(330, 0.2, 0.3, 'sawtooth', 0.1); },
   round() { thump(90, 0.2, 0.7); thump(90, 0.2, 0.7, 0.22); },
+  dark() {
+    // drone sombrio: grave descendo + sopro de vento + sino distante
+    tone(66, 2.2, 0.16, 'sawtooth', 0, 48);
+    noise({ dur: 2.4, from: 900, to: 180, vol: 0.14, q: 0.8 });
+    tone(392, 1.4, 0.05, 'sine', 0.5, 388);
+  },
   victory() { [440, 554, 659, 880].forEach((f, i) => tone(f, 0.34, 0.22, 'triangle', i * 0.12)); },
   defeat() { [330, 262, 196].forEach((f, i) => tone(f, 0.42, 0.2, 'triangle', i * 0.16)); },
   drop() { [660, 880, 1108].forEach((f, i) => tone(f, 0.2, 0.18, 'sine', i * 0.08)); },

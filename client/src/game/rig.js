@@ -190,12 +190,12 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null) {
   }
 
 
-  drawEyes(g, f, hx, hy, face, ko);
+  drawEyes(g, f, hx, hy, face, ko, elapsed);
 
   if (loadout) drawItems(ctx, loadout, 'front');
 }
 
-export function drawEyes(g, f, hx, hy, face, ko) {
+export function drawEyes(g, f, hx, hy, face, ko, elapsed = 0) {
   const ey = hy + 2;
   const exF = hx + face * 6;
   const exB = hx - face * 3;
@@ -210,9 +210,12 @@ export function drawEyes(g, f, hx, hy, face, ko) {
     g.circle(exB, ey, 4.6).fill(0xffffff);
   } else {
     // olhos ferozes da referência: quadrantes brancos angulados com brilho
+    const pulse = 0.3 + 0.18 * Math.sin(elapsed * 5.2) + (f.combo >= 3 ? 0.2 : 0);
     const angry = (cx, w) => {
+      g.moveTo(cx - w * 1.18, ey + 4).lineTo(cx + w * 0.5, ey - 6.4).lineTo(cx + w * 1.18, ey + 4.4)
+        .closePath().fill({ color: 0xffffff, alpha: pulse * 0.45 }); // aura externa pulsante
       g.moveTo(cx - w, ey + 3).lineTo(cx + w * 0.45, ey - 5.2).lineTo(cx + w, ey + 3.4)
-        .closePath().fill({ color: 0xffffff, alpha: 0.35 }); // halo
+        .closePath().fill({ color: 0xffffff, alpha: 0.35 + pulse * 0.3 }); // halo
       g.moveTo(cx - w * 0.82, ey + 2.4).lineTo(cx + w * 0.42, ey - 4.2).lineTo(cx + w * 0.85, ey + 2.8)
         .closePath().fill(0xffffff); // núcleo
     };

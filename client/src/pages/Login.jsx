@@ -96,7 +96,15 @@ export default function Login({ onAuth }) {
   };
 
   return (
-    <div className="scene">
+    <div
+      className="scene"
+      onPointerDown={() => {
+        if (!window.__stikDark) {
+          window.__stikDark = 1;
+          import('../game/audio.js').then((a) => { a.unlockAudio(); a.sfx.dark(); });
+        }
+      }}
+    >
       <Brand />
       <div className="card">
         <h2>Faça login para continuar</h2>
