@@ -195,7 +195,14 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
   if (loadout) drawItems(ctx, loadout, 'front');
 
   const TA = (p) => { let [x, y] = p; x = f.x + x * f.face; y = -y - f.y; return { x, y }; };
-  return { hx, hy, headR: R, face, ko, neck: TA(sk.neck), hip: TA(sk.hip) };
+  return {
+    hx, hy, headR: R, face, ko,
+    neck: TA(sk.neck), hip: TA(sk.hip),
+    wristF: TA(sk.handF), wristB: TA(sk.handB),
+    elbowF: TA(sk.elbF), elbowB: TA(sk.elbB),
+    ankleF: TA(sk.footF), ankleB: TA(sk.footB),
+    kneeF: TA(sk.kneF), kneeB: TA(sk.kneB),
+  };
 }
 
 export function drawEyes(g, f, hx, hy, face, ko, elapsed = 0) {

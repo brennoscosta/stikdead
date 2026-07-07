@@ -6,7 +6,7 @@ import { Application, Container, Graphics, Sprite, Assets } from 'pixi.js';
 import { drawFighter } from '../game/rig.js';
 import { MOVES, createMatch, stepMatch, EMPTY_INPUT } from '../game/sim.js';
 
-const ANCHORS = ['neck', 'hip', 'head'];
+const ANCHORS = ['neck', 'hip', 'head', 'wristF', 'wristB', 'elbowF', 'elbowB', 'ankleF', 'ankleB', 'kneeF', 'kneeB'];
 
 export default function Calibrador({ profile }) {
   const host = useRef(null);
@@ -65,9 +65,10 @@ export default function Calibrador({ profile }) {
         g.alpha = ghostRef.current ? 0.22 : 1;
         const pose = drawFighter(g, f, MOVES, 0xd90429, elapsed, null);
         const c = cfgRef.current;
-        const a = pose[anchorRef.current === 'head' ? 'hx' : anchorRef.current] ;
-        const ax = anchorRef.current === 'head' ? pose.hx : a.x;
-        const ay = anchorRef.current === 'head' ? pose.hy : a.y;
+        const isHead = anchorRef.current === 'head';
+        const a = isHead ? { x: pose.hx, y: pose.hy } : pose[anchorRef.current];
+        const ax = a.x;
+        const ay = a.y;
         if (tex) {
           spr.visible = true;
           spr.position.set(ax + c.dx * (c.flip ? -1 : 1), ay + c.dy);
