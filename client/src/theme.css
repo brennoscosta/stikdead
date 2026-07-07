@@ -1,0 +1,226 @@
+/* ============================================================
+   STIKDEAD :: TEMA PREMIUM v1
+   Fonte da verdade visual da UI. Deriva de 01_BIBLE/bible.json.
+   Só aparência — nenhuma lógica, nenhum layout estrutural.
+   ============================================================ */
+
+:root {
+  /* --- paleta (Bíblia) --- */
+  --blood: #d90429;
+  --blood-hot: #ff2244;
+  --blood-deep: #7a0e1c;
+  --void: #8b5cf6;
+  --gold: #e0a10b;
+  --gold-hot: #ffd66b;
+  --ice: #9fd8ff;
+  --ink: #0b0709;
+  --coal: #141414;
+  --panel: #16090dcc;
+  --bone: #f2efe9;
+  --muted: #9a938a;
+
+  /* --- luz e matéria --- */
+  --glow-blood: 0 0 18px rgba(217, 4, 41, 0.55), 0 0 42px rgba(217, 4, 41, 0.22);
+  --glow-gold: 0 0 16px rgba(224, 161, 11, 0.5), 0 0 38px rgba(224, 161, 11, 0.2);
+  --glow-void: 0 0 16px rgba(139, 92, 246, 0.5);
+  --metal-edge: linear-gradient(160deg, #4a4a52 0%, #17171c 28%, #3a3a44 52%, #101014 78%, #2e2e36 100%);
+  --panel-grad: linear-gradient(180deg, rgba(26, 12, 16, 0.94), rgba(10, 7, 9, 0.96));
+  --depth: 0 10px 34px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ============ COMPONENTES GLOBAIS PREMIUM ============ */
+
+/* --- botão de sangue: o CTA canônico --- */
+.btn-blood, .big-cta {
+  position: relative;
+  background: linear-gradient(180deg, #ff2b4a 0%, var(--blood) 42%, #9c0320 100%);
+  border: 1px solid rgba(255, 120, 140, 0.45);
+  box-shadow: var(--glow-blood), inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -8px 16px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  overflow: hidden;
+}
+.btn-blood::after, .big-cta::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 55%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  transform: skewX(-22deg);
+  animation: sheen 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sheen { 0%, 62% { left: -80%; } 88%, 100% { left: 130%; } }
+.btn-blood:hover, .big-cta:hover { filter: brightness(1.12); box-shadow: 0 0 26px rgba(255, 34, 68, 0.75), 0 0 60px rgba(217, 4, 41, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+.btn-blood:active, .big-cta:active { transform: translateY(1px) scale(0.985); }
+
+/* --- cards com borda metálica --- */
+.card, .dash-card {
+  position: relative;
+  background: var(--panel-grad);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  box-shadow: var(--depth);
+}
+.card::before, .dash-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--metal-edge);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.dash-card > h2 {
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 14px rgba(217, 4, 41, 0.35);
+}
+.dash-card > h2::after {
+  content: '';
+  display: block;
+  height: 2px;
+  margin-top: 6px;
+  background: linear-gradient(90deg, var(--blood), rgba(217, 4, 41, 0));
+  box-shadow: 0 0 10px rgba(217, 4, 41, 0.6);
+}
+
+/* --- inputs de vidro escuro --- */
+.field input, .field select {
+  background: rgba(8, 5, 7, 0.8) !important;
+  border: 1px solid #2b1218 !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.55);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--blood) !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(217, 4, 41, 0.22), 0 0 18px rgba(217, 4, 41, 0.28);
+  outline: none;
+}
+
+/* --- raridades com aura --- */
+.r-raro { box-shadow: 0 0 14px rgba(61, 123, 217, 0.22); }
+.r-epico { box-shadow: 0 0 16px rgba(139, 92, 246, 0.28); }
+.r-lendario { box-shadow: 0 0 20px rgba(224, 161, 11, 0.35); animation: legendary-pulse 2.6s ease-in-out infinite; }
+@keyframes legendary-pulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(224, 161, 11, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(224, 161, 11, 0.55), 0 0 60px rgba(224, 161, 11, 0.15); }
+}
+
+/* ============ LOGIN CINEMATOGRÁFICO ============ */
+.scene { position: relative; }
+.scene::before {
+  /* vinheta de sangue respirando */
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(217, 4, 41, 0.1), transparent 55%),
+    radial-gradient(140% 100% at 50% 110%, rgba(0, 0, 0, 0.85), transparent 60%);
+  animation: breathe 7s ease-in-out infinite;
+}
+@keyframes breathe { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+.scene > * { position: relative; z-index: 1; }
+
+/* brasas subindo (partículas em CSS puro) */
+.scene::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(2px 2px at 12% 88%, rgba(255, 90, 60, 0.9), transparent 60%),
+    radial-gradient(1.6px 1.6px at 34% 94%, rgba(255, 140, 60, 0.8), transparent 60%),
+    radial-gradient(2.2px 2.2px at 58% 90%, rgba(217, 4, 41, 0.85), transparent 60%),
+    radial-gradient(1.4px 1.4px at 76% 96%, rgba(255, 190, 90, 0.75), transparent 60%),
+    radial-gradient(1.8px 1.8px at 91% 92%, rgba(255, 70, 70, 0.8), transparent 60%);
+  background-repeat: no-repeat;
+  animation: embers 11s linear infinite;
+  opacity: 0.7;
+}
+@keyframes embers {
+  0% { transform: translateY(0); opacity: 0; }
+  8% { opacity: 0.75; }
+  92% { opacity: 0.55; }
+  100% { transform: translateY(-105vh); opacity: 0; }
+}
+
+.error {
+  border-left: 3px solid var(--blood);
+  box-shadow: 0 0 14px rgba(217, 4, 41, 0.25);
+  animation: shake 0.34s ease;
+}
+@keyframes shake { 25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
+
+/* ============ HUD DE BATALHA CINEMATOGRÁFICO ============ */
+.bt-bar {
+  border: 1px solid #3a1a20 !important;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.65), rgba(20, 8, 12, 0.85)) !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.6), 0 2px 10px rgba(0, 0, 0, 0.5);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+}
+.bt-hud > div:last-of-type .bt-bar { clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%); }
+.bt-fill {
+  background: linear-gradient(180deg, #ff5a70 0%, var(--blood) 45%, #8e0220 100%) !important;
+  box-shadow: 0 0 14px rgba(255, 34, 68, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  position: relative;
+}
+.bt-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(115deg, transparent 0 12px, rgba(255, 255, 255, 0.06) 12px 14px);
+}
+.bt-name {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 12px rgba(217, 4, 41, 0.3);
+  letter-spacing: 0.1em;
+}
+.bt-timer {
+  background: var(--panel-grad);
+  border: 1px solid #3a1a20;
+  border-radius: 10px;
+  padding: 2px 12px;
+  box-shadow: var(--glow-blood), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+.bt-dots span[data-on] { box-shadow: 0 0 10px rgba(255, 34, 68, 0.8); }
+.bt-announce {
+  text-shadow: 0 0 22px rgba(217, 4, 41, 0.8), 0 3px 6px rgba(0, 0, 0, 0.9) !important;
+  animation: announce-punch 0.42s cubic-bezier(0.2, 1.6, 0.4, 1) !important;
+}
+@keyframes announce-punch {
+  0% { transform: scale(2.1); opacity: 0; filter: blur(4px); }
+  60% { transform: scale(0.96); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1); }
+}
+.bt-loading {
+  background:
+    radial-gradient(90% 70% at 50% 30%, rgba(217, 4, 41, 0.12), transparent 60%),
+    radial-gradient(120% 100% at 50% 110%, #000, transparent 70%),
+    var(--ink) !important;
+}
+.bt-loading-logo { animation: logo-land 0.7s cubic-bezier(0.2, 1.4, 0.35, 1); }
+@keyframes logo-land {
+  0% { transform: scale(1.6) translateY(-30px); opacity: 0; filter: blur(6px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+}
+
+/* ============ NAVBAR: brilho vivo ============ */
+.topnav { box-shadow: 0 2px 26px rgba(0, 0, 0, 0.55), 0 1px 18px rgba(217, 4, 41, 0.18); }
+.topnav-logo img { filter: drop-shadow(0 2px 10px rgba(217, 4, 41, 0.4)); transition: filter 0.2s; }
+.topnav-logo:hover img { filter: drop-shadow(0 2px 18px rgba(255, 34, 68, 0.7)); }
+
+/* ============ LOBBY: presença de jogo AAA ============ */
+.lobby-dot { box-shadow: 0 0 8px currentColor; }
+.lobby-challenge:hover { box-shadow: var(--glow-blood); }
+
+/* acessibilidade: quem pede menos movimento, recebe menos */
+@media (prefers-reduced-motion: reduce) {
+  .scene::after, .btn-blood::after, .big-cta::after, .r-lendario { animation: none; }
+}
