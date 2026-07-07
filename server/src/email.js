@@ -80,21 +80,15 @@ export async function sendEmail({ to, subject, html }) {
 // ===== transacionais =====
 export async function sendWelcome(email, fighterName) {
   const html = baseLayout({
-    title: 'Bem-vindo à arena!',
+    title: 'Conta criada com sucesso',
     bodyHtml: `
-      <p>Salve, <strong style="color:#f2efe9;">${fighterName || 'lutador'}</strong>! 🥷</p>
-      <p>Sua conta no <strong>STIKDEAD</strong> está pronta. Do outro lado deste botão te esperam:</p>
-      <p style="margin:14px 0;padding-left:6px;border-left:3px solid #d90429;">
-        ⚔️ Batalhas 1v1 em tempo real<br>
-        🎒 Dezenas de itens para montar seu stick<br>
-        🏆 O Top 100 Brasil esperando seu nome<br>
-        💎 A Série Diamante para quem quer brilhar
-      </p>
-      <p>Boa sorte na arena — e que seu cachecol nunca toque o chão.</p>`,
-    ctaText: 'Entrar na arena',
+      <p>Olá, <strong style="color:#f2efe9;">${fighterName || 'lutador'}</strong>.</p>
+      <p>Confirmamos a criação da sua conta no STIKDEAD com o email <strong style="color:#f2efe9;">${email}</strong>.</p>
+      <p>Você já pode fazer login e começar a jogar. Se não foi você quem criou esta conta, pode ignorar esta mensagem.</p>`,
+    ctaText: 'Acessar minha conta',
     ctaUrl: SITE,
   });
-  return sendEmail({ to: email, subject: '⚔️ Bem-vindo ao STIKDEAD!', html });
+  return sendEmail({ to: email, subject: 'Sua conta no STIKDEAD foi criada', html });
 }
 
 export async function sendPurchaseConfirmed(email, { fighterName, diamonds, amountCents, mpPaymentId }) {
