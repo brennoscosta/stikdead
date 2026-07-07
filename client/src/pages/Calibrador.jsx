@@ -10,7 +10,8 @@ const ANCHORS = ['neck', 'hip', 'head', 'wristF', 'wristB', 'elbowF', 'elbowB', 
 
 export default function Calibrador({ profile }) {
   const host = useRef(null);
-  const [part, setPart] = useState('torso');
+  const [part, setPart] = useState('foot');
+  const [partInput, setPartInput] = useState('foot');
   const [anchor, setAnchor] = useState('neck');
   const [cfg, setCfg] = useState({ dx: 0, dy: 0, scale: 1, rot: 0, flip: false });
   const cfgRef = useRef(cfg);
@@ -91,8 +92,10 @@ export default function Calibrador({ profile }) {
       window.addEventListener('pointermove', (e) => {
         if (!drag) return;
         const k = 1 / 2.2;
-        setCfg((c) => ({ ...c, dx: c.dx + (e.clientX - drag.x) * k, dy: c.dy + (e.clientY - drag.y) * k }));
+        const mx = (e.clientX - drag.x) * k;
+        const my = (e.clientY - drag.y) * k;
         drag = { x: e.clientX, y: e.clientY };
+        setCfg((c) => ({ ...c, dx: c.dx + mx, dy: c.dy + my }));
       });
       window.addEventListener('pointerup', () => { drag = null; });
       app.canvas.addEventListener('wheel', (e) => {
@@ -123,7 +126,14 @@ export default function Calibrador({ profile }) {
       <h2 style={{ letterSpacing: '.1em' }}>CALIBRADOR <span className="red">DE PEÇAS</span></h2>
       <p className="dash-empty">{status} · arrasta=posição · roda=escala · Q/E=rotação · X=espelho</p>
       <div style={{ display: 'flex', gap: 10, marginBottom: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <input value={part} onChange={(e) => setPart(e.target.value)} style={{ width: 110, padding: '6px 10px' }} />
+        <input
+          value={partInput}
+          onChange={(e) => setPartInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && setPart(partInput.trim())}
+          onBlur={() => setPart(partInput.trim())}
+          placeholder="peça + Enter"
+          style={{ width: 110, padding: '6px 10px' }}
+        />
         {ANCHORS.map((a) => (
           <button key={a} className={`filter ${anchor === a ? 'on' : ''}`} onClick={() => setAnchor(a)}>{a}</button>
         ))}
