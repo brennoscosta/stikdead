@@ -8,7 +8,7 @@ export const SLOT_LABEL = {
   weapon: 'Armas', head: 'Cabeça', face: 'Rosto', body: 'Corpo', back: 'Costas',
   arms: 'Braços', legs: 'Pernas', feet: 'Pés', effect: 'Efeitos', style: 'Estilos ⚡',
 };
-export const RARITY_LABEL = { comum: 'Comum', raro: 'Raro', epico: 'Épico', lendario: 'Lendário' };
+export const RARITY_LABEL = { comum: 'Comum', raro: 'Raro', epico: 'Épico', lendario: 'Lendário', diamante: 'Diamante 💎' };
 
 export default function Shop({ profile, onProfile }) {
   const [packs, setPacks] = useState([]);
@@ -128,10 +128,10 @@ export default function Shop({ profile, onProfile }) {
             ) : (
               <button
                 className="item-buy"
-                disabled={busy === item.id || coins < item.price}
+                disabled={busy === item.id || (item.currency === 'diamonds' ? (profile.diamonds || 0) < item.price : coins < item.price)}
                 onClick={() => buy(item)}
               >
-                🪙 {item.price.toLocaleString('pt-BR')}
+                {item.currency === 'diamonds' ? '💎' : '🪙'} {item.price.toLocaleString('pt-BR')}
               </button>
             )}
           </div>

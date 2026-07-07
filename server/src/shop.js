@@ -36,7 +36,7 @@ const router = Router();
 // Catálogo completo + flag de posse
 router.get('/shop', requireAuth, async (req, res) => {
   const { rows } = await q(
-    `SELECT i.id, i.name, i.slot, i.rarity, i.price, i.template, i.params,
+    `SELECT i.id, i.name, i.slot, i.rarity, i.price, i.currency, i.template, i.params,
             (u.item_id IS NOT NULL) AS owned
        FROM items i
        LEFT JOIN user_items u ON u.item_id = i.id AND u.user_id = $1
@@ -53,7 +53,7 @@ router.post('/shop/buy', requireAuth, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const item = (await client.query('SELECT id, name, rarity, price FROM items WHERE id = $1', [itemId])).rows[0];
+    const item = (await client.query('SELECT id, name, rarity, price, currency FROM items WHERE id = $1', [itemId])).rows[0];
     if (!item) {
       await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Item não encontrado.' });
@@ -66,8 +66,18 @@ router.post('/shop/buy', requireAuth, async (req, res) => {
       return res.status(409).json({ error: 'Você já tem esse item no baú.' });
     }
     const prof = (await client.query(
-      'SELECT coins FROM profiles WHERE user_id = $1 FOR UPDATE', [req.userId]
+      'SELECT coins, diamonds FROM profiles WHERE user_id = $1 FOR UPDATE', [req.userId]
     )).rows[0];
+    if (item.currency === 'diamonds') {
+      if ((prof.diamonds || 0) < item.price) {
+        await client.query('ROLLBACK');
+        return res.status(402).json({ error: `Diamantes insuficientes: precisa de ${item.price} 💎, você tem ${prof.diamonds || 0}.` });
+      }
+      await client.query('UPDATE profiles SET diamonds = diamonds - $1, updated_at = now() WHERE user_id = $2', [item.price, req.userId]);
+      await client.query('INSERT INTO user_items (user_id, item_id) VALUES ($1, $2)', [req.userId, itemId]);
+      await client.query('COMMIT');
+      return res.json({ ok: true, item: { id: item.id, name: item.name, rarity: item.rarity }, diamonds: (prof.diamonds || 0) - item.price });
+    }
     if (prof.coins < item.price) {
       await client.query('ROLLBACK');
       return res.status(402).json({ error: `Moedas insuficientes: precisa de ${item.price}, você tem ${prof.coins}.` });

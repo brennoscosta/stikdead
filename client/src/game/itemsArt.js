@@ -15,10 +15,20 @@ const LAYER = {
   dust: 'front',
 };
 
+// glow da Série Diamante: seg() irradia a silhueta exata do item
+let CUR_GLOW = 0;
+let CUR_PULSE = 1;
+
 export function drawItems(ctx, loadout, layer) {
   for (const item of loadout) {
     const fn = TEMPLATES[item.template];
-    if (fn && (LAYER[item.template] || 'front') === layer) fn(ctx, item.params || {});
+    if (fn && (LAYER[item.template] || 'front') === layer) {
+      const glowHex = item.rarity === 'diamante' ? (item.params?.glow || '#7fd9ff') : item.params?.glow;
+      CUR_GLOW = glowHex ? C(glowHex) : 0;
+      CUR_PULSE = 0.7 + 0.3 * Math.sin((ctx.elapsed || 0) * 2.6 + (item.id ? item.id.length : 0));
+      fn(ctx, item.params || {});
+      CUR_GLOW = 0;
+    }
   }
 }
 
@@ -29,6 +39,10 @@ function dir(a, b) {
   return [dx / L, dy / L, L];
 }
 function seg(g, a, b, w, color, outline = true, hi = false) {
+  if (CUR_GLOW) {
+    g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w * 3, color: CUR_GLOW, alpha: 0.13 * CUR_PULSE, cap: 'round' });
+    g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w * 1.7, color: CUR_GLOW, alpha: 0.28 * CUR_PULSE, cap: 'round' });
+  }
   if (outline) g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w + 4, color: OUT, cap: 'round' });
   g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w, color, cap: 'round' });
   if (hi) {
