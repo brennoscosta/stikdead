@@ -256,8 +256,10 @@ export async function createRenderer(host, theme = 'dojo') {
     if (b.state === 'dash') drawFighter(ghostB, { ...b, x: b.x - b.face * 20 }, MOVES, 0x6e6e6e, elapsed, null);
 
     const hasHeadTex = !!(headA.texture && headA.texture.width > 1);
-    const poseA = drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA), { skipHead: hasHeadTex });
-    const poseB = drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB), { skipHead: hasHeadTex });
+    const hasBody = !!(partTexs && partTexs.torso);
+    const optsF = { skipHead: hasHeadTex, skipBody: hasBody };
+    const poseA = drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA), optsF);
+    const poseB = drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB), optsF);
     updateFighterParts(partsA, poseA, partTexs);
     updateFighterParts(partsB, poseB, partTexs);
     for (const [spr, eg, f, pose] of [[headA, eyesA, a, poseA], [headB, eyesB, b, poseB]]) {
