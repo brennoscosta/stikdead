@@ -11,14 +11,44 @@ export const ARENAS = {
   deserto: { label: 'Deserto', desc: 'Só os fortes atravessam.' },
   praia: { label: 'Praia', desc: 'Maré vermelha ao luar.' },
   cidade_rio: { label: 'Cidade do Rio', desc: 'A cidade viva assiste da outra margem.' },
+  cemiterio: { label: 'Cemitério', desc: 'Os mortos não descansam — assistem.' },
 };
 export const ARENA_KEYS = Object.keys(ARENAS);
 
 export function buildArena(theme = 'dojo') {
-  if (theme === 'temple') return buildTemple();
-  if (theme === 'prison') return buildPrison();
+  if (theme === 'temple') return buildTemploVivo();
+  if (theme === 'prison') return buildPrisaoViva();
   if (theme === 'cidade_rio') return buildCidadeRio();
-  return buildDojo();
+  if (theme === 'neve') return buildNeveViva();
+  if (theme === 'deserto') return buildDesertoVivo();
+  if (theme === 'praia') return buildPraiaViva();
+  if (theme === 'cemiterio') return buildCemiterio();
+  return buildDojoVivo();
+}
+
+// ===== utilidades das cenas vivas =====
+function vSky(g, L, W, SKY, H, cols) {
+  const n = cols.length;
+  cols.forEach((col, i) => g.rect(L, SKY + (i * H) / n, W, H / n + 2).fill(col));
+}
+function vClouds(c, L, R, SKY, n, alpha = 0.6) {
+  const arr = [];
+  for (let i = 0; i < n; i++) {
+    const cl = new Graphics();
+    cl.ellipse(0, 0, 60 + i * 16, 14 + i * 3).fill({ color: 0xffffff, alpha });
+    cl.ellipse(36, -7, 40, 11).fill({ color: 0xffffff, alpha: alpha * 0.8 });
+    cl.x = L + ((i + 0.3) / n) * (R - L);
+    cl.y = SKY + 46 + i * 30;
+    arr.push(cl);
+    c.addChild(cl);
+  }
+  return arr;
+}
+function vDrift(clouds, dt, L, R, base = 5) {
+  for (let i = 0; i < clouds.length; i++) {
+    clouds[i].x += (base + i * 1.6) * (dt / 1000);
+    if (clouds[i].x > R + 90) clouds[i].x = L - 90;
+  }
 }
 
 // ===== CIDADE DO RIO — cena VIVA (animada por tick) =====
@@ -424,4 +454,440 @@ export function fxStep(fx, dt) {
     g.circle(p.x, -p.y, p.r).fill({ color: p.color, alpha });
     return true;
   });
+}
+
+
+// ===== DOJO VIVO — manhã de treino: pétalas, incenso e poeira na luz =====
+function buildDojoVivo() {
+  const c = new Container();
+  const L = WORLD.left - 240, R = WORLD.right + 240, W = R - L, SKY = -WORLD.skyH;
+  const g = new Graphics();
+  g.rect(L, SKY, W, WORLD.skyH).fill(0xf4ecd8);                       // parede de papel clara
+  for (let px = L; px < R; px += 130) g.rect(px, SKY, 6, WORLD.skyH).fill(0xc9b98f); // ripas
+  g.rect(L, SKY, W, 40).fill({ color: 0x8a6a3a, alpha: 0.25 });
+  // janelão shoji com dia lá fora
+  g.rect(-140, -360, 280, 210).fill(0xcfe8f5).stroke({ width: 8, color: 0x6a5230 });
+  g.moveTo(0, -360).lineTo(0, -150).stroke({ width: 5, color: 0x6a5230 });
+  g.moveTo(-140, -255).lineTo(140, -255).stroke({ width: 5, color: 0x6a5230 });
+  g.circle(70, -320, 22).fill({ color: 0xfff3c0, alpha: 0.9 });        // sol pela janela
+  // piso de tábuas quentes
+  g.rect(L, -44, W, 30).fill(0xa8834f);
+  g.rect(L, -22, W, 420).fill(0xbf9a5f);
+  for (let px = L; px < R; px += 90) g.rect(px, -22, 3, 420).fill({ color: 0x8a6a3a, alpha: 0.4 });
+  c.addChild(g);
+  const dyn = new Graphics(); c.addChild(dyn);
+  // lanterna pendurada
+  const lant = new Graphics();
+  lant.moveTo(0, 0).lineTo(0, 36).stroke({ width: 3, color: 0x3a2a1a });
+  lant.roundRect(-16, 36, 32, 42, 8).fill(0xe86a4a).stroke({ width: 3, color: 0x3a2a1a });
+  lant.rect(-9, 46, 18, 22).fill({ color: 0xffe9a8, alpha: 0.95 });
+  lant.x = 300; lant.y = SKY + 6; lant.pivot.set(0, 0);
+  c.addChild(lant);
+  const pet = []; for (let i = 0; i < 16; i++) pet.push({ x: L + Math.random() * W, y: SKY + Math.random() * 380, vx: 14 + Math.random() * 12, ph: Math.random() * 6.28 });
+  const motes = []; for (let i = 0; i < 14; i++) motes.push({ x: -120 + Math.random() * 240, y: -350 + Math.random() * 300, ph: Math.random() * 6.28 });
+  let t = 0;
+  c.tick = (dt) => {
+    t += dt / 1000;
+    lant.rotation = Math.sin(t * 1.1) * 0.08;
+    dyn.clear();
+    // incenso: fumaça serpenteando
+    for (let i = 0; i < 26; i++) {
+      const yy = -60 - i * 9;
+      dyn.circle(-350 + Math.sin(t * 1.4 + i * 0.5) * (4 + i * 0.8), yy, 2 + i * 0.16).fill({ color: 0xffffff, alpha: 0.30 - i * 0.01 });
+    }
+    dyn.rect(-354, -58, 8, 14).fill(0x4a3a2a);
+    // pétalas de cerejeira atravessando
+    for (const p of pet) {
+      p.x += p.vx * (dt / 1000); p.ph += dt / 400;
+      if (p.x > R + 10) { p.x = L - 10; p.y = SKY + Math.random() * 380; }
+      const py = p.y + Math.sin(p.ph) * 8;
+      dyn.ellipse(p.x, py, 4, 2.4).fill({ color: 0xffc4d0, alpha: 0.9 });
+    }
+    // poeira dançando no feixe da janela
+    for (const m of motes) {
+      const a = (Math.sin(t * 1.2 + m.ph) + 1) / 2;
+      dyn.circle(m.x + Math.sin(t * 0.6 + m.ph) * 6, m.y + Math.cos(t * 0.5 + m.ph) * 5, 1.3).fill({ color: 0xfff3c0, alpha: 0.25 + a * 0.3 });
+    }
+  };
+  return c;
+}
+
+// ===== TEMPLO VIVO — montanha clara: bandeiras de oração e folhas =====
+function buildTemploVivo() {
+  const c = new Container();
+  const L = WORLD.left - 240, R = WORLD.right + 240, W = R - L, SKY = -WORLD.skyH;
+  const g = new Graphics();
+  vSky(g, L, W, SKY, WORLD.skyH, [0xbfe3f2, 0xcdeaf3, 0xdff1ef, 0xeef6e8]);
+  g.circle(-260, SKY + 96, 44).fill({ color: 0xfffbe0, alpha: 0.95 });
+  // montanhas
+  g.moveTo(L, -200).lineTo(L + W * 0.22, SKY + 150).lineTo(L + W * 0.45, -200).closePath().fill({ color: 0x9db8c9, alpha: 0.8 });
+  g.moveTo(L + W * 0.35, -200).lineTo(L + W * 0.62, SKY + 110).lineTo(L + W * 0.9, -200).closePath().fill({ color: 0x87a6ba, alpha: 0.9 });
+  g.moveTo(L + W * 0.52, SKY + 128).lineTo(L + W * 0.62, SKY + 110).lineTo(L + W * 0.72, SKY + 128).closePath().fill(0xffffff);
+  // torii vermelho ao fundo
+  g.rect(-210, -330, 18, 140).fill(0xd0483a); g.rect(192, -330, 18, 140).fill(0xd0483a);
+  g.rect(-240, -344, 480, 20).fill(0xd0483a); g.rect(-224, -312, 448, 12).fill(0xb83a2e);
+  // plataforma de pedra
+  g.rect(L, -44, W, 30).fill(0xb9c2bb);
+  g.rect(L, -22, W, 420).fill(0xcfd6cd);
+  for (let px = L; px < R; px += 110) g.rect(px, -22, 2, 420).fill({ color: 0x8a958c, alpha: 0.5 });
+  c.addChild(g);
+  const clouds = vClouds(c, L, R, SKY, 4, 0.75);
+  const dyn = new Graphics(); c.addChild(dyn);
+  const FLAG_COLS = [0x5aa9e6, 0xf2c14e, 0xe4572e, 0x76b041, 0xf5f0e1];
+  const leaves = []; for (let i = 0; i < 12; i++) leaves.push({ x: L + Math.random() * W, y: SKY + 120 + Math.random() * 300, vx: 18 + Math.random() * 14, ph: Math.random() * 6.28 });
+  let t = 0;
+  c.tick = (dt) => {
+    t += dt / 1000;
+    vDrift(clouds, dt, L, R, 4);
+    dyn.clear();
+    // varais de bandeiras de oração ondulando
+    for (const [x1, y1, x2, y2] of [[-420, -300, -40, -350], [40, -350, 420, -290]]) {
+      dyn.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 2, color: 0x5a4a3a });
+      for (let i = 0; i < 9; i++) {
+        const fx = x1 + ((x2 - x1) * i) / 9, fy = y1 + ((y2 - y1) * i) / 9;
+        const wob = Math.sin(t * 3 + i * 0.9) * 5;
+        dyn.moveTo(fx, fy).lineTo(fx + 9 + wob * 0.4, fy + 14 + wob).lineTo(fx + 20, fy).closePath().fill({ color: FLAG_COLS[i % 5], alpha: 0.95 });
+      }
+    }
+    // folhas voando
+    for (const lf of leaves) {
+      lf.x += lf.vx * (dt / 1000); lf.ph += dt / 350;
+      if (lf.x > R + 10) { lf.x = L - 10; lf.y = SKY + 120 + Math.random() * 300; }
+      dyn.ellipse(lf.x, lf.y + Math.sin(lf.ph) * 10, 4, 2).fill({ color: 0x8fbf5a, alpha: 0.9 });
+    }
+  };
+  return c;
+}
+
+// ===== PRISÃO CLARA — pátio ao meio-dia: correntes, pombos e arame =====
+function buildPrisaoViva() {
+  const c = new Container();
+  const L = WORLD.left - 240, R = WORLD.right + 240, W = R - L, SKY = -WORLD.skyH;
+  const g = new Graphics();
+  vSky(g, L, W, SKY, WORLD.skyH * 0.45, [0xcfe6f2, 0xdcedf5]);
+  // muro alto de concreto claro
+  g.rect(L, SKY + WORLD.skyH * 0.42, W, WORLD.skyH * 0.58).fill(0xd7d2c8);
+  for (let px = L; px < R; px += 150) g.rect(px, SKY + WORLD.skyH * 0.42, 3, WORLD.skyH * 0.58).fill({ color: 0x9a948a, alpha: 0.5 });
+  g.rect(L, -160, W, 8).fill({ color: 0x9a948a, alpha: 0.6 });
+  // torre de vigia
+  g.rect(-330, SKY + 60, 90, 150).fill(0xc9c4ba).stroke({ width: 4, color: 0x8a857b });
+  g.rect(-318, SKY + 80, 66, 40).fill(0x9fc4d8);
+  g.rect(-345, SKY + 40, 120, 22).fill(0x8a857b);
+  // janelas gradeadas
+  for (const wx of [-100, 120, 300]) {
+    g.rect(wx, -300, 80, 90).fill(0xb8c9d4).stroke({ width: 5, color: 0x6a655b });
+    for (let bx = wx + 14; bx < wx + 76; bx += 16) g.rect(bx, -300, 4, 90).fill(0x6a655b);
+  }
+  // pátio de concreto
+  g.rect(L, -44, W, 30).fill(0xa8a49a);
+  g.rect(L, -22, W, 420).fill(0xbcb8ae);
+  g.moveTo(L + 60, 60).lineTo(L + 260, 140).stroke({ width: 2, color: 0x8a857b });
+  c.addChild(g);
+  const dyn = new Graphics(); c.addChild(dyn);
+  const pombos = [{ x: -40, y: -168, hop: 0 }, { x: 210, y: -168, hop: 2.4 }];
+  let t = 0;
+  c.tick = (dt) => {
+    t += dt / 1000;
+    dyn.clear();
+    // arame farpado ondulando de leve no vento
+    for (let px = L; px < R; px += 26) {
+      const wob = Math.sin(t * 2 + px * 0.05) * 1.6;
+      dyn.circle(px, -172 + wob, 7).stroke({ width: 2, color: 0x6a655b });
+    }
+    // corrente pendurada balançando
+    const sw = Math.sin(t * 1.3) * 10;
+    for (let i = 0; i < 9; i++) dyn.circle(340 + sw * (i / 9), -300 + i * 13, 4).stroke({ width: 2.5, color: 0x7a756b });
+    // pombos do pátio: pulinhos e voo ocasional
+    for (const p of pombos) {
+      p.hop += dt / 1000;
+      const jump = Math.abs(Math.sin(p.hop * 3)) * 4;
+      p.x += Math.sin(p.hop * 0.6) * 0.3;
+      dyn.ellipse(p.x, p.y - jump, 7, 5).fill(0x9aa3ad);
+      dyn.circle(p.x + 6, p.y - jump - 3, 3).fill(0x9aa3ad);
+    }
+    // poeira quente subindo
+    for (let i = 0; i < 8; i++) {
+      const a = (Math.sin(t * 1.5 + i * 2.1) + 1) / 2;
+      dyn.circle(L + ((i * 211 + t * 12) % W), -30 - a * 26, 1.6).fill({ color: 0xd7d2c8, alpha: 0.3 * a });
+    }
+  };
+  return c;
+}
+
+// ===== NEVE VIVA — dia claro de inverno: nevasca mansa e chaminé =====
+function buildNeveViva() {
+  const c = new Container();
+  const L = WORLD.left - 240, R = WORLD.right + 240, W = R - L, SKY = -WORLD.skyH;
+  const g = new Graphics();
+  vSky(g, L, W, SKY, WORLD.skyH, [0xd8ecf7, 0xe2f0f8, 0xecf5fa, 0xf4f9fc]);
+  g.circle(220, SKY + 90, 40).fill({ color: 0xfffef2, alpha: 0.95 });
+  // pinheiros nevados
+  for (const [px, sc] of [[-380, 1], [-300, 0.7], [330, 0.9], [410, 0.65]]) {
+    for (let i = 0; i < 3; i++) {
+      const wdt = (70 - i * 16) * sc, y0 = -120 - i * 42 * sc;
+      g.moveTo(px - wdt, y0).lineTo(px, y0 - 60 * sc).lineTo(px + wdt, y0).closePath().fill(0x4a7a5a);
+      g.moveTo(px - wdt * 0.8, y0 - 6).lineTo(px, y0 - 50 * sc).lineTo(px + wdt * 0.8, y0 - 6).closePath().fill({ color: 0xffffff, alpha: 0.85 });
+    }
+  }
+  // cabana com chaminé
+  g.rect(-80, -240, 190, 120).fill(0x8a5a3a).stroke({ width: 4, color: 0x5a3a24 });
+  g.moveTo(-100, -240).lineTo(15, -310).lineTo(130, -240).closePath().fill(0xf4f9fc).stroke({ width: 4, color: 0x5a3a24 });
+  g.rect(60, -300, 22, 50).fill(0x6a4a34);
+  g.rect(-40, -210, 40, 40).fill({ color: 0xffe9a8, alpha: 0.95 }).stroke({ width: 4, color: 0x5a3a24 });
+  // manto de neve
+  g.rect(L, -44, W, 30).fill(0xe8f2f8);
+  g.rect(L, -22, W, 420).fill(0xf6fafd);
+  c.addChild(g);
+  const dyn = new Graphics(); c.addChild(dyn);
+  const flakes = []; for (let i = 0; i < 60; i++) flakes.push({ x: L + Math.random() * W, y: SKY + Math.random() * (WORLD.skyH + 100), v: 18 + Math.random() * 26, ph: Math.random() * 6.28, r: 1.2 + Math.random() * 1.8 });
+  let t = 0;
+  c.tick = (dt) => {
+    t += dt / 1000;
+    dyn.clear();
+    // fumaça da chaminé
+    for (let i = 0; i < 10; i++) {
+      const yy = -310 - i * 14;
+      dyn.circle(71 + Math.sin(t * 1.1 + i * 0.7) * (3 + i), yy, 4 + i * 0.9).fill({ color: 0xffffff, alpha: 0.35 - i * 0.028 });
+    }
+    // nevasca mansa com vento
+    const wind = Math.sin(t * 0.4) * 14;
+    for (const f of flakes) {
+      f.y += f.v * (dt / 1000); f.ph += dt / 600;
+      f.x += (wind + Math.sin(f.ph) * 8) * (dt / 1000);
+      if (f.y > 40) { f.y = SKY - 10; f.x = L + Math.random() * W; }
+      if (f.x > R) f.x = L; if (f.x < L) f.x = R;
+      dyn.circle(f.x, f.y, f.r).fill({ color: 0xffffff, alpha: 0.9 });
+    }
+    // brilhos no manto
+    for (let i = 0; i < 10; i++) {
+      const a = (Math.sin(t * 2.4 + i * 2.7) + 1) / 2;
+      if (a > 0.7) dyn.circle(L + ((i * 197) % W), -10 + ((i * 53) % 60), 1.4).fill({ color: 0xdff3ff, alpha: a });
+    }
+  };
+  return c;
+}
+
+// ===== DESERTO VIVO — sol a pino: miragem, urubus e a bola de feno =====
+function buildDesertoVivo() {
+  const c = new Container();
+  const L = WORLD.left - 240, R = WORLD.right + 240, W = R - L, SKY = -WORLD.skyH;
+  const g = new Graphics();
+  vSky(g, L, W, SKY, WORLD.skyH, [0xffe9b0, 0xffdf9a, 0xfad489, 0xf2c377]);
+  g.circle(0, SKY + 92, 52).fill(0xfff6d0); g.circle(0, SKY + 92, 74).fill({ color: 0xfff6d0, alpha: 0.35 });
+  // dunas em camadas
+  g.moveTo(L, -150).quadraticCurveTo(L + W * 0.3, -220, L + W * 0.6, -150).quadraticCurveTo(L + W * 0.8, -110, R, -150).lineTo(R, -100).lineTo(L, -100).closePath().fill(0xe8b56a);
+  g.moveTo(L, -110).quadraticCurveTo(L + W * 0.45, -60, R, -120).lineTo(R, -40).lineTo(L, -40).closePath().fill(0xdca55c);
+  // cactos
+  for (const cx of [-340, 360]) {
+    g.roundRect(cx - 8, -190, 16, 90, 8).fill(0x6a8a4a);
+    g.roundRect(cx - 34, -170, 12, 40, 6).fill(0x6a8a4a); g.roundRect(cx - 34, -140, 30, 12, 6).fill(0x6a8a4a);
+    g.roundRect(cx + 22, -160, 12, 34, 6).fill(0x6a8a4a); g.roundRect(cx + 6, -136, 28, 12, 6).fill(0x6a8a4a);
+  }
+  // areia do palco
+  g.rect(L, -44, W, 30).fill(0xd9a95e);
+  g.rect(L, -22, W, 420).fill(0xe6bd74);
+  c.addChild(g);
+  const dyn = new Graphics(); c.addChild(dyn);
+  const vults = [{ a: 0, r: 90, cx: -180, cy: SKY + 150 }, { a: 2.4, r: 60, cx: 220, cy: SKY + 190 }];
+  let tw = { x: L - 30, spin: 0 };
+  let t = 0;
+  c.tick = (dt) => {
+    t += dt / 1000;
+    dyn.clear();
+    // miragem: calor tremendo no horizonte
+    for (let i = 0; i < 5; i++) {
+      const y = -104 + i * 5;
+      dyn.moveTo(L, y);
+      for (let px = L; px <= R; px += 40) dyn.lineTo(px, y + Math.sin(t * 4 + px * 0.06 + i) * 2.2);
+      dyn.stroke({ width: 2, color: 0xfff0c8, alpha: 0.22 });
+    }
+    // urubus circulando
+    for (const v of vults) {
+      v.a += dt / 1600;
+      const vx = v.cx + Math.cos(v.a) * v.r, vy = v.cy + Math.sin(v.a) * v.r * 0.35;
+      const flap = Math.sin(t * 7 + v.a) * 3;
+      dyn.moveTo(vx - 8, vy - flap).lineTo(vx, vy).lineTo(vx + 8, vy - flap).stroke({ width: 2.4, color: 0x5a4a3a });
+    }
+    // bola de feno rolando (a estrela do faroeste)
+    tw.x += 46 * (dt / 1000); tw.spin += dt / 220;
+    if (tw.x > R + 40) tw.x = L - 40;
+    const ty = -30 - Math.abs(Math.sin(tw.spin * 1.4)) * 9;
+    dyn.circle(tw.x, ty, 13).stroke({ width: 2, color: 0x9a7a4a });
+    for (let i = 0; i < 5; i++) {
+      const aa = tw.spin + (i * 6.28) / 5;
+      dyn.moveTo(tw.x - Math.cos(aa) * 12, ty - Math.sin(aa) * 12).lineTo(tw.x + Math.cos(aa) * 12, ty + Math.sin(aa) * 12).stroke({ width: 1.5, color: 0x9a7a4a, alpha: 0.8 });
+    }
+    // areia levantando
+    for (let i = 0; i < 8; i++) {
+      const sx = L + ((i * 223 + t * 60) % W);
+      dyn.circle(sx, -26 - ((i * 13) % 10), 1.4).fill({ color: 0xf2d9a0, alpha: 0.5 });
+    }
+  };
+  return c;
+}
+
+// ===== PRAIA VIVA — dia aberto: ondas rolando, coqueiro e gaivotas =====
+function buildPraiaViva() {
+  const c = new Container();
+  const L = WORLD.left - 240, R = WORLD.right + 240, W = R - L, SKY = -WORLD.skyH;
+  const g = new Graphics();
+  vSky(g, L, W, SKY, WORLD.skyH * 0.55, [0x9fd4ef, 0xb5def2, 0xcdeaf5]);
+  g.circle(-240, SKY + 84, 42).fill({ color: 0xfff9dc, alpha: 0.95 });
+  // mar
+  const seaTop = SKY + WORLD.skyH * 0.55, seaBot = -60;
+  g.rect(L, seaTop, W, seaBot - seaTop).fill(0x4fa7c9);
+  g.rect(L, seaTop, W, 14).fill({ color: 0x8fd0e8, alpha: 0.8 });
+  // veleiro longe
+  g.moveTo(260, seaTop + 26).lineTo(300, seaTop + 26).lineTo(292, seaTop + 32).lineTo(268, seaTop + 32).closePath().fill(0xffffff);
+  g.moveTo(281, seaTop + 26).lineTo(281, seaTop + 4).lineTo(296, seaTop + 22).closePath().fill(0xf4f4f4);
+  // areia do palco
+  g.rect(L, -44, W, 30).fill(0xf0dca8);
+  g.rect(L, -22, W, 420).fill(0xf7e7bb);
+  c.addChild(g);
+  const clouds = vClouds(c, L, R, SKY, 3, 0.85);
+  const dyn = new Graphics(); c.addChild(dyn);
+  // coqueiro
+  const palm = new Graphics();
+  palm.moveTo(0, 0).quadraticCurveTo(18, -70, 8, -140).stroke({ width: 12, color: 0x8a6a3a });
+  palm.x = -380; palm.y = -30;
+  c.addChild(palm);
+  const palmTop = new Graphics(); palmTop.x = -372; palmTop.y = -170; c.addChild(palmTop);
+  const gulls = [{ x: L, y: SKY + 120, s: 1 }, { x: L + 300, y: SKY + 170, s: 0.7 }];
+  let t = 0;
+  c.tick = (dt) => {
+    t += dt / 1000;
+    vDrift(clouds, dt, L, R, 6);
+    dyn.clear();
+    // ONDAS: linhas de espuma avançando e recuando
+    const swell = Math.sin(t * 0.8);
+    for (let li = 0; li < 5; li++) {
+      const y = seaTop + 30 + li * ((seaBot - seaTop - 36) / 5) + swell * (2 + li * 1.5);
+      dyn.moveTo(L, y);
+      for (let px = L; px <= R; px += 34) dyn.lineTo(px, y + Math.sin(t * 2.2 + px * 0.045 + li * 1.3) * 3);
+      dyn.stroke({ width: 2.4, color: 0xeafaff, alpha: 0.55 + li * 0.08 });
+    }
+    // espuma na beira (respiração do mar sobre a areia)
+    const edge = seaBot + 6 + swell * 7;
+    dyn.moveTo(L, edge);
+    for (let px = L; px <= R; px += 26) dyn.lineTo(px, edge + Math.sin(t * 2 + px * 0.08) * 3.4);
+    dyn.lineTo(R, seaBot - 8).lineTo(L, seaBot - 8).closePath().fill({ color: 0xffffff, alpha: 0.5 });
+    // brilhos de sol no mar
+    for (let i = 0; i < 10; i++) {
+      const a = (Math.sin(t * 3 + i * 2.2) + 1) / 2;
+      if (a > 0.65) dyn.circle(L + ((i * 177 + t * 26) % W), seaTop + 20 + ((i * 71) % (seaBot - seaTop - 30)), 1.6).fill({ color: 0xfff6d0, alpha: a });
+    }
+    // folhas do coqueiro balançando
+    palmTop.clear();
+    for (let i = 0; i < 6; i++) {
+      const base = (i / 6) * 6.28;
+      const sway = Math.sin(t * 1.5 + i) * 0.12;
+      const aa = base + sway;
+      palmTop.moveTo(0, 0).quadraticCurveTo(Math.cos(aa) * 40, Math.sin(aa) * 26 - 16, Math.cos(aa) * 78, Math.sin(aa) * 44).stroke({ width: 7, color: 0x4a8a4a });
+    }
+    // gaivotas
+    for (const gl of gulls) {
+      gl.x += 30 * gl.s * (dt / 1000);
+      if (gl.x > R + 30) { gl.x = L - 30; gl.y = SKY + 100 + Math.random() * 100; }
+      const flap = Math.sin(t * 8 + gl.x * 0.04) * 4;
+      dyn.moveTo(gl.x - 7, gl.y - flap).lineTo(gl.x, gl.y).lineTo(gl.x + 7, gl.y - flap).stroke({ width: 2, color: 0xf4f4f4 });
+    }
+  };
+  return c;
+}
+
+// ===== CEMITÉRIO — crepúsculo assombrado: zumbis rastejando entre caveiras =====
+function buildCemiterio() {
+  const c = new Container();
+  const L = WORLD.left - 240, R = WORLD.right + 240, W = R - L, SKY = -WORLD.skyH;
+  const g = new Graphics();
+  vSky(g, L, W, SKY, WORLD.skyH, [0x2a2440, 0x3a3054, 0x4a3a60, 0x5a4668]);
+  // lua enorme com halo
+  g.circle(240, SKY + 110, 64).fill({ color: 0xf4ecd0, alpha: 0.28 });
+  g.circle(240, SKY + 110, 46).fill(0xf4ecd0);
+  g.circle(226, SKY + 96, 8).fill({ color: 0xd8ceac, alpha: 0.7 });
+  g.circle(256, SKY + 124, 5).fill({ color: 0xd8ceac, alpha: 0.7 });
+  // árvore morta
+  g.moveTo(-370, -40).quadraticCurveTo(-360, -170, -390, -260).stroke({ width: 14, color: 0x1a1420 });
+  g.moveTo(-378, -190).quadraticCurveTo(-330, -230, -310, -280).stroke({ width: 7, color: 0x1a1420 });
+  g.moveTo(-384, -230).quadraticCurveTo(-420, -260, -440, -300).stroke({ width: 6, color: 0x1a1420 });
+  // fileira de lápides e cruzes
+  const tombs = [-300, -210, -120, 40, 130, 230, 330];
+  tombs.forEach((tx, i) => {
+    if (i % 3 === 2) {
+      g.rect(tx - 4, -150, 8, 70).fill(0x8a8496); g.rect(tx - 20, -132, 40, 8).fill(0x8a8496);
+    } else {
+      g.roundRect(tx - 22, -128, 44, 58, 10).fill(0x9a94a6).stroke({ width: 3, color: 0x5a5468 });
+      g.moveTo(tx - 12, -108).lineTo(tx + 12, -108).stroke({ width: 2, color: 0x6a6478 });
+      g.moveTo(tx - 12, -98).lineTo(tx + 8, -98).stroke({ width: 2, color: 0x6a6478 });
+    }
+  });
+  // terra do palco
+  g.rect(L, -44, W, 30).fill(0x4a4054);
+  g.rect(L, -22, W, 420).fill(0x5a5064);
+  // caveiras espalhadas na terra
+  for (const [sx, sy] of [[-260, 6], [-40, 26], [180, 12], [340, 30], [80, 48]]) {
+    g.circle(sx, sy, 9).fill(0xd8d2c0);
+    g.circle(sx - 3.5, sy - 1, 2.4).fill(0x3a3444); g.circle(sx + 3.5, sy - 1, 2.4).fill(0x3a3444);
+    g.rect(sx - 5, sy + 5, 10, 4).fill(0xd8d2c0);
+    g.moveTo(sx - 4, sy + 6).lineTo(sx - 4, sy + 9).stroke({ width: 1.2, color: 0x3a3444 });
+    g.moveTo(sx, sy + 6).lineTo(sx, sy + 9).stroke({ width: 1.2, color: 0x3a3444 });
+    g.moveTo(sx + 4, sy + 6).lineTo(sx + 4, sy + 9).stroke({ width: 1.2, color: 0x3a3444 });
+  }
+  c.addChild(g);
+  const dyn = new Graphics(); c.addChild(dyn);
+  // zumbis rastejando atrás das lápides
+  const zumbis = [
+    { x: L - 40, y: -96, v: 9, ph: 0 },
+    { x: L - 300, y: -84, v: 6.5, ph: 2.2 },
+  ];
+  const wisps = []; for (let i = 0; i < 7; i++) wisps.push({ x: L + Math.random() * W, y: -70 - Math.random() * 60, ph: Math.random() * 6.28 });
+  const crow = { x: 132, y: -132, fly: 0 };
+  let t = 0;
+  c.tick = (dt) => {
+    t += dt / 1000;
+    dyn.clear();
+    // névoa rasteira em bancos deslizando
+    for (let i = 0; i < 4; i++) {
+      const fx = L + ((i * 271 + t * 14) % (W + 200)) - 100;
+      dyn.ellipse(fx, -52 + Math.sin(t * 0.7 + i) * 4, 130, 18).fill({ color: 0x9a94b6, alpha: 0.14 });
+    }
+    // ZUMBIS rastejando: corpo arrastado + braço alcançando em ciclo
+    for (const z of zumbis) {
+      z.ph += dt / 1000;
+      const drag = Math.max(0, Math.sin(z.ph * 2.4));       // puxão intermitente
+      z.x += z.v * drag * (dt / 1000) * 3;
+      if (z.x > R + 50) z.x = L - 60;
+      const bob = Math.sin(z.ph * 2.4) * 1.5;
+      // corpo rastejante
+      dyn.ellipse(z.x - 16, z.y + 4 + bob * 0.4, 16, 6).fill(0x4a6650);
+      dyn.circle(z.x + 2, z.y + bob, 7).fill(0x5a7a5e);      // cabeça
+      dyn.circle(z.x + 4.5, z.y - 2 + bob, 1.6).fill(0xc0ff9a); // olho brilhando
+      // braço estendendo e cravando
+      const reach = 10 + drag * 10;
+      dyn.moveTo(z.x + 4, z.y + 3 + bob).lineTo(z.x + reach, z.y - 4).lineTo(z.x + reach + 6, z.y + 2).stroke({ width: 3.5, color: 0x5a7a5e });
+      // perna morta arrastando
+      dyn.moveTo(z.x - 28, z.y + 8).lineTo(z.x - 40, z.y + 10).stroke({ width: 3, color: 0x40584a });
+    }
+    // fogos-fátuos (almas) flutuando
+    for (const wp of wisps) {
+      wp.ph += dt / 900;
+      const a = (Math.sin(wp.ph * 2) + 1) / 2;
+      dyn.circle(wp.x + Math.sin(wp.ph) * 12, wp.y + Math.cos(wp.ph * 0.8) * 8, 2.4).fill({ color: 0x9affc0, alpha: 0.25 + a * 0.5 });
+    }
+    // corvo na lápide: bate asa de vez em quando e voa
+    crow.fly = Math.sin(t * 0.35) > 0.97 ? crow.fly + dt / 1000 : Math.max(0, crow.fly - dt / 500);
+    const cy = crow.y - crow.fly * 60;
+    const flap = crow.fly > 0 ? Math.sin(t * 12) * 4 : Math.sin(t * 2) * 1;
+    dyn.ellipse(crow.x, cy, 6, 4).fill(0x14101c);
+    dyn.circle(crow.x + 5, cy - 3, 2.6).fill(0x14101c);
+    dyn.moveTo(crow.x - 5, cy - flap).lineTo(crow.x - 12, cy - 4 - flap).stroke({ width: 2, color: 0x14101c });
+    // velas tremulando junto às lápides
+    for (const vx of [-206, 44, 234]) {
+      const fl = 0.7 + Math.sin(t * 9 + vx) * 0.3;
+      dyn.rect(vx, -78, 4, 8).fill(0xe8e2d0);
+      dyn.circle(vx + 2, -82, 2.4 * fl).fill({ color: 0xffc46a, alpha: 0.95 });
+      dyn.circle(vx + 2, -82, 5 * fl).fill({ color: 0xffc46a, alpha: 0.2 });
+    }
+  };
+  return c;
 }

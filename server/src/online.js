@@ -82,7 +82,7 @@ export function attachOnline(io) {
     const players = [online.get(idA), online.get(idB)];
     const room = {
       id: roomId,
-      arena: ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio'][Math.floor(Math.random() * 7)],
+      arena: ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio', 'cemiterio'][Math.floor(Math.random() * 8)],
       users: [idA, idB],
       names: [players[0].user.name, players[1].user.name],
       match: createMatch({ styles: [players[0]?.style || 'ronin', players[1]?.style || 'ronin'] }),

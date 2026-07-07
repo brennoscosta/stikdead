@@ -38,6 +38,7 @@ export async function createRenderer(host, theme = 'dojo') {
     }, { once: true });
   });
 
+  const ANIMATED_THEMES = new Set(['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio', 'cemiterio']);
   let painted = false;
   let arenaSpr = null;
   try {
@@ -51,6 +52,7 @@ export async function createRenderer(host, theme = 'dojo') {
         console.warn('[stikdead] vídeo falhou, tentando pintura:', e.message);
       }
     }
+    if (!tex && ANIMATED_THEMES.has(theme)) throw new Error('cena viva assume');
     if (!tex) tex = await withTimeout(Assets.load(`/arenas/${theme}.webp`), 8000, 'arte da arena');
     console.log('[stikdead] arena pintada carregada');
     const backing = new Graphics();
