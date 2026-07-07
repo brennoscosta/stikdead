@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Bottombar } from './lib/Navbar.jsx';
 import Admin from './pages/Admin.jsx';
+import Calibrador from './pages/Calibrador.jsx';
 import { api, getToken, clearToken } from './lib/api.js';
 import { closeSocket } from './lib/socket.js';
 import Login from './pages/Login.jsx';
@@ -52,6 +53,10 @@ export default function App() {
         <Route
           path="/criar-conta"
           element={profile ? <Navigate to="/perfil" replace /> : <Register onAuth={setProfile} />}
+        />
+        <Route
+          path="/calibrador"
+          element={profile ? <Calibrador profile={profile} /> : <Navigate to="/" replace />}
         />
         <Route
           path="/admin"
