@@ -655,3 +655,121 @@ body.is-mobile .topnav-logo img { height: 84px !important; margin: -22px 0 !impo
 
 body.in-fight .bottombar { display: none !important; }
 body.in-fight .topnav-spacer { display: none; }
+
+/* ============================================================
+   ETAPA 3 :: Missões, Ranking, Resultado da Partida, Seleção
+   ============================================================ */
+
+/* ---------- MISSÕES ---------- */
+.mission-card, .missions-list > * {
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.mission-card:hover { transform: translateY(-2px); }
+.mission-bar {
+  height: 10px !important;
+  border: 1px solid #2b1d22;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+.mission-fill {
+  box-shadow: 0 0 12px rgba(224, 161, 11, 0.55);
+  position: relative;
+}
+.mission-fill::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(115deg, transparent 0 10px, rgba(255, 255, 255, 0.08) 10px 12px);
+  animation: fill-flow 1.2s linear infinite;
+}
+@keyframes fill-flow { to { background-position: 22px 0; } }
+.mission-claim {
+  background: linear-gradient(180deg, #ffd66b, #e0a10b 55%, #8a6208) !important;
+  border: 1px solid rgba(255, 235, 170, 0.5) !important;
+  color: #16110a !important;
+  font-weight: 800 !important;
+  box-shadow: var(--glow-gold), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  animation: legendary-pulse 2.2s ease-in-out infinite;
+}
+.mission-claim:active { transform: scale(0.96); }
+.mission-claimed { opacity: 0.55; }
+.chest-card.ready {
+  animation: legendary-pulse 2.4s ease-in-out infinite;
+  background: linear-gradient(180deg, rgba(42, 29, 10, 0.6), rgba(20, 14, 6, 0.8)) !important;
+}
+
+/* ---------- RANKING ---------- */
+.rank-row {
+  background: linear-gradient(180deg, rgba(22, 12, 16, 0.9), rgba(11, 7, 9, 0.95)) !important;
+  transition: transform 0.14s, box-shadow 0.2s;
+}
+.rank-row:hover { transform: translateX(4px); box-shadow: -4px 0 0 var(--blood), 0 4px 14px rgba(0, 0, 0, 0.5); }
+.rank-row.me {
+  border-color: var(--blood) !important;
+  box-shadow: 0 0 16px rgba(217, 4, 41, 0.3), inset 0 0 22px rgba(217, 4, 41, 0.08);
+}
+.rank-row.top-1 { border-color: rgba(224, 161, 11, 0.7) !important; box-shadow: 0 0 20px rgba(224, 161, 11, 0.35); }
+.rank-row.top-1 .rank-pos { color: var(--gold-hot); text-shadow: 0 0 12px rgba(224, 161, 11, 0.8); }
+.rank-row.top-2 { border-color: rgba(200, 205, 215, 0.5) !important; }
+.rank-row.top-2 .rank-pos { color: #d7dce6; text-shadow: 0 0 10px rgba(200, 205, 215, 0.6); }
+.rank-row.top-3 { border-color: rgba(196, 124, 62, 0.55) !important; }
+.rank-row.top-3 .rank-pos { color: #d99a5e; text-shadow: 0 0 10px rgba(196, 124, 62, 0.6); }
+.rank-pos { font-weight: 800; }
+
+/* ---------- RESULTADO DA PARTIDA ---------- */
+.bt-panel {
+  background: var(--panel-grad) !important;
+  border: 1px solid #33161d !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8), var(--glow-blood), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  animation: panel-land 0.45s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+@keyframes panel-land {
+  0% { transform: scale(0.7) translateY(30px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.bt-result {
+  font-size: 2.6em !important;
+  letter-spacing: 0.12em;
+  animation: result-slam 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes result-slam {
+  0% { transform: scale(2.4); opacity: 0; filter: blur(6px); }
+  55% { transform: scale(0.94); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1); }
+}
+.bt-result.win {
+  color: var(--gold-hot) !important;
+  text-shadow: 0 0 24px rgba(224, 161, 11, 0.8), 0 0 60px rgba(224, 161, 11, 0.3), 0 3px 6px rgba(0, 0, 0, 0.8);
+}
+.bt-result.lose {
+  color: var(--blood-hot) !important;
+  text-shadow: 0 0 24px rgba(255, 34, 68, 0.7), 0 3px 6px rgba(0, 0, 0, 0.9);
+}
+.bt-rewards { gap: 10px; }
+.bt-reward {
+  background: linear-gradient(180deg, rgba(24, 13, 17, 0.9), rgba(11, 7, 9, 0.95));
+  border: 1px solid #2b1d22;
+  border-radius: 10px;
+  padding: 8px 14px;
+  animation: reward-pop 0.4s cubic-bezier(0.2, 1.6, 0.4, 1) backwards;
+}
+.bt-reward:nth-child(1) { animation-delay: 0.25s; }
+.bt-reward:nth-child(2) { animation-delay: 0.4s; }
+@keyframes reward-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.bt-reward.gold { border-color: rgba(224, 161, 11, 0.45); box-shadow: 0 0 14px rgba(224, 161, 11, 0.25); }
+.bt-reward.loss { border-color: rgba(255, 34, 68, 0.45); box-shadow: 0 0 14px rgba(255, 34, 68, 0.2); }
+.bt-bonus { color: var(--gold-hot); text-shadow: 0 0 8px rgba(224, 161, 11, 0.4); }
+
+/* ---------- SELEÇÃO DE ARENA / DIFICULDADE ---------- */
+.arena-btn {
+  transition: all 0.16s ease;
+  border: 1px solid #2b1d22 !important;
+  background: linear-gradient(180deg, #1c1216, #0e0a0c) !important;
+}
+.arena-btn:hover { transform: translateY(-2px); border-color: #4a2a32 !important; }
+.arena-btn.on {
+  background: linear-gradient(180deg, #ff2b4a, #9c0320) !important;
+  border-color: rgba(255, 120, 140, 0.5) !important;
+  box-shadow: var(--glow-blood);
+}
