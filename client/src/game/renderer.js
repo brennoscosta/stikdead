@@ -1,7 +1,8 @@
 // STIKDEAD :: renderizador da batalha (PixiJS)
 import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
 import { MOVES } from './sim.js';
-import { drawFighter } from './rig.js';
+import { drawFighter, drawEyes } from './rig.js';
+import { loadHeadTexture } from './headSprite.js';
 import { createWeaponSprite, filterForVector } from './itemSprites.js';
 import { buildArena, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
 
@@ -50,7 +51,14 @@ export async function createRenderer(host, theme = 'dojo') {
   world.addChild(ghostA, ghostB, slashG);
   const gA = new Graphics();
   const gB = new Graphics();
+  // P1: cabeças pintadas (opcional) + olhos vetoriais vivos por cima
+  const headA = new Sprite(); headA.anchor.set(0.5); headA.visible = false;
+  const headB = new Sprite(); headB.anchor.set(0.5); headB.visible = false;
+  const eyesA = new Graphics();
+  const eyesB = new Graphics();
+  loadHeadTexture().then((t) => { if (t) { headA.texture = t; headB.texture = t; } });
   world.addChild(gA, gB);
+    world.addChild(headA, eyesA, headB, eyesB);
   const wsA = createWeaponSprite(world);
   const wsB = createWeaponSprite(world);
   const fx = createFx(world);
@@ -242,8 +250,22 @@ export async function createRenderer(host, theme = 'dojo') {
     if (a.state === 'dash') drawFighter(ghostA, { ...a, x: a.x - a.face * 20 }, MOVES, 0xd90429, elapsed, null);
     if (b.state === 'dash') drawFighter(ghostB, { ...b, x: b.x - b.face * 20 }, MOVES, 0x6e6e6e, elapsed, null);
 
-    drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA));
-    drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB));
+    const poseA = drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA));
+    const poseB = drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB));
+    for (const [spr, eg, f, pose] of [[headA, eyesA, a, poseA], [headB, eyesB, b, poseB]]) {
+      if (spr.texture && spr.texture.width > 1 && pose) {
+        spr.visible = true;
+        const d = pose.headR * 2.16;
+        spr.width = d; spr.height = d;
+        spr.scale.x = Math.abs(spr.scale.x) * (pose.face < 0 ? -1 : 1);
+        spr.position.set(pose.hx, pose.hy);
+        eg.clear();
+        drawEyes(eg, f, pose.hx, pose.hy, pose.face, pose.ko, elapsed);
+      } else {
+        spr.visible = false;
+        eg.clear();
+      }
+    }
     wsA.update(a, MOVES);
     wsB.update(b, MOVES);
     tagA.text = names[0];

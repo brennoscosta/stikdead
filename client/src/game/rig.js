@@ -193,6 +193,8 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null) {
   drawEyes(g, f, hx, hy, face, ko, elapsed);
 
   if (loadout) drawItems(ctx, loadout, 'front');
+
+  return { hx, hy, headR: R, face, ko };
 }
 
 export function drawEyes(g, f, hx, hy, face, ko, elapsed = 0) {
