@@ -250,8 +250,9 @@ export async function createRenderer(host, theme = 'dojo') {
     if (a.state === 'dash') drawFighter(ghostA, { ...a, x: a.x - a.face * 20 }, MOVES, 0xd90429, elapsed, null);
     if (b.state === 'dash') drawFighter(ghostB, { ...b, x: b.x - b.face * 20 }, MOVES, 0x6e6e6e, elapsed, null);
 
-    const poseA = drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA));
-    const poseB = drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB));
+    const hasHeadTex = !!(headA.texture && headA.texture.width > 1);
+    const poseA = drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA), { skipHead: hasHeadTex });
+    const poseB = drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB), { skipHead: hasHeadTex });
     for (const [spr, eg, f, pose] of [[headA, eyesA, a, poseA], [headB, eyesB, b, poseB]]) {
       if (spr.texture && spr.texture.width > 1 && pose) {
         spr.visible = true;

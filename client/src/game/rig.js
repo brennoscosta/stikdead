@@ -126,7 +126,7 @@ const HI = 0x4a4a4a;
 const HI2 = 0x6a6a6a;
 const SHADOW = { color: 0x000000, alpha: 0.13 };
 
-export function drawFighter(g, f, moves, accent, elapsed, loadout = null) {
+export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts = {}) {
   const pose = poseFor(f, moves);
   const sk = skeleton(pose);
   const face = f.face;
@@ -182,15 +182,15 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null) {
 
   const [hx, hy] = T(sk.head);
   const R = RIG.headR;
-  g.circle(hx, hy, R + 2.5).fill(OUTLINE);
-  g.circle(hx, hy, R).fill(BODY);
-  if (!ko) {
-    g.ellipse(hx - R * 0.3, hy - R * 0.42, R * 0.34, R * 0.24).fill({ color: HI, alpha: 0.85 });
-    g.ellipse(hx - R * 0.34, hy - R * 0.5, R * 0.16, R * 0.11).fill({ color: HI2, alpha: 0.85 });
+  if (!opts.skipHead) {
+    g.circle(hx, hy, R + 2.5).fill(OUTLINE);
+    g.circle(hx, hy, R).fill(BODY);
+    if (!ko) {
+      g.ellipse(hx - R * 0.3, hy - R * 0.42, R * 0.34, R * 0.24).fill({ color: HI, alpha: 0.85 });
+      g.ellipse(hx - R * 0.34, hy - R * 0.5, R * 0.16, R * 0.11).fill({ color: HI2, alpha: 0.85 });
+    }
+    drawEyes(g, f, hx, hy, face, ko, elapsed);
   }
-
-
-  drawEyes(g, f, hx, hy, face, ko, elapsed);
 
   if (loadout) drawItems(ctx, loadout, 'front');
 

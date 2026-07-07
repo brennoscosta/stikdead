@@ -26,18 +26,34 @@ const cut = await sharp(data, { raw: { width: info.width, height: info.height, c
 // 2) trim das bordas transparentes
 const trimmed = await sharp(cut).trim({ threshold: 12 }).png().toBuffer({ resolveWithObject: true });
 
-// 3) quadrado centrado + 512 + webp
-const side = Math.max(trimmed.info.width, trimmed.info.height);
+// 3) enquadramento
 mkdirSync(path.join(ROOT, 'client/public/parts'), { recursive: true });
-await sharp(trimmed.data)
-  .extend({
-    top: Math.floor((side - trimmed.info.height) / 2),
-    bottom: Math.ceil((side - trimmed.info.height) / 2),
-    left: Math.floor((side - trimmed.info.width) / 2),
-    right: Math.ceil((side - trimmed.info.width) / 2),
-    background: { r: 0, g: 0, b: 0, alpha: 0 },
-  })
-  .resize(512, 512)
-  .webp({ quality: 92 })
-  .toFile(path.join(ROOT, 'client/public/parts', `${name}.webp`));
+let framed;
+if (name === 'head') {
+  // cabeça: o quadrado do TOPO (a esfera é o elemento mais alto) + máscara circular
+  const w = trimmed.info.width;
+  const h = trimmed.info.height;
+  const sq = Math.min(w, h);
+  const top = await sharp(trimmed.data)
+    .extract({ left: Math.floor((w - sq) / 2), top: 0, width: sq, height: sq })
+    .png().toBuffer();
+  const mask = Buffer.from(
+    `<svg width="${sq}" height="${sq}"><circle cx="${sq / 2}" cy="${sq / 2}" r="${sq / 2 - 1}" fill="#fff"/></svg>`
+  );
+  framed = await sharp(top)
+    .composite([{ input: mask, blend: 'dest-in' }])
+    .png().toBuffer();
+} else {
+  const side = Math.max(trimmed.info.width, trimmed.info.height);
+  framed = await sharp(trimmed.data)
+    .extend({
+      top: Math.floor((side - trimmed.info.height) / 2),
+      bottom: Math.ceil((side - trimmed.info.height) / 2),
+      left: Math.floor((side - trimmed.info.width) / 2),
+      right: Math.ceil((side - trimmed.info.width) / 2),
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png().toBuffer();
+}
+await sharp(framed).resize(512, 512).webp({ quality: 92 }).toFile(path.join(ROOT, 'client/public/parts', `${name}.webp`));
 console.log(`✓ peça instalada: client/public/parts/${name}.webp`);
