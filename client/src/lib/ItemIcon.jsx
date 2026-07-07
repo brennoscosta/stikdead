@@ -254,8 +254,21 @@ function TemplateSvg({ template, params: p = {} }) {
 
 export default function ItemIcon({ item, size = 56 }) {
   const [aiOk, setAiOk] = useState(true);
+  const hasExc = !!item?.excellents?.length;
+  const poke = (e) => {
+    if (!hasExc) return;
+    e.stopPropagation();
+    window.dispatchEvent(new CustomEvent('stik:itemtip', {
+      detail: { item, x: e.clientX ?? window.innerWidth / 2, y: e.clientY ?? 160 },
+    }));
+  };
   return (
-    <span className="item-icon" style={{ width: size, height: size }}>
+    <span
+      className={`item-icon ${hasExc ? 'has-exc' : ''}`}
+      style={{ width: size, height: size }}
+      onPointerDown={poke}
+      title={hasExc ? 'Item Excellent — toque para ver as opções' : undefined}
+    >
       {aiOk && (
         <img
           src={`/items/${item.id}.webp`}

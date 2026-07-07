@@ -6,7 +6,7 @@ const SLOTS = new Set(['head', 'face', 'body', 'back', 'weapon', 'arms', 'legs',
 
 export async function getLoadout(userId) {
   const { rows } = await q(
-    `SELECT l.slot, i.id, i.name, i.rarity, i.template, i.params
+    `SELECT l.slot, i.id, i.name, i.rarity, i.template, i.params, i.excellents
        FROM loadouts l JOIN items i ON i.id = l.item_id
       WHERE l.user_id = $1`,
     [userId]
@@ -36,7 +36,7 @@ const router = Router();
 // Catálogo completo + flag de posse
 router.get('/shop', requireAuth, async (req, res) => {
   const { rows } = await q(
-    `SELECT i.id, i.name, i.slot, i.rarity, i.price, i.currency, i.template, i.params,
+    `SELECT i.id, i.name, i.slot, i.rarity, i.price, i.currency, i.template, i.params, i.excellents,
             (u.item_id IS NOT NULL) AS owned
        FROM items i
        LEFT JOIN user_items u ON u.item_id = i.id AND u.user_id = $1
@@ -97,7 +97,7 @@ router.post('/shop/buy', requireAuth, async (req, res) => {
 // Baú + build equipada
 router.get('/inventory', requireAuth, async (req, res) => {
   const { rows: chest } = await q(
-    `SELECT i.id, i.name, i.slot, i.rarity, i.template, i.params, u.obtained_at, u.source
+    `SELECT i.id, i.name, i.slot, i.rarity, i.template, i.params, i.excellents, u.obtained_at, u.source
        FROM user_items u JOIN items i ON i.id = u.item_id
       WHERE u.user_id = $1 ORDER BY i.sort`,
     [req.userId]

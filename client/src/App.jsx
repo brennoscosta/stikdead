@@ -8,6 +8,7 @@ import { Esqueci, Redefinir } from './pages/Reset.jsx';
 import Friends from './pages/Friends.jsx';
 import Activities from './pages/Activities.jsx';
 import GiftModal from './lib/GiftModal.jsx';
+import ExcellentTip from './lib/ExcellentTip.jsx';
 import { api, getToken, clearToken } from './lib/api.js';
 import { closeSocket } from './lib/socket.js';
 import Login from './pages/Login.jsx';
@@ -112,6 +113,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {profile && <GiftModal />}
+      <ExcellentTip />
     </BrowserRouter>
   );
 }

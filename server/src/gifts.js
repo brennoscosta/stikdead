@@ -58,7 +58,7 @@ router.post('/send', requireAuth, async (req, res) => {
 // presentes fechados esperando o destinatário
 router.get('/pending', requireAuth, async (req, res) => {
   const { rows } = await q(
-    `SELECT g.id, g.created_at, g.message, i.id AS item_id, i.name, i.rarity, i.slot, i.template, i.params,
+    `SELECT g.id, g.created_at, g.message, i.id AS item_id, i.name, i.rarity, i.slot, i.template, i.params, i.excellents,
             p.fighter_name AS from_name
        FROM gifts g
        JOIN items i ON i.id = g.item_id
