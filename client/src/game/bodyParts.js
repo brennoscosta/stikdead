@@ -23,9 +23,9 @@ export async function loadPartTextures() {
 
 // tuning de encaixe por peça (len = distância entre as juntas)
 // tint: manequim branco tingido de obsidiana (skins de cor no futuro = trocar este número)
-export const BODY_TINT = 0x17141a;
+export const BODY_TINT = 0x4e4a56; // chumbo: escuro mas com volume vivo
 const FIT = {
-  torso:    { stretch: 1.55, widthK: 0.62, anchorY: 0.46, tint: true },
+  torso:    { stretch: 1.5, widthK: 0.55, anchorY: 0.46, tint: true },
   thigh:    { stretch: 1.35, widthK: 0.5, anchorY: 0.45, tint: true },
   shin:     { stretch: 1.3, widthK: 0.55, anchorY: 0.42, tint: true },
   upperarm: { stretch: 1.4, widthK: 0.55, anchorY: 0.42, tint: true },
