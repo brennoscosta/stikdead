@@ -10,6 +10,7 @@ export const ARENAS = {
   neve: { label: 'Neve', desc: 'Frio que morde antes do golpe.' },
   deserto: { label: 'Deserto', desc: 'Só os fortes atravessam.' },
   praia: { label: 'Praia', desc: 'Maré vermelha ao luar.' },
+  cidade_rio: { label: 'Cidade do Rio', desc: 'A cidade viva assiste da outra margem.' },
 };
 export const ARENA_KEYS = Object.keys(ARENAS);
 

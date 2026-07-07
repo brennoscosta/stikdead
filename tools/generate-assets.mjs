@@ -81,7 +81,19 @@ const asNbIcon = (it) => ({ id: it.id, kind: 'nbicon', prompt: NB_PROMPT(it) });
 const CATALOGO = CATALOGO_RAW.map(asNbIcon);
 const DIAMANTES = CATALOGO_RAW.filter((it) => it.rarity === 'diamante').map(asNbIcon);
 
+const CIDADE_RIO_PROMPT =
+  'Seamless looping ambient scene, LOCKED static wide camera, video game fight arena background: ' +
+  'a vibrant living city on the far bank of a river at bright golden hour — warm sunlit buildings with glowing windows, ' +
+  'tiny people walking on the waterfront, distant vehicles moving, birds crossing the sky, chimney smoke drifting. ' +
+  'A wide river with visibly FLOWING water, gentle current, sparkling light reflections. ' +
+  'Foreground: an open flat grassy riverbank meadow, grass swaying softly in the breeze, completely empty (this is where fighters stand). ' +
+  'Bright cheerful lighting so the city details are clearly visible, painterly game art style, rich detail. ' +
+  'No characters in the foreground, no text, no watermark, no camera movement, loop-friendly motion.';
+
 const ASSETS = {
+  video_cidade: [
+    { id: 'cidade_rio', kind: 'arena_video', prompt: CIDADE_RIO_PROMPT },
+  ],
   catalogo: CATALOGO,
   diamantes: DIAMANTES,
   lote5: [
@@ -262,7 +274,7 @@ const args = Object.fromEntries(process.argv.slice(2).map((a) => {
 
 // credenciais do SDK: exigidas só para grupos que usam o motor SDK (o catalogo usa a CLI)
 const _sel = ASSETS[args.group] || [];
-const needsSdk = _sel.some((a) => a.kind !== 'nbicon'); // CLI cobre os nbicon; SDK só para o resto
+const needsSdk = _sel.some((a) => a.kind !== 'nbicon' && a.kind !== 'arena_video'); // CLI cobre nbicon e vídeo; SDK só o resto
 let hf = null;
 if (needsSdk) {
   const rawCreds = (process.env.HF_CREDENTIALS || '').trim();
@@ -287,7 +299,9 @@ fs.mkdirSync(ARENAS_DIR, { recursive: true });
 
 const SPRITES_DIR = path.join(ROOT, 'client/public/sprites');
 fs.mkdirSync(SPRITES_DIR, { recursive: true });
-const outPath = (a) => (a.kind === 'icon' || a.kind === 'nbicon')
+const outPath = (a) => a.kind === 'arena_video'
+  ? path.join(ARENAS_DIR, `${a.id}.mp4`)
+  : (a.kind === 'icon' || a.kind === 'nbicon')
   ? path.join(ITEMS_DIR, `${a.id}.webp`)
   : a.kind === 'sprite'
     ? path.join(SPRITES_DIR, `${a.id}.webp`)
@@ -310,14 +324,14 @@ for (const a of queue) {
   try {
     process.stdout.write(`⏳ ${a.id}... `);
     const size = a.kind === 'icon' ? '1536x1536' : '2048x1152';
-    const engineNano = a.kind === 'nbicon';
+    const engineNano = a.kind === 'nbicon' || a.kind === 'arena_video';
     // nano banana via CLI oficial (higgsfield auth login uma vez; sem adivinhação de endpoint)
     const nanoCli = async (prompt) => {
-      const { stdout } = await execFileP('higgsfield', [
-        'generate', 'create', 'nano_banana_2',
-        '--prompt', prompt, '--aspect_ratio', '1:1', '--resolution', '1k',
-        '--wait', '--json',
-      ], { timeout: 300000, maxBuffer: 8 * 1024 * 1024 });
+      const isVideo = a.kind === 'arena_video';
+      const cliArgs = isVideo
+        ? ['generate', 'create', 'seedance', '--prompt', prompt, '--wait', '--json']
+        : ['generate', 'create', 'nano_banana_2', '--prompt', prompt, '--aspect_ratio', '1:1', '--resolution', '1k', '--wait', '--json'];
+      const { stdout } = await execFileP('higgsfield', cliArgs, { timeout: 600000, maxBuffer: 16 * 1024 * 1024 });
       // procura result_url em qualquer profundidade do JSON (ou uma URL de imagem no texto)
       const deep = (o) => {
         if (!o || typeof o !== 'object') return null;
@@ -327,7 +341,7 @@ for (const a of queue) {
       };
       let url = null;
       try { url = deep(JSON.parse(stdout)); } catch { /* segue para o regex */ }
-      if (!url) url = (stdout.match(/https?:\/\/\S+\.(png|jpe?g|webp)\S*/i) || [])[0] || null;
+      if (!url) url = (stdout.match(/https?:\/\/\S+\.(png|jpe?g|webp|mp4|webm|mov)\S*/i) || [])[0] || null;
       if (!url) throw new Error(`CLI sem result_url :: ${stdout.slice(0, 300)}`);
       return { jobs: [{ status: 'completed', results: { raw: { url } } }] };
     };
@@ -349,6 +363,11 @@ for (const a of queue) {
       throw new Error(`sem resultado (status=${st()}) :: ${dump}`);
     }
     const buf = Buffer.from(await (await fetch(url)).arrayBuffer());
+    if (a.kind === 'arena_video') {
+      fs.writeFileSync(out, buf);
+      console.log(`✓ salvo (${Math.round(buf.length / 1024)} KB de vídeo 🎬)`);
+      ok++; continue;
+    }
     const img = sharp(buf);
     if (a.kind === 'icon') await img.resize(256, 256).webp({ quality: 82 }).toFile(out);
     else if (a.kind === 'nbicon') {

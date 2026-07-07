@@ -1,5 +1,5 @@
 // STIKDEAD :: renderizador da batalha (PixiJS)
-import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
+import { Texture, Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
 import { MOVES } from './sim.js';
 import { drawFighter, drawEyes } from './rig.js';
 import { loadHeadTexture } from './headSprite.js';
@@ -24,11 +24,34 @@ export async function createRenderer(host, theme = 'dojo') {
   const world = new Container();
   camera.addChild(world);
 
-  // arena pintada (se existir em /arenas/{tema}.webp) com fallback vetorial
+  // arenas VIVAS: vídeo em loop (se existir) -> pintura webp -> vetorial
+  const VIDEO_ARENAS = { cidade_rio: '/arenas/cidade_rio.mp4' };
+  const loadArenaVideo = (src) => new Promise((resolve, reject) => {
+    const v = document.createElement('video');
+    v.src = src; v.muted = true; v.loop = true; v.playsInline = true;
+    v.autoplay = true; v.crossOrigin = 'anonymous'; v.preload = 'auto';
+    const to = setTimeout(() => reject(new Error('vídeo demorou')), 8000);
+    v.addEventListener('error', () => { clearTimeout(to); reject(new Error('vídeo indisponível')); }, { once: true });
+    v.addEventListener('canplay', () => {
+      clearTimeout(to);
+      v.play().then(() => resolve(v)).catch(() => resolve(v)); // autoplay mudo é permitido
+    }, { once: true });
+  });
+
   let painted = false;
   let arenaSpr = null;
   try {
-    const tex = await withTimeout(Assets.load(`/arenas/${theme}.webp`), 8000, 'arte da arena');
+    let tex;
+    if (VIDEO_ARENAS[theme]) {
+      try {
+        const vid = await loadArenaVideo(VIDEO_ARENAS[theme]);
+        tex = Texture.from(vid);
+        console.log('[stikdead] arena em VÍDEO carregada 🎬');
+      } catch (e) {
+        console.warn('[stikdead] vídeo falhou, tentando pintura:', e.message);
+      }
+    }
+    if (!tex) tex = await withTimeout(Assets.load(`/arenas/${theme}.webp`), 8000, 'arte da arena');
     console.log('[stikdead] arena pintada carregada');
     const backing = new Graphics();
     backing.rect(-6000, -6000, 12000, 12000).fill(0x0b0709);

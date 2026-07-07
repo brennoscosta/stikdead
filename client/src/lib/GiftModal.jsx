@@ -1,5 +1,6 @@
 // STIKDEAD :: presente recebido — a cerimônia da revelação 🎁
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from './api.js';
 import { getSocket } from './socket.js';
 import ItemIcon from './ItemIcon.jsx';
@@ -34,7 +35,7 @@ export default function GiftModal({ onSenderClick }) {
   };
   const close = () => { setGift(null); setPhase('closed'); };
 
-  return (
+  return createPortal(
     <div className="pc-overlay" style={{ zIndex: 400 }}>
       <div className="gift-card" onClick={(e) => e.stopPropagation()}>
         {phase !== 'revealed' ? (
@@ -67,6 +68,7 @@ export default function GiftModal({ onSenderClick }) {
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

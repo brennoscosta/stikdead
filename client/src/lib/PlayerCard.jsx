@@ -1,5 +1,6 @@
 // STIKDEAD :: cartão público do jogador — o palco do ego
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from './api.js';
 import ItemIcon from './ItemIcon.jsx';
 import { SLOT_LABEL, RARITY_LABEL } from '../pages/Shop.jsx';
@@ -47,7 +48,7 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
     setBusy(false);
   };
 
-  return (
+  return createPortal(
     <div className="pc-overlay" onClick={onClose}>
       <div className="pc-card" onClick={(e) => e.stopPropagation()}>
         <button className="pc-close" onClick={onClose}>✕</button>
@@ -153,6 +154,7 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
