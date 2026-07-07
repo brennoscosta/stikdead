@@ -124,7 +124,7 @@
   animation: breathe 7s ease-in-out infinite;
 }
 @keyframes breathe { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
-.scene > * { position: relative; z-index: 1; }
+.scene > *:not(.topnav):not(.topnav-spacer) { position: relative; z-index: 1; }
 
 /* brasas subindo (partículas em CSS puro) */
 .scene::after {
