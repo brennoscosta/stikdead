@@ -260,8 +260,7 @@ export async function createRenderer(host, theme = 'dojo') {
         spr.width = d; spr.height = d;
         spr.scale.x = Math.abs(spr.scale.x) * (pose.face < 0 ? -1 : 1);
         spr.position.set(pose.hx, pose.hy);
-        eg.clear();
-        drawEyes(eg, f, pose.hx, pose.hy, pose.face, pose.ko, elapsed);
+        eg.clear(); // olhos pintados na própria esfera — vetor aposentado
       } else {
         spr.visible = false;
         eg.clear();
