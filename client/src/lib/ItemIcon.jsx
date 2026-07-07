@@ -264,7 +264,7 @@ export default function ItemIcon({ item, size = 56 }) {
   };
   return (
     <span
-      className={`item-icon ${hasExc ? 'has-exc' : ''}`}
+      className={`item-icon ${hasExc ? (item.rarity === 'diamante' ? 'has-exc' : 'has-exc has-exc-gold') : ''}`}
       style={{ width: size, height: size }}
       onPointerDown={poke}
       title={hasExc ? 'Item Excellent — toque para ver as opções' : undefined}

@@ -1087,3 +1087,10 @@ body.in-fight .topnav-spacer { display: none; }
 .exc-rarity { text-align: center; font-size: 10.5px; letter-spacing: 0.14em; color: #8fe3ff; margin-top: 1px; }
 .exc-sep { height: 1px; background: linear-gradient(90deg, transparent, rgba(82,255,157,0.6), transparent); margin: 8px 0; }
 .exc-line { color: #52ff9d; font-size: 13px; line-height: 1.5; text-shadow: 0 0 8px rgba(82,255,157,0.35); padding: 1.5px 0; }
+
+/* ===== tier amarelo (itens de moedas) ===== */
+.item-icon.has-exc-gold::after { color: #ffd76a; text-shadow: 0 0 6px rgba(255,215,106,0.9); }
+.exc-tip.gold { border-color: rgba(255, 215, 106, 0.55); box-shadow: 0 0 24px rgba(255,215,106,0.22), 0 14px 40px rgba(0,0,0,0.7); }
+.exc-tip.gold .exc-sep { background: linear-gradient(90deg, transparent, rgba(255,215,106,0.6), transparent); }
+.exc-tip.gold .exc-line { color: #ffd76a; text-shadow: 0 0 8px rgba(255,215,106,0.3); }
+.exc-tip.gold .exc-rarity { color: #cdb26a; }
