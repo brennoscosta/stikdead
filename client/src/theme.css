@@ -586,3 +586,62 @@ body.is-mobile .bottombar { display: flex; }
   color: #ff8fa3;
   white-space: nowrap;
 }
+
+/* ============================================================
+   NAVEGAÇÃO UNIFICADA: bottombar em TODAS as telas.
+   O menuzinho de links do topo deixa de existir em qualquer viewport.
+   ============================================================ */
+.topnav-links { display: none !important; }
+
+.bottombar {
+  display: flex !important;
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 120;
+  justify-content: space-around;
+  align-items: stretch;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(20, 9, 13, 0.97), rgba(8, 5, 7, 0.99));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(217, 4, 41, 0.4);
+  box-shadow: 0 -4px 26px rgba(0, 0, 0, 0.6), 0 -1px 14px rgba(217, 4, 41, 0.15);
+}
+.bottombar a, .bottombar .bb-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  max-width: 140px;
+  padding: 4px 2px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: color 0.15s, transform 0.12s;
+}
+.bottombar .bb-ico { font-size: 21px; line-height: 1; }
+.bottombar a:hover { color: var(--bone); }
+.bottombar a:hover .bb-ico { filter: drop-shadow(0 0 8px rgba(255, 34, 68, 0.5)); }
+.bottombar a.on { color: var(--bone); }
+.bottombar a.on .bb-ico {
+  filter: drop-shadow(0 0 10px rgba(255, 34, 68, 0.9));
+  transform: translateY(-1px) scale(1.12);
+}
+.bottombar a.on::after {
+  content: '';
+  width: 18px; height: 2.5px;
+  border-radius: 2px;
+  background: var(--blood);
+  box-shadow: 0 0 10px rgba(217, 4, 41, 0.9);
+}
+.bottombar a:active { transform: scale(0.94); }
+.bottombar .bb-soon { opacity: 0.45; }
+
+/* conteúdo respira acima da barra em todas as telas com navbar */
+.scene-nav, .dash, .lobby2, .scene:has(> .topnav) {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+}
