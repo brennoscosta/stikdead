@@ -56,6 +56,46 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
         {!p && !err && <p className="dash-empty">Carregando lutador...</p>}
         {p && (
           <>
+            {picking && (
+              <div className="gift-picker" style={{ borderTop: 'none', marginTop: 0 }}>
+                <h2 className="pc-name" style={{ fontSize: 22, textAlign: 'center' }}>🎁 PRESENTE PARA {p.name.toUpperCase()}</h2>
+                {!chosen ? (
+                  <>
+                    <h3 className="pc-section">ESCOLHA O ITEM (sai do seu baú)</h3>
+                    {!chest && <p className="dash-empty">Abrindo seu baú...</p>}
+                    {chest && chest.length === 0 && <p className="dash-empty">Seu baú está vazio.</p>}
+                    <div className="pc-loadout">
+                      {(chest || []).map((it, idx) => (
+                        <button key={`${it.id}_${idx}`} className={`pc-item r-${it.rarity}`} disabled={busy} onClick={() => setChosen(it)} title={it.name}>
+                          <ItemIcon item={it} />
+                          <small>{it.name.slice(0, 14)}</small>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="gift-confirm">
+                    <div className={`pc-item r-${chosen.rarity}`} style={{ display: 'inline-block' }}>
+                      <ItemIcon item={chosen} />
+                      <small>{chosen.name.slice(0, 16)}</small>
+                    </div>
+                    <textarea
+                      className="em-body" rows={2} maxLength={200}
+                      placeholder="Mensagem para acompanhar o presente (opcional)..."
+                      value={giftMsg} onChange={(e) => setGiftMsg(e.target.value)}
+                    />
+                    <div className="pc-actions" style={{ marginTop: 8, justifyContent: 'center' }}>
+                      <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 20px' }} disabled={busy} onClick={sendGift}>
+                        🎁 Enviar presente
+                      </button>
+                      <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 16px' }} onClick={() => setChosen(null)}>← Trocar item</button>
+                    </div>
+                  </div>
+                )}
+                <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px', marginTop: 10 }} onClick={() => { setPicking(false); setChosen(null); }}>← Voltar ao perfil</button>
+              </div>
+            )}
+            {!picking && (<>
             <div className="pc-head">
               <div>
                 <h2 className="pc-name">
@@ -115,42 +155,7 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
                 </button>
               )}
             </div>
-            {picking && (
-              <div className="gift-picker">
-                <h3 className="pc-section">ESCOLHA O PRESENTE (sai do seu baú)</h3>
-                {!chest && <p className="dash-empty">Abrindo seu baú...</p>}
-                {chest && chest.length === 0 && <p className="dash-empty">Seu baú está vazio.</p>}
-                {!chosen ? (
-                  <div className="pc-loadout">
-                    {(chest || []).map((it, idx) => (
-                      <button key={`${it.id}_${idx}`} className={`pc-item r-${it.rarity}`} disabled={busy} onClick={() => setChosen(it)} title={it.name}>
-                        <ItemIcon item={it} />
-                        <small>{it.name.slice(0, 14)}</small>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="gift-confirm">
-                    <div className={`pc-item r-${chosen.rarity}`} style={{ display: 'inline-block' }}>
-                      <ItemIcon item={chosen} />
-                      <small>{chosen.name.slice(0, 16)}</small>
-                    </div>
-                    <textarea
-                      className="em-body" rows={2} maxLength={200}
-                      placeholder="Mensagem para acompanhar o presente (opcional)..."
-                      value={giftMsg} onChange={(e) => setGiftMsg(e.target.value)}
-                    />
-                    <div className="pc-actions" style={{ marginTop: 8 }}>
-                      <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 20px' }} disabled={busy} onClick={sendGift}>
-                        🎁 Enviar presente
-                      </button>
-                      <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 16px' }} onClick={() => setChosen(null)}>← Trocar item</button>
-                    </div>
-                  </div>
-                )}
-                {!chosen && <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px', marginTop: 8 }} onClick={() => setPicking(false)}>Cancelar</button>}
-              </div>
-            )}
+            </>)}
           </>
         )}
       </div>

@@ -62,7 +62,9 @@ export async function createRenderer(host, theme = 'dojo') {
     app.renderer.background.color = 0x0b0709; // qualquer folga fica escura, nunca branca
   } catch (err) {
     console.warn('[stikdead] arte indisponível, usando arena vetorial:', err.message);
-    world.addChild(buildArena(theme));
+    const vec = buildArena(theme);
+    world.addChild(vec);
+    if (typeof vec.tick === 'function') app.ticker.add((tk) => vec.tick(tk.deltaMS));
   }
   const fighterHalos = new Graphics();
   world.addChild(fighterHalos);

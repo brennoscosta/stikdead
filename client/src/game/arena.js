@@ -17,7 +17,150 @@ export const ARENA_KEYS = Object.keys(ARENAS);
 export function buildArena(theme = 'dojo') {
   if (theme === 'temple') return buildTemple();
   if (theme === 'prison') return buildPrison();
+  if (theme === 'cidade_rio') return buildCidadeRio();
   return buildDojo();
+}
+
+// ===== CIDADE DO RIO — cena VIVA (animada por tick) =====
+function buildCidadeRio() {
+  const c = new Container();
+  const L = WORLD.left - 240, R = WORLD.right + 240, W = R - L;
+  const SKY = -WORLD.skyH;
+
+  // céu golden hour (faixas)
+  const sky = new Graphics();
+  const bands = [0xffe9b8, 0xffd894, 0xf8bd7a, 0xe89a6a];
+  bands.forEach((col, i) => {
+    sky.rect(L, SKY + (i * WORLD.skyH) / 6, W, WORLD.skyH / 6 + 2).fill(col);
+  });
+  sky.rect(L, SKY + (4 * WORLD.skyH) / 6, W, (2 * WORLD.skyH) / 6).fill(0xd98a60);
+  // sol baixo com halo
+  sky.circle(180, SKY + 118, 56).fill({ color: 0xfff3cf, alpha: 0.9 });
+  sky.circle(180, SKY + 118, 34).fill(0xfffbe8);
+  c.addChild(sky);
+
+  // nuvens à deriva
+  const clouds = [];
+  for (let i = 0; i < 4; i++) {
+    const cl = new Graphics();
+    cl.ellipse(0, 0, 70 + i * 18, 16 + i * 3).fill({ color: 0xfff6e0, alpha: 0.55 });
+    cl.ellipse(40, -8, 44, 12).fill({ color: 0xfff6e0, alpha: 0.45 });
+    cl.x = L + (i * 0.27 + 0.1) * W;
+    cl.y = SKY + 60 + i * 34;
+    clouds.push(cl);
+    c.addChild(cl);
+  }
+
+  // cidade na outra margem — clara, viva, detalhada
+  const cityY = -196; // linha de base dos prédios
+  const city = new Graphics();
+  const windows = []; // {x, y, w, h, phase}
+  let x = L + 10;
+  let bi = 0;
+  const palette = [0xf3d9b0, 0xeac393, 0xf7e3c2, 0xdfb489, 0xf0cd9e];
+  while (x < R - 10) {
+    const bw = 54 + ((bi * 37) % 60);
+    const bh = 90 + ((bi * 53) % 150);
+    const col = palette[bi % palette.length];
+    city.rect(x, cityY - bh, bw, bh).fill(col);
+    city.rect(x, cityY - bh, bw, 6).fill({ color: 0x8a5a3a, alpha: 0.5 }); // cornija
+    // janelas (algumas piscam à noceite dourada)
+    for (let wy = cityY - bh + 14; wy < cityY - 14; wy += 22) {
+      for (let wx = x + 8; wx < x + bw - 12; wx += 16) {
+        windows.push({ x: wx, y: wy, w: 8, h: 11, phase: (wx * 7 + wy * 13) % 100 });
+      }
+    }
+    // telhado d'água ou antena de vez em quando
+    if (bi % 3 === 0) city.rect(x + bw / 2 - 2, cityY - bh - 16, 4, 16).fill(0x7a4a30);
+    x += bw + 8;
+    bi++;
+  }
+  c.addChild(city);
+  const winG = new Graphics();
+  c.addChild(winG);
+
+  // pássaros
+  const birds = [];
+  for (let i = 0; i < 3; i++) birds.push({ x: L + i * 300, y: SKY + 150 + i * 40, s: 0.6 + i * 0.25 });
+  const birdG = new Graphics();
+  c.addChild(birdG);
+
+  // RIO — faixa entre a cidade e a grama, com correnteza animada
+  const riverTop = cityY, riverBot = -44;
+  const riverBase = new Graphics();
+  riverBase.rect(L, riverTop, W, riverBot - riverTop).fill(0x7fb4c9);
+  riverBase.rect(L, riverTop, W, 26).fill({ color: 0xf2d5a8, alpha: 0.55 }); // reflexo quente da cidade
+  c.addChild(riverBase);
+  const waterG = new Graphics();
+  c.addChild(waterG);
+
+  // margem de GRAMA (o palco da luta)
+  const grass = new Graphics();
+  grass.rect(L, riverBot, W, 30).fill(0x8a9a4e);       // barranco
+  grass.rect(L, riverBot + 22, W, 400).fill(0x9db35a); // gramado
+  grass.rect(L, riverBot + 22, W, 8).fill({ color: 0xc7d689, alpha: 0.8 });
+  c.addChild(grass);
+  const bladesG = new Graphics(); // lâminas de capim balançando
+  c.addChild(bladesG);
+  const blades = [];
+  for (let i = 0; i < 60; i++) {
+    blades.push({ x: L + (i / 60) * W + ((i * 31) % 13), y: riverBot + 26 + ((i * 17) % 46), h: 8 + ((i * 7) % 9), ph: (i * 0.61) % 6.28 });
+  }
+
+  // ===== o pulso da cena =====
+  let t = 0;
+  c.tick = (dtMs) => {
+    t += dtMs / 1000;
+    // nuvens à deriva (loop)
+    for (let i = 0; i < clouds.length; i++) {
+      clouds[i].x += (4 + i * 2) * (dtMs / 1000);
+      if (clouds[i].x > R + 90) clouds[i].x = L - 90;
+    }
+    // janelas piscando (cidade viva)
+    winG.clear();
+    for (const w of windows) {
+      const on = Math.sin(t * 0.7 + w.phase) > (w.phase % 2 === 0 ? 0.2 : 0.75);
+      if (on) winG.rect(w.x, w.y, w.w, w.h).fill({ color: 0xffd76a, alpha: 0.9 });
+      else winG.rect(w.x, w.y, w.w, w.h).fill({ color: 0x6a4a35, alpha: 0.5 });
+    }
+    // pássaros cruzando
+    birdG.clear();
+    for (const b of birds) {
+      b.x += 34 * b.s * (dtMs / 1000);
+      if (b.x > R + 40) { b.x = L - 40; b.y = SKY + 120 + Math.random() * 90; }
+      const flap = Math.sin(t * 9 + b.x * 0.05) * 4;
+      birdG.moveTo(b.x - 7, b.y - flap).lineTo(b.x, b.y).lineTo(b.x + 7, b.y - flap).stroke({ width: 2, color: 0x5a3a2a });
+    }
+    // ÁGUA CORRENTE: ondulações deslizando + brilhos
+    waterG.clear();
+    const rh = riverBot - riverTop;
+    for (let li = 0; li < 9; li++) {
+      const y = riverTop + 8 + (li / 9) * (rh - 14);
+      const speed = 26 + li * 7;                 // mais perto = mais rápido (paralaxe)
+      const dash = 34 + li * 6, gap = 26 + li * 4;
+      const off = (t * speed) % (dash + gap);
+      for (let px = L - dash + off; px < R; px += dash + gap) {
+        const bob = Math.sin(t * 2 + li * 1.7 + px * 0.02) * 1.6;
+        waterG.moveTo(px, y + bob).lineTo(px + dash * 0.62, y + bob)
+          .stroke({ width: 2, color: li % 3 === 0 ? 0xeef7f2 : 0xa8d4e2, alpha: 0.5 + (li % 3) * 0.14 });
+      }
+    }
+    // faíscas de sol na água
+    for (let si = 0; si < 12; si++) {
+      const sx = L + ((si * 173 + t * 40) % W);
+      const sy = riverTop + 14 + ((si * 97) % (rh - 20));
+      const a = (Math.sin(t * 3 + si * 2.4) + 1) / 2;
+      if (a > 0.62) waterG.circle(sx, sy, 1.6).fill({ color: 0xfff6d8, alpha: a });
+    }
+    // capim balançando na brisa
+    bladesG.clear();
+    for (const bl of blades) {
+      const sway = Math.sin(t * 1.6 + bl.ph) * 2.6;
+      bladesG.moveTo(bl.x, bl.y).lineTo(bl.x + sway, bl.y - bl.h).stroke({ width: 1.6, color: 0x7e9440, alpha: 0.85 });
+    }
+  };
+
+  return c;
 }
 
 // Dojo em estilo nanquim claro: papel, madeira, shoji e pergaminho com marca vermelha.
