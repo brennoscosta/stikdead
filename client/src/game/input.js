@@ -7,7 +7,7 @@ const KEYMAP = {
   KeyJ: 'light',
   KeyK: 'heavy',
   KeyL: 'block',
-  KeyE: 'skill', ShiftLeft: 'skill',
+  KeyH: 'skill',
   ShiftLeft: 'dash', ShiftRight: 'dash',
 };
 
