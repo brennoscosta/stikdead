@@ -71,8 +71,12 @@ export default function Shop({ profile, onProfile }) {
     setNotice(null);
     try {
       const d = await api('/api/shop/buy', { method: 'POST', body: { itemId: item.id } });
-      setCoins(d.coins);
-      onProfile?.((p) => ({ ...p, coins: d.coins }));
+      if (d.diamonds !== undefined) {
+        onProfile?.((p) => ({ ...p, diamonds: d.diamonds }));
+      } else {
+        setCoins(d.coins);
+        onProfile?.((p) => ({ ...p, coins: d.coins }));
+      }
       setItems((list) => list.map((i) => (i.id === item.id ? { ...i, owned: true } : i)));
       setNotice({ ok: true, text: `${item.name} comprado! Foi para o seu baú.` });
     } catch (err) {
