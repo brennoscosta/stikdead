@@ -229,34 +229,31 @@
 .topnav { justify-content: center; }
 .topnav > * { flex: 0 0 auto; }
 
-/* ===== LOGIN: formulário integrado à arte principal ===== */
+/* ===== LOGIN: pôster completo em cima, formulário logo abaixo do nome ===== */
 .scene:has(> .hero-bg) {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;              /* formulário ABAIXO do nome pintado na arte */
-  padding-bottom: max(20px, 4vh);
-}
-.scene:has(> .hero-bg) .card { margin-top: 0; }
-@media (min-height: 900px) {
-  /* telas altas: sobe um pouco para não colar no rodapé */
-  .scene:has(> .hero-bg) { padding-bottom: 8vh; }
+  justify-content: flex-start;
+  padding-top: 0;
 }
 .scene:has(> .hero-bg) .hero-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
+  position: relative;
+  width: 100%;
+  height: min(62vh, 58vw);   /* pôster inteiro: cabeça + nome, sempre visíveis */
 }
 .scene:has(> .hero-bg) .hero-bg canvas,
 .scene:has(> .hero-bg) .hero-bg img {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover;
+  object-fit: contain;        /* nunca corta o nome; letterbox some no fundo preto */
+  object-position: center top;
 }
 .scene:has(> .hero-bg) .hero-spacer { display: none; }
 .scene:has(> .hero-bg) .card {
-  background: linear-gradient(180deg, rgba(16, 7, 10, 0.82), rgba(8, 5, 7, 0.9));
+  margin-top: -10px;          /* encosta elegante logo abaixo do nome */
+  background: linear-gradient(180deg, rgba(16, 7, 10, 0.86), rgba(8, 5, 7, 0.93));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   max-width: 380px;
