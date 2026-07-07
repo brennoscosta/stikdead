@@ -3,10 +3,13 @@
 // Números de encaixe = TUNING: ajustados por print do jogo (protocolo oficial).
 import { Sprite, Assets } from 'pixi.js';
 
+// INTERRUPTOR: corpo pintado em obras — desligado até validação offline completa
+export const PARTS_ENABLED = false;
 const FILES = ['head', 'torso', 'thigh', 'shin', 'boot', 'forearm', 'upperarm'];
 let texs = null;
 
 export async function loadPartTextures() {
+  if (!PARTS_ENABLED) return {};
   if (texs) return texs;
   texs = {};
   await Promise.all(
