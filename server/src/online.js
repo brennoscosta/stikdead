@@ -15,6 +15,9 @@ const sanitizeInput = (i) => ({
   light: !!i?.light, heavy: !!i?.heavy, block: !!i?.block, dash: !!i?.dash, skill: !!i?.skill,
 });
 
+const ONLINE_IDS = new Set();
+export const getOnlineIds = () => ONLINE_IDS;
+
 export function attachOnline(io) {
   const online = new Map();   // userId -> { socket, user }
   const queue = [];           // userIds
@@ -218,6 +221,8 @@ export function attachOnline(io) {
     const prev = online.get(user.id);
     if (prev) prev.socket.disconnect(true);
     online.set(user.id, { socket, user });
+    ONLINE_IDS.add(user.id);
+    q('UPDATE profiles SET last_seen = now() WHERE user_id = $1', [user.id]).catch(() => {});
     q('SELECT style FROM profiles WHERE user_id = $1', [user.id])
       .then(({ rows }) => { const e = online.get(user.id); if (e) e.style = rows[0]?.style || 'ronin'; })
       .catch(() => {});
@@ -234,7 +239,7 @@ export function attachOnline(io) {
       const now = Date.now();
       if (now - (chatLast.get(user.id) || 0) < 1000) return; // 1 msg/s
       chatLast.set(user.id, now);
-      const msg = { name: user.name, text, ts: now };
+      const msg = { name: user.name, userId: user.id, text, ts: now };
       chatHistory.push(msg);
       if (chatHistory.length > 50) chatHistory.shift();
       io.emit('chat:msg', msg);
@@ -339,6 +344,7 @@ export function attachOnline(io) {
     });
 
     socket.on('disconnect', () => {
+      if (online.get(user.id)?.socket === socket) ONLINE_IDS.delete(user.id);
       if (online.get(user.id)?.socket === socket) online.delete(user.id);
       dequeue(user.id);
       const rid = userRoom.get(user.id);

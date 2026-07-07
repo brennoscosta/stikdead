@@ -18,10 +18,10 @@ export function Bottombar() {
           <span className="bb-label">{l.label}</span>
         </NavLink>
       ))}
-      <span className="bb-soon">
+      <button className="bb-item" onClick={() => nav('/cla')}>
         <span className="bb-ico">🛡️</span>
         <span className="bb-label">Clã</span>
-      </span>
+      </button>
     </nav>
   );
 }
@@ -41,7 +41,7 @@ export default function Navbar({ profile }) {
             <span className="topnav-label">{l.label}</span>
           </NavLink>
         ))}
-        <span className="topnav-soon" title="Em breve">🛡️ Clã</span>
+        <button className="topnav-link" onClick={() => nav('/cla')}>🛡️ Clã</button>
       </nav>
       <div className="topnav-right">
         <span className="topnav-wallet">

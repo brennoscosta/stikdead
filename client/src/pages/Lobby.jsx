@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../lib/socket.js';
 import { createPlaza } from '../game/praca.js';
+import PlayerCard from '../lib/PlayerCard.jsx';
 import Navbar from '../lib/Navbar.jsx';
 import { api } from '../lib/api.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
@@ -30,6 +31,7 @@ export default function Lobby({ profile, onProfile }) {
   const [session, setSession] = useState(null); // {side, players}
   const [chat, setChat] = useState([]);
   const [chatText, setChatText] = useState('');
+  const [card, setCard] = useState(null);
   const plazaHost = useRef(null);
   const plazaRef = useRef(null);
   const playersRef = useRef([]);
@@ -71,7 +73,10 @@ export default function Lobby({ profile, onProfile }) {
     socket.on('challenge:sent', onSent);
     socket.on('match:start', onStart);
     const onChatHistory = ({ messages }) => setChat(messages);
-    const onChatMsg = (msg) => setChat((c) => [...c.slice(-49), msg]);
+    const onChatMsg = (msg) => {
+      setChat((c) => [...c.slice(-49), msg]);
+      plazaRef.current?.say?.(msg.name, msg.text);
+    };
     socket.on('chat:history', onChatHistory);
     socket.on('chat:msg', onChatMsg);
     socket.emit('presence:get');
@@ -180,7 +185,9 @@ export default function Lobby({ profile, onProfile }) {
             <h2>CHAT DO LOBBY</h2>
             <div className="chat-msgs" style={{ maxHeight: 220 }}>
               {chat.map((m, i) => (
-                <div key={i} className="chat-msg"><strong>{m.name}:</strong> {m.text}</div>
+                <div key={i} className="chat-msg">
+                  <strong className="chat-name" onClick={() => setCard(m.name)}>{m.name}:</strong> {m.text}
+                </div>
               ))}
               {chat.length === 0 && <div className="chat-msg" style={{ opacity: 0.5 }}>Diga olá para o lobby…</div>}
             </div>
@@ -679,6 +686,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           </div>
         </div>
       )}
+      {card && <PlayerCard name={card} onClose={() => setCard(null)} />}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Admin from './pages/Admin.jsx';
 import Calibrador from './pages/Calibrador.jsx';
 import Matches from './pages/Matches.jsx';
 import { Esqueci, Redefinir } from './pages/Reset.jsx';
+import Friends from './pages/Friends.jsx';
 import { api, getToken, clearToken } from './lib/api.js';
 import { closeSocket } from './lib/socket.js';
 import Login from './pages/Login.jsx';
@@ -57,6 +58,7 @@ export default function App() {
           element={profile ? <Navigate to="/perfil" replace /> : <Register onAuth={setProfile} />}
         />
         <Route path="/esqueci" element={<Esqueci />} />
+        <Route path="/cla" element={profile ? <Friends profile={profile} /> : null} />
         <Route path="/redefinir" element={<Redefinir />} />
         <Route
           path="/partidas"

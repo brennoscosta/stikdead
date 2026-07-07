@@ -75,7 +75,7 @@ export async function createPlaza(host) {
     tag.anchor.set(0.5, 1);
     layer.addChild(wrap, tag);
     return {
-      wrap, g, ws, tag, name: p.name, loadout: p.loadout || [],
+      wrap, g, ws, tag, name: p.name, loadout: p.loadout || [], bubble: null, bubbleUntil: 0,
       f: {
         x: 60 + Math.random() * Math.max(120, W - 120), y: 0, vx: 0, vy: 0,
         face: Math.random() < 0.5 ? 1 : -1, hp: 100, state: 'walk', t: Math.random() * 3, hitstun: 0, combo: 0,
@@ -86,6 +86,12 @@ export async function createPlaza(host) {
   };
 
   app.ticker.add((tk) => {
+    const nowB = performance.now();
+    for (const a of actors.values()) {
+      if (a.bubble && nowB > a.bubbleUntil) {
+        a.wrap.removeChild(a.bubble); a.bubble.destroy({ children: true }); a.bubble = null;
+      }
+    }
     const dt = Math.min(0.05, tk.deltaMS / 1000);
     elapsed += dt;
     const w = app.renderer.width / app.renderer.resolution;
@@ -129,7 +135,35 @@ export async function createPlaza(host) {
     }
   });
 
+  const showBubble = (actor, text) => {
+    if (actor.bubble) { actor.wrap.removeChild(actor.bubble); actor.bubble.destroy({ children: true }); }
+    const holder = new Container();
+    const label = new Text({
+      text: String(text).slice(0, 90),
+      style: {
+        fontFamily: 'Arial', fontSize: 12, fill: 0x120a0e, wordWrap: true, wordWrapWidth: 150, align: 'center',
+      },
+    });
+    const pad = 7;
+    const bw = label.width + pad * 2, bh = label.height + pad * 2;
+    const bg2 = new Graphics();
+    bg2.roundRect(-bw / 2, -bh, bw, bh, 8).fill(0xf2efe9).stroke({ width: 2, color: 0x120a0e });
+    bg2.moveTo(-5, 0).lineTo(5, 0).lineTo(0, 7).closePath().fill(0xf2efe9).stroke({ width: 2, color: 0x120a0e });
+    label.x = -label.width / 2;
+    label.y = -bh + pad;
+    holder.addChild(bg2, label);
+    holder.y = -86; // acima da cabeça
+    actor.wrap.addChild(holder);
+    actor.bubble = holder;
+    actor.bubbleUntil = performance.now() + 3000 + Math.min(3500, String(text).length * 45);
+  };
+
   return {
+    say(name, text) {
+      for (const a of actors.values()) {
+        if (a.name === name) { showBubble(a, text); return; }
+      }
+    },
     setPlayers(players) {
       const keep = new Set();
       for (const p of players.slice(0, MAX_WALKERS)) {
