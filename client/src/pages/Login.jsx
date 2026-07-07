@@ -5,7 +5,7 @@ import { api, setToken } from '../lib/api.js';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export function Brand() {
-  return <img className="login-logo" src="/logo.webp" alt="STIKDEAD" />;
+  return null; // o nome vive na própria arte de fundo
 }
 
 export function GoogleButton({ onAuth, onError }) {
