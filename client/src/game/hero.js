@@ -42,7 +42,7 @@ export async function createHero(host) {
 
   const layout = () => {
     // mesma regra do .hero-spacer no CSS: largura total, altura cap em 58vh
-    const artH = Math.min(W * (ART.h / ART.w), H * 0.58);
+    const artH = Math.min(W * (ART.h / ART.w), H * 0.66);
     const k = artH / ART.h;
     const artW = ART.w * k;
     return { k, artW, artH, ox: (W - artW) / 2 };

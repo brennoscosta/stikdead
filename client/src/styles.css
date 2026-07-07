@@ -526,7 +526,7 @@ body {
 .hero-bg canvas { width: 100% !important; height: 100% !important; }
 .hero-spacer {
   width: 100vw;
-  height: min(calc(100vw * 0.645), 58vh);
+  height: min(calc(100vw * 0.645), 66vh);
   margin-bottom: -3vh;
 }
 /* o conteúdo flutua sobre o fundo vivo */

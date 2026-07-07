@@ -229,34 +229,12 @@
 .topnav { justify-content: center; }
 .topnav > * { flex: 0 0 auto; }
 
-/* ===== LOGIN: pôster completo em cima, formulário logo abaixo do nome ===== */
-.scene:has(> .hero-bg) {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 0;
-}
-.scene:has(> .hero-bg) .hero-bg {
-  position: relative;
-  width: min(94vw, 150vh, 880px);  /* GRANDE: domina a tela sem estourar a altura */
-  aspect-ratio: 3 / 2;             /* proporção exata da arte: zero sobra interna */
-}
-.scene:has(> .hero-bg) .hero-bg canvas,
-.scene:has(> .hero-bg) .hero-bg img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain;        /* nunca corta o nome */
-  object-position: center;
-}
-.scene:has(> .hero-bg) .hero-spacer { display: none; }
+/* ===== LOGIN: o sistema original (canvas fullscreen + espaçador) manda no layout.
+   Aqui só entra estética do card — nenhuma regra de posição/tamanho. ===== */
 .scene:has(> .hero-bg) .card {
-  margin-top: 14px;           /* logo abaixo do LUTE. MORRA. EVOLUA. — perto, sem sobrepor */
   background: linear-gradient(180deg, rgba(16, 7, 10, 0.86), rgba(8, 5, 7, 0.93));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  max-width: 380px;
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.75), var(--glow-blood);
 }
 
