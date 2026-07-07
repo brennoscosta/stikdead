@@ -54,6 +54,7 @@ export default function Shop({ profile, onProfile }) {
   const nav = useNavigate();
   const [items, setItems] = useState([]);
   const [coins, setCoins] = useState(profile.coins);
+  const [payWith, setPayWith] = useState('coins');
   const [filter, setFilter] = useState(() => new URLSearchParams(window.location.search).get('slot') || 'all');
   const [busy, setBusy] = useState('');
   const [notice, setNotice] = useState(null);
@@ -81,7 +82,7 @@ export default function Shop({ profile, onProfile }) {
     }
   };
 
-  const shown = items.filter((i) => filter === 'all' || i.slot === filter);
+  const shown = items.filter((i) => ((i.currency || 'coins') === payWith) && (filter === 'all' || i.slot === filter));
 
   return (
     <div className="scene scene-nav">
@@ -90,6 +91,11 @@ export default function Shop({ profile, onProfile }) {
         LOJA <img className="h1-logo" src="/logo.webp" alt="STIKDEAD" />
       </h1>
       <div className="coins-pill">🪙 {coins.toLocaleString('pt-BR')} moedas</div>
+      <div className="coins-pill diamonds-pill">💎 {Number(profile.diamonds || 0).toLocaleString('pt-BR')} diamantes</div>
+      <div className="pay-toggle">
+        <button className={`pay-mode ${payWith === 'coins' ? 'on' : ''}`} onClick={() => setPayWith('coins')}>🪙 Pagar Moedas</button>
+        <button className={`pay-mode pay-mode-dia ${payWith === 'diamonds' ? 'on' : ''}`} onClick={() => setPayWith('diamonds')}>💎 Pagar Diamantes</button>
+      </div>
 
       <div className="shop-filters">
         <button className={filter === 'all' ? 'on' : ''} onClick={() => setFilter('all')}>Tudo</button>

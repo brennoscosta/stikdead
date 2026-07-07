@@ -936,3 +936,15 @@ body.in-fight .topnav-spacer { display: none; }
 .item-card.mini.equipped.r-diamante { animation: ice-shimmer 3.2s linear infinite, equip-pulse-ice 2s ease-in-out infinite; }
 .dash-build-items .item-card.r-diamante { animation: ice-shimmer 3.2s linear infinite, equip-pulse-ice 2.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .item-card.r-diamante, .inv-slot.r-diamante { animation: none !important; } }
+
+/* ===== loja: seletor de moeda ===== */
+.diamonds-pill { border-color: rgba(127,217,255,0.55) !important; color: #bfefff !important; margin-top: 6px; }
+.pay-toggle { display: flex; gap: 8px; margin: 12px 0 4px; }
+.pay-mode {
+  font: inherit; font-weight: 700; letter-spacing: 0.04em; cursor: pointer;
+  padding: 9px 20px; border-radius: 999px; color: var(--muted);
+  border: 1px solid var(--line); background: var(--panel);
+  transition: all 0.15s ease;
+}
+.pay-mode.on { color: #ffd76a; border-color: rgba(224,161,11,0.6); box-shadow: 0 0 14px rgba(224,161,11,0.25); background: linear-gradient(180deg, rgba(58,44,12,0.6), rgba(20,16,8,0.8)); }
+.pay-mode-dia.on { color: #bfefff; border-color: rgba(127,217,255,0.65); box-shadow: 0 0 16px rgba(127,217,255,0.3); background: linear-gradient(180deg, rgba(18,40,64,0.7), rgba(8,16,30,0.85)); }
