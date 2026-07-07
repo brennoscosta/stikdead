@@ -79,7 +79,7 @@ export default function Login({ onAuth }) {
   return (
     <div
       className="scene login-scene"
-      style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '16px 16px 6px', position: 'relative', background: '#050304', overflow: 'hidden' }}
+      style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '16px 16px 2px', position: 'relative', background: '#050304', overflow: 'hidden' }}
       onPointerDown={() => {
         if (!window.__stikDark) {
           window.__stikDark = 1;
