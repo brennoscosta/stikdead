@@ -69,6 +69,16 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted }) {
               <div><b>{p.winRate}%</b><span>win rate</span></div>
               {p.winStreak > 1 && <div><b>🔥 {p.winStreak}</b><span>sequência</span></div>}
             </div>
+            {(p.insano?.w > 0 || p.insano?.l > 0) && (
+              <div className="pc-insano" title="O registro contra a máquina impiedosa">
+                🤖 <b>VS BOT INSANO:</b>
+                <span className="pi-w">{p.insano.w} vitória{p.insano.w === 1 ? '' : 's'}</span>
+                <span className="pi-sep">·</span>
+                <span className="pi-l">{p.insano.l} derrota{p.insano.l === 1 ? '' : 's'}</span>
+                {p.insano.l >= 10 && p.insano.w === 0 && <span className="pi-zoeira">💀 a máquina agradece</span>}
+                {p.insano.w >= 5 && <span className="pi-zoeira">⚡ domador de máquina</span>}
+              </div>
+            )}
             <h3 className="pc-section">EQUIPADO</h3>
             {p.loadout?.length ? (
               <div className="pc-loadout">

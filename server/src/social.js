@@ -23,6 +23,11 @@ router.get('/players/by-name/:name', requireAuth, async (req, res) => {
   const matches = await q(
     'SELECT COUNT(*) FROM matches WHERE user_id = $1', [p.id]
   ).then((r) => Number(r.rows[0].count)).catch(() => p.wins + p.losses);
+  const insano = await q(
+    `SELECT COUNT(*) FILTER (WHERE won) AS w, COUNT(*) FILTER (WHERE NOT won) AS l
+       FROM matches WHERE user_id = $1 AND opponent_type = 'bot' AND difficulty = 'insano'`,
+    [p.id]
+  ).then((r) => ({ w: Number(r.rows[0].w), l: Number(r.rows[0].l) })).catch(() => ({ w: 0, l: 0 }));
 
   // relação com quem está olhando
   let friendship = 'none';
@@ -52,6 +57,7 @@ router.get('/players/by-name/:name', requireAuth, async (req, res) => {
     matches,
     winRate: matches ? Math.round((p.wins / Math.max(1, p.wins + p.losses)) * 100) : 0,
     winStreak: p.win_streak,
+    insano,
     title: p.title,
     online: getOnlineIds().has(p.id),
     loadout,
