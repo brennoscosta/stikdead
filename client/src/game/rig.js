@@ -178,6 +178,10 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
     capsule(sk.kneF, sk.footF, RIG.wShin, BODY, true);
     capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);
     capsule(sk.elbF, sk.handF, RIG.wLimbLo, BODY, true);
+  } else {
+    // ponte: braço superior (o kit preto não tem essa peça)
+    capsule(sk.neck, sk.elbB, RIG.wLimb, BODY_BACK, false);
+    capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);
   }
 
   if (loadout) drawItems(ctx, loadout, 'body');
