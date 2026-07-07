@@ -21,6 +21,9 @@ export default function Calibrador({ profile }) {
   const [anim, setAnim] = useState(false);
   const animRef = useRef(anim);
   animRef.current = anim;
+  const [ghost, setGhost] = useState(false);
+  const ghostRef = useRef(ghost);
+  ghostRef.current = ghost;
 
   useEffect(() => {
     let app = null;
@@ -59,6 +62,7 @@ export default function Calibrador({ profile }) {
         const dt = Math.min(0.05, tk.deltaMS / 1000);
         elapsed += dt;
         if (animRef.current) stepMatch(match, { ...EMPTY_INPUT, right: Math.sin(elapsed) > 0 }, EMPTY_INPUT, dt);
+        g.alpha = ghostRef.current ? 0.22 : 1;
         const pose = drawFighter(g, f, MOVES, 0xd90429, elapsed, null);
         const c = cfgRef.current;
         const a = pose[anchorRef.current === 'head' ? 'hx' : anchorRef.current] ;
@@ -118,6 +122,7 @@ export default function Calibrador({ profile }) {
           <button key={a} className={`filter ${anchor === a ? 'on' : ''}`} onClick={() => setAnchor(a)}>{a}</button>
         ))}
         <button className="filter" onClick={() => setAnim(!anim)}>{anim ? '⏸ parar' : '▶ animar'}</button>
+        <button className={`filter ${ghost ? 'on' : ''}`} onClick={() => setGhost(!ghost)}>👻 gabarito</button>
         <button className="btn btn-blood" style={{ width: 'auto', padding: '8px 18px' }} onClick={exportar}>Exportar JSON</button>
       </div>
       <div ref={host} style={{ border: '1px solid #33161d', borderRadius: 12, overflow: 'hidden' }} />
