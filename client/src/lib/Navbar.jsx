@@ -10,6 +10,7 @@ const LINKS = [
 ];
 
 export function Bottombar() {
+  const nav = useNavigate();
   return (
     <nav className="bottombar" aria-label="Navegação">
       {LINKS.map((l) => (

@@ -301,6 +301,7 @@ export default function Lobby({ profile, onProfile }) {
           </div>
         </div>
       )}
+      {card && <PlayerCard name={card} onClose={() => setCard(null)} />}
     </div></>
   );
 }
@@ -686,7 +687,6 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           </div>
         </div>
       )}
-      {card && <PlayerCard name={card} onClose={() => setCard(null)} />}
     </div>
   );
 }

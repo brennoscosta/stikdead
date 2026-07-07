@@ -88,8 +88,11 @@ export async function createPlaza(host) {
   app.ticker.add((tk) => {
     const nowB = performance.now();
     for (const a of actors.values()) {
-      if (a.bubble && nowB > a.bubbleUntil) {
-        a.wrap.removeChild(a.bubble); a.bubble.destroy({ children: true }); a.bubble = null;
+      if (a.bubble) {
+        a.bubble.position.set(a.tag.x, a.tag.y - 18);
+        if (nowB > a.bubbleUntil) {
+          layer.removeChild(a.bubble); a.bubble.destroy({ children: true }); a.bubble = null;
+        }
       }
     }
     const dt = Math.min(0.05, tk.deltaMS / 1000);
@@ -152,8 +155,7 @@ export async function createPlaza(host) {
     label.x = -label.width / 2;
     label.y = -bh + pad;
     holder.addChild(bg2, label);
-    holder.y = -86; // acima da cabeça
-    actor.wrap.addChild(holder);
+    layer.addChild(holder);
     actor.bubble = holder;
     actor.bubbleUntil = performance.now() + 3000 + Math.min(3500, String(text).length * 45);
   };
