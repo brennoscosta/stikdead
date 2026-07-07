@@ -235,8 +235,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding-top: 4vh;
+  justify-content: flex-end;              /* formulário ABAIXO do nome pintado na arte */
+  padding-bottom: max(20px, 4vh);
+}
+.scene:has(> .hero-bg) .card { margin-top: 0; }
+@media (min-height: 900px) {
+  /* telas altas: sobe um pouco para não colar no rodapé */
+  .scene:has(> .hero-bg) { padding-bottom: 8vh; }
 }
 .scene:has(> .hero-bg) .hero-bg {
   position: fixed;
