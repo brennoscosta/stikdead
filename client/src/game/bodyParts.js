@@ -3,7 +3,7 @@
 // Números de encaixe = TUNING: ajustados por print do jogo (protocolo oficial).
 import { Sprite, Assets } from 'pixi.js';
 
-const FILES = ['head', 'torso', 'thigh', 'boot', 'forearm'];
+const FILES = ['head', 'torso', 'thigh', 'shin', 'boot', 'forearm', 'upperarm'];
 let texs = null;
 
 export async function loadPartTextures() {
@@ -22,11 +22,15 @@ export async function loadPartTextures() {
 }
 
 // tuning de encaixe por peça (len = distância entre as juntas)
+// tint: manequim branco tingido de obsidiana (skins de cor no futuro = trocar este número)
+export const BODY_TINT = 0x17141a;
 const FIT = {
-  torso:   { stretch: 1.68, widthK: 0.82, anchorY: 0.5 },
-  thigh:   { stretch: 1.22, widthK: 0.46, anchorY: 0.45 },   // dieta: metade da largura
-  boot:    { size: 2.3, anchorY: 0.42, rotK: 0.55 },
-  forearm: { stretch: 1.55, widthK: 0.6, anchorY: 0.32 },
+  torso:    { stretch: 1.55, widthK: 0.62, anchorY: 0.46, tint: true },
+  thigh:    { stretch: 1.35, widthK: 0.5, anchorY: 0.45, tint: true },
+  shin:     { stretch: 1.3, widthK: 0.55, anchorY: 0.42, tint: true },
+  upperarm: { stretch: 1.4, widthK: 0.55, anchorY: 0.42, tint: true },
+  boot:     { size: 2.2, anchorY: 0.42, rotK: 0.55, tint: true },
+  forearm:  { stretch: 1.5, widthK: 0.62, anchorY: 0.35, tint: true },
 };
 
 export function createFighterParts(world) {
@@ -39,15 +43,19 @@ export function createFighterParts(world) {
   };
   // ordem de profundidade: membros de trás → torso → membros da frente → (cabeça vive no renderer)
   const parts = {
-    thighB: mk('thigh', FIT.thigh.anchorY),
-    bootB: mk('boot', FIT.boot.anchorY),
+    upperarmB: mk('upperarm', FIT.upperarm.anchorY),
     forearmB: mk('forearm', FIT.forearm.anchorY),
+    thighB: mk('thigh', FIT.thigh.anchorY),
+    shinB: mk('shin', FIT.shin.anchorY),
+    bootB: mk('boot', FIT.boot.anchorY),
     torso: mk('torso', FIT.torso.anchorY),
     thighF: mk('thigh', FIT.thigh.anchorY),
+    shinF: mk('shin', FIT.shin.anchorY),
     bootF: mk('boot', FIT.boot.anchorY),
+    upperarmF: mk('upperarm', FIT.upperarm.anchorY),
     forearmF: mk('forearm', FIT.forearm.anchorY),
   };
-  for (const k of ['thighB', 'bootB', 'forearmB', 'torso', 'thighF', 'bootF', 'forearmF'])
+  for (const k of ['upperarmB', 'forearmB', 'thighB', 'shinB', 'bootB', 'torso', 'thighF', 'shinF', 'bootF', 'upperarmF', 'forearmF'])
     world.addChild(parts[k]);
   return parts;
 }
@@ -60,6 +68,7 @@ function fitSegment(spr, tex, a, b, fit, face) {
   // peça vertical (pintada apontando para baixo) esticada entre as juntas a→b
   spr.texture = tex;
   spr.visible = true;
+  spr.tint = fit.tint ? BODY_TINT : 0xffffff;
   const len = dist(a, b) * fit.stretch;
   const k = len / tex.height;
   spr.height = len;
@@ -87,6 +96,16 @@ export function updateFighterParts(parts, pose, T) {
     fitSegment(parts.thighB, T.thigh, pose.hip, pose.kneeB, FIT.thigh, face);
   } else { parts.thighF.visible = false; parts.thighB.visible = false; }
 
+  if (T.shin) {
+    fitSegment(parts.shinF, T.shin, pose.kneeF, pose.ankleF, FIT.shin, face);
+    fitSegment(parts.shinB, T.shin, pose.kneeB, pose.ankleB, FIT.shin, face);
+  } else { parts.shinF.visible = false; parts.shinB.visible = false; }
+
+  if (T.upperarm) {
+    fitSegment(parts.upperarmF, T.upperarm, pose.neck, pose.elbowF, FIT.upperarm, face);
+    fitSegment(parts.upperarmB, T.upperarm, pose.neck, pose.elbowB, FIT.upperarm, face);
+  } else { parts.upperarmF.visible = false; parts.upperarmB.visible = false; }
+
   if (T.forearm) {
     fitSegment(parts.forearmF, T.forearm, pose.elbowF, pose.wristF, FIT.forearm, face);
     fitSegment(parts.forearmB, T.forearm, pose.elbowB, pose.wristB, FIT.forearm, face);
@@ -99,6 +118,7 @@ export function updateFighterParts(parts, pose, T) {
     ]) {
       spr.texture = T.boot;
       spr.visible = true;
+      spr.tint = FIT.boot.tint ? BODY_TINT : 0xffffff;
       const d = pose.headR * FIT.boot.size;
       const k = d / spr.texture.height;
       spr.height = d;
