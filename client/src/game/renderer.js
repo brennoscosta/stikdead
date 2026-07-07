@@ -3,6 +3,7 @@ import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js'
 import { MOVES } from './sim.js';
 import { drawFighter, drawEyes } from './rig.js';
 import { loadHeadTexture } from './headSprite.js';
+import { loadPartTextures, createFighterParts, updateFighterParts } from './bodyParts.js';
 import { createWeaponSprite, filterForVector } from './itemSprites.js';
 import { buildArena, createFx, fxStep, fxHit, fxKo, fxDash, WORLD } from './arena.js';
 
@@ -57,6 +58,10 @@ export async function createRenderer(host, theme = 'dojo') {
   const eyesA = new Graphics();
   const eyesB = new Graphics();
   loadHeadTexture().then((t) => { if (t) { headA.texture = t; headB.texture = t; } });
+  const partsA = createFighterParts(world);
+  const partsB = createFighterParts(world);
+  let partTexs = null;
+  loadPartTextures().then((t) => { partTexs = t; });
   world.addChild(gA, gB);
     world.addChild(headA, eyesA, headB, eyesB);
   const wsA = createWeaponSprite(world);
@@ -253,6 +258,8 @@ export async function createRenderer(host, theme = 'dojo') {
     const hasHeadTex = !!(headA.texture && headA.texture.width > 1);
     const poseA = drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA), { skipHead: hasHeadTex });
     const poseB = drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB), { skipHead: hasHeadTex });
+    updateFighterParts(partsA, poseA, partTexs);
+    updateFighterParts(partsB, poseB, partTexs);
     for (const [spr, eg, f, pose] of [[headA, eyesA, a, poseA], [headB, eyesB, b, poseB]]) {
       if (spr.texture && spr.texture.width > 1 && pose) {
         spr.visible = true;
