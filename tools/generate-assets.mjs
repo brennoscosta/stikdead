@@ -5,6 +5,9 @@
 // Grupos: arenas | praca | katana | lote2 | lote3 | lote4 | lote5 | sprites | tudo
 // Flags: --only=<id>  --force (regenera mesmo se o arquivo existir)
 import { HiggsfieldClient } from '@higgsfield/client';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+const execFileP = promisify(execFile);
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -300,32 +303,31 @@ for (const a of queue) {
     process.stdout.write(`⏳ ${a.id}... `);
     const size = a.kind === 'icon' ? '1536x1536' : '2048x1152';
     const engineNano = a.kind === 'nbicon';
-    const runOnce = async (prompt) => {
-      if (!engineNano) {
-        return hf.generate(ENDPOINT, {
+    // nano banana via CLI oficial (higgsfield auth login uma vez; sem adivinhação de endpoint)
+    const nanoCli = async (prompt) => {
+      const { stdout } = await execFileP('higgsfield', [
+        'generate', 'create', 'nano_banana_2',
+        '--prompt', prompt, '--aspect_ratio', '1:1', '--resolution', '1k',
+        '--wait', '--json',
+      ], { timeout: 300000, maxBuffer: 8 * 1024 * 1024 });
+      // procura result_url em qualquer profundidade do JSON (ou uma URL de imagem no texto)
+      const deep = (o) => {
+        if (!o || typeof o !== 'object') return null;
+        if (typeof o.result_url === 'string') return o.result_url;
+        for (const v of Object.values(o)) { const r = deep(v); if (r) return r; }
+        return null;
+      };
+      let url = null;
+      try { url = deep(JSON.parse(stdout)); } catch { /* segue para o regex */ }
+      if (!url) url = (stdout.match(/https?:\/\/\S+\.(png|jpe?g|webp)\S*/i) || [])[0] || null;
+      if (!url) throw new Error(`CLI sem result_url :: ${stdout.slice(0, 300)}`);
+      return { jobs: [{ status: 'completed', results: { raw: { url } } }] };
+    };
+    const runOnce = (prompt) => engineNano
+      ? nanoCli(prompt)
+      : hf.generate(ENDPOINT, {
           prompt, width_and_height: size, quality: '1080p', batch_size: 1, enhance_prompt: false,
         }, { withPolling: true });
-      }
-      // nano banana: tenta endpoints e formatos de corpo até um aceitar
-      let lastErr = null;
-      const CANVAS = 'https://game.stikdead.com/nb-canvas.png'; // tela branca (fallback i2i)
-      for (const ep of NB_ENDPOINTS) {
-        for (const body of [
-          // ficha técnica do modelo: aspect_ratio + resolution; image_url como OBJETO {url}
-          { prompt, input_images: [{ type: 'image_url', image_url: { url: CANVAS } }], aspect_ratio: '1:1', resolution: '1k' },
-          { prompt, input_images: [{ type: 'image_url', image_url: CANVAS }], aspect_ratio: '1:1', resolution: '1k' },
-          { prompt, aspect_ratio: '1:1', resolution: '1k' },
-        ]) {
-          try {
-            return await hf.generate(ep, body, { withPolling: true });
-          } catch (e) {
-            lastErr = e;
-            if (!String(e.message).match(/404|not found|unknown|invalid|required|input_images|unprocessable/i)) throw e;
-          }
-        }
-      }
-      throw lastErr;
-    };
     let jobSet = await runOnce(a.prompt);
     let url = jobSet.jobs?.[0]?.results?.raw?.url || jobSet.jobs?.[0]?.results?.min?.url;
     const st = () => jobSet.jobs?.[0]?.status ?? 'desconhecido';
