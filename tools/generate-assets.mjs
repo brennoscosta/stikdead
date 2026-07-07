@@ -46,7 +46,38 @@ const STYLE_SPRITE = (subject) =>
   `No shadow, no smoke, no mist, no vignette, no ground, no reflections outside the object. ` +
   `Painterly dark fantasy game art, rich detail, dramatic rim lighting. No text, no watermark.`;
 
+// ===== NANO BANANA PRO: catálogo completo pelo NOME =====
+const NB_ENDPOINTS = ['/v1/text2image/nano-banana-2', '/v1/text2image/nano-banana', '/v1/image2image/nano-banana-2'];
+const SLOT_DESC = {
+  weapon: 'a single melee weapon, held by no one, oriented diagonally',
+  head: 'a single piece of headgear (helmet, crown, hood or headband)',
+  face: 'a single face accessory (mask, bandana or face piece), front view',
+  body: 'a single torso garment (vest, armor chest piece or scarf)',
+  arms: 'a single pair of arm equipment (gloves, gauntlets or arm wraps)',
+  legs: 'a single pair of leg garments (pants, shorts or knee guards)',
+  feet: 'a single pair of footwear',
+  back: 'a single back piece (cape, wings or sheath), spread open',
+  effect: 'a magical visual effect essence (glowing orb of energy with particles)',
+  style: 'an ornate circular martial arts emblem seal',
+};
+const RAR_FLAIR = {
+  comum: 'simple worn materials',
+  raro: 'blue-steel accents, quality craftsmanship',
+  epico: 'violet arcane energy accents, ornate details',
+  lendario: 'golden ornate details, radiant highlights',
+  diamante: 'crystalline translucent material, glowing gem facets',
+};
+const NB_PROMPT = (item) =>
+  `Video game inventory item icon: "${item.name}" — ${SLOT_DESC[item.slot] || 'a single item'}. ` +
+  `${RAR_FLAIR[item.rarity] || ''}. Painterly dark fantasy game art, rich detail, dramatic rim lighting, ` +
+  `perfectly centered, isolated on a PURE WHITE background (#ffffff), no shadow on the ground, ` +
+  `no smoke outside the object, no character, no text, no watermark, no frame, no border.`;
+
+const CATALOGO = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'items-catalog.json'), 'utf8'))
+  .map((it) => ({ id: it.id, kind: 'nbicon', prompt: NB_PROMPT(it) }));
+
 const ASSETS = {
+  catalogo: CATALOGO,
   lote5: [
     { id: 'estilo_shinobi', kind: 'icon', rarity: 'lendario', prompt: STYLE_ICON('A mystical circular seal emblem of the Shinobi fighting style: a shadowy ninja silhouette mid-dash leaving purple smoke trails, inside a ring of dark violet energy with japanese brush strokes.', VIGN.lendario) },
     { id: 'estilo_monge', kind: 'icon', rarity: 'lendario', prompt: STYLE_ICON('A mystical circular seal emblem of the Monk fighting style: two open palms releasing a radiant golden ki shockwave, inside a ring of amber energy with zen brush circles.', VIGN.lendario) },
@@ -252,7 +283,10 @@ const outPath = (a) => a.kind === 'icon'
     : path.join(ARENAS_DIR, `${a.id}.webp`);
 
 const onlySet = args.only ? new Set(String(args.only).split(',')) : null;
-const queue = group.filter((a) => (!onlySet || onlySet.has(a.id)));
+let queue = group.filter((a) => (!onlySet || onlySet.has(a.id)));
+const off = Number(args.offset || 0), lim = Number(args.limit || 0);
+if (off) queue = queue.slice(off);
+if (lim) queue = queue.slice(0, lim);
 console.log(`Gerando ${queue.length} asset(s) do grupo "${args.group}"...\n`);
 
 let ok = 0, skip = 0, fail = 0;
@@ -265,9 +299,30 @@ for (const a of queue) {
   try {
     process.stdout.write(`⏳ ${a.id}... `);
     const size = a.kind === 'icon' ? '1536x1536' : '2048x1152';
-    const runOnce = (prompt) => hf.generate(ENDPOINT, {
-      prompt, width_and_height: size, quality: '1080p', batch_size: 1, enhance_prompt: false,
-    }, { withPolling: true });
+    const engineNano = a.kind === 'nbicon';
+    const runOnce = async (prompt) => {
+      if (!engineNano) {
+        return hf.generate(ENDPOINT, {
+          prompt, width_and_height: size, quality: '1080p', batch_size: 1, enhance_prompt: false,
+        }, { withPolling: true });
+      }
+      // nano banana: tenta endpoints e formatos de corpo até um aceitar
+      let lastErr = null;
+      for (const ep of NB_ENDPOINTS) {
+        for (const body of [
+          { prompt, aspect_ratio: '1:1', batch_size: 1 },
+          { prompt, width_and_height: '1024x1024', batch_size: 1 },
+        ]) {
+          try {
+            return await hf.generate(ep, body, { withPolling: true });
+          } catch (e) {
+            lastErr = e;
+            if (!String(e.message).match(/404|not found|unknown|invalid/i)) throw e;
+          }
+        }
+      }
+      throw lastErr;
+    };
     let jobSet = await runOnce(a.prompt);
     let url = jobSet.jobs?.[0]?.results?.raw?.url || jobSet.jobs?.[0]?.results?.min?.url;
     const st = () => jobSet.jobs?.[0]?.status ?? 'desconhecido';
@@ -283,6 +338,38 @@ for (const a of queue) {
     const buf = Buffer.from(await (await fetch(url)).arrayBuffer());
     const img = sharp(buf);
     if (a.kind === 'icon') await img.resize(256, 256).webp({ quality: 82 }).toFile(out);
+    else if (a.kind === 'nbicon') {
+      // transparência real: inundação a partir das bordas (só o fundo conectado some)
+      const { data, info } = await img.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      const W = info.width, H = info.height;
+      const seen = new Uint8Array(W * H);
+      const stack = [];
+      for (let x = 0; x < W; x++) { stack.push(x, 0, x, H - 1); }
+      for (let y = 0; y < H; y++) { stack.push(0, y, W - 1, y); }
+      while (stack.length) {
+        const y = stack.pop(), x = stack.pop();
+        if (x < 0 || y < 0 || x >= W || y >= H) continue;
+        const i = y * W + x;
+        if (seen[i]) continue;
+        seen[i] = 1;
+        const p = i * 4;
+        if (Math.min(data[p], data[p + 1], data[p + 2]) < 214) continue;
+        data[p + 3] = 0;
+        stack.push(x + 1, y, x - 1, y, x, y + 1, x, y - 1);
+      }
+      const trimmed = await sharp(data, { raw: info }).trim({ threshold: 25 }).png().toBuffer();
+      const meta = await sharp(trimmed).metadata();
+      const side = Math.max(meta.width, meta.height);
+      await sharp(trimmed)
+        .extend({
+          top: Math.floor((side - meta.height) / 2), bottom: Math.ceil((side - meta.height) / 2),
+          left: Math.floor((side - meta.width) / 2), right: Math.ceil((side - meta.width) / 2),
+          background: { r: 0, g: 0, b: 0, alpha: 0 },
+        })
+        .resize(256, 256)
+        .webp({ quality: 86 })
+        .toFile(out);
+    }
     else if (a.kind === 'sprite') {
       // branco puro -> transparente (com banda suave), depois recorta e normaliza
       const { data, info } = await img.ensureAlpha().raw().toBuffer({ resolveWithObject: true });

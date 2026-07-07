@@ -1,0 +1,1202 @@
+[
+ {
+  "id": "bracadeiras",
+  "name": "Braçadeiras",
+  "slot": "arms",
+  "rarity": "comum"
+ },
+ {
+  "id": "bracadeiras_neve",
+  "name": "Braçadeiras da Neve",
+  "slot": "arms",
+  "rarity": "comum"
+ },
+ {
+  "id": "bracadeiras_rubras",
+  "name": "Braçadeiras Rubras",
+  "slot": "arms",
+  "rarity": "comum"
+ },
+ {
+  "id": "luvas_negras",
+  "name": "Luvas Negras",
+  "slot": "arms",
+  "rarity": "comum"
+ },
+ {
+  "id": "esm_arms_bands",
+  "name": "Faixas de Jade",
+  "slot": "arms",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_arms_gauntlets",
+  "name": "Manoplas de Esmeralda",
+  "slot": "arms",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_arms_gloves",
+  "name": "Luvas da Floresta Viva",
+  "slot": "arms",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_arms_bands",
+  "name": "Faixas Celeste",
+  "slot": "arms",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_arms_gauntlets",
+  "name": "Manoplas do Cristal",
+  "slot": "arms",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_arms_gloves",
+  "name": "Luvas do Oceano",
+  "slot": "arms",
+  "rarity": "diamante"
+ },
+ {
+  "id": "luvas_void",
+  "name": "Luvas do Vazio",
+  "slot": "arms",
+  "rarity": "epico"
+ },
+ {
+  "id": "manoplas",
+  "name": "Manoplas de Aço",
+  "slot": "arms",
+  "rarity": "epico"
+ },
+ {
+  "id": "manoplas_carrasco",
+  "name": "Manoplas do Carrasco",
+  "slot": "arms",
+  "rarity": "epico"
+ },
+ {
+  "id": "manoplas_gelo",
+  "name": "Manoplas de Gelo",
+  "slot": "arms",
+  "rarity": "epico"
+ },
+ {
+  "id": "manoplas_void",
+  "name": "Manoplas do Vazio",
+  "slot": "arms",
+  "rarity": "lendario"
+ },
+ {
+  "id": "bracadeiras_ki",
+  "name": "Braçadeiras do Ki",
+  "slot": "arms",
+  "rarity": "raro"
+ },
+ {
+  "id": "luvas_combate",
+  "name": "Luvas de Combate",
+  "slot": "arms",
+  "rarity": "raro"
+ },
+ {
+  "id": "luvas_gelo",
+  "name": "Luvas Gélidas",
+  "slot": "arms",
+  "rarity": "raro"
+ },
+ {
+  "id": "luvas_ouro",
+  "name": "Luvas Douradas",
+  "slot": "arms",
+  "rarity": "raro"
+ },
+ {
+  "id": "luvas_vermelhas",
+  "name": "Luvas Vermelhas",
+  "slot": "arms",
+  "rarity": "raro"
+ },
+ {
+  "id": "bainha",
+  "name": "Bainha de Katana",
+  "slot": "back",
+  "rarity": "comum"
+ },
+ {
+  "id": "dia_aura_costas",
+  "name": "Asa de Cristal",
+  "slot": "back",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_bainha_gelo",
+  "name": "Bainha Glacial",
+  "slot": "back",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_capa_aurora",
+  "name": "Capa da Aurora Boreal",
+  "slot": "back",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_capa_cometa",
+  "name": "Capa do Cometa",
+  "slot": "back",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_capa_nevasca",
+  "name": "Manto da Nevasca",
+  "slot": "back",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_back_aura",
+  "name": "Asas da Floresta Viva",
+  "slot": "back",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_back_cape",
+  "name": "Capa de Esmeralda",
+  "slot": "back",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_back_sheath",
+  "name": "Bainha de Jade",
+  "slot": "back",
+  "rarity": "diamante"
+ },
+ {
+  "id": "bainha_ouro",
+  "name": "Bainha Dourada",
+  "slot": "back",
+  "rarity": "epico"
+ },
+ {
+  "id": "capa_dourada",
+  "name": "Capa Dourada",
+  "slot": "back",
+  "rarity": "epico"
+ },
+ {
+  "id": "capa_gelo",
+  "name": "Capa Gélida",
+  "slot": "back",
+  "rarity": "epico"
+ },
+ {
+  "id": "capa_guerreiro",
+  "name": "Capa do Guerreiro",
+  "slot": "back",
+  "rarity": "epico"
+ },
+ {
+  "id": "aura_gelo",
+  "name": "Aura Gélida",
+  "slot": "back",
+  "rarity": "lendario"
+ },
+ {
+  "id": "aura_ouro",
+  "name": "Aura Dourada",
+  "slot": "back",
+  "rarity": "lendario"
+ },
+ {
+  "id": "aura_void",
+  "name": "Aura do Vazio",
+  "slot": "back",
+  "rarity": "lendario"
+ },
+ {
+  "id": "capa_void",
+  "name": "Capa do Vazio",
+  "slot": "back",
+  "rarity": "lendario"
+ },
+ {
+  "id": "bainha_dupla",
+  "name": "Bainha Dupla",
+  "slot": "back",
+  "rarity": "raro"
+ },
+ {
+  "id": "capa_curta",
+  "name": "Capa Curta",
+  "slot": "back",
+  "rarity": "raro"
+ },
+ {
+  "id": "capa_negra",
+  "name": "Capa Negra",
+  "slot": "back",
+  "rarity": "raro"
+ },
+ {
+  "id": "capa_rubra_2",
+  "name": "Capa Carmesim",
+  "slot": "back",
+  "rarity": "raro"
+ },
+ {
+  "id": "cachecol_cinza",
+  "name": "Cachecol Cinza",
+  "slot": "body",
+  "rarity": "comum"
+ },
+ {
+  "id": "cachecol_negro",
+  "name": "Cachecol Negro",
+  "slot": "body",
+  "rarity": "comum"
+ },
+ {
+  "id": "colete_couro",
+  "name": "Colete de Couro",
+  "slot": "body",
+  "rarity": "comum"
+ },
+ {
+  "id": "dia_cachecol_azul",
+  "name": "Cachecol do Cometa",
+  "slot": "body",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_cachecol_neve",
+  "name": "Cachecol da Nevasca",
+  "slot": "body",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_veste_glacial",
+  "name": "Veste Glacial",
+  "slot": "body",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_veste_prisma",
+  "name": "Armadura Prismática",
+  "slot": "body",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_veste_safira",
+  "name": "Couraça de Safira",
+  "slot": "body",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_body_scarf",
+  "name": "Cachecol da Floresta Viva",
+  "slot": "body",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_body_vest",
+  "name": "Veste de Esmeralda",
+  "slot": "body",
+  "rarity": "diamante"
+ },
+ {
+  "id": "armadura_gelo",
+  "name": "Armadura de Gelo",
+  "slot": "body",
+  "rarity": "epico"
+ },
+ {
+  "id": "armadura_ronin",
+  "name": "Armadura Ronin",
+  "slot": "body",
+  "rarity": "epico"
+ },
+ {
+  "id": "cachecol_ki",
+  "name": "Cachecol do Ki",
+  "slot": "body",
+  "rarity": "epico"
+ },
+ {
+  "id": "armadura_infernal",
+  "name": "Armadura Infernal",
+  "slot": "body",
+  "rarity": "lendario"
+ },
+ {
+  "id": "armadura_ouro",
+  "name": "Armadura Dourada",
+  "slot": "body",
+  "rarity": "lendario"
+ },
+ {
+  "id": "armadura_vazio",
+  "name": "Armadura do Vazio",
+  "slot": "body",
+  "rarity": "lendario"
+ },
+ {
+  "id": "cachecol_dourado",
+  "name": "Cachecol Dourado",
+  "slot": "body",
+  "rarity": "raro"
+ },
+ {
+  "id": "cachecol_gelo",
+  "name": "Cachecol Gélido",
+  "slot": "body",
+  "rarity": "raro"
+ },
+ {
+  "id": "cachecol_vermelho",
+  "name": "Cachecol Vermelho",
+  "slot": "body",
+  "rarity": "raro"
+ },
+ {
+  "id": "colete",
+  "name": "Colete de Couro",
+  "slot": "body",
+  "rarity": "raro"
+ },
+ {
+  "id": "colete_ronin_2",
+  "name": "Colete do Errante",
+  "slot": "body",
+  "rarity": "raro"
+ },
+ {
+  "id": "colete_tatico",
+  "name": "Colete Tático",
+  "slot": "body",
+  "rarity": "raro"
+ },
+ {
+  "id": "poeira_cinzas",
+  "name": "Poeira das Cinzas",
+  "slot": "effect",
+  "rarity": "comum"
+ },
+ {
+  "id": "dia_aura_abismo",
+  "name": "Aura do Abismo",
+  "slot": "effect",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_aura_glacial",
+  "name": "Aura Glacial",
+  "slot": "effect",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_aura_prisma",
+  "name": "Aura Prismática",
+  "slot": "effect",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_poeira_estelar",
+  "name": "Poeira Estelar",
+  "slot": "effect",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_poeira_gelo",
+  "name": "Cristais Flutuantes",
+  "slot": "effect",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_effect_aura",
+  "name": "Aura de Esmeralda",
+  "slot": "effect",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_effect_dust",
+  "name": "Cristais da Floresta Viva",
+  "slot": "effect",
+  "rarity": "diamante"
+ },
+ {
+  "id": "aura_vermelha",
+  "name": "Aura Vermelha",
+  "slot": "effect",
+  "rarity": "epico"
+ },
+ {
+  "id": "poeira_gelo",
+  "name": "Poeira Gélida",
+  "slot": "effect",
+  "rarity": "epico"
+ },
+ {
+  "id": "poeira_ouro",
+  "name": "Poeira Dourada",
+  "slot": "effect",
+  "rarity": "epico"
+ },
+ {
+  "id": "poeira_veneno",
+  "name": "Poeira Tóxica",
+  "slot": "effect",
+  "rarity": "epico"
+ },
+ {
+  "id": "aura_caos",
+  "name": "Aura do Caos",
+  "slot": "effect",
+  "rarity": "lendario"
+ },
+ {
+  "id": "poeira_abissal",
+  "name": "Poeira Abissal",
+  "slot": "effect",
+  "rarity": "lendario"
+ },
+ {
+  "id": "poeira_solar",
+  "name": "Poeira Solar",
+  "slot": "effect",
+  "rarity": "lendario"
+ },
+ {
+  "id": "poeira_void",
+  "name": "Poeira do Vazio",
+  "slot": "effect",
+  "rarity": "lendario"
+ },
+ {
+  "id": "poeira_neve",
+  "name": "Poeira da Neve",
+  "slot": "effect",
+  "rarity": "raro"
+ },
+ {
+  "id": "poeira_pes",
+  "name": "Poeira nos Pés",
+  "slot": "effect",
+  "rarity": "raro"
+ },
+ {
+  "id": "poeira_rosa",
+  "name": "Poeira Sakura",
+  "slot": "effect",
+  "rarity": "raro"
+ },
+ {
+  "id": "poeira_sangue",
+  "name": "Poeira de Sangue",
+  "slot": "effect",
+  "rarity": "raro"
+ },
+ {
+  "id": "bandana_azul",
+  "name": "Bandana Azul",
+  "slot": "face",
+  "rarity": "comum"
+ },
+ {
+  "id": "bandana_preta",
+  "name": "Bandana Preta",
+  "slot": "face",
+  "rarity": "comum"
+ },
+ {
+  "id": "bandana_vermelha",
+  "name": "Bandana Vermelha",
+  "slot": "face",
+  "rarity": "comum"
+ },
+ {
+  "id": "esm_face_bandana",
+  "name": "Bandana de Esmeralda",
+  "slot": "face",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_face_eyes_red",
+  "name": "Olhos Venenosa",
+  "slot": "face",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_face_mask_oni",
+  "name": "Máscara Oni da Floresta Viva",
+  "slot": "face",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_face_mask_skull",
+  "name": "Caveira de Jade",
+  "slot": "face",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_face_bandana",
+  "name": "Bandana do Cristal",
+  "slot": "face",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_face_eyes_red",
+  "name": "Olhos do Glaciar",
+  "slot": "face",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_face_mask_oni",
+  "name": "Máscara Oni do Oceano",
+  "slot": "face",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_face_mask_skull",
+  "name": "Caveira Celeste",
+  "slot": "face",
+  "rarity": "diamante"
+ },
+ {
+  "id": "mascara_gas",
+  "name": "Máscara Tóxica",
+  "slot": "face",
+  "rarity": "epico"
+ },
+ {
+  "id": "mascara_kitsune",
+  "name": "Máscara Kitsune",
+  "slot": "face",
+  "rarity": "epico"
+ },
+ {
+  "id": "mascara_oni",
+  "name": "Máscara Oni",
+  "slot": "face",
+  "rarity": "epico"
+ },
+ {
+  "id": "olhos_gelo",
+  "name": "Olhos de Gelo",
+  "slot": "face",
+  "rarity": "epico"
+ },
+ {
+  "id": "olhos_ouro",
+  "name": "Olhos de Ouro",
+  "slot": "face",
+  "rarity": "epico"
+ },
+ {
+  "id": "mascara_vazio",
+  "name": "Máscara do Vazio",
+  "slot": "face",
+  "rarity": "lendario"
+ },
+ {
+  "id": "olhos_void",
+  "name": "Olhar do Vazio",
+  "slot": "face",
+  "rarity": "lendario"
+ },
+ {
+  "id": "bandana_caveira",
+  "name": "Bandana Caveira",
+  "slot": "face",
+  "rarity": "raro"
+ },
+ {
+  "id": "bandana_dourada",
+  "name": "Bandana Dourada",
+  "slot": "face",
+  "rarity": "raro"
+ },
+ {
+  "id": "mascara_caveira",
+  "name": "Máscara Caveira",
+  "slot": "face",
+  "rarity": "raro"
+ },
+ {
+  "id": "mascara_hockey",
+  "name": "Máscara de Hóquei",
+  "slot": "face",
+  "rarity": "raro"
+ },
+ {
+  "id": "mascara_teatro",
+  "name": "Máscara do Teatro",
+  "slot": "face",
+  "rarity": "raro"
+ },
+ {
+  "id": "olhos_vermelhos",
+  "name": "Olhos de Fúria",
+  "slot": "face",
+  "rarity": "raro"
+ },
+ {
+  "id": "tenis_classico",
+  "name": "Tênis Clássico",
+  "slot": "feet",
+  "rarity": "comum"
+ },
+ {
+  "id": "tenis_negro",
+  "name": "Tênis Negro",
+  "slot": "feet",
+  "rarity": "comum"
+ },
+ {
+  "id": "esm_feet_boots",
+  "name": "Botas de Esmeralda",
+  "slot": "feet",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_feet_shoes",
+  "name": "Sapatilhas da Floresta Viva",
+  "slot": "feet",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_feet_boots",
+  "name": "Botas do Cristal",
+  "slot": "feet",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_feet_shoes",
+  "name": "Sapatilhas do Oceano",
+  "slot": "feet",
+  "rarity": "diamante"
+ },
+ {
+  "id": "botas_carrasco",
+  "name": "Botas do Carrasco",
+  "slot": "feet",
+  "rarity": "epico"
+ },
+ {
+  "id": "botas_gelo",
+  "name": "Botas Gélidas",
+  "slot": "feet",
+  "rarity": "epico"
+ },
+ {
+  "id": "botas_sombrias",
+  "name": "Botas Sombrias",
+  "slot": "feet",
+  "rarity": "epico"
+ },
+ {
+  "id": "tenis_void",
+  "name": "Tênis do Vazio",
+  "slot": "feet",
+  "rarity": "epico"
+ },
+ {
+  "id": "botas_ouro",
+  "name": "Botas Douradas",
+  "slot": "feet",
+  "rarity": "lendario"
+ },
+ {
+  "id": "botas_void",
+  "name": "Botas do Vazio",
+  "slot": "feet",
+  "rarity": "lendario"
+ },
+ {
+  "id": "botas",
+  "name": "Botas de Couro",
+  "slot": "feet",
+  "rarity": "raro"
+ },
+ {
+  "id": "botas_neve",
+  "name": "Botas da Neve",
+  "slot": "feet",
+  "rarity": "raro"
+ },
+ {
+  "id": "tenis_gelo",
+  "name": "Tênis Gélido",
+  "slot": "feet",
+  "rarity": "raro"
+ },
+ {
+  "id": "tenis_ouro",
+  "name": "Tênis Dourado",
+  "slot": "feet",
+  "rarity": "raro"
+ },
+ {
+  "id": "tenis_sangue",
+  "name": "Tênis Rubro",
+  "slot": "feet",
+  "rarity": "raro"
+ },
+ {
+  "id": "faixa_branca",
+  "name": "Faixa Branca",
+  "slot": "head",
+  "rarity": "comum"
+ },
+ {
+  "id": "faixa_branca_2",
+  "name": "Faixa da Neve",
+  "slot": "head",
+  "rarity": "comum"
+ },
+ {
+  "id": "faixa_negra",
+  "name": "Faixa Negra",
+  "slot": "head",
+  "rarity": "comum"
+ },
+ {
+  "id": "faixa_vermelha",
+  "name": "Faixa Vermelha",
+  "slot": "head",
+  "rarity": "comum"
+ },
+ {
+  "id": "dia_banda_prisma",
+  "name": "Banda do Prisma",
+  "slot": "head",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_capuz_aurora",
+  "name": "Capuz da Aurora",
+  "slot": "head",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_coroa_abismo",
+  "name": "Coroa do Abismo",
+  "slot": "head",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_coroa_estelar",
+  "name": "Coroa Estelar",
+  "slot": "head",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_coroa_gelo",
+  "name": "Coroa do Gelo Eterno",
+  "slot": "head",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_head_band",
+  "name": "Banda de Jade",
+  "slot": "head",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_head_crown",
+  "name": "Coroa de Esmeralda",
+  "slot": "head",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_head_hood",
+  "name": "Capuz da Floresta Viva",
+  "slot": "head",
+  "rarity": "diamante"
+ },
+ {
+  "id": "capuz_sangue",
+  "name": "Capuz de Sangue",
+  "slot": "head",
+  "rarity": "epico"
+ },
+ {
+  "id": "capuz_sombrio",
+  "name": "Capuz Sombrio",
+  "slot": "head",
+  "rarity": "epico"
+ },
+ {
+  "id": "coroa_espinhos",
+  "name": "Coroa de Espinhos",
+  "slot": "head",
+  "rarity": "epico"
+ },
+ {
+  "id": "elmo_ronin",
+  "name": "Elmo Ronin",
+  "slot": "head",
+  "rarity": "epico"
+ },
+ {
+  "id": "faixa_ki",
+  "name": "Faixa do Ki",
+  "slot": "head",
+  "rarity": "epico"
+ },
+ {
+  "id": "coroa",
+  "name": "Coroa do Rei",
+  "slot": "head",
+  "rarity": "lendario"
+ },
+ {
+  "id": "coroa_sombria",
+  "name": "Coroa Sombria",
+  "slot": "head",
+  "rarity": "lendario"
+ },
+ {
+  "id": "capuz_cinzas",
+  "name": "Capuz das Cinzas",
+  "slot": "head",
+  "rarity": "raro"
+ },
+ {
+  "id": "chapeu_kasa_negro",
+  "name": "Kasa Negro",
+  "slot": "head",
+  "rarity": "raro"
+ },
+ {
+  "id": "chapeu_palha",
+  "name": "Chapéu de Palha",
+  "slot": "head",
+  "rarity": "raro"
+ },
+ {
+  "id": "faixa_dourada",
+  "name": "Faixa Dourada",
+  "slot": "head",
+  "rarity": "raro"
+ },
+ {
+  "id": "calca_ninja",
+  "name": "Calça Ninja",
+  "slot": "legs",
+  "rarity": "comum"
+ },
+ {
+  "id": "joelheiras_aco",
+  "name": "Joelheiras de Aço",
+  "slot": "legs",
+  "rarity": "comum"
+ },
+ {
+  "id": "shorts_negro",
+  "name": "Shorts Negro",
+  "slot": "legs",
+  "rarity": "comum"
+ },
+ {
+  "id": "shorts_treino",
+  "name": "Shorts de Treino",
+  "slot": "legs",
+  "rarity": "comum"
+ },
+ {
+  "id": "esm_legs_kneepads",
+  "name": "Joelheiras de Jade",
+  "slot": "legs",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_legs_pants",
+  "name": "Calças de Esmeralda",
+  "slot": "legs",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_legs_shorts",
+  "name": "Bermudas da Floresta Viva",
+  "slot": "legs",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_legs_kneepads",
+  "name": "Joelheiras Celeste",
+  "slot": "legs",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_legs_pants",
+  "name": "Calças do Cristal",
+  "slot": "legs",
+  "rarity": "diamante"
+ },
+ {
+  "id": "saf_legs_shorts",
+  "name": "Bermudas do Oceano",
+  "slot": "legs",
+  "rarity": "diamante"
+ },
+ {
+  "id": "calca_gelo",
+  "name": "Calça Gélida",
+  "slot": "legs",
+  "rarity": "epico"
+ },
+ {
+  "id": "calca_sangue",
+  "name": "Calça de Sangue",
+  "slot": "legs",
+  "rarity": "epico"
+ },
+ {
+  "id": "joelheiras_void",
+  "name": "Joelheiras do Vazio",
+  "slot": "legs",
+  "rarity": "epico"
+ },
+ {
+  "id": "shorts_ki",
+  "name": "Shorts do Ki",
+  "slot": "legs",
+  "rarity": "epico"
+ },
+ {
+  "id": "calca_void",
+  "name": "Calça do Vazio",
+  "slot": "legs",
+  "rarity": "lendario"
+ },
+ {
+  "id": "calca_ronin",
+  "name": "Calça do Errante",
+  "slot": "legs",
+  "rarity": "raro"
+ },
+ {
+  "id": "joelheiras",
+  "name": "Joelheiras",
+  "slot": "legs",
+  "rarity": "raro"
+ },
+ {
+  "id": "joelheiras_ouro",
+  "name": "Joelheiras Douradas",
+  "slot": "legs",
+  "rarity": "raro"
+ },
+ {
+  "id": "shorts_ouro",
+  "name": "Shorts Dourado",
+  "slot": "legs",
+  "rarity": "raro"
+ },
+ {
+  "id": "estilo_berserker",
+  "name": "Estilo: Berserker",
+  "slot": "style",
+  "rarity": "epico"
+ },
+ {
+  "id": "estilo_espectro",
+  "name": "Estilo: Espectro",
+  "slot": "style",
+  "rarity": "lendario"
+ },
+ {
+  "id": "estilo_monge",
+  "name": "Estilo: Monge",
+  "slot": "style",
+  "rarity": "raro"
+ },
+ {
+  "id": "estilo_shinobi",
+  "name": "Estilo: Shinobi",
+  "slot": "style",
+  "rarity": "raro"
+ },
+ {
+  "id": "bastao_bo",
+  "name": "Bastão bō",
+  "slot": "weapon",
+  "rarity": "comum"
+ },
+ {
+  "id": "katana",
+  "name": "Katana",
+  "slot": "weapon",
+  "rarity": "comum"
+ },
+ {
+  "id": "nunchaku",
+  "name": "Nunchaku",
+  "slot": "weapon",
+  "rarity": "comum"
+ },
+ {
+  "id": "nunchaku_aco",
+  "name": "Nunchaku de Aço",
+  "slot": "weapon",
+  "rarity": "comum"
+ },
+ {
+  "id": "dia_duplas_prisma",
+  "name": "Lâminas do Prisma",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_foice_glacial",
+  "name": "Foice Glacial",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_katana_gelo",
+  "name": "Katana de Gelo Puro",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_lancas_cristal",
+  "name": "Lança de Cristal",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "dia_machado_abismo",
+  "name": "Machado do Abismo",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_weapon_axe",
+  "name": "Machado de Jade",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_weapon_bow",
+  "name": "Arco de Esmeralda",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_weapon_katana",
+  "name": "Katana de Esmeralda",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_weapon_scythe",
+  "name": "Foice Venenosa",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "esm_weapon_spear",
+  "name": "Lança da Floresta Viva",
+  "slot": "weapon",
+  "rarity": "diamante"
+ },
+ {
+  "id": "arco",
+  "name": "Arco",
+  "slot": "weapon",
+  "rarity": "epico"
+ },
+ {
+  "id": "dual_blades",
+  "name": "Dual Blades",
+  "slot": "weapon",
+  "rarity": "epico"
+ },
+ {
+  "id": "dual_gemeas",
+  "name": "Lâminas Gêmeas de Sangue",
+  "slot": "weapon",
+  "rarity": "epico"
+ },
+ {
+  "id": "foice",
+  "name": "Foice",
+  "slot": "weapon",
+  "rarity": "epico"
+ },
+ {
+  "id": "katana_dourada",
+  "name": "Katana Dourada",
+  "slot": "weapon",
+  "rarity": "epico"
+ },
+ {
+  "id": "lanca_relampago",
+  "name": "Lança Relâmpago",
+  "slot": "weapon",
+  "rarity": "epico"
+ },
+ {
+  "id": "machado_carrasco",
+  "name": "Machado do Carrasco",
+  "slot": "weapon",
+  "rarity": "epico"
+ },
+ {
+  "id": "arco_fantasma",
+  "name": "Arco Fantasma",
+  "slot": "weapon",
+  "rarity": "lendario"
+ },
+ {
+  "id": "foice_sangrenta",
+  "name": "Foice Sangrenta",
+  "slot": "weapon",
+  "rarity": "lendario"
+ },
+ {
+  "id": "katana_infernal",
+  "name": "Katana Infernal",
+  "slot": "weapon",
+  "rarity": "lendario"
+ },
+ {
+  "id": "katana_void",
+  "name": "Katana do Vazio",
+  "slot": "weapon",
+  "rarity": "lendario"
+ },
+ {
+  "id": "bo_dragao",
+  "name": "Bastão do Dragão",
+  "slot": "weapon",
+  "rarity": "raro"
+ },
+ {
+  "id": "foice_gelida",
+  "name": "Foice Gélida",
+  "slot": "weapon",
+  "rarity": "raro"
+ },
+ {
+  "id": "katana_jade",
+  "name": "Katana de Jade",
+  "slot": "weapon",
+  "rarity": "raro"
+ },
+ {
+  "id": "lanca",
+  "name": "Lança",
+  "slot": "weapon",
+  "rarity": "raro"
+ },
+ {
+  "id": "machado",
+  "name": "Machado",
+  "slot": "weapon",
+  "rarity": "raro"
+ }
+]
