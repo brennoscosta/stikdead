@@ -186,21 +186,24 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             {STYLE_KEYS.map((k) => {
               const st = STYLES[k];
               const on = (profile.style || 'ronin') === k;
+              const owned = k === 'ronin' || (profile.owned_styles || []).includes(`estilo_${k}`);
               return (
                 <button
                   key={k}
-                  className={`style-card ${on ? 'on' : ''}`}
+                  className={`style-card ${on ? 'on' : ''} ${owned ? '' : 'locked'}`}
                   onClick={async () => {
+                    if (!owned) { nav('/loja'); return; }
                     try {
                       const d = await api('/api/auth/me', { method: 'PATCH', body: { style: k } });
                       onUpdate(d.profile);
                     } catch { /* mantém o atual */ }
                   }}
                 >
-                  <b>{st.label}</b>
+                  <b>{st.label} {k === 'ronin' && <span className="style-free">GRÁTIS</span>}</b>
                   <span className="style-skill">⚡ {st.skill}</span>
                   <small>{st.desc}</small>
                   {on && <span className="style-on">SELECIONADO ✓</span>}
+                  {!owned && <span className="style-lock">🔒 DESBLOQUEIE NA LOJA</span>}
                 </button>
               );
             })}

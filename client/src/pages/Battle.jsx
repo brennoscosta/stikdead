@@ -349,7 +349,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
             {result.rewards && (
               <div className="bt-rewards">
                 <div className="bt-reward xp">+{result.rewards.xp} <span>EXP</span></div>
-                <div className="bt-reward gold">+{result.rewards.coins} <span>MOEDAS</span></div>
+                <div className={`bt-reward ${result.rewards.coins >= 0 ? 'gold' : 'loss'}`}>{result.rewards.coins >= 0 ? `+${result.rewards.coins}` : result.rewards.coins} <span>MOEDAS</span></div>
                 {result.rewards.bonuses.map((b) => (
                   <div key={b.label} className="bt-bonus">★ {b.label} <span>+{b.xp}</span></div>
                 ))}

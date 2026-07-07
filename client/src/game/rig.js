@@ -189,14 +189,6 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null) {
     g.ellipse(hx - R * 0.34, hy - R * 0.5, R * 0.16, R * 0.11).fill({ color: HI2, alpha: 0.85 });
   }
 
-  const hasHead = loadout?.some((i) => i.slot === 'head');
-  if (!hasHead && accent != null) {
-    g.rect(hx - R, hy - 5, R * 2, 8).fill(accent);
-    const wind = Math.sin(elapsed * 9 + f.x * 0.01) * 5;
-    const bx = hx - face * R;
-    g.moveTo(bx, hy - 1).lineTo(bx - face * 16, hy - 6 + wind).lineTo(bx - face * 13, hy + 2 + wind * 0.5).closePath().fill(accent);
-    g.moveTo(bx, hy + 1).lineTo(bx - face * 13, hy + 7 - wind * 0.6).lineTo(bx - face * 9, hy + 10).closePath().fill(accent);
-  }
 
   drawEyes(g, f, hx, hy, face, ko);
 

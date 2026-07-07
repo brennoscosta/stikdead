@@ -6,7 +6,7 @@ import ItemIcon from '../lib/ItemIcon.jsx';
 
 export const SLOT_LABEL = {
   weapon: 'Armas', head: 'Cabeça', face: 'Rosto', body: 'Corpo', back: 'Costas',
-  arms: 'Braços', legs: 'Pernas', feet: 'Pés', effect: 'Efeitos',
+  arms: 'Braços', legs: 'Pernas', feet: 'Pés', effect: 'Efeitos', style: 'Estilos ⚡',
 };
 export const RARITY_LABEL = { comum: 'Comum', raro: 'Raro', epico: 'Épico', lendario: 'Lendário' };
 

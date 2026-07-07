@@ -337,3 +337,5 @@
   transition: width 1s ease-out;
 }
 .bt-prog-label { color: #9a938a; font-size: 14px; margin-top: 5px; letter-spacing: 0.1em; }
+
+.bt-reward.loss { color: #ff5a70; }

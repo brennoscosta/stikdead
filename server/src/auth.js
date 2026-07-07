@@ -29,6 +29,7 @@ export function requireAuth(req, res, next) {
 async function fetchProfile(userId) {
   const { rows } = await q(
     `SELECT u.id, u.email, p.fighter_name, p.style, p.level, p.xp, p.coins,
+            (SELECT array_agg(item_id) FROM user_items ui WHERE ui.user_id = u.id AND ui.item_id LIKE 'estilo_%') AS owned_styles,
             p.rank_points, p.tier, p.wins, p.losses, p.win_streak, p.title
        FROM users u JOIN profiles p ON p.user_id = u.id
       WHERE u.id = $1`,
@@ -173,6 +174,13 @@ router.patch('/me', requireAuth, async (req, res) => {
   if (req.body.style !== undefined && req.body.fighterName === undefined) {
     const style = String(req.body.style || '');
     if (!VALID_STYLES.has(style)) return res.status(400).json({ error: 'Estilo inválido.' });
+    if (style !== 'ronin') {
+      const { rows } = await q(
+        'SELECT 1 FROM user_items WHERE user_id = $1 AND item_id = $2',
+        [req.userId, `estilo_${style}`]
+      );
+      if (!rows[0]) return res.status(403).json({ error: 'Desbloqueie esse estilo na Loja primeiro.' });
+    }
     await q('UPDATE profiles SET style = $1, updated_at = now() WHERE user_id = $2', [style, req.userId]);
     return res.json({ profile: await fetchProfile(req.userId) });
   }

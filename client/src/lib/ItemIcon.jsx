@@ -6,6 +6,14 @@ const col = (p, k, d) => p?.[k] || d;
 function TemplateSvg({ template, params: p = {} }) {
   const stroke = '#080808';
   switch (template) {
+    case 'style_seal':
+      return (
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" fill="none" stroke={col(p, 'ring', '#d90429')} strokeWidth="5" />
+          <circle cx="50" cy="50" r="31" fill="#16090d" stroke={stroke} strokeWidth="2" />
+          <text x="50" y="62" textAnchor="middle" fontSize="34" fill="#ffd66b">⚡</text>
+        </svg>
+      );
     case 'katana':
       return (
         <svg viewBox="0 0 64 64">
