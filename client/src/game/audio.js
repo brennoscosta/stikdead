@@ -82,25 +82,41 @@ function tone(freq, dur = 0.3, vol = 0.3, type = 'triangle', when = 0, slideTo =
   o.start(t); o.stop(t + dur + 0.02);
 }
 
-// ===== SFX do jogo =====
+// ===== SFX do jogo (v2: camadas + variação orgânica) =====
+// cada golpe varia ±8% de tom para nunca soar metralhadora
+const vary = () => 0.92 + Math.random() * 0.16;
+
 export const sfx = {
-  punch() { thump(120, 0.12, 0.9); noise({ dur: 0.07, from: 2400, to: 500, vol: 0.35 }); },
+  punch() {
+    const v = vary();
+    tone(1900 * v, 0.02, 0.22, 'square');                              // transiente seco (o "crack")
+    thump(135 * v, 0.11, 0.95);                                        // corpo do impacto
+    noise({ dur: 0.06, from: 2600 * v, to: 480, vol: 0.4 });           // tapa de ar
+  },
   heavy() {
-    noise({ dur: 0.14, from: 900, to: 4200, vol: 0.3 });            // whoosh
-    thump(70, 0.24, 1.1, 0.05);                                      // impacto
-    noise({ dur: 0.1, from: 3800, to: 700, vol: 0.5, when: 0.05 }); // estalo
+    const v = vary();
+    noise({ dur: 0.16, from: 700, to: 4600, vol: 0.32, q: 1.6 });      // whoosh de antecipação
+    tone(1400 * v, 0.025, 0.28, 'square', 0.05);                       // crack
+    thump(85 * v, 0.22, 1.1, 0.05);                                    // impacto médio
+    thump(48, 0.34, 1.0, 0.06);                                        // SUB: o peso no peito
+    noise({ dur: 0.12, from: 4200, to: 600, vol: 0.55, when: 0.05 });  // estilhaço
   },
   block() {
-    tone(520, 0.08, 0.35, 'square');
-    noise({ dur: 0.06, from: 5200, to: 2400, vol: 0.25 });
+    const v = vary();
+    tone(540 * v, 0.09, 0.3, 'square');                                // clang
+    tone(810 * v, 0.07, 0.2, 'square');                                // harmônico metálico
+    noise({ dur: 0.09, from: 6200, to: 3000, vol: 0.3, q: 3 });        // ping de aço
+    thump(160, 0.06, 0.35);                                            // encosto
   },
-  hurt() { thump(150, 0.09, 0.5); },
-  dash() { noise({ dur: 0.18, from: 500, to: 3200, vol: 0.3, q: 2 }); },
+  hurt() { const v = vary(); thump(150 * v, 0.09, 0.5); noise({ dur: 0.05, from: 1200, to: 400, vol: 0.2 }); },
+  dash() { noise({ dur: 0.2, from: 420, to: 3600, vol: 0.32, q: 2.6 }); },
   ko() {
-    thump(55, 0.6, 1.3);
-    noise({ dur: 0.3, from: 2000, to: 200, vol: 0.5 });
-    tone(880, 1.6, 0.16, 'sine', 0.12);   // sino
-    tone(1318, 1.2, 0.08, 'sine', 0.12);
+    thump(52, 0.7, 1.35);                                              // terremoto
+    thump(38, 0.9, 0.8, 0.08);                                         // réplica sub
+    noise({ dur: 0.34, from: 2200, to: 160, vol: 0.55 });              // desabamento
+    noise({ dur: 0.5, from: 900, to: 5000, vol: 0.12, when: 0.15, q: 0.7 }); // poeira subindo
+    tone(880, 1.7, 0.15, 'sine', 0.14);                                // sino do fim
+    tone(1318, 1.3, 0.07, 'sine', 0.14);
   },
   firstblood() { tone(220, 0.12, 0.3, 'sawtooth'); tone(330, 0.2, 0.3, 'sawtooth', 0.1); },
   round() { thump(90, 0.2, 0.7); thump(90, 0.2, 0.7, 0.22); },
