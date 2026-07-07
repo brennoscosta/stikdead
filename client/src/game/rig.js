@@ -3,11 +3,11 @@
 import { drawItems } from './itemsArt.js';
 
 export const RIG = {
-  headR: 16, neck: 6, torso: 42,
-  upperArm: 25, foreArm: 25,
-  thigh: 31, shin: 31, foot: 12,
+  headR: 21, neck: 5, torso: 39,
+  upperArm: 24, foreArm: 24,
+  thigh: 30, shin: 30, foot: 14,
   hipH: 58,
-  wLimb: 12, wLimbLo: 11, wLeg: 13, wShin: 12, wTorso: 20,
+  wLimb: 15, wLimbLo: 13.5, wLeg: 16, wShin: 14.5, wTorso: 24,
 };
 
 const P = Math.PI;
@@ -206,14 +206,18 @@ export function drawEyes(g, f, hx, hy, face, ko) {
     };
     X(exF); X(exB);
   } else if (f.state === 'hit') {
-    g.circle(exF, ey, 4.4).fill(0xffffff);
-    g.circle(exB, ey, 3.6).fill(0xffffff);
+    g.circle(exF, ey, 5.6).fill(0xffffff);
+    g.circle(exB, ey, 4.6).fill(0xffffff);
   } else {
+    // olhos ferozes da referência: quadrantes brancos angulados com brilho
     const angry = (cx, w) => {
-      g.moveTo(cx - w, ey + 2).lineTo(cx + w * 0.5, ey - 3.4).lineTo(cx + w, ey + 2.4).closePath().fill(0xffffff);
+      g.moveTo(cx - w, ey + 3).lineTo(cx + w * 0.45, ey - 5.2).lineTo(cx + w, ey + 3.4)
+        .closePath().fill({ color: 0xffffff, alpha: 0.35 }); // halo
+      g.moveTo(cx - w * 0.82, ey + 2.4).lineTo(cx + w * 0.42, ey - 4.2).lineTo(cx + w * 0.85, ey + 2.8)
+        .closePath().fill(0xffffff); // núcleo
     };
-    angry(exF, 6);
-    angry(exB, 5);
+    angry(exF, 8.5);
+    angry(exB, 7);
   }
 }
 
