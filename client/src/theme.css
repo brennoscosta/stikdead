@@ -880,3 +880,13 @@ body.in-fight .topnav-spacer { display: none; }
 .adm-pay-badge { border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
 .adm-pay-badge.s-paid { background: rgba(60,170,110,0.15); color: #7de0a8; border: 1px solid rgba(60,170,110,0.4); }
 .adm-pay-badge.s-pending { background: rgba(224,161,11,0.12); color: #e0a10b; border: 1px solid rgba(224,161,11,0.4); }
+
+/* ===== admin responsivo ===== */
+.adm-block { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.adm-table { min-width: 620px; }
+.adm-stats { display: flex; flex-wrap: wrap; gap: 10px; }
+.adm-stat { flex: 1 1 140px; }
+@media (max-width: 760px) {
+  .adm-table { font-size: 12.5px; min-width: 560px; }
+  .adm-table th, .adm-table td { padding: 6px 8px; }
+}

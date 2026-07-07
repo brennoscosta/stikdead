@@ -21,11 +21,17 @@ export default function Shop({ profile, onProfile }) {
     if (pg === 'erro') setMpNotice('❌ Pagamento não concluído. Nenhum valor foi cobrado.');
     if (pg === 'ok' || pg === 'pendente') setTimeout(() => window.location.replace('/loja'), 6000);
   }, []);
+  const [buying, setBuying] = useState(false);
   const buyPack = async (id) => {
+    if (buying) return;
+    setBuying(true);
     try {
       const d = await api('/api/diamonds/checkout', { method: 'POST', body: { pack: id } });
       window.location.href = d.init_point;
-    } catch (e) { alert(e.message || 'Pagamentos indisponíveis no momento.'); }
+    } catch (e) {
+      alert(e.message || 'Pagamentos indisponíveis no momento.');
+      setBuying(false);
+    }
   };
 
   const nav = useNavigate();

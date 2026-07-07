@@ -26,12 +26,23 @@ router.post('/checkout', requireAuth, async (req, res) => {
   if (!pack) return res.status(400).json({ error: 'Pacote inválido.' });
   if (!MP_TOKEN) return res.status(503).json({ error: 'Pagamentos ainda não configurados.' });
 
-  const { rows } = await q(
-    `INSERT INTO diamond_orders (user_id, pack_id, diamonds, amount_cents)
-     VALUES ($1, $2, $3, $4) RETURNING id`,
-    [req.userId, pack.id, pack.diamonds, pack.cents]
+  // reaproveita pedido pendente recente do mesmo pack (evita duplicatas de clique)
+  const existing = await q(
+    `SELECT id FROM diamond_orders
+      WHERE user_id = $1 AND pack_id = $2 AND status = 'pending'
+        AND created_at > now() - interval '15 minutes'
+      ORDER BY id DESC LIMIT 1`,
+    [req.userId, pack.id]
   );
-  const orderId = rows[0].id;
+  let orderId = existing.rows[0]?.id;
+  if (!orderId) {
+    const { rows } = await q(
+      `INSERT INTO diamond_orders (user_id, pack_id, diamonds, amount_cents)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
+      [req.userId, pack.id, pack.diamonds, pack.cents]
+    );
+    orderId = rows[0].id;
+  }
 
   const pref = {
     items: [{
