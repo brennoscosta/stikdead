@@ -233,17 +233,59 @@ export function attachOnline(io) {
 
     // chat do lobby
     socket.emit('chat:history', { messages: chatHistory });
-    socket.on('chat:send', (payload) => {
+    const parsePrivate = (text) => {
+      const m = text.match(/^\/(\S+)\s+([\s\S]+)/);
+      if (!m) return null;
+      const targetName = m[1].toLowerCase();
+      for (const entry of online.values()) {
+        if (entry.user.name.toLowerCase() === targetName) return { entry, body: m[2] };
+      }
+      return { entry: null, body: m[2], targetName: m[1] };
+    };
+
+    const handleSend = (payload, channel) => {
       const text = String(payload?.text || '').trim().slice(0, 200);
       if (!text) return;
       const now = Date.now();
       if (now - (chatLast.get(user.id) || 0) < 1000) return; // 1 msg/s
       chatLast.set(user.id, now);
+
+      // sussurro: /nome mensagem (sem case sensitive)
+      if (text.startsWith('/')) {
+        const pv = parsePrivate(text);
+        if (!pv) return;
+        if (!pv.entry) {
+          socket.emit(channel, { name: 'STIKDEAD', system: true, text: `${pv.targetName} não está online.`, ts: now });
+          return;
+        }
+        const msg = { name: user.name, userId: user.id, to: pv.entry.user.name, private: true, text: pv.body, ts: now };
+        socket.emit(channel, msg);
+        if (pv.entry.socket !== socket) pv.entry.socket.emit(channel, msg);
+        // sussurro também vira balão privado nas duas pontas? não: balão é público — sussurro fica no texto
+        return;
+      }
+
       const msg = { name: user.name, userId: user.id, text, ts: now };
-      chatHistory.push(msg);
-      if (chatHistory.length > 50) chatHistory.shift();
-      io.emit('chat:msg', msg);
-    });
+      if (channel === 'chat:msg') {
+        chatHistory.push(msg);
+        if (chatHistory.length > 50) chatHistory.shift();
+        io.emit('chat:msg', msg);
+      } else {
+        // canal do clã: entrega para os AMIGOS online (e para si)
+        socket.emit('clan:msg', msg);
+        q(`SELECT CASE WHEN requester_id = $1 THEN addressee_id ELSE requester_id END AS fid
+             FROM friendships WHERE (requester_id = $1 OR addressee_id = $1) AND status = 'accepted'`, [user.id])
+          .then(({ rows }) => {
+            for (const r of rows) {
+              const e = online.get(Number(r.fid));
+              if (e) e.socket.emit('clan:msg', msg);
+            }
+          }).catch(() => {});
+      }
+    };
+
+    socket.on('chat:send', (payload) => handleSend(payload, 'chat:msg'));
+    socket.on('clan:send', (payload) => handleSend(payload, 'clan:msg'));
     socket.on('presence:get', () => {
       socket.emit('presence', { players: presencePayload() });
     });

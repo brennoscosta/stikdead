@@ -6,7 +6,8 @@ import { MOVES } from './sim.js';
 
 const MAX_WALKERS = 14;
 
-export async function createPlaza(host) {
+export async function createPlaza(host, opts = {}) {
+  const VARIANT = opts.variant || 'praca';
   const app = new Application();
   await app.init({ background: '#120a0e', resizeTo: host, antialias: true });
   host.appendChild(app.canvas);
@@ -19,7 +20,7 @@ export async function createPlaza(host) {
   const bg = new Graphics();
   world.addChild(bg);
   let paintedSpr = null;
-  Assets.load('/arenas/praca.webp').then((tex) => {
+  Assets.load(`/arenas/${VARIANT}.webp`).then((tex) => {
     paintedSpr = new Sprite(tex);
     world.addChildAt(paintedSpr, 1);
   }).catch(() => {});
@@ -34,11 +35,14 @@ export async function createPlaza(host) {
 
   const drawBg = () => {
     bg.clear();
-    bg.rect(0, 0, W, H).fill(0x120a0e);
+    const PAL = VARIANT === 'cla'
+      ? { ceu: 0x160b08, lua: 0xc2571a, chao: 0x241410 }
+      : { ceu: 0x120a0e, lua: 0x8f0620, chao: 0x1c1216 };
+    bg.rect(0, 0, W, H).fill(PAL.ceu);
     // lua vermelha grande
     const mx = W * 0.5, my = H * 0.3, mr = Math.min(H * 0.42, 90);
     bg.circle(mx, my, mr * 1.5).fill({ color: 0x3d0713, alpha: 0.5 });
-    bg.circle(mx, my, mr).fill(0x8f0620);
+    bg.circle(mx, my, mr).fill(PAL.lua);
     bg.circle(mx, my, mr).fill({ color: 0xb0031f, alpha: 0.6 });
     bg.circle(mx - mr * 0.3, my - mr * 0.2, mr * 0.2).fill({ color: 0x6b0417, alpha: 0.5 });
     // templo em silhueta atrás da lua
@@ -56,7 +60,7 @@ export async function createPlaza(host) {
     // faixa STIKDEAD ao fundo
     bg.rect(mx - 90, my - mr - 26, 180, 6).fill({ color: 0x2a161c, alpha: 0.9 });
     // chão de pedra escuro
-    bg.rect(0, H - 40, W, 40).fill(0x1c1216);
+    bg.rect(0, H - 40, W, 40).fill(PAL.chao);
     bg.moveTo(0, H - 40).lineTo(W, H - 40).stroke({ width: 3, color: 0x8f0620, alpha: 0.6 });
     for (let i = 0; i < Math.ceil(W / 90); i++)
       bg.moveTo(i * 90 + 20, H - 40).lineTo(i * 90, H).stroke({ width: 2, color: 0x2a1a20 });

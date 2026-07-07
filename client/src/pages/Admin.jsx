@@ -44,6 +44,8 @@ export default function Admin({ profile }) {
   const [emPreview, setEmPreview] = useState('');
   const [emBusy, setEmBusy] = useState(false);
   const [emNotice, setEmNotice] = useState(null);
+  const [gmText, setGmText] = useState('');
+  const [gmBusy, setGmBusy] = useState(false);
   const emSend = async (test) => {
     if (!test && !confirm(`Enviar para TODOS os ${emailInfo?.recipients || 0} usuários?`)) return;
     setEmBusy(true); setEmNotice(null);
@@ -177,6 +179,16 @@ export default function Admin({ profile }) {
           <div className="adm-stats" style={{ marginBottom: 14 }}>
             <div className="adm-stat"><b>{emailInfo?.enabled ? '✅ ativo' : '⚠️ sem chave'}</b> <span>SendGrid</span></div>
             <div className="adm-stat"><b>{emailInfo?.recipients ?? '—'}</b> <span>destinatários</span></div>
+          </div>
+          <div className="em-compose" style={{ marginBottom: 18 }}>
+            <h3 className="pc-section" style={{ margin: 0 }}>📢 MEGAFONE GLOBAL (sai no feed de Atividades de todos)</h3>
+            <textarea className="em-body" rows={2} placeholder="Aviso para todos os lutadores..." value={gmText} onChange={(e) => setGmText(e.target.value)} />
+            <div className="em-actions">
+              <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 20px' }} disabled={!gmText.trim() || gmBusy}
+                onClick={async () => { setGmBusy(true); try { await api('/api/admin/global-message', { method: 'POST', body: { text: gmText } }); setGmText(''); alert('📢 Publicado no feed de todos!'); } catch (e) { alert(e.message); } setGmBusy(false); }}>
+                📢 Publicar aviso
+              </button>
+            </div>
           </div>
           <div className="em-compose">
             <input className="em-subject" placeholder="Assunto do email" value={emSubject} onChange={(e) => setEmSubject(e.target.value)} />

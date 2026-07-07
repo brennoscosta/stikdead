@@ -185,8 +185,14 @@ export default function Lobby({ profile, onProfile }) {
             <h2>CHAT DO LOBBY</h2>
             <div className="chat-msgs" style={{ maxHeight: 220 }}>
               {chat.map((m, i) => (
-                <div key={i} className="chat-msg">
-                  <strong className="chat-name" onClick={() => setCard(m.name)}>{m.name}:</strong> {m.text}
+                <div key={i} className={`chat-msg ${m.private ? 'pv' : ''} ${m.system ? 'sys' : ''}`}>
+                  {m.system ? <em>{m.text}</em> : (
+                    <>
+                      <strong className="chat-name" onClick={() => setCard(m.name)}>{m.name}</strong>
+                      {m.private && <span className="pv-tag">{m.name === profile.fighter_name ? `➜ ${m.to}` : 'sussurro'}</span>}
+                      : {m.text}
+                    </>
+                  )}
                 </div>
               ))}
               {chat.length === 0 && <div className="chat-msg" style={{ opacity: 0.5 }}>Diga olá para o lobby…</div>}
@@ -301,7 +307,7 @@ export default function Lobby({ profile, onProfile }) {
           </div>
         </div>
       )}
-      {card && <PlayerCard name={card} onClose={() => setCard(null)} />}
+      {card && <PlayerCard name={card} onClose={() => setCard(null)} onWhisper={(n) => setChatText(`/${n} `)} />}
     </div></>
   );
 }

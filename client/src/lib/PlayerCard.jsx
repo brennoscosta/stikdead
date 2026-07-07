@@ -4,10 +4,29 @@ import { api } from './api.js';
 import ItemIcon from './ItemIcon.jsx';
 import { SLOT_LABEL, RARITY_LABEL } from '../pages/Shop.jsx';
 
-export default function PlayerCard({ name, onClose }) {
+export default function PlayerCard({ name, onClose, onWhisper, onGifted }) {
   const [p, setP] = useState(null);
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [chest, setChest] = useState(null);
+  const openPicker = async () => {
+    setPicking(true);
+    if (!chest) {
+      try { const d = await api('/api/inventory'); setChest(d.chest || []); } catch { setChest([]); }
+    }
+  };
+  const sendGift = async (itemId) => {
+    if (!confirm('Enviar este item de presente? Ele sai do seu baú.')) return;
+    setBusy(true);
+    try {
+      await api('/api/gifts/send', { method: 'POST', body: { toName: name, itemId } });
+      setPicking(false);
+      onGifted?.();
+      alert('🎁 Presente enviado!');
+    } catch (e) { alert(e.message); }
+    setBusy(false);
+  };
 
   const load = () => api(`/api/players/by-name/${encodeURIComponent(name)}`).then(setP).catch((e) => setErr(e.message));
   useEffect(() => { setP(null); setErr(null); load(); /* eslint-disable-next-line */ }, [name]);
@@ -71,7 +90,33 @@ export default function PlayerCard({ name, onClose }) {
                 </>
               )}
               {p.friendship === 'friends' && <span className="pc-friends-badge">🤝 Amigos</span>}
+              {p.friendship !== 'self' && (
+                <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 16px' }} disabled={busy} onClick={openPicker}>
+                  🎁 Presente
+                </button>
+              )}
+              {p.friendship !== 'self' && onWhisper && (
+                <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 16px' }} onClick={() => { onWhisper(p.name); onClose(); }}>
+                  💬 Sussurrar
+                </button>
+              )}
             </div>
+            {picking && (
+              <div className="gift-picker">
+                <h3 className="pc-section">ESCOLHA O PRESENTE (sai do seu baú)</h3>
+                {!chest && <p className="dash-empty">Abrindo seu baú...</p>}
+                {chest && chest.length === 0 && <p className="dash-empty">Seu baú está vazio.</p>}
+                <div className="pc-loadout">
+                  {(chest || []).map((it) => (
+                    <button key={it.id} className={`pc-item r-${it.rarity}`} disabled={busy} onClick={() => sendGift(it.id)} title={it.name}>
+                      <ItemIcon item={it} />
+                      <small>{it.name.slice(0, 14)}</small>
+                    </button>
+                  ))}
+                </div>
+                <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px', marginTop: 8 }} onClick={() => setPicking(false)}>Cancelar</button>
+              </div>
+            )}
           </>
         )}
       </div>

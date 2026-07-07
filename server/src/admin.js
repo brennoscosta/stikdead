@@ -162,4 +162,16 @@ router.post('/emails/send', requireAdmin, async (req, res) => {
   res.json(r);
 });
 
+// ===== MEGAFONE GLOBAL =====
+router.post('/global-message', requireAdmin, async (req, res) => {
+  const body = String(req.body?.text || '').trim().slice(0, 500);
+  if (!body) return res.status(400).json({ error: 'Mensagem vazia.' });
+  const { rows } = await q('INSERT INTO global_messages (body) VALUES ($1) RETURNING id, body, created_at', [body]);
+  res.json({ message: rows[0] });
+});
+router.get('/global-messages', requireAdmin, async (_req, res) => {
+  const { rows } = await q('SELECT id, body, created_at FROM global_messages ORDER BY id DESC LIMIT 30');
+  res.json({ messages: rows });
+});
+
 export default router;

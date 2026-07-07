@@ -1017,3 +1017,44 @@ body.in-fight .topnav-spacer { display: none; }
 .topnav-link:hover { color: var(--text); }
 .bb-item { background: none; border: none; color: inherit; font: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
 @media (max-width: 760px) { .fr-layout { grid-template-columns: 1fr; } .fr-chat { min-height: 300px; } }
+
+/* ===== clã v2: salão + sussurros ===== */
+.cla-plaza { width: 100%; max-width: 900px; height: 230px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 14px; background: #160b08; }
+.clan-line { padding: 3px 2px; font-size: 14px; }
+.chat-msg.pv, .clan-line.pv { color: #c9a2ff; }
+.chat-msg.pv .chat-name, .clan-line.pv .chat-name { color: #c9a2ff; }
+.pv-tag { font-size: 10.5px; border: 1px solid rgba(201,162,255,0.5); color: #c9a2ff; border-radius: 999px; padding: 0 7px; margin: 0 5px; vertical-align: 1px; }
+.chat-msg.sys, .clan-line.sys { color: var(--muted); font-size: 13px; }
+.topnav-name-btn { background: none; border: none; font: inherit; color: inherit; cursor: pointer; padding: 0; text-align: right; display: block; }
+.topnav-name-btn:hover { color: var(--blood); }
+
+/* ===== presente: a cerimônia ===== */
+.gift-card { background: linear-gradient(170deg, #1d1116, #0d080a); border: 1px solid rgba(224,161,11,0.5); border-radius: 18px; padding: 30px 34px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 0 60px rgba(224,161,11,0.25); }
+.gift-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; letter-spacing: 0.06em; font-size: 26px; margin: 0 0 14px; color: #ffd76a; text-shadow: 0 0 22px rgba(255,215,106,0.5); }
+.gift-box { font-size: 96px; margin: 10px 0 18px; animation: gift-wiggle 1.6s ease-in-out infinite; display: inline-block; }
+@keyframes gift-wiggle { 0%,100% { transform: rotate(-4deg) scale(1); } 50% { transform: rotate(4deg) scale(1.06); } }
+.gift-box.opening { animation: gift-burst 0.9s ease-in forwards; }
+@keyframes gift-burst { 0% { transform: scale(1); } 55% { transform: scale(1.35) rotate(8deg); } 80% { transform: scale(0.7) rotate(-10deg); opacity: 1; } 100% { transform: scale(2.4); opacity: 0; } }
+.gift-open { width: auto; padding: 12px 34px; font-size: 16px; }
+.gift-burst { color: #ffd76a; font-size: 30px; animation: burst-fade 1.2s ease-out forwards; }
+@keyframes burst-fade { from { transform: scale(2.4); opacity: 1; } to { transform: scale(0.6); opacity: 0; } }
+.gift-item { display: inline-block; border: 2px solid var(--line); border-radius: 16px; padding: 14px; background: var(--panel-2); animation: gift-reveal 0.5s ease-out; }
+.gift-item svg, .gift-item img { width: 96px; height: 96px; }
+.gift-item.r-diamante { border-color: rgba(127,217,255,0.7); animation: gift-reveal 0.5s ease-out, equip-pulse-ice 2.2s ease-in-out infinite; }
+.gift-item.r-lendario { border-color: rgba(224,161,11,0.7); }
+@keyframes gift-reveal { from { transform: scale(0.3) rotate(-12deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+.gift-item-name { margin: 12px 0 2px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: 0.04em; }
+.gift-rarity { color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-size: 12px; margin-bottom: 8px; }
+.gift-from { margin: 8px 0 4px; }
+.gift-picker { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 4px; }
+.gift-picker .pc-item { cursor: pointer; font: inherit; color: var(--text); }
+.gift-picker .pc-item:hover { border-color: rgba(217,4,41,0.6); }
+
+/* ===== feed de atividades ===== */
+.act-feed { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 7px; }
+.act-line { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.act-ico { font-size: 18px; flex: none; }
+.act-line small { margin-left: auto; color: var(--muted); white-space: nowrap; font-size: 11px; }
+.act-line .adm-btn { margin-left: 8px; }
+.act-global { border-color: rgba(224,161,11,0.55); background: linear-gradient(90deg, rgba(224,161,11,0.1), var(--panel)); }
+.act-global b { color: #ffd76a; }

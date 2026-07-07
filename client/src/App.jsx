@@ -6,6 +6,8 @@ import Calibrador from './pages/Calibrador.jsx';
 import Matches from './pages/Matches.jsx';
 import { Esqueci, Redefinir } from './pages/Reset.jsx';
 import Friends from './pages/Friends.jsx';
+import Activities from './pages/Activities.jsx';
+import GiftModal from './lib/GiftModal.jsx';
 import { api, getToken, clearToken } from './lib/api.js';
 import { closeSocket } from './lib/socket.js';
 import Login from './pages/Login.jsx';
@@ -59,6 +61,7 @@ export default function App() {
         />
         <Route path="/esqueci" element={<Esqueci />} />
         <Route path="/cla" element={profile ? <Friends profile={profile} /> : null} />
+        <Route path="/atividades" element={profile ? <Activities profile={profile} /> : null} />
         <Route path="/redefinir" element={<Redefinir />} />
         <Route
           path="/partidas"
@@ -108,6 +111,7 @@ export default function App() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {profile && <GiftModal />}
     </BrowserRouter>
   );
 }

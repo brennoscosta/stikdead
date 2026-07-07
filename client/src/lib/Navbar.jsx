@@ -50,8 +50,8 @@ export default function Navbar({ profile }) {
           <span className="topnav-diamonds">💎 {Number(profile.diamonds || 0).toLocaleString('pt-BR')}</span>
         </span>
         <button className="topnav-me" onClick={() => nav('/perfil')}>
-          <span className="topnav-name">{profile.fighter_name}</span>
-          <span className="topnav-level">Nv. {profile.level}</span>
+          <button className="topnav-name topnav-name-btn" onClick={() => nav('/atividades')} title="Ver suas atividades">{profile.fighter_name}</button>
+          <button className="topnav-level topnav-name-btn" onClick={() => nav('/atividades')}>Nv. {profile.level}</button>
         </button>
       </div>
     </header>

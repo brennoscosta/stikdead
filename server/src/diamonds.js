@@ -102,6 +102,7 @@ async function creditPayment(paymentId) {
   if (!rows[0]) return; // já creditado ou pedido inexistente
   await q('UPDATE profiles SET diamonds = diamonds + $1 WHERE user_id = $2', [rows[0].diamonds, rows[0].user_id]);
   console.log(`💎 pedido ${orderId}: +${rows[0].diamonds} diamantes para user ${rows[0].user_id}`);
+  import('./activities.js').then((m) => m.logActivity(rows[0].user_id, 'diamond_purchase', { diamonds: rows[0].diamonds })).catch(() => {});
   try {
     const info = await q(
       `SELECT u.email, p.fighter_name, o.amount_cents FROM users u

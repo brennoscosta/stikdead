@@ -80,7 +80,10 @@ router.post('/friends/request', requireAuth, async (req, res) => {
     await q(`UPDATE friendships SET status = 'accepted' WHERE id = $1`, [e.id]);
     return res.json({ ok: true, status: 'friends' });
   }
-  await q('INSERT INTO friendships (requester_id, addressee_id) VALUES ($1, $2)', [req.userId, target]);
+  const ins = await q('INSERT INTO friendships (requester_id, addressee_id) VALUES ($1, $2) RETURNING id', [req.userId, target]);
+  const meName = await q('SELECT fighter_name FROM profiles WHERE user_id = $1', [req.userId]);
+  const { logActivity } = await import('./activities.js');
+  logActivity(target, 'friend_request', { from: meName.rows[0]?.fighter_name, requestId: ins.rows[0].id });
   res.json({ ok: true, status: 'pending_out' });
 });
 
@@ -92,8 +95,20 @@ router.post('/friends/respond', requireAuth, async (req, res) => {
     [id, req.userId, 'pending']
   );
   if (!rows[0]) return res.status(404).json({ error: 'Pedido não encontrado.' });
-  if (accept) await q(`UPDATE friendships SET status = 'accepted' WHERE id = $1`, [id]);
-  else await q('DELETE FROM friendships WHERE id = $1', [id]);
+  if (accept) {
+    await q(`UPDATE friendships SET status = 'accepted' WHERE id = $1`, [id]);
+    const pair = await q('SELECT requester_id, addressee_id FROM friendships WHERE id = $1', [id]);
+    if (pair.rows[0]) {
+      const names = await q(
+        'SELECT user_id, fighter_name FROM profiles WHERE user_id = ANY($1)',
+        [[pair.rows[0].requester_id, pair.rows[0].addressee_id]]
+      );
+      const nameOf = Object.fromEntries(names.rows.map((r) => [Number(r.user_id), r.fighter_name]));
+      const { logActivity } = await import('./activities.js');
+      logActivity(pair.rows[0].requester_id, 'friend_accept', { with: nameOf[Number(pair.rows[0].addressee_id)] });
+      logActivity(pair.rows[0].addressee_id, 'friend_accept', { with: nameOf[Number(pair.rows[0].requester_id)] });
+    }
+  } else await q('DELETE FROM friendships WHERE id = $1', [id]);
   res.json({ ok: true });
 });
 
