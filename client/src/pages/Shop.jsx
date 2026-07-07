@@ -14,7 +14,7 @@ export default function Shop({ profile, onProfile }) {
   const nav = useNavigate();
   const [items, setItems] = useState([]);
   const [coins, setCoins] = useState(profile.coins);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(() => new URLSearchParams(window.location.search).get('slot') || 'all');
   const [busy, setBusy] = useState('');
   const [notice, setNotice] = useState(null);
 

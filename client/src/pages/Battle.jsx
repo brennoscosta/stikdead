@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createMatch, stepMatch } from '../game/sim.js';
 import { createBot, botDecide, DIFFICULTIES } from '../game/bot.js';
@@ -19,6 +19,10 @@ export default function Battle({ profile, onProfile }) {
   const [screen, setScreen] = useState('select'); // select | fight
   const [difficulty, setDifficulty] = useState(initialD);
   const [arena, setArena] = useState('random');
+  const resolvedArena = useMemo(
+    () => (arena === 'random' ? ARENA_KEYS[Math.floor(Math.random() * ARENA_KEYS.length)] : arena),
+    [arena, screen]   // re-sorteia apenas ao entrar em nova partida
+  );
 
   const enterGameMode = (d) => {
     unlockAudio();
@@ -40,7 +44,7 @@ export default function Battle({ profile, onProfile }) {
     <Fight
       profile={profile}
       difficulty={difficulty}
-      arena={arena === 'random' ? ARENA_KEYS[Math.floor(Math.random() * ARENA_KEYS.length)] : arena}
+      arena={resolvedArena}
       onExit={exitGameMode}
       onProfile={onProfile}
     />

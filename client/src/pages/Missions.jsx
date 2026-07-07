@@ -93,7 +93,7 @@ export default function Missions({ profile, onProfile }) {
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginTop: 26 }}>
-        <button className="btn btn-blood" style={{ width: 'auto', padding: '12px 26px' }} onClick={() => nav('/treino')}>
+        <button className="btn btn-blood" style={{ width: 'auto', padding: '12px 26px' }} onClick={() => nav('/lobby')}>
           Ir lutar
         </button>
         <button className="btn btn-ghost" style={{ width: 'auto', padding: '12px 26px' }} onClick={() => nav('/perfil')}>

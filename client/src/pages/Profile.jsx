@@ -96,6 +96,9 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             <span>EXP {fmt(profile.xp)} / {fmt(need)}</span>
           </div>
           <div className="dash-actions">
+          {profile.email === 'souzacostabrenno@gmail.com' && (
+            <button className="btn btn-ghost" style={{ width: 'auto' }} onClick={() => nav('/admin')}>⚙️ Admin</button>
+          )}
             <button className="btn btn-blood" onClick={() => nav('/lobby')}>⚔️ Jogar online</button>
             <button className="btn btn-ghost" onClick={() => nav('/treino')}>🤖 Treino vs bot</button>
           </div>
@@ -192,7 +195,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
                   key={k}
                   className={`style-card ${on ? 'on' : ''} ${owned ? '' : 'locked'}`}
                   onClick={async () => {
-                    if (!owned) { nav('/loja'); return; }
+                    if (!owned) { nav('/loja?slot=style'); return; }
                     try {
                       const d = await api('/api/auth/me', { method: 'PATCH', body: { style: k } });
                       onUpdate(d.profile);

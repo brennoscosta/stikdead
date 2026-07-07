@@ -773,3 +773,21 @@ body.in-fight .topnav-spacer { display: none; }
   border-color: rgba(255, 120, 140, 0.5) !important;
   box-shadow: var(--glow-blood);
 }
+
+/* ===== PAINEL ADMIN ===== */
+.adm-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; width: 100%; max-width: 1100px; }
+.adm-stat { text-align: center; padding: 18px 12px !important; }
+.adm-stat-n { font: 800 34px 'Barlow Condensed', sans-serif; color: var(--gold-hot); text-shadow: 0 0 16px rgba(224, 161, 11, 0.4); }
+.adm-stat-l { color: var(--muted); font-size: 12px; letter-spacing: 0.08em; margin-top: 4px; text-transform: uppercase; }
+.adm-table-wrap { width: 100%; max-width: 1100px; overflow-x: auto; border: 1px solid #2b1d22; border-radius: 12px; background: var(--panel-grad); }
+.adm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.adm-table th { text-align: left; padding: 10px 10px; color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid #2b1d22; white-space: nowrap; }
+.adm-table td { padding: 7px 10px; border-bottom: 1px solid rgba(43, 29, 34, 0.5); white-space: nowrap; }
+.adm-table tr:hover td { background: rgba(217, 4, 41, 0.04); }
+.adm-email { color: var(--muted); font-size: 12px; }
+.adm-dim { color: var(--muted); font-size: 12px; }
+.adm-edit { display: inline-flex; gap: 4px; align-items: center; }
+.adm-edit input { background: rgba(8, 5, 7, 0.8); border: 1px solid #2b1d22; border-radius: 6px; padding: 4px 7px; color: var(--bone); font-size: 13px; }
+.adm-edit input:focus { border-color: var(--blood); outline: none; }
+.adm-save { background: var(--blood); border: none; color: #fff; border-radius: 6px; width: 24px; height: 24px; cursor: pointer; font-weight: 800; }
+.adm-link { color: var(--ice); }

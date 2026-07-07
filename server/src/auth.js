@@ -96,6 +96,7 @@ router.post('/login', async (req, res) => {
   const user = rows[0];
   if (!user?.password_hash || !(await bcrypt.compare(password, user.password_hash)))
     return res.status(401).json({ error: 'E-mail ou senha incorretos.' });
+  q('UPDATE users SET last_login_at = now() WHERE id = $1', [user.id]).catch(() => {});
   res.json({ token: signToken(user.id), profile: await fetchProfile(user.id) });
 });
 
@@ -124,6 +125,7 @@ router.post('/google', async (req, res) => {
       googleId,
       userId,
     ]);
+    q('UPDATE users SET last_login_at = now() WHERE id = $1', [userId]).catch(() => {});
     return res.json({ token: signToken(userId), profile: await fetchProfile(userId) });
   }
 
