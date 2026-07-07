@@ -1,0 +1,4 @@
+-- STIKDEAD :: 019 — presentes em moedas e diamantes
+ALTER TABLE gifts ALTER COLUMN item_id DROP NOT NULL;
+ALTER TABLE gifts ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'item';
+ALTER TABLE gifts ADD COLUMN IF NOT EXISTS amount INT;

@@ -13,19 +13,28 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
   const [chest, setChest] = useState(null);
   const [chosen, setChosen] = useState(null);      // item escolhido para presente
   const [giftMsg, setGiftMsg] = useState('');
+  const [giftKind, setGiftKind] = useState(null);  // 'item' | 'coins' | 'diamonds'
+  const [amount, setAmount] = useState('');
+  const [wallet, setWallet] = useState(null);
   useEffect(() => { if (autoGift) openPicker(); /* eslint-disable-next-line */ }, [autoGift]);
   const openPicker = async () => {
     setPicking(true);
+    setGiftKind(null);
+    if (!wallet) {
+      try { const d = await api('/api/auth/me'); setWallet({ coins: d.profile.coins, diamonds: d.profile.diamonds || 0 }); } catch { /* segue */ }
+    }
     if (!chest) {
       try { const d = await api('/api/inventory'); setChest(d.chest || []); } catch { setChest([]); }
     }
   };
   const sendGift = async () => {
-    if (!chosen) return;
     setBusy(true);
     try {
-      await api('/api/gifts/send', { method: 'POST', body: { toName: name, itemId: chosen.id, message: giftMsg.trim() || undefined } });
-      setPicking(false); setChosen(null); setGiftMsg('');
+      const body = giftKind === 'item'
+        ? { toName: name, kind: 'item', itemId: chosen.id, message: giftMsg.trim() || undefined }
+        : { toName: name, kind: giftKind, amount: Math.floor(Number(amount)), message: giftMsg.trim() || undefined };
+      await api('/api/gifts/send', { method: 'POST', body });
+      setPicking(false); setChosen(null); setGiftMsg(''); setGiftKind(null); setAmount('');
       onGifted?.();
       alert('🎁 Presente enviado!');
     } catch (e) { alert(e.message); }
@@ -59,7 +68,42 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
             {picking && (
               <div className="gift-picker" style={{ borderTop: 'none', marginTop: 0 }}>
                 <h2 className="pc-name" style={{ fontSize: 22, textAlign: 'center' }}>🎁 PRESENTE PARA {p.name.toUpperCase()}</h2>
-                {!chosen ? (
+                {!giftKind && (
+                  <div className="gift-kinds">
+                    <button className="gift-kind" onClick={() => setGiftKind('item')}>🎒<b>Item do baú</b></button>
+                    <button className="gift-kind" onClick={() => setGiftKind('coins')}>🪙<b>Moedas</b>{wallet && <small>tenho {Number(wallet.coins).toLocaleString('pt-BR')}</small>}</button>
+                    <button className="gift-kind" onClick={() => setGiftKind('diamonds')}>💎<b>Diamantes</b>{wallet && <small>tenho {Number(wallet.diamonds).toLocaleString('pt-BR')}</small>}</button>
+                  </div>
+                )}
+                {(giftKind === 'coins' || giftKind === 'diamonds') && (
+                  <div className="gift-confirm">
+                    <div className="gift-cur">{giftKind === 'coins' ? '🪙' : '💎'}</div>
+                    <input
+                      className="em-body" type="number" min="1" step="1"
+                      placeholder={`Quantidade de ${giftKind === 'coins' ? 'moedas' : 'diamantes'}...`}
+                      value={amount} onChange={(e) => setAmount(e.target.value)}
+                      style={{ textAlign: 'center', fontSize: 18 }}
+                    />
+                    <div className="gift-quick">
+                      {(giftKind === 'coins' ? [100, 500, 1000] : [10, 50, 100]).map((v) => (
+                        <button key={v} className="adm-btn" onClick={() => setAmount(String(v))}>{v.toLocaleString('pt-BR')}</button>
+                      ))}
+                    </div>
+                    <textarea
+                      className="em-body" rows={2} maxLength={200}
+                      placeholder="Mensagem para acompanhar o presente (opcional)..."
+                      value={giftMsg} onChange={(e) => setGiftMsg(e.target.value)}
+                    />
+                    <div className="pc-actions" style={{ marginTop: 8, justifyContent: 'center' }}>
+                      <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 20px' }}
+                        disabled={busy || !(Math.floor(Number(amount)) >= 1)} onClick={sendGift}>
+                        🎁 Enviar {amount && Math.floor(Number(amount)) >= 1 ? Math.floor(Number(amount)).toLocaleString('pt-BR') : ''} {giftKind === 'coins' ? '🪙' : '💎'}
+                      </button>
+                      <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 16px' }} onClick={() => { setGiftKind(null); setAmount(''); }}>← Voltar</button>
+                    </div>
+                  </div>
+                )}
+                {giftKind === 'item' && !chosen ? (
                   <>
                     <h3 className="pc-section">ESCOLHA O ITEM (sai do seu baú)</h3>
                     {!chest && <p className="dash-empty">Abrindo seu baú...</p>}
@@ -73,7 +117,8 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
                       ))}
                     </div>
                   </>
-                ) : (
+                ) : null}
+                {giftKind === 'item' && chosen && (
                   <div className="gift-confirm">
                     <div className={`pc-item r-${chosen.rarity}`} style={{ display: 'inline-block' }}>
                       <ItemIcon item={chosen} />

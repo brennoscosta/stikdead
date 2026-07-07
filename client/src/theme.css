@@ -1101,3 +1101,13 @@ body.in-fight .topnav-spacer { display: none; }
 .item-card.mini { position: relative; }
 
 .lobby-name.fr-name { text-align: left; }
+
+/* ===== presente em espécie ===== */
+.gift-kinds { display: flex; gap: 10px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
+.gift-kind { flex: 1 1 110px; max-width: 130px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 8px; color: var(--text); font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 26px; }
+.gift-kind b { font-size: 13px; }
+.gift-kind small { font-size: 10.5px; color: var(--muted); }
+.gift-kind:hover { border-color: rgba(217,4,41,0.6); transform: translateY(-2px); }
+.gift-cur { font-size: 72px; animation: gift-reveal 0.4s ease-out; }
+.gift-quick { display: flex; gap: 8px; justify-content: center; }
+.gift-item-cur { font-size: 84px; padding: 10px 24px; }

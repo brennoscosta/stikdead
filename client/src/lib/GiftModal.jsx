@@ -49,11 +49,21 @@ export default function GiftModal({ onSenderClick }) {
         ) : (
           <>
             <div className="gift-burst">✦</div>
-            <div className={`gift-item r-${gift.rarity}`}>
-              <ItemIcon item={gift} />
-            </div>
-            <h2 className="gift-item-name">{gift.name}</h2>
-            <div className="gift-rarity">{RARITY_LABEL[gift.rarity] || gift.rarity}</div>
+            {gift.kind === 'item' || !gift.kind ? (
+              <>
+                <div className={`gift-item r-${gift.rarity}`}>
+                  <ItemIcon item={gift} />
+                </div>
+                <h2 className="gift-item-name">{gift.name}</h2>
+                <div className="gift-rarity">{RARITY_LABEL[gift.rarity] || gift.rarity}</div>
+              </>
+            ) : (
+              <>
+                <div className="gift-item gift-item-cur">{gift.kind === 'coins' ? '🪙' : '💎'}</div>
+                <h2 className="gift-item-name">{Number(gift.amount).toLocaleString('pt-BR')} {gift.kind === 'coins' ? 'MOEDAS' : 'DIAMANTES'}</h2>
+                <div className="gift-rarity">{gift.kind === 'coins' ? 'já somadas à sua bolsa' : 'já somados ao seu cofre'}</div>
+              </>
+            )}
             {gift.message && (
               <p className="gift-msg">“{gift.message}”</p>
             )}
@@ -63,7 +73,7 @@ export default function GiftModal({ onSenderClick }) {
                 {gift.from_name || 'um guerreiro anônimo'}
               </button>
             </p>
-            <p className="dash-empty" style={{ marginTop: 2 }}>O item já está no seu baú! 🎒</p>
+            {(gift.kind === 'item' || !gift.kind) && <p className="dash-empty" style={{ marginTop: 2 }}>O item já está no seu baú! 🎒</p>}
             <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 22px' }} onClick={close}>Fechar</button>
           </>
         )}

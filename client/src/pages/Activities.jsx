@@ -25,8 +25,12 @@ export default function Activities({ profile }) {
       case 'diamond_purchase': return <>Você comprou <b style={{ color: '#9fc4ff' }}>💎 {Number(d.diamonds).toLocaleString('pt-BR')} diamantes</b></>;
       case 'friend_request': return <><Name n={d.from} /> solicitou sua amizade {a.actionable && <button className="adm-btn" onClick={() => accept(d.requestId)}>✓ aceitar</button>}</>;
       case 'friend_accept': return <>Você e <Name n={d.with} /> agora são amigos</>;
-      case 'gift_sent': return <>Você enviou <b>{d.item}</b> de presente para <Name n={d.to} /></>;
-      case 'gift_received': return <><Name n={d.from} /> te enviou um presente: <b>{d.item}</b></>;
+      case 'gift_sent': return d.kind === 'coins' || d.kind === 'diamonds'
+        ? <>Você enviou <b>{d.kind === 'coins' ? '🪙' : '💎'} {Number(d.amount).toLocaleString('pt-BR')}</b> de presente para <Name n={d.to} /></>
+        : <>Você enviou <b>{d.item}</b> de presente para <Name n={d.to} /></>;
+      case 'gift_received': return d.kind === 'coins' || d.kind === 'diamonds'
+        ? <><Name n={d.from} /> te enviou <b>{d.kind === 'coins' ? '🪙' : '💎'} {Number(d.amount).toLocaleString('pt-BR')}</b> de presente</>
+        : <><Name n={d.from} /> te enviou um presente: <b>{d.item}</b></>;
       default: return <>{a.kind}</>;
     }
   };
