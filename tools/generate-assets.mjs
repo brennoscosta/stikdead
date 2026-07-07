@@ -272,7 +272,6 @@ if (needsSdk) {
 } else {
   console.log('Motor: CLI oficial higgsfield (sessão do auth login) ✓');
 }
-console.log(`Credenciais: ${KEY_ID.slice(0, 6)}…:•••  ✓`);
 const group = ASSETS[args.group];
 if (!group) {
   console.error(`--group obrigatório. Opções: ${Object.keys(ASSETS).join(' | ')}`);
