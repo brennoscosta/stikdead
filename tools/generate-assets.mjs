@@ -76,11 +76,14 @@ const NB_PROMPT = (item) =>
   `perfectly centered, isolated on a PURE WHITE background (#ffffff), completely flat and uniform background, no vignette, no gradient, no shadow on the ground, ` +
   `no smoke outside the object, no character, no text, no watermark, no frame, no border.`;
 
-const CATALOGO = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'items-catalog.json'), 'utf8'))
-  .map((it) => ({ id: it.id, kind: 'nbicon', prompt: NB_PROMPT(it) }));
+const CATALOGO_RAW = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'items-catalog.json'), 'utf8'));
+const asNbIcon = (it) => ({ id: it.id, kind: 'nbicon', prompt: NB_PROMPT(it) });
+const CATALOGO = CATALOGO_RAW.map(asNbIcon);
+const DIAMANTES = CATALOGO_RAW.filter((it) => it.rarity === 'diamante').map(asNbIcon);
 
 const ASSETS = {
   catalogo: CATALOGO,
+  diamantes: DIAMANTES,
   lote5: [
     { id: 'estilo_shinobi', kind: 'icon', rarity: 'lendario', prompt: STYLE_ICON('A mystical circular seal emblem of the Shinobi fighting style: a shadowy ninja silhouette mid-dash leaving purple smoke trails, inside a ring of dark violet energy with japanese brush strokes.', VIGN.lendario) },
     { id: 'estilo_monge', kind: 'icon', rarity: 'lendario', prompt: STYLE_ICON('A mystical circular seal emblem of the Monk fighting style: two open palms releasing a radiant golden ki shockwave, inside a ring of amber energy with zen brush circles.', VIGN.lendario) },
