@@ -22,7 +22,7 @@ export function Brand() {
   return (
     <>
       <div className="hero-bg" ref={host} aria-hidden="true" />
-      <div className="hero-spacer" aria-hidden="true" />
+      <img className="login-logo" src="/logo.webp" alt="STIKDEAD" />
     </>
   );
 }

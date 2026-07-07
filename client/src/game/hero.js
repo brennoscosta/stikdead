@@ -41,11 +41,11 @@ export async function createHero(host) {
   window.addEventListener('pointermove', onMove, { passive: true });
 
   const layout = () => {
-    // mesma regra do .hero-spacer no CSS: largura total, altura cap em 58vh
-    const artH = W * (ART.h / ART.w); // full-bleed: borda lateral não existe
-    const k = artH / ART.h;
+    // COVER do viewport inteiro: fundo atmosférico, nunca há borda
+    const k = Math.max(W / ART.w, H / ART.h);
     const artW = ART.w * k;
-    return { k, artW, artH, ox: (W - artW) / 2 };
+    const artH = ART.h * k;
+    return { k, artW, artH, ox: (W - artW) / 2, oy: (H - artH) / 2 };
   };
 
   const drawStatic = () => {
@@ -55,7 +55,7 @@ export async function createHero(host) {
     for (let i = 0; i < 42; i++) {
       const sx = (i * 197.3) % W;
       const sy = (i * 173.7) % H;
-      const below = sy > artH;
+      const below = sy > H * 0.5;
       splat.circle(sx, sy, 1 + (i % 4)).fill({
         color: i % 3 === 0 ? 0x8f0620 : 0x3a1218,
         alpha: (below ? 0.5 : 0.3) * (0.35 + (i % 4) * 0.12),
@@ -64,17 +64,14 @@ export async function createHero(host) {
         splat.moveTo(sx, sy).lineTo(sx + 6 + (i % 5) * 3, sy + 3 + (i % 3) * 4)
           .stroke({ width: 1.5, color: 0x8f0620, alpha: 0.28 });
     }
-    // fusão: degradê da arte para o fundo em ~30% finais (zero emenda)
+    // véu escuro: a arte é clima, o formulário é o protagonista
     seam.clear();
-    const bandTop = artH * 0.7;
-    const steps = 14;
+    seam.rect(0, 0, W, H).fill({ color: BG, alpha: 0.42 });
+    const steps = 12;
     for (let i = 0; i < steps; i++) {
-      const y = bandTop + (artH - bandTop) * (i / steps);
-      const a = Math.pow(i / (steps - 1), 1.6);
-      seam.rect(0, y, W, (artH - bandTop) / steps + 1).fill({ color: BG, alpha: a });
+      const y = H * 0.45 + (H * 0.55) * (i / steps);
+      seam.rect(0, y, W, (H * 0.55) / steps + 1).fill({ color: BG, alpha: 0.5 * (i / steps) });
     }
-    // laterais (quando a arte não cobre a largura toda em telas largas)
-    seam.rect(0, artH - 1, W, H - artH + 1).fill(BG);
   };
 
   app.ticker.add((tk) => {
@@ -84,7 +81,7 @@ export async function createHero(host) {
     const h = app.renderer.height / app.renderer.resolution;
     if (w !== W || h !== H) { W = w; H = h; drawStatic(); }
 
-    const { k, artW, artH, ox } = layout();
+    const { k, artW, artH, ox, oy } = layout();
 
     // parallax global suave (ponteiro + deriva autônoma)
     pointer.x += (pointer.tx - pointer.x) * Math.min(1, dt * 4);
@@ -95,7 +92,7 @@ export async function createHero(host) {
     art.scale.set(k * over);
     art.position.set(
       ox - (ART.w * k * (over - 1)) / 2 - (px - 0.5) * 14,
-      -(ART.h * k * (over - 1)) / 2 - (pointer.y - 0.5) * 8
+      oy - (ART.h * k * (over - 1)) / 2 - (pointer.y - 0.5) * 8
     );
 
     const wind = Math.sin(elapsed * 1.2) * 0.5 + Math.sin(elapsed * 2.9) * 0.5;
@@ -114,8 +111,8 @@ export async function createHero(host) {
     const f1 = ((elapsed * 10) % (W + 400)) - 200;
     const f2 = W - (((elapsed * 6) + W * 0.4) % (W + 400)) + 200;
     const f3 = ((elapsed * 8 + W * 0.7) % (W + 400)) - 200;
-    fog.ellipse(f1, artH * 0.92, 220, 26).fill({ color: 0x2a1218, alpha: 0.14 });
-    fog.ellipse(f2, artH * 0.75, 260, 32).fill({ color: 0x1c0d12, alpha: 0.12 });
+    fog.ellipse(f1, H * 0.62, 220, 26).fill({ color: 0x2a1218, alpha: 0.14 });
+    fog.ellipse(f2, H * 0.5, 260, 32).fill({ color: 0x1c0d12, alpha: 0.12 });
     fog.ellipse(f3, H * 0.94, 300, 36).fill({ color: 0x1c0d12, alpha: 0.1 });
 
     // brasas pela tela INTEIRA
