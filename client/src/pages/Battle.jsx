@@ -30,6 +30,7 @@ export default function Battle({ profile, onProfile }) {
     setScreen('fight');
     // ainda dentro do gesto de clique: fullscreen é permitido aqui
     document.body.classList.add('in-fight');
+    import('../game/music.js').then((m) => m.startMusic(resolvedArena));
     document.documentElement.requestFullscreen?.().catch(() => {});
     try { screen.orientation?.lock?.('landscape').catch(() => {}); } catch { /* iOS não deixa */ }
   };

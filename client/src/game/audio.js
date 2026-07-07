@@ -20,6 +20,8 @@ function ensure() {
 
 // destrava o áudio no primeiro gesto (política dos navegadores)
 export function unlockAudio() { ensure(); }
+export const ensureCtx = () => ensure();
+export const getMaster = () => master;
 
 export function toggleMute() {
   muted = !muted;
