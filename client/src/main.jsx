@@ -4,6 +4,11 @@ import App from './App.jsx';
 import './styles.css';
 import './theme.css'; // tema premium — só aparência, carrega por cima
 
+// detector reserva de mobile (classe no body, imune a peculiaridades de media query)
+const syncMobile = () => document.body.classList.toggle('is-mobile', window.innerWidth <= 760);
+syncMobile();
+window.addEventListener('resize', syncMobile);
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

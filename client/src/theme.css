@@ -481,3 +481,33 @@ html, body { touch-action: manipulation; }
   }
   /* botão de skill e controles da luta não são afetados (telas sem navbar) */
 }
+
+/* ===== reserva: app bar via classe JS (independe da media query) ===== */
+body.is-mobile .topnav-links {
+  position: fixed !important;
+  top: auto !important;
+  left: 0 !important; right: 0 !important; bottom: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  z-index: 100 !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: stretch !important;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom)) !important;
+  background: linear-gradient(180deg, rgba(20, 9, 13, 0.97), rgba(8, 5, 7, 0.99)) !important;
+  border-top: 1px solid rgba(217, 4, 41, 0.4) !important;
+  box-shadow: 0 -4px 26px rgba(0, 0, 0, 0.6) !important;
+  overflow: visible !important;
+}
+body.is-mobile .topnav-links a, body.is-mobile .topnav-links .topnav-soon {
+  flex-direction: column !important;
+  gap: 2px !important;
+  flex: 1 !important;
+  font-size: 10px !important;
+  justify-content: center !important;
+}
+body.is-mobile .topnav-links .topnav-ico { font-size: 21px !important; }
+body.is-mobile .topnav { justify-content: space-between !important; }
+body.is-mobile .scene-nav, body.is-mobile .dash, body.is-mobile .lobby2 {
+  padding-bottom: calc(86px + env(safe-area-inset-bottom)) !important;
+}
