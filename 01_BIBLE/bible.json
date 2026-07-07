@@ -20,9 +20,21 @@
   },
   "personagem": {
     "arquetipo": "Stickman chibi sombrio: cabeça-esfera grande de obsidiana glossy, membros parrudos, presença de guerreiro",
-    "olhos": { "cor": "#FFFFFF", "forma": "quadrantes angulados ferozes (ninja)", "brilho": true, "regra": "os olhos são a alma — sempre legíveis, sempre raivosos em combate" },
-    "cabeca": { "material": "obsidiana polida", "roughness": 0.18, "highlight": "especular branco no topo-frente + rim light sutil" },
-    "proporcao": { "cabeca_corpo": "1:2.8 (chibi)", "membros": "capsulas grossas com contorno escuro e brilho glossy" },
+    "olhos": {
+      "cor": "#FFFFFF",
+      "forma": "quadrantes angulados ferozes (ninja)",
+      "brilho": true,
+      "regra": "os olhos são a alma — sempre legíveis, sempre raivosos em combate"
+    },
+    "cabeca": {
+      "material": "obsidiana polida",
+      "roughness": 0.18,
+      "highlight": "especular branco no topo-frente + rim light sutil"
+    },
+    "proporcao": {
+      "cabeca_corpo": "1:2.8 (chibi)",
+      "membros": "capsulas grossas com contorno escuro e brilho glossy"
+    },
     "acentos": "vermelho #d90429 em faixas, cintos e detalhes de armadura"
   },
   "itens": {
@@ -35,24 +47,62 @@
       "lendario": "an intense fiery red-gold vignette glow with floating ember particles"
     },
     "temas": {
-      "vazio": { "base": "preto absoluto", "energia": "#8b5cf6", "assinatura": "rachaduras vazando luz roxa, névoa escura" },
-      "gelo": { "base": "azul-aço escuro", "energia": "#9fd8ff", "assinatura": "cristais, vapor frio" },
-      "ouro": { "base": "dourado polido espelhado", "energia": "#e0a10b", "assinatura": "raios radiantes, gravuras ornadas" },
-      "sangue": { "base": "carmesim profundo", "energia": "#ff2244", "assinatura": "gotejamento, névoa rubra" },
-      "ki": { "base": "âmbar", "energia": "#ffc14d", "assinatura": "partículas de luz subindo, energia interna" }
+      "vazio": {
+        "base": "preto absoluto",
+        "energia": "#8b5cf6",
+        "assinatura": "rachaduras vazando luz roxa, névoa escura"
+      },
+      "gelo": {
+        "base": "azul-aço escuro",
+        "energia": "#9fd8ff",
+        "assinatura": "cristais, vapor frio"
+      },
+      "ouro": {
+        "base": "dourado polido espelhado",
+        "energia": "#e0a10b",
+        "assinatura": "raios radiantes, gravuras ornadas"
+      },
+      "sangue": {
+        "base": "carmesim profundo",
+        "energia": "#ff2244",
+        "assinatura": "gotejamento, névoa rubra"
+      },
+      "ki": {
+        "base": "âmbar",
+        "energia": "#ffc14d",
+        "assinatura": "partículas de luz subindo, energia interna"
+      }
     },
-    "proibido": ["texto", "marca d'água", "borda", "moldura", "fundo branco"]
+    "proibido": [
+      "texto",
+      "marca d'água",
+      "borda",
+      "moldura",
+      "fundo branco"
+    ]
   },
   "cenarios": {
     "estilo": "Dark fantasy painterly, iluminação cinematográfica temperamental, sombras profundas, acentos vermelho-sangue, respingos de tinta",
     "regra_do_chao": "O terço inferior é a pista de luta: pedra MUITO escura (carvão quase preto, reflexos vermelhos sutis), plana, vazia. NUNCA branca ou clara.",
     "regra_global": "A imagem inteira permanece escura do topo à base — nenhuma área branca ou brilhante",
-    "proibido": ["personagens", "pessoas", "texto", "marca d'água", "UI"]
+    "proibido": [
+      "personagens",
+      "pessoas",
+      "texto",
+      "marca d'água",
+      "UI"
+    ]
   },
   "vfx": {
     "arco_de_corte": "na cor da arma equipada; branco no leve, #ff2244 no pesado",
     "impacto": "estrela em cruz branca + anel de choque expandindo + linhas de velocidade",
-    "skills": { "ronin": "#ffffff", "shinobi": "#8b5cf6", "monge": "#ffc14d", "berserker": "#ff2244", "espectro": "#9fd8ff" },
+    "skills": {
+      "ronin": "#ffffff",
+      "shinobi": "#8b5cf6",
+      "monge": "#ffc14d",
+      "berserker": "#ff2244",
+      "espectro": "#9fd8ff"
+    },
     "ko": "anel duplo branco+vermelho, flash vermelho 0.3, slow-motion",
     "regra": "efeito nasce no hitstop e morre em menos de 0.5s — impacto, não poluição"
   },
@@ -64,5 +114,12 @@
   "audio": {
     "assinatura": "síntese procedural: whooshes de ruído filtrado, thumps graves, sting de skill subindo",
     "regra": "nenhum som acima de 0.5s exceto vitória/derrota"
+  },
+  "pipeline_25d": {
+    "rota": "A - modular pintado por partes",
+    "soul_id": "5e7592af-d66c-4d32-8141-bfb5d6a6c8cb",
+    "soul_nome": "stikdead-hero",
+    "workspace": "35e17ca7-8c1a-402a-990f-1e4fde83d837",
+    "fase_atual": "P1 pendente"
   }
 }
