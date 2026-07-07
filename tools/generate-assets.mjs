@@ -261,7 +261,8 @@ const args = Object.fromEntries(process.argv.slice(2).map((a) => {
 }));
 
 // credenciais do SDK: exigidas só para grupos que usam o motor SDK (o catalogo usa a CLI)
-const needsSdk = (args.group !== 'catalogo');
+const _sel = ASSETS[args.group] || [];
+const needsSdk = _sel.some((a) => a.kind !== 'nbicon'); // CLI cobre os nbicon; SDK só para o resto
 let hf = null;
 if (needsSdk) {
   const rawCreds = (process.env.HF_CREDENTIALS || '').trim();
