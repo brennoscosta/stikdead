@@ -517,12 +517,7 @@ body {
 
 
 /* ===== hero fullscreen da tela inicial ===== */
-.hero-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
+.hero-bg { display: none; }
 .hero-bg canvas { width: 100% !important; height: 100% !important; }
 .hero-spacer { display: none; }
 /* o conteúdo flutua sobre o fundo vivo */

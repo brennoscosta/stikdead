@@ -29,7 +29,7 @@ export default function Register({ onAuth }) {
   };
 
   return (
-    <div className="scene">
+    <div className="scene login-scene">
       <Brand />
       <div className="card">
         <h2>Crie seu lutador</h2>

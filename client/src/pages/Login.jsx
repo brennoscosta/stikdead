@@ -1,30 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, setToken } from '../lib/api.js';
-import { createHero } from '../game/hero.js';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export function Brand() {
-  const host = useRef(null);
-  useEffect(() => {
-    let alive = true;
-    let hero = null;
-    createHero(host.current).then((h) => {
-      if (!alive) return h.destroy();
-      hero = h;
-    });
-    return () => {
-      alive = false;
-      hero?.destroy();
-    };
-  }, []);
-  return (
-    <>
-      <div className="hero-bg" ref={host} aria-hidden="true" />
-      <img className="login-logo" src="/logo.webp" alt="STIKDEAD" />
-    </>
-  );
+  return <img className="login-logo" src="/logo.webp" alt="STIKDEAD" />;
 }
 
 export function GoogleButton({ onAuth, onError }) {
