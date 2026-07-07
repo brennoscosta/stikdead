@@ -48,6 +48,10 @@ async function createUserWithProfile(client, { email, passwordHash, googleId, fi
     `INSERT INTO profiles (user_id, fighter_name) VALUES ($1, $2)`,
     [user.rows[0].id, fighterName]
   );
+  import('./email.js')
+    .then((m) => m.sendWelcome(email, fighterName))
+    .then((r) => console.log('📧 boas-vindas:', email, JSON.stringify(r)))
+    .catch((e) => console.error('📧 boas-vindas FALHOU:', email, e.message));
   return user.rows[0].id;
 }
 
@@ -78,7 +82,10 @@ router.post('/register', async (req, res) => {
     });
     await client.query('COMMIT');
     res.status(201).json({ token: signToken(userId), profile: await fetchProfile(userId) });
-    import('./email.js').then((m) => m.sendWelcome(email, fighterName).catch(() => {})).catch(() => {});
+    import('./email.js')
+      .then((m) => m.sendWelcome(email, fighterName))
+      .then((r) => console.log('📧 boas-vindas:', email, JSON.stringify(r)))
+      .catch((e) => console.error('📧 boas-vindas FALHOU:', email, e.message));
   } catch (err) {
     await client.query('ROLLBACK');
     if (err.code === '23505') {
