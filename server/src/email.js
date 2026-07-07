@@ -65,6 +65,10 @@ export async function sendEmail({ to, subject, html }) {
         from: { email: FROM, name: 'STIKDEAD' },
         subject,
         content: [{ type: 'text/html', value: html }],
+        tracking_settings: {
+          click_tracking: { enable: false, enable_text: false },
+          open_tracking: { enable: false },
+        },
       }),
     });
     if (r.status === 202) sent += chunk.length;
