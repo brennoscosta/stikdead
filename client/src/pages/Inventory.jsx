@@ -102,7 +102,7 @@ export default function Inventory({ profile }) {
                   <span className="inv-slot-label">{SLOT_LABEL[slot]}</span>
                   {it ? (
                     <>
-                      <ItemIcon item={it} size={42} />
+                      <ItemIcon item={it} size={22} />
                       <button className="inv-unequip" onClick={() => setSlot(slot, null)} aria-label={`Remover ${it.name}`}>×</button>
                     </>
                   ) : (
@@ -139,7 +139,7 @@ export default function Inventory({ profile }) {
                   onClick={() => (isOn ? setSlot(item.slot, null) : equip(item))}
                   title={isOn ? 'Clique para remover' : 'Clique para equipar'}
                 >
-                  <ItemIcon item={item} size={46} />
+                  <ItemIcon item={item} size={24} />
                   <span className="item-name">{item.name}</span>
                   <span className="item-slot">{isOn ? 'EQUIPADO ✓' : `${SLOT_LABEL[item.slot]} · ${RARITY_LABEL[item.rarity]}`}</span>
                 </button>
