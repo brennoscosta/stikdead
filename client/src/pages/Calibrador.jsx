@@ -59,6 +59,7 @@ export default function Calibrador({ profile }) {
       let elapsed = 0;
 
       app.ticker.add((tk) => {
+        try {
         const dt = Math.min(0.05, tk.deltaMS / 1000);
         elapsed += dt;
         if (animRef.current) stepMatch(match, { ...EMPTY_INPUT, right: Math.sin(elapsed) > 0 }, EMPTY_INPUT, dt);
@@ -78,7 +79,11 @@ export default function Calibrador({ profile }) {
         cross.clear();
         cross.moveTo(ax - 6, ay).lineTo(ax + 6, ay).stroke({ width: 1, color: 0x9fd8ff });
         cross.moveTo(ax, ay - 6).lineTo(ax, ay + 6).stroke({ width: 1, color: 0x9fd8ff });
+        } catch (err) {
+          setStatus('ERRO NO LOOP: ' + (err?.message || err));
+        }
       });
+      window.addEventListener('error', (e) => setStatus('ERRO GLOBAL: ' + e.message));
 
       // interações
       let drag = null;
