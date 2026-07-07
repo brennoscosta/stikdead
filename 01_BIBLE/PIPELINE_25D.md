@@ -17,7 +17,7 @@ Animações, skills, física e hitboxes: intocados. Itens = troca de parte.
 2. **Soul ID** — consistência entre gerações; toda parte sai do MESMO personagem.
 
 ## Parâmetros canônicos
-- **soul_id:** `5e7592af-d66c-4d32-8141-bfb5d6a6c8cb` (nome: stikdead-hero, modelo soul-2)
+- **soul_id:** `5e7592af-d66c-4d32-8141-bfb5d6a6c8cb` (nome: stikdead-hero, modelo soul-2) — **TREINADO ✓ (completed)**
 - treinado com: modelo-3d-principal.png (folha 360°), personagem-principal-poster.jpg,
   login-bg.webp, hero.webp
 - geração: via CLI autenticado no VPS (`higgsfield generate ...`) ou API na fábrica
