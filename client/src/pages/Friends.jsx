@@ -63,7 +63,7 @@ export default function Friends({ profile }) {
     setText('');
   };
   const whisper = (name) => {
-    setText(`/${name} `);
+    setText(`/${name} 😮‍💨 `);
     inputRef.current?.focus();
   };
 
@@ -126,7 +126,7 @@ export default function Friends({ profile }) {
                 {m.system ? <em>{m.text}</em> : (
                   <>
                     <strong className="chat-name" onClick={() => setCard({ name: m.name })}>{m.name}</strong>
-                    {m.private && <span className="pv-tag">{Number(m.userId) === Number(profile.id) ? `➜ ${m.to}` : 'sussurro'}</span>}
+                    {m.private && <span className="pv-tag">{Number(m.userId) === Number(profile.id) ? `😮‍💨 ➜ ${m.to}` : '😮‍💨 sussurro'}</span>}
                     : {m.text}
                   </>
                 )}

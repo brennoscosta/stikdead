@@ -116,7 +116,7 @@ export default function Lobby({ profile, onProfile }) {
   useEffect(() => {
     if (session || !plazaHost.current) return;
     let alive = true;
-    createPlaza(plazaHost.current).then((p) => {
+    createPlaza(plazaHost.current, { onNameClick: (n) => setCard(n) }).then((p) => {
       if (!alive) return p.destroy();
       plazaRef.current = p;
       p.setPlayers(playersRef.current);
@@ -162,7 +162,7 @@ export default function Lobby({ profile, onProfile }) {
               {others.map((p) => (
                 <li key={p.id}>
                   <span className="lobby-dot" data-busy={p.inMatch} />
-                  <span className="lobby-name">{p.name}</span>
+                  <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
                   <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}</span>
                   {p.inMatch ? (
                     <span className="lobby-busy">EM LUTA</span>
@@ -189,7 +189,7 @@ export default function Lobby({ profile, onProfile }) {
                   {m.system ? <em>{m.text}</em> : (
                     <>
                       <strong className="chat-name" onClick={() => setCard(m.name)}>{m.name}</strong>
-                      {m.private && <span className="pv-tag">{m.name === profile.fighter_name ? `➜ ${m.to}` : 'sussurro'}</span>}
+                      {m.private && <span className="pv-tag">{m.name === profile.fighter_name ? `😮‍💨 ➜ ${m.to}` : '😮‍💨 sussurro'}</span>}
                       : {m.text}
                     </>
                   )}
@@ -307,7 +307,7 @@ export default function Lobby({ profile, onProfile }) {
           </div>
         </div>
       )}
-      {card && <PlayerCard name={card} onClose={() => setCard(null)} onWhisper={(n) => setChatText(`/${n} `)} />}
+      {card && <PlayerCard name={card} onClose={() => setCard(null)} onWhisper={(n) => setChatText(`/${n} 😮‍💨 `)} />}
     </div></>
   );
 }
