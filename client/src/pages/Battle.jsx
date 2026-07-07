@@ -36,6 +36,8 @@ export default function Battle({ profile, onProfile }) {
   };
   const exitGameMode = () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    document.body.classList.remove('in-fight');
+    import('../game/music.js').then((m) => m.startMusic('menu'));
     setScreen('select');
   };
 
