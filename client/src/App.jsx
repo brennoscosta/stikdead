@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Bottombar } from './lib/Navbar.jsx';
 import { api, getToken, clearToken } from './lib/api.js';
 import { closeSocket } from './lib/socket.js';
 import Login from './pages/Login.jsx';
@@ -41,6 +42,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      {profile && <Bottombar />}
       <Routes>
         <Route
           path="/"

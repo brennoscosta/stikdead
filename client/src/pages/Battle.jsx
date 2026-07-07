@@ -25,6 +25,7 @@ export default function Battle({ profile, onProfile }) {
     setDifficulty(d);
     setScreen('fight');
     // ainda dentro do gesto de clique: fullscreen é permitido aqui
+    document.body.classList.add('in-fight');
     document.documentElement.requestFullscreen?.().catch(() => {});
     try { screen.orientation?.lock?.('landscape').catch(() => {}); } catch { /* iOS não deixa */ }
   };

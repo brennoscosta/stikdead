@@ -652,3 +652,6 @@ body.is-mobile .bottombar { display: flex; }
   .topnav-logo img { height: 84px !important; margin: -22px 0 !important; }  /* 64 → 84 (mobile) */
 }
 body.is-mobile .topnav-logo img { height: 84px !important; margin: -22px 0 !important; }
+
+body.in-fight .bottombar { display: none !important; }
+body.in-fight .topnav-spacer { display: none; }

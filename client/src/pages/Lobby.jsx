@@ -318,6 +318,10 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
   const [loading, setLoading] = useState(true);
 
   const me = session.side;
+  useEffect(() => {
+    document.body.classList.add('in-fight');
+    return () => document.body.classList.remove('in-fight');
+  }, []);
   const opp = 1 - me;
   const names = [session.players[0]?.name || 'P1', session.players[1]?.name || 'P2'];
 
