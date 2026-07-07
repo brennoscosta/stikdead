@@ -1,0 +1,68 @@
+{
+  "$comment": "STIKDEAD :: Bíblia Visual v1 — fonte da verdade legível por máquina. A fábrica de assets importa este arquivo.",
+  "versao": 1,
+  "marca": {
+    "nome": "STIKDEAD",
+    "tagline": "Lute. Morra. Evolua.",
+    "paleta": {
+      "sangue": "#d90429",
+      "sangue_claro": "#ff2244",
+      "preto_profundo": "#0b0709",
+      "carvao": "#141414",
+      "osso": "#f2efe9",
+      "ouro": "#e0a10b",
+      "gelo": "#9fd8ff",
+      "vazio": "#8b5cf6",
+      "ki": "#ffc14d",
+      "veneno": "#7de0a8"
+    },
+    "regra_de_ouro": "Preto domina, branco corta, vermelho sangra. Nenhuma outra cor lidera uma composição."
+  },
+  "personagem": {
+    "arquetipo": "Stickman chibi sombrio: cabeça-esfera grande de obsidiana glossy, membros parrudos, presença de guerreiro",
+    "olhos": { "cor": "#FFFFFF", "forma": "quadrantes angulados ferozes (ninja)", "brilho": true, "regra": "os olhos são a alma — sempre legíveis, sempre raivosos em combate" },
+    "cabeca": { "material": "obsidiana polida", "roughness": 0.18, "highlight": "especular branco no topo-frente + rim light sutil" },
+    "proporcao": { "cabeca_corpo": "1:2.8 (chibi)", "membros": "capsulas grossas com contorno escuro e brilho glossy" },
+    "acentos": "vermelho #d90429 em faixas, cintos e detalhes de armadura"
+  },
+  "itens": {
+    "estilo": "Painterly AAA mobile, rim light dramática, alto contraste, detalhe rico",
+    "fundo_icone": "charcoal quase preto, item flutuando perfeitamente centralizado",
+    "vinheta_por_raridade": {
+      "comum": "a faint neutral gray vignette",
+      "raro": "a subtle cool blue-silver vignette glow",
+      "epico": "a rich violet-magenta vignette glow",
+      "lendario": "an intense fiery red-gold vignette glow with floating ember particles"
+    },
+    "temas": {
+      "vazio": { "base": "preto absoluto", "energia": "#8b5cf6", "assinatura": "rachaduras vazando luz roxa, névoa escura" },
+      "gelo": { "base": "azul-aço escuro", "energia": "#9fd8ff", "assinatura": "cristais, vapor frio" },
+      "ouro": { "base": "dourado polido espelhado", "energia": "#e0a10b", "assinatura": "raios radiantes, gravuras ornadas" },
+      "sangue": { "base": "carmesim profundo", "energia": "#ff2244", "assinatura": "gotejamento, névoa rubra" },
+      "ki": { "base": "âmbar", "energia": "#ffc14d", "assinatura": "partículas de luz subindo, energia interna" }
+    },
+    "proibido": ["texto", "marca d'água", "borda", "moldura", "fundo branco"]
+  },
+  "cenarios": {
+    "estilo": "Dark fantasy painterly, iluminação cinematográfica temperamental, sombras profundas, acentos vermelho-sangue, respingos de tinta",
+    "regra_do_chao": "O terço inferior é a pista de luta: pedra MUITO escura (carvão quase preto, reflexos vermelhos sutis), plana, vazia. NUNCA branca ou clara.",
+    "regra_global": "A imagem inteira permanece escura do topo à base — nenhuma área branca ou brilhante",
+    "proibido": ["personagens", "pessoas", "texto", "marca d'água", "UI"]
+  },
+  "vfx": {
+    "arco_de_corte": "na cor da arma equipada; branco no leve, #ff2244 no pesado",
+    "impacto": "estrela em cruz branca + anel de choque expandindo + linhas de velocidade",
+    "skills": { "ronin": "#ffffff", "shinobi": "#8b5cf6", "monge": "#ffc14d", "berserker": "#ff2244", "espectro": "#9fd8ff" },
+    "ko": "anel duplo branco+vermelho, flash vermelho 0.3, slow-motion",
+    "regra": "efeito nasce no hitstop e morre em menos de 0.5s — impacto, não poluição"
+  },
+  "sprites_em_jogo": {
+    "status": "DESLIGADO (interruptor em itemSprites.js)",
+    "contrato_de_canvas": "objeto vertical, ponta para cima, empunhadura embaixo, fundo branco puro; pós: trim threshold 45 + quadrado centrado + altura 320",
+    "licao": "assets presos ao esqueleto exigem canvas normalizado ANTES de qualquer calibração"
+  },
+  "audio": {
+    "assinatura": "síntese procedural: whooshes de ruído filtrado, thumps graves, sting de skill subindo",
+    "regra": "nenhum som acima de 0.5s exceto vitória/derrota"
+  }
+}

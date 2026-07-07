@@ -22,26 +22,23 @@ const SANITIZE = [
 ];
 const sanitize = (p) => SANITIZE.reduce((acc, [re, sub]) => acc.replace(re, sub), p);
 
+// ===== BÍBLIA VISUAL: fonte da verdade (01_BIBLE/bible.json) =====
+import { readFileSync } from 'node:fs';
+const BIBLE = JSON.parse(readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../01_BIBLE/bible.json'), 'utf8'));
+
 const STYLE_ICON = (subject, vign) =>
   `Video game shop item icon for a dark fantasy stick-figure fighting game. ${subject} ` +
-  `Floating and perfectly centered. Very dark charcoal black background with ${vign}. ` +
-  `Painterly AAA mobile game art style, dramatic rim lighting, high contrast, rich detail. ` +
-  `No text, no watermark, no border, no frame.`;
+  `Floating and perfectly centered. ${BIBLE.itens.fundo_icone} background with ${vign}. ` +
+  `${BIBLE.itens.estilo}. ` +
+  `No ${BIBLE.itens.proibido.join(', no ')}.`;
 
-const VIGN = {
-  comum: 'a subtle neutral dark vignette, faint gray dust wisps',
-  raro: 'a deep cold blue vignette glow, cold blue mist wisps',
-  epico: 'a deep purple vignette glow, purple arcane mist wisps',
-  lendario: 'a deep red vignette glow, fiery red ember particles and smoke wisps',
-};
+const VIGN = BIBLE.itens.vinheta_por_raridade;
 
 const STYLE_ARENA = (scene) =>
-  `Fighting game arena background, dark fantasy painterly style, cinematic moody lighting, ` +
-  `deep shadows, blood-red accents, ink-splatter details. ${scene} ` +
-  `The lower third of the image is the fighting ground: a flat, empty strip of VERY DARK stone floor ` +
-  `(deep charcoal gray, almost black, subtle red reflections), with no objects on it. ` +
-  `The entire image stays dark and moody from top to bottom — absolutely no white or bright areas. ` +
-  `No characters, no people, no text, no watermark, no UI.`;
+  `Fighting game arena background, ${BIBLE.cenarios.estilo}. ${scene} ` +
+  `The lower third of the image is the fighting ground: ${BIBLE.cenarios.regra_do_chao} ` +
+  `${BIBLE.cenarios.regra_global}. ` +
+  `No ${BIBLE.cenarios.proibido.join(', no ')}.`;
 
 const STYLE_SPRITE = (subject) =>
   `${subject} Single object game sprite. Perfectly VERTICAL orientation: tip pointing straight up, ` +
