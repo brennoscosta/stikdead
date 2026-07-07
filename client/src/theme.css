@@ -422,9 +422,12 @@ html, body { touch-action: manipulation; }
 
   /* a barra de links desce para o rodapé, estilo app */
   .topnav-links {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    z-index: 100;
+    position: fixed !important;
+    top: auto !important;
+    left: 0 !important; right: 0 !important; bottom: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    z-index: 100 !important;
     display: flex;
     justify-content: space-around;
     align-items: stretch;
