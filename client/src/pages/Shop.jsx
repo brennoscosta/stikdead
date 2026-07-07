@@ -14,7 +14,17 @@ export default function Shop({ profile, onProfile }) {
   const [packs, setPacks] = useState([]);
   const [mpNotice, setMpNotice] = useState(null);
   useEffect(() => {
-    api('/api/diamonds/packs').then((d) => setPacks(d.packs || [])).catch(() => {});
+    api('/api/diamonds/packs').then((d) => {
+      setPacks(d.packs || []);
+      if (d.public_key && !window.MercadoPago) {
+        const sc = document.createElement('script');
+        sc.src = 'https://sdk.mercadopago.com/js/v2';
+        sc.onload = () => { window.__mpKey = d.public_key; };
+        document.head.appendChild(sc);
+      } else if (d.public_key) {
+        window.__mpKey = d.public_key;
+      }
+    }).catch(() => {});
     const pg = new URLSearchParams(window.location.search).get('pg');
     if (pg === 'ok') setMpNotice('💎 Pagamento aprovado! Seus diamantes chegam em instantes...');
     if (pg === 'pendente') setMpNotice('⏳ Pagamento em processamento — os diamantes entram assim que aprovar.');
@@ -27,7 +37,14 @@ export default function Shop({ profile, onProfile }) {
     setBuying(true);
     try {
       const d = await api('/api/diamonds/checkout', { method: 'POST', body: { pack: id } });
-      window.location.href = d.init_point;
+      if (window.MercadoPago && window.__mpKey && d.preference_id) {
+        // modal dentro do jogo (iframe seguro do MP)
+        const mp = new window.MercadoPago(window.__mpKey, { locale: 'pt-BR' });
+        mp.checkout({ preference: { id: d.preference_id }, autoOpen: true });
+        setBuying(false);
+      } else {
+        window.location.href = d.init_point; // fallback: página do MP
+      }
     } catch (e) {
       alert(e.message || 'Pagamentos indisponíveis no momento.');
       setBuying(false);

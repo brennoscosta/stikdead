@@ -18,7 +18,7 @@ export const PACKS = {
 const router = Router();
 
 router.get('/packs', (_req, res) => {
-  res.json({ packs: Object.values(PACKS), enabled: !!MP_TOKEN });
+  res.json({ packs: Object.values(PACKS), enabled: !!MP_TOKEN, public_key: process.env.MP_PUBLIC_KEY || '' });
 });
 
 router.post('/checkout', requireAuth, async (req, res) => {
@@ -73,7 +73,7 @@ router.post('/checkout', requireAuth, async (req, res) => {
     return res.status(502).json({ error: 'Falha ao iniciar pagamento.' });
   }
   await q('UPDATE diamond_orders SET mp_preference_id = $1 WHERE id = $2', [data.id, orderId]);
-  res.json({ init_point: data.init_point, order_id: orderId });
+  res.json({ init_point: data.init_point, preference_id: data.id, order_id: orderId });
 });
 
 // crédito idempotente: um payment_id só credita UMA vez (UNIQUE no banco)
