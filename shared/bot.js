@@ -38,7 +38,7 @@ export function botDecide(bot, match, selfIdx, dt) {
   // reação: bloquear quando o oponente inicia um ataque
   const oppAttacking = opp.state === 'light' || opp.state === 'heavy';
   const dist = Math.abs(opp.x - self.x);
-  if (me.skillCd === 0 && dist < 170 && Math.random() < p.attack * 0.02) bot.intent.skill = true;
+  if (self.skillCd === 0 && dist < 170 && Math.random() < p.attack * 0.02) bot.intent.skill = true;
   if (oppAttacking && dist < 170 && rng() < p.block) {
     bot.intent.block = true;
     bot.intent.left = bot.intent.right = false;
