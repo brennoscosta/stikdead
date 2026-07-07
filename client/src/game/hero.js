@@ -42,7 +42,7 @@ export async function createHero(host) {
 
   const layout = () => {
     // COVER do viewport inteiro: fundo atmosférico, nunca há borda
-    const k = Math.max(W / ART.w, H / ART.h);
+    const k = Math.max(W / ART.w, H / ART.h) * 0.72; // menor, flutuando no escuro
     const artW = ART.w * k;
     const artH = ART.h * k;
     return { k, artW, artH, ox: (W - artW) / 2, oy: (H - artH) / 2 };
@@ -64,14 +64,22 @@ export async function createHero(host) {
         splat.moveTo(sx, sy).lineTo(sx + 6 + (i % 5) * 3, sy + 3 + (i % 3) * 4)
           .stroke({ width: 1.5, color: 0x8f0620, alpha: 0.28 });
     }
-    // véu escuro: a arte é clima, o formulário é o protagonista
+    // bordas da arte dissolvidas nos 4 lados + véu geral
     seam.clear();
-    seam.rect(0, 0, W, H).fill({ color: BG, alpha: 0.42 });
-    const steps = 12;
+    const { artW: aw, artH: ah, ox: ax, oy: ay } = layout();
+    const steps = 14;
+    const fw = aw * 0.16;
+    const fh = ah * 0.16;
     for (let i = 0; i < steps; i++) {
-      const y = H * 0.45 + (H * 0.55) * (i / steps);
-      seam.rect(0, y, W, (H * 0.55) / steps + 1).fill({ color: BG, alpha: 0.5 * (i / steps) });
+      const a = Math.pow(1 - i / (steps - 1), 1.5);
+      const tx = fw * (i / steps);
+      const ty = fh * (i / steps);
+      seam.rect(ax + tx, ay, fw / steps + 1, ah).fill({ color: BG, alpha: a });                     // esquerda
+      seam.rect(ax + aw - tx - fw / steps, ay, fw / steps + 1, ah).fill({ color: BG, alpha: a });   // direita
+      seam.rect(ax, ay + ty, aw, fh / steps + 1).fill({ color: BG, alpha: a });                     // topo
+      seam.rect(ax, ay + ah - ty - fh / steps, aw, fh / steps + 1).fill({ color: BG, alpha: a });   // base
     }
+    seam.rect(0, 0, W, H).fill({ color: BG, alpha: 0.34 });
   };
 
   app.ticker.add((tk) => {

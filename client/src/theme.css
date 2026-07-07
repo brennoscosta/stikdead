@@ -240,10 +240,16 @@
   padding-top: 12px;
 }
 .login-logo {
-  width: min(76vw, 340px);
-  filter: drop-shadow(0 6px 24px rgba(217, 4, 41, 0.45));
-  animation: logo-land 0.7s cubic-bezier(0.2, 1.4, 0.35, 1);
+  position: fixed;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(30vw, 136px);   /* -60% */
+  filter: drop-shadow(0 4px 16px rgba(217, 4, 41, 0.4));
+  z-index: 2;
+  pointer-events: none;
 }
+.scene:has(> .hero-bg) .footer-links { margin-bottom: 72px; }
 .scene:has(> .hero-bg) .card {
   margin: 0;
   max-width: 380px;
