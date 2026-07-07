@@ -797,3 +797,32 @@ body.in-fight .topnav-spacer { display: none; }
 @media (pointer: coarse) {
   .bt-skill { display: flex !important; }
 }
+
+/* ===== EQUIPADO = ACESO: brilho na cor da raridade, pulsando ===== */
+@keyframes equip-pulse-gray  { 0%,100% { box-shadow: 0 0 10px rgba(160,152,140,0.35); } 50% { box-shadow: 0 0 18px rgba(160,152,140,0.6); } }
+@keyframes equip-pulse-blue  { 0%,100% { box-shadow: 0 0 12px rgba(61,123,217,0.45); }  50% { box-shadow: 0 0 22px rgba(61,123,217,0.8); } }
+@keyframes equip-pulse-void  { 0%,100% { box-shadow: 0 0 12px rgba(139,92,246,0.5); }   50% { box-shadow: 0 0 24px rgba(139,92,246,0.85); } }
+@keyframes equip-pulse-gold  { 0%,100% { box-shadow: 0 0 14px rgba(224,161,11,0.5); }   50% { box-shadow: 0 0 28px rgba(224,161,11,0.9), 0 0 50px rgba(224,161,11,0.25); } }
+
+/* baú: carta equipada acesa (substitui o contorno verde) */
+.item-card.mini.equipped { outline: none !important; }
+.item-card.mini.equipped.r-comum    { animation: equip-pulse-gray 2.4s ease-in-out infinite; border-color: #8b857b !important; }
+.item-card.mini.equipped.r-raro     { animation: equip-pulse-blue 2.4s ease-in-out infinite; }
+.item-card.mini.equipped.r-epico    { animation: equip-pulse-void 2.4s ease-in-out infinite; }
+.item-card.mini.equipped.r-lendario { animation: equip-pulse-gold 2.2s ease-in-out infinite; }
+
+/* soquetes do inventário: qualquer raridade equipada brilha */
+.inv-slot.r-comum { animation: equip-pulse-gray 2.6s ease-in-out infinite; }
+.inv-slot.r-raro  { animation: equip-pulse-blue 2.6s ease-in-out infinite; }
+.inv-slot.r-epico { animation: equip-pulse-void 2.6s ease-in-out infinite; }
+.inv-slot.r-lendario { animation: equip-pulse-gold 2.4s ease-in-out infinite; }
+
+/* SUA BUILD (perfil): tudo ali é equipado — tudo aceso */
+.dash-build-items .item-card.r-comum    { animation: equip-pulse-gray 2.6s ease-in-out infinite; }
+.dash-build-items .item-card.r-raro     { animation: equip-pulse-blue 2.6s ease-in-out infinite; }
+.dash-build-items .item-card.r-epico    { animation: equip-pulse-void 2.6s ease-in-out infinite; }
+.dash-build-items .item-card.r-lendario { animation: equip-pulse-gold 2.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .item-card.mini.equipped, .inv-slot[class*="r-"], .dash-build-items .item-card { animation: none !important; }
+}
