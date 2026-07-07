@@ -77,6 +77,7 @@ router.post('/register', async (req, res) => {
     });
     await client.query('COMMIT');
     res.status(201).json({ token: signToken(userId), profile: await fetchProfile(userId) });
+    import('./email.js').then((m) => m.sendWelcome(email, fighterName).catch(() => {})).catch(() => {});
   } catch (err) {
     await client.query('ROLLBACK');
     if (err.code === '23505') {

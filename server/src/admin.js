@@ -10,7 +10,8 @@ async function requireAdmin(req, res, next) {
   try {
     const { rows } = await q('SELECT email FROM users WHERE id = $1', [req.userId]);
     if (rows[0]?.email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Acesso restrito.' });
-    next();
+    req.adminEmail = ADMIN_EMAIL;
+  next();
   } catch {
     res.status(500).json({ error: 'Erro de verificação.' });
   }
@@ -136,6 +137,29 @@ router.post('/payments/:id/check', requireAdmin, async (req, res) => {
   const { reconcileOrder } = await import('./diamonds.js');
   const status = await reconcileOrder(Number(req.params.id));
   res.json({ status });
+});
+
+// ===== EMAILS =====
+router.get('/emails/status', requireAdmin, async (_req, res) => {
+  const { emailEnabled } = await import('./email.js');
+  const { rows } = await q('SELECT COUNT(*) FROM users WHERE email IS NOT NULL');
+  res.json({ enabled: emailEnabled(), recipients: Number(rows[0].count) });
+});
+
+router.post('/emails/preview', requireAdmin, async (req, res) => {
+  const { broadcastHtml } = await import('./email.js');
+  res.json({ html: broadcastHtml(String(req.body?.message || '')) });
+});
+
+router.post('/emails/send', requireAdmin, async (req, res) => {
+  const { sendBroadcast, emailEnabled } = await import('./email.js');
+  if (!emailEnabled()) return res.status(503).json({ error: 'SendGrid não configurado (SENDGRID_API_KEY).' });
+  const subject = String(req.body?.subject || '').trim();
+  const message = String(req.body?.message || '').trim();
+  if (!subject || !message) return res.status(400).json({ error: 'Assunto e mensagem são obrigatórios.' });
+  const onlyTo = req.body?.test ? req.adminEmail : null;
+  const r = await sendBroadcast(subject, message, onlyTo);
+  res.json(r);
 });
 
 export default router;

@@ -948,3 +948,16 @@ body.in-fight .topnav-spacer { display: none; }
 }
 .pay-mode.on { color: #ffd76a; border-color: rgba(224,161,11,0.6); box-shadow: 0 0 14px rgba(224,161,11,0.25); background: linear-gradient(180deg, rgba(58,44,12,0.6), rgba(20,16,8,0.8)); }
 .pay-mode-dia.on { color: #bfefff; border-color: rgba(127,217,255,0.65); box-shadow: 0 0 16px rgba(127,217,255,0.3); background: linear-gradient(180deg, rgba(18,40,64,0.7), rgba(8,16,30,0.85)); }
+
+/* ===== admin: estúdio de emails ===== */
+.em-compose { display: flex; flex-direction: column; gap: 10px; max-width: 720px; }
+.em-subject, .em-body {
+  font: inherit; color: var(--text); background: rgba(10,7,9,0.7);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+}
+.em-subject:focus, .em-body:focus { outline: none; border-color: rgba(217,4,41,0.6); box-shadow: 0 0 0 3px rgba(217,4,41,0.12); }
+.em-body { resize: vertical; line-height: 1.55; }
+.em-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.em-ok { color: #7de0a8; font-weight: 600; }
+.em-err { color: #ff5a70; font-weight: 600; }
+.em-preview { margin-top: 18px; }

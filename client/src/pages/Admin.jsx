@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Navbar from '../lib/Navbar.jsx';
 import { api } from '../lib/api.js';
 
-const TABS = ['Dashboard', 'Usuários', 'Itens', 'Mapas', 'Pagamentos'];
+const TABS = ['Dashboard', 'Usuários', 'Itens', 'Mapas', 'Pagamentos', 'Emails'];
 const fmt = (n) => Number(n).toLocaleString('pt-BR');
 
 function Editable({ value, onSave, type = 'text', width = 90 }) {
@@ -38,6 +38,21 @@ export default function Admin({ profile }) {
   const [items, setItems] = useState([]);
   const [arenas, setArenas] = useState([]);
   const [payments, setPayments] = useState(null);
+  const [emailInfo, setEmailInfo] = useState(null);
+  const [emSubject, setEmSubject] = useState('');
+  const [emMsg, setEmMsg] = useState('');
+  const [emPreview, setEmPreview] = useState('');
+  const [emBusy, setEmBusy] = useState(false);
+  const [emNotice, setEmNotice] = useState(null);
+  const emSend = async (test) => {
+    if (!test && !confirm(`Enviar para TODOS os ${emailInfo?.recipients || 0} usuários?`)) return;
+    setEmBusy(true); setEmNotice(null);
+    try {
+      const r = await api('/api/admin/emails/send', { method: 'POST', body: { subject: emSubject, message: emMsg, test } });
+      setEmNotice({ ok: true, text: test ? 'Teste enviado para o seu email!' : `Enviado para ${r.sent} de ${r.total} usuários.` });
+    } catch (e) { setEmNotice({ ok: false, text: e.message }); }
+    setEmBusy(false);
+  };
   const checkOrder = async (id) => { await api(`/api/admin/payments/${id}/check`, { method: 'POST' }); setPayments(await api('/api/admin/payments')); };
   const [term, setTerm] = useState('');
   const [err, setErr] = useState('');
@@ -50,6 +65,7 @@ export default function Admin({ profile }) {
       if (tab === 'Itens') setItems((await api('/api/admin/items')).items);
       if (tab === 'Mapas') setArenas((await api('/api/admin/arenas')).arenas);
       if (tab === 'Pagamentos') setPayments(await api('/api/admin/payments'));
+      if (tab === 'Emails') setEmailInfo(await api('/api/admin/emails/status'));
     } catch (e) { setErr(e.message); }
   };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [tab]);
@@ -156,6 +172,37 @@ export default function Admin({ profile }) {
         </div>
       )}
 
+      {tab === 'Emails' && (
+        <div className="adm-block em-block">
+          <div className="adm-stats" style={{ marginBottom: 14 }}>
+            <div className="adm-stat"><b>{emailInfo?.enabled ? '✅ ativo' : '⚠️ sem chave'}</b> <span>SendGrid</span></div>
+            <div className="adm-stat"><b>{emailInfo?.recipients ?? '—'}</b> <span>destinatários</span></div>
+          </div>
+          <div className="em-compose">
+            <input className="em-subject" placeholder="Assunto do email" value={emSubject} onChange={(e) => setEmSubject(e.target.value)} />
+            <textarea className="em-body" rows={8} placeholder="Escreva a mensagem... (o topo com a logo e o rodapé já estão prontos no template)" value={emMsg} onChange={(e) => setEmMsg(e.target.value)} />
+            <div className="em-actions">
+              <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 18px' }} disabled={!emMsg}
+                onClick={async () => { const r = await api('/api/admin/emails/preview', { method: 'POST', body: { message: emMsg } }); setEmPreview(r.html); }}>
+                👁 Pré-visualizar
+              </button>
+              <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 18px' }} disabled={emBusy || !emSubject || !emMsg} onClick={() => emSend(true)}>
+                ✉️ Enviar teste (para mim)
+              </button>
+              <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 22px' }} disabled={emBusy || !emSubject || !emMsg || !emailInfo?.enabled} onClick={() => emSend(false)}>
+                🚀 Enviar para todos
+              </button>
+            </div>
+            {emNotice && <p className={emNotice.ok ? 'em-ok' : 'em-err'}>{emNotice.text}</p>}
+          </div>
+          {emPreview && (
+            <div className="em-preview">
+              <p className="dash-empty" style={{ marginBottom: 6 }}>Pré-visualização (como o jogador recebe):</p>
+              <iframe title="preview" srcDoc={emPreview} style={{ width: '100%', height: 560, border: '1px solid var(--line)', borderRadius: 12, background: '#0b0709' }} />
+            </div>
+          )}
+        </div>
+      )}
       {tab === 'Pagamentos' && payments && (
         <div className="adm-block pay-block">
           <div className="adm-stats pay-stats">

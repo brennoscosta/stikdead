@@ -102,6 +102,24 @@ async function creditPayment(paymentId) {
   if (!rows[0]) return; // já creditado ou pedido inexistente
   await q('UPDATE profiles SET diamonds = diamonds + $1 WHERE user_id = $2', [rows[0].diamonds, rows[0].user_id]);
   console.log(`💎 pedido ${orderId}: +${rows[0].diamonds} diamantes para user ${rows[0].user_id}`);
+  try {
+    const info = await q(
+      `SELECT u.email, p.fighter_name, o.amount_cents FROM users u
+        LEFT JOIN profiles p ON p.user_id = u.id
+        JOIN diamond_orders o ON o.id = $2
+       WHERE u.id = $1`,
+      [rows[0].user_id, orderId]
+    );
+    if (info.rows[0]?.email) {
+      const { sendPurchaseConfirmed } = await import('./email.js');
+      sendPurchaseConfirmed(info.rows[0].email, {
+        fighterName: info.rows[0].fighter_name,
+        diamonds: rows[0].diamonds,
+        amountCents: info.rows[0].amount_cents,
+        mpPaymentId: paymentId,
+      }).catch(() => {});
+    }
+  } catch { /* email é cortesia, nunca trava o crédito */ }
 }
 
 // webhook do MP (público; a verdade vem da consulta autenticada à API, nunca do corpo)
