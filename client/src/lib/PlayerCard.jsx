@@ -144,7 +144,7 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
             <div className="pc-head">
               <div>
                 <h2 className="pc-name">
-                  {p.name} {p.online && <span className="pc-online" title="Online agora">●</span>}
+                  {p.name} {p.online && !p.away && <span className="pc-online" title="Online agora">●</span>}{p.online && p.away && <span className="pc-away" title="Ausente — aba em segundo plano">💤</span>}
                 </h2>
                 {p.title && <div className="pc-title">「 {p.title} 」</div>}
                 <div className="pc-sub">Nível {p.level} · {p.tier}</div>

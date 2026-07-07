@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { q } from './db.js';
 import { requireAuth } from './auth.js';
 import { getLoadout } from './shop.js';
-import { getOnlineIds, getClanIds, notifyUser } from './online.js';
+import { getOnlineIds, getClanIds, getAwayIds, notifyUser } from './online.js';
 
 const router = Router();
 
@@ -60,6 +60,7 @@ router.get('/players/by-name/:name', requireAuth, async (req, res) => {
     insano,
     title: p.title,
     online: getOnlineIds().has(p.id),
+    away: getAwayIds().has(p.id),
     loadout,
     friendship,
     requestId,
@@ -167,7 +168,7 @@ router.get('/friends', requireAuth, async (req, res) => {
     [req.userId]
   );
   res.json({
-    friends: friends.rows.map((f) => ({ ...f, online: onlineIds.has(Number(f.user_id)), inClan: clanIds.has(Number(f.user_id)) })),
+    friends: friends.rows.map((f) => ({ ...f, online: onlineIds.has(Number(f.user_id)), inClan: clanIds.has(Number(f.user_id)), away: getAwayIds().has(Number(f.user_id)) })),
     requests: requests.rows,
   });
 });

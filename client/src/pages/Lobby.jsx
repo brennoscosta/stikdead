@@ -161,7 +161,7 @@ export default function Lobby({ profile, onProfile }) {
               )}
               {others.map((p) => (
                 <li key={p.id}>
-                  <span className="lobby-dot" data-busy={p.inMatch} />
+                  <span className={`lobby-dot ${p.away ? 'away' : ''}`} data-busy={p.inMatch} title={p.away ? 'Ausente 💤' : ''} />
                   <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
                   <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}</span>
                   {p.inMatch ? (

@@ -20,6 +20,8 @@ export const getOnlineIds = () => ONLINE_IDS;
 const CLAN_ROOM = new Set(); // quem está com a aba Clã aberta
 export const getClanIds = () => CLAN_ROOM;
 let ONLINE_REF = null; // preenchido no attachOnline
+const AWAY_IDS = new Set();
+export const getAwayIds = () => AWAY_IDS;
 export function notifyUser(userId, event, payload = {}) {
   const e = ONLINE_REF?.get(Number(userId));
   if (e) e.socket.emit(event, payload);
@@ -54,6 +56,7 @@ export function attachOnline(io) {
 
   const presencePayload = () =>
     [...online.values()].map(({ user, loadout }) => ({
+      away: AWAY_IDS.has(user.id),
       id: user.id, name: user.name, level: user.level, tier: user.tier,
       inMatch: userRoom.has(user.id), loadout: loadout || [],
     }));
@@ -294,6 +297,10 @@ export function attachOnline(io) {
 
     socket.on('chat:send', (payload) => handleSend(payload, 'chat:msg'));
     socket.on('clan:send', (payload) => handleSend(payload, 'clan:msg'));
+    socket.on('presence:visibility', (p) => {
+      if (p?.hidden) AWAY_IDS.add(user.id); else AWAY_IDS.delete(user.id);
+      broadcastPresence();
+    });
     socket.on('clan:enter', () => { CLAN_ROOM.add(user.id); });
     socket.on('clan:leave', () => { CLAN_ROOM.delete(user.id); });
     socket.on('presence:get', () => {
@@ -396,7 +403,7 @@ export function attachOnline(io) {
     });
 
     socket.on('disconnect', () => {
-      if (online.get(user.id)?.socket === socket) { ONLINE_IDS.delete(user.id); CLAN_ROOM.delete(user.id); }
+      if (online.get(user.id)?.socket === socket) { ONLINE_IDS.delete(user.id); CLAN_ROOM.delete(user.id); AWAY_IDS.delete(user.id); }
       if (online.get(user.id)?.socket === socket) online.delete(user.id);
       dequeue(user.id);
       const rid = userRoom.get(user.id);

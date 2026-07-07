@@ -109,7 +109,7 @@ export default function Friends({ profile }) {
           )}
           {data.friends.map((f) => (
             <div key={f.user_id} className="fr-friend">
-              <span className={`fr-dot ${f.online ? 'online' : ''}`} />
+              <span className={`fr-dot ${f.online ? (f.away ? 'away' : 'online') : ''}`} title={f.online ? (f.away ? 'Ausente 💤' : 'Online') : 'Offline'} />
               <button className="fr-name" onClick={() => setCard({ name: f.fighter_name })}>{f.fighter_name}</button>
               <small>Nv {f.level} · 🏆 {Number(f.rank_points || 0).toLocaleString('pt-BR')}</small>
               <button className="adm-btn" onClick={() => whisper(f.fighter_name)}>💬</button>

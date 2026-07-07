@@ -10,6 +10,9 @@ export function getSocket() {
     auth: { token: getToken() },
     transports: ['websocket', 'polling'],
   });
+  const report = () => socket.emit('presence:visibility', { hidden: document.hidden });
+  socket.on('connect', report);
+  document.addEventListener('visibilitychange', report);
   return socket;
 }
 

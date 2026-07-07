@@ -85,7 +85,7 @@ export async function createPlaza(host, opts = {}) {
     }
     layer.addChild(wrap, tag);
     return {
-      wrap, g, ws, tag, name: p.name, loadout: p.loadout || [], bubble: null, bubbleUntil: 0,
+      wrap, g, ws, tag, name: p.name, away: !!p.away, loadout: p.loadout || [], bubble: null, bubbleUntil: 0,
       f: {
         x: 60 + Math.random() * Math.max(120, W - 120), y: 0, vx: 0, vy: 0,
         face: Math.random() < 0.5 ? 1 : -1, hp: 100, state: 'walk', t: Math.random() * 3, hitstun: 0, combo: 0,
@@ -144,7 +144,7 @@ export async function createPlaza(host, opts = {}) {
       drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, filterForVector(a.loadout, a.ws));
       a.ws.update(a.f, MOVES);
       a.tag.position.set(a.f.x * scale, H - 40 - 158 * scale);
-      a.tag.text = a.name;
+      a.tag.text = a.away ? `${a.name} 💤` : a.name;
     }
   });
 
@@ -185,6 +185,7 @@ export async function createPlaza(host, opts = {}) {
           existing.loadout = p.loadout || [];
           existing.ws.setLoadout(existing.loadout);
           existing.name = p.name;
+          existing.away = !!p.away;
         } else {
           actors.set(p.id, spawn(p));
         }
