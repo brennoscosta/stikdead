@@ -566,3 +566,23 @@ body.is-mobile .scene-nav, body.is-mobile .dash, body.is-mobile .lobby2 {
 }
 body.is-mobile .topnav-links { display: none !important; }
 body.is-mobile .bottombar { display: flex; }
+
+/* ===== chip do jogador: nome DENTRO da caixinha, junto do nível ===== */
+.topnav-me {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(180deg, rgba(24, 13, 17, 0.9), rgba(11, 7, 9, 0.95)) !important;
+  border: 1px solid #33161d !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 12px rgba(217, 4, 41, 0.12);
+}
+.topnav-name { display: inline !important; }
+.topnav-level {
+  background: rgba(217, 4, 41, 0.18);
+  border: 1px solid rgba(217, 4, 41, 0.4);
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-size: 11px;
+  color: #ff8fa3;
+  white-space: nowrap;
+}
