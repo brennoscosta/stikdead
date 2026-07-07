@@ -42,7 +42,7 @@ export async function createHero(host) {
 
   const layout = () => {
     // mesma regra do .hero-spacer no CSS: largura total, altura cap em 58vh
-    const artH = Math.min(W * (ART.h / ART.w), H * 0.66);
+    const artH = W * (ART.h / ART.w); // full-bleed: borda lateral não existe
     const k = artH / ART.h;
     const artW = ART.w * k;
     return { k, artW, artH, ox: (W - artW) / 2 };

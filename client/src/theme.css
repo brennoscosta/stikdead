@@ -229,9 +229,17 @@
 .topnav { justify-content: center; }
 .topnav > * { flex: 0 0 auto; }
 
-/* ===== LOGIN: o sistema original (canvas fullscreen + espaçador) manda no layout.
-   Aqui só entra estética do card — nenhuma regra de posição/tamanho. ===== */
+/* ===== LOGIN: arte full-bleed atrás, formulário centrado na tela ===== */
+.scene:has(> .hero-bg) {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+}
 .scene:has(> .hero-bg) .card {
+  max-width: 380px;
   background: linear-gradient(180deg, rgba(16, 7, 10, 0.86), rgba(8, 5, 7, 0.93));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);

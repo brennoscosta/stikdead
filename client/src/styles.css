@@ -524,11 +524,7 @@ body {
   pointer-events: none;
 }
 .hero-bg canvas { width: 100% !important; height: 100% !important; }
-.hero-spacer {
-  width: 100vw;
-  height: min(calc(100vw * 0.645), 66vh);
-  margin-bottom: -3vh;
-}
+.hero-spacer { display: none; }
 /* o conteúdo flutua sobre o fundo vivo */
 .scene { position: relative; z-index: 1; background: transparent; }
 .scene .card {
