@@ -273,3 +273,140 @@
 
 /* zoom: sem double-tap zoom em toque */
 html, body { touch-action: manipulation; }
+
+/* ============================================================
+   ETAPA 2 :: VITRINES PREMIUM — Loja, Inventário, Perfil
+   (aditivo, sobre classes confirmadas no censo)
+   ============================================================ */
+
+/* ---------- LOJA ---------- */
+.shop-filters .filter {
+  background: linear-gradient(180deg, #1c1216, #0e0a0c);
+  border: 1px solid #2b1d22;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.18s ease;
+  letter-spacing: 0.06em;
+}
+.shop-filters .filter:hover { border-color: #4a2a32; transform: translateY(-1px); }
+.shop-filters .filter.on {
+  background: linear-gradient(180deg, #ff2b4a, #9c0320);
+  border-color: rgba(255, 120, 140, 0.5);
+  box-shadow: var(--glow-blood), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.item-card {
+  background: linear-gradient(180deg, rgba(26, 14, 18, 0.9), rgba(10, 7, 9, 0.95)) !important;
+  transition: transform 0.18s ease, box-shadow 0.22s ease;
+  position: relative;
+  overflow: hidden;
+}
+.item-card:hover { transform: translateY(-4px); }
+.item-card::after {
+  /* filete de energia no topo, na cor da raridade */
+  content: '';
+  position: absolute;
+  top: 0; left: 12%; right: 12%;
+  height: 2px;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 0 12px currentColor;
+}
+.item-card.r-comum::after { color: #6e675e; }
+.item-card.r-raro::after { color: #3d7bd9; }
+.item-card.r-epico::after { color: #8b5cf6; }
+.item-card.r-lendario::after { color: #e0a10b; }
+.item-card:hover::after { opacity: 1; }
+.item-card.r-raro:hover { box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6), 0 0 20px rgba(61, 123, 217, 0.35); }
+.item-card.r-epico:hover { box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6), 0 0 22px rgba(139, 92, 246, 0.4); }
+.item-card.r-lendario:hover { box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6), 0 0 28px rgba(224, 161, 11, 0.5); }
+
+.item-name { font-weight: 700; letter-spacing: 0.04em; }
+.item-buy {
+  background: linear-gradient(180deg, #2a1d0a, #1a1206);
+  border: 1px solid rgba(224, 161, 11, 0.4);
+  color: var(--gold-hot);
+  text-shadow: 0 0 8px rgba(224, 161, 11, 0.4);
+  transition: all 0.16s;
+}
+.item-buy:hover {
+  background: linear-gradient(180deg, #e0a10b, #8a6208);
+  color: #16110a;
+  box-shadow: var(--glow-gold);
+  text-shadow: none;
+}
+.coins-pill {
+  background: linear-gradient(180deg, #241a08, #141006);
+  border: 1px solid rgba(224, 161, 11, 0.45);
+  box-shadow: var(--glow-gold), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- INVENTÁRIO ---------- */
+.inv-slot {
+  background:
+    radial-gradient(70% 70% at 50% 40%, rgba(40, 20, 26, 0.5), transparent),
+    linear-gradient(180deg, #170e12, #0b0709) !important;
+  border-width: 1.5px !important;
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s;
+}
+.inv-slot:hover { transform: translateY(-2px); border-color: #5a2a34 !important; }
+.inv-slot.over {
+  border-color: var(--blood) !important;
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.7), var(--glow-blood);
+  animation: slot-pulse 0.7s ease-in-out infinite;
+}
+@keyframes slot-pulse { 50% { transform: scale(1.04); } }
+.inv-slot.r-lendario { box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.7), 0 0 18px rgba(224, 161, 11, 0.4); }
+.inv-slot.r-epico { box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.7), 0 0 14px rgba(139, 92, 246, 0.35); }
+
+.inv-preview, .dash-build-preview {
+  position: relative;
+  background:
+    radial-gradient(60% 45% at 50% 82%, rgba(217, 4, 41, 0.16), transparent 70%),
+    radial-gradient(80% 60% at 50% 30%, rgba(30, 16, 20, 0.6), transparent),
+    linear-gradient(180deg, #120a0e, #0b0709) !important;
+  border: 1px solid #2b1d22;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6), 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+.inv-unequip:hover { color: var(--blood-hot); text-shadow: 0 0 10px rgba(255, 34, 68, 0.5); }
+
+/* ---------- PERFIL ---------- */
+.dash-hero {
+  background:
+    linear-gradient(105deg, rgba(38, 10, 16, 0.9), rgba(12, 7, 9, 0.95) 60%),
+    radial-gradient(120% 160% at 85% 0%, rgba(217, 4, 41, 0.22), transparent 55%) !important;
+  border: 1px solid #33161d;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+.dash-hero::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--blood), transparent);
+  box-shadow: 0 0 14px rgba(217, 4, 41, 0.7);
+}
+.dash-name {
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 18px rgba(217, 4, 41, 0.35);
+}
+.dash-stat {
+  background: linear-gradient(180deg, rgba(24, 13, 17, 0.9), rgba(11, 7, 9, 0.95));
+  border: 1px solid #2b1d22;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.dash-stat:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 14px rgba(217, 4, 41, 0.15); }
+
+.style-card { transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s; }
+.style-card:hover:not(.locked) { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5); }
+.style-card.on {
+  box-shadow: var(--glow-blood), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(60, 8, 18, 0.35), rgba(217, 4, 41, 0.08)) !important;
+}
+.style-card.locked:hover { border-color: rgba(224, 161, 11, 0.4); }
