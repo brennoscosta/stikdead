@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import { q, pool } from './db.js';
@@ -203,6 +204,45 @@ router.patch('/me', requireAuth, async (req, res) => {
     throw err;
   }
   res.json({ profile: await fetchProfile(req.userId) });
+});
+
+// ===== esqueci a senha =====
+const SITE_URL = process.env.PUBLIC_URL || 'https://game.stikdead.com';
+const sha = (t) => crypto.createHash('sha256').update(t).digest('hex');
+
+router.post('/forgot', async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  // resposta sempre igual: nunca revelamos se o email existe
+  res.json({ ok: true, message: 'Se este email tiver conta, o link de redefinição chega em instantes.' });
+  try {
+    const { rows } = await q('SELECT id FROM users WHERE email = $1', [email]);
+    if (!rows[0]) return;
+    const token = crypto.randomBytes(32).toString('hex');
+    await q(
+      `INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES ($1, $2, now() + interval '1 hour')`,
+      [rows[0].id, sha(token)]
+    );
+    const { sendPasswordReset } = await import('./email.js');
+    await sendPasswordReset(email, `${SITE_URL}/redefinir?token=${token}`);
+  } catch (e) {
+    console.error('forgot:', e.message);
+  }
+});
+
+router.post('/reset', async (req, res) => {
+  const token = String(req.body.token || '');
+  const password = String(req.body.password || '');
+  if (password.length < 8) return res.status(400).json({ error: 'A senha precisa de pelo menos 8 caracteres.' });
+  const { rows } = await q(
+    `UPDATE password_resets SET used_at = now()
+      WHERE token_hash = $1 AND used_at IS NULL AND expires_at > now()
+      RETURNING user_id`,
+    [sha(token)]
+  );
+  if (!rows[0]) return res.status(400).json({ error: 'Link inválido ou expirado. Peça um novo.' });
+  const passwordHash = await bcrypt.hash(password, 10);
+  await q('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, rows[0].user_id]);
+  res.json({ ok: true });
 });
 
 export default router;

@@ -126,6 +126,8 @@ export default function Login({ onAuth }) {
           </button>
         </form>
         <p className="switch-line">
+          <Link to="/esqueci" style={{ color: 'var(--muted)', fontSize: 13 }}>Esqueci minha senha</Link>
+          <br />
           Ainda não tem uma conta? <Link to="/criar-conta">Criar conta</Link>
         </p>
       </div>

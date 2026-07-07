@@ -113,6 +113,21 @@ export async function sendPurchaseConfirmed(email, { fighterName, diamonds, amou
   return sendEmail({ to: email, subject: '💎 Seus diamantes chegaram — STIKDEAD', html });
 }
 
+export async function sendPasswordReset(email, resetUrl) {
+  const html = baseLayout({
+    title: 'Redefinir sua senha',
+    bodyHtml: `
+      <p>Recebemos um pedido para redefinir a senha da sua conta no <strong>STIKDEAD</strong>.</p>
+      <p>Se foi você, o botão abaixo abre a tela de nova senha. <strong style="color:#f2efe9;">O link vale por 1 hora</strong> e só funciona uma vez.</p>
+      <p style="margin-top:14px;padding-left:6px;border-left:3px solid #d90429;color:#a89f96;font-size:13px;">
+        Não pediu? Pode ignorar este email — sua senha continua a mesma e ninguém acessou sua conta.
+      </p>`,
+    ctaText: 'Criar nova senha',
+    ctaUrl: resetUrl,
+  });
+  return sendEmail({ to: email, subject: '🔑 Redefinir senha — STIKDEAD', html });
+}
+
 // ===== broadcast (o miolo vem do admin; topo/rodapé prontos) =====
 export function broadcastHtml(message) {
   const safe = String(message)
