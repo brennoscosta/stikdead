@@ -2,7 +2,7 @@
 // A textura é opcional: sem /parts/head.webp, o rig vetorial segue soberano.
 import { Assets } from 'pixi.js';
 
-export const HEAD_SPRITE_ENABLED = true;
+export const HEAD_SPRITE_ENABLED = false;
 let tex = null;
 let tried = false;
 
