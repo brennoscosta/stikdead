@@ -154,6 +154,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         {/* últimas partidas */}
         <section className="dash-card">
           <h2>ÚLTIMAS PARTIDAS</h2>
+          <button className="btn-link" style={{ float: 'right', marginTop: -34 }} onClick={() => nav('/partidas')}>Ver todas →</button>
           <div className="dash-matches">
             {history.length === 0 && <p className="dash-empty">Nenhuma partida ainda.</p>}
             {history.map((m, i) => (

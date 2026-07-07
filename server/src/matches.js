@@ -89,6 +89,21 @@ router.get('/history', requireAuth, async (req, res) => {
   res.json({ matches: rows });
 });
 
+router.get('/all', requireAuth, async (req, res) => {
+  const { rows } = await q(
+    `SELECT m.opponent_type, m.difficulty, m.won, m.wins_a, m.wins_b, m.duration_s,
+            m.xp_gain, m.coin_gain, m.created_at,
+            p.fighter_name AS opponent_name
+       FROM matches m
+       LEFT JOIN profiles p ON p.user_id = m.opponent_id
+      WHERE m.user_id = $1
+      ORDER BY m.created_at DESC
+      LIMIT 300`,
+    [req.userId]
+  );
+  res.json({ matches: rows });
+});
+
 router.get('/summary', requireAuth, async (req, res) => {
   const { rows } = await q(
     `SELECT COUNT(*)::int AS partidas,
