@@ -124,6 +124,7 @@ router.get('/payments', requireAdmin, async (_req, res) => {
   );
   const totals = await q(
     `SELECT COALESCE(SUM(amount_cents) FILTER (WHERE status='paid'), 0) AS receita_cents,
+            COALESCE(SUM(amount_cents) FILTER (WHERE status='paid' AND paid_at::date = now()::date), 0) AS receita_hoje_cents,
             COUNT(*) FILTER (WHERE status='paid') AS pagos,
             COUNT(*) FILTER (WHERE status='pending') AS pendentes
        FROM diamond_orders`

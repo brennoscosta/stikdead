@@ -890,3 +890,30 @@ body.in-fight .topnav-spacer { display: none; }
   .adm-table { font-size: 12.5px; min-width: 560px; }
   .adm-table th, .adm-table td { padding: 6px 8px; }
 }
+
+/* ===== pagamentos: cards responsivos ===== */
+.pay-block { overflow: visible; }
+.pay-stats .adm-stat b { margin-right: 6px; }
+.pay-list { display: flex; flex-direction: column; gap: 8px; }
+.pay-card {
+  display: grid;
+  grid-template-columns: 84px 1fr 96px 92px 150px;
+  gap: 10px; align-items: center;
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-left: 3px solid var(--line); border-radius: 10px; padding: 10px 14px;
+}
+.pay-card.s-paid { border-left-color: #3caa6e; }
+.pay-card.s-pending { border-left-color: #e0a10b; }
+.pay-card small { display: block; color: var(--muted); font-size: 11.5px; }
+.pay-who b { display: block; }
+.pay-txid { font-family: monospace; opacity: 0.85; user-select: all; }
+.pay-value { font-weight: 800; }
+.pay-status { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+@media (max-width: 760px) {
+  .pay-card { grid-template-columns: 1fr 1fr; grid-template-areas: "who who" "what value" "when status"; }
+  .pay-card .pay-who { grid-area: who; }
+  .pay-card .pay-what { grid-area: what; }
+  .pay-card .pay-value { grid-area: value; text-align: right; }
+  .pay-card .pay-when { grid-area: when; }
+  .pay-card .pay-status { grid-area: status; align-items: flex-end; }
+}

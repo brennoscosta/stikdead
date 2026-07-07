@@ -44,7 +44,12 @@ router.post('/checkout', requireAuth, async (req, res) => {
     orderId = rows[0].id;
   }
 
+  const u = await q('SELECT email FROM users WHERE id = $1', [req.userId]);
+  const buyerEmail = u.rows[0]?.email || undefined;
+
   const pref = {
+    payer: buyerEmail ? { email: buyerEmail } : undefined,
+    metadata: { stikdead_user_id: req.userId, stikdead_email: buyerEmail },
     items: [{
       title: `STIKDEAD — ${pack.label} (${pack.diamonds} 💎)`,
       quantity: 1,
