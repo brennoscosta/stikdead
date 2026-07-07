@@ -78,7 +78,7 @@ export async function createPlaza(host, opts = {}) {
       style: { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, fill: 0xe8e4da, letterSpacing: 1 },
     });
     tag.anchor.set(0.5, 1);
-    if (onNameClick) {
+    if (onNameClick && !p.npc) {
       tag.eventMode = 'static';
       tag.cursor = 'pointer';
       tag.on('pointertap', () => onNameClick(p.name));

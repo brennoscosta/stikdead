@@ -1115,3 +1115,5 @@ body.in-fight .topnav-spacer { display: none; }
 /* ===== presença: ausente 💤 ===== */
 .fr-dot.away, .lobby-dot.away { background: #ffd76a !important; box-shadow: 0 0 8px rgba(255,215,106,0.8) !important; }
 .pc-away { font-size: 15px; vertical-align: middle; }
+
+.fr-zzz { font-size: 14px; flex: none; filter: drop-shadow(0 0 4px rgba(255,215,106,0.6)); }

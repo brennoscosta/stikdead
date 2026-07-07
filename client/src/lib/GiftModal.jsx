@@ -1,30 +1,49 @@
-// STIKDEAD :: presente recebido — a cerimônia da revelação 🎁
-import { useEffect, useState } from 'react';
+// STIKDEAD :: presente recebido — entrega incansável, cerimônia educada 🎁
+// Regras: persiste até entregar (login, reconexão, volta à aba, poll);
+// nunca empilha modais; só aparece com o jogador DE OLHO na tela.
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from './api.js';
 import { getSocket } from './socket.js';
 import ItemIcon from './ItemIcon.jsx';
-import { RARITY_LABEL } from '../pages/Shop.jsx';
+
+const RARITY_LABEL = { comum: 'Comum', raro: 'Raro', epico: 'Épico', lendario: 'Lendário', diamante: 'Diamante 💎' };
 
 export default function GiftModal({ onSenderClick }) {
   const [gift, setGift] = useState(null);
   const [phase, setPhase] = useState('closed'); // closed | opening | revealed
+  const busyRef = useRef(false);
 
   useEffect(() => {
     let dead = false;
     const check = async () => {
+      if (dead || document.hidden || busyRef.current) return; // com calma: só na tela, um por vez
+      busyRef.current = true;
       try {
         const d = await api('/api/gifts/pending');
-        if (!dead && d.gifts?.length && !gift) { setGift(d.gifts[0]); setPhase('closed'); }
-      } catch { /* segue */ }
+        if (!dead && d.gifts?.length) {
+          setGift((g) => { if (g) return g; setPhase('closed'); return d.gifts[0]; });
+        }
+      } catch { /* tenta de novo no próximo gatilho */ }
+      busyRef.current = false;
     };
-    check();
-    const t = setInterval(check, 30000); // rede de segurança
+
+    check();                                        // logou / recarregou
+    const t = setInterval(check, 30000);            // rede de segurança
     const s = getSocket();
-    s.on('gift:new', check);
-    return () => { dead = true; clearInterval(t); s.off('gift:new', check); };
-    // eslint-disable-next-line
-  }, [gift]);
+    s.on('gift:new', check);                        // chegada instantânea
+    s.on('connect', check);                         // reconectou
+    const onVis = () => { if (!document.hidden) setTimeout(check, 600); }; // voltou à aba
+    document.addEventListener('visibilitychange', onVis);
+    const onNext = () => setTimeout(check, 1400);   // respiro entre presentes da fila
+    window.addEventListener('stik:giftnext', onNext);
+    return () => {
+      dead = true; clearInterval(t);
+      s.off('gift:new', check); s.off('connect', check);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('stik:giftnext', onNext);
+    };
+  }, []);
 
   if (!gift) return null;
 
@@ -33,7 +52,12 @@ export default function GiftModal({ onSenderClick }) {
     try { await api(`/api/gifts/open/${gift.id}`, { method: 'POST' }); } catch { /* já era */ }
     setTimeout(() => setPhase('revealed'), 900);
   };
-  const close = () => { setGift(null); setPhase('closed'); };
+  const close = () => {
+    setGift(null); setPhase('closed');
+    window.dispatchEvent(new Event('stik:giftnext')); // tem mais na fila? entrega o próximo com calma
+  };
+
+  const isCur = gift.kind === 'coins' || gift.kind === 'diamonds';
 
   return createPortal(
     <div className="pc-overlay" style={{ zIndex: 400 }}>
@@ -49,7 +73,7 @@ export default function GiftModal({ onSenderClick }) {
         ) : (
           <>
             <div className="gift-burst">✦</div>
-            {gift.kind === 'item' || !gift.kind ? (
+            {!isCur ? (
               <>
                 <div className={`gift-item r-${gift.rarity}`}>
                   <ItemIcon item={gift} />
@@ -73,7 +97,7 @@ export default function GiftModal({ onSenderClick }) {
                 {gift.from_name || 'um guerreiro anônimo'}
               </button>
             </p>
-            {(gift.kind === 'item' || !gift.kind) && <p className="dash-empty" style={{ marginTop: 2 }}>O item já está no seu baú! 🎒</p>}
+            {!isCur && <p className="dash-empty" style={{ marginTop: 2 }}>O item já está no seu baú! 🎒</p>}
             <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 22px' }} onClick={close}>Fechar</button>
           </>
         )}

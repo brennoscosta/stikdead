@@ -25,6 +25,17 @@ const TIER_LABEL = (t) => (t || 'BRONZE_III').replace('_', ' ');
 export default function Lobby({ profile, onProfile }) {
   const nav = useNavigate();
   const [players, setPlayers] = useState([]);
+  // figurantes da praça: a casa nunca parece vazia (só visual — não entram na lista nem em desafios)
+  const npcsRef = useRef(null);
+  if (!npcsRef.current) {
+    const POOL = ['K4IO_ZN', 'sombra_77', 'MatadorDeBots', 'PatoLouco', 'ZeDaFaca', 'Trovao_BR',
+      'CorvoNegro', 'MITAGEM', 'ju_fps', 'Fantasminha', 'BR_Lendario', 'xNeguinhoX', 'DEDO_NERVOSO', 'CapivaraKiller'];
+    npcsRef.current = POOL.sort(() => Math.random() - 0.5).map((n, i) => ({ id: -(i + 1), name: n, npc: true, loadout: [] }));
+  }
+  const withFigurantes = (reais) => {
+    const extras = Math.max(0, 9 - reais.length);
+    return [...reais, ...npcsRef.current.slice(0, extras)];
+  };
   const [inQueue, setInQueue] = useState(false);
   const [incoming, setIncoming] = useState(null); // {id, from, expiresAt}
   const [sent, setSent] = useState(null);
@@ -46,7 +57,7 @@ export default function Lobby({ profile, onProfile }) {
     const onPresence = ({ players }) => {
       setPlayers(players);
       playersRef.current = players;
-      plazaRef.current?.setPlayers(players);
+      plazaRef.current?.setPlayers(withFigurantes(players));
     };
     const onQueue = ({ inQueue }) => setInQueue(inQueue);
     const onChallenge = ({ id, from, ttl }) =>
@@ -119,7 +130,7 @@ export default function Lobby({ profile, onProfile }) {
     createPlaza(plazaHost.current, { onNameClick: (n) => setCard(n) }).then((p) => {
       if (!alive) return p.destroy();
       plazaRef.current = p;
-      p.setPlayers(playersRef.current);
+      p.setPlayers(withFigurantes(playersRef.current));
     });
     return () => {
       alive = false;
@@ -161,7 +172,9 @@ export default function Lobby({ profile, onProfile }) {
               )}
               {others.map((p) => (
                 <li key={p.id}>
-                  <span className={`lobby-dot ${p.away ? 'away' : ''}`} data-busy={p.inMatch} title={p.away ? 'Ausente 💤' : ''} />
+                  {p.away
+                    ? <span className="fr-zzz" title="Ausente — cochilando">💤</span>
+                    : <span className="lobby-dot" data-busy={p.inMatch} />}
                   <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
                   <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}</span>
                   {p.inMatch ? (
