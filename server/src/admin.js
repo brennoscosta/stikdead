@@ -110,4 +110,31 @@ router.get('/arenas', (_req, res) => {
   });
 });
 
+// ===== PAGAMENTOS (diamantes) =====
+router.get('/payments', requireAdmin, async (_req, res) => {
+  const { rows } = await q(
+    `SELECT o.id, o.pack_id, o.diamonds, o.amount_cents, o.status,
+            o.created_at, o.paid_at, o.mp_payment_id,
+            p.fighter_name, u.email
+       FROM diamond_orders o
+       JOIN users u ON u.id = o.user_id
+  LEFT JOIN profiles p ON p.user_id = o.user_id
+   ORDER BY o.created_at DESC
+      LIMIT 200`
+  );
+  const totals = await q(
+    `SELECT COALESCE(SUM(amount_cents) FILTER (WHERE status='paid'), 0) AS receita_cents,
+            COUNT(*) FILTER (WHERE status='paid') AS pagos,
+            COUNT(*) FILTER (WHERE status='pending') AS pendentes
+       FROM diamond_orders`
+  );
+  res.json({ orders: rows, totals: totals.rows[0] });
+});
+
+router.post('/payments/:id/check', requireAdmin, async (req, res) => {
+  const { reconcileOrder } = await import('./diamonds.js');
+  const status = await reconcileOrder(Number(req.params.id));
+  res.json({ status });
+});
+
 export default router;

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Navbar from '../lib/Navbar.jsx';
 import { api } from '../lib/api.js';
 
-const TABS = ['Dashboard', 'Usuários', 'Itens', 'Mapas'];
+const TABS = ['Dashboard', 'Usuários', 'Itens', 'Mapas', 'Pagamentos'];
 const fmt = (n) => Number(n).toLocaleString('pt-BR');
 
 function Editable({ value, onSave, type = 'text', width = 90 }) {
@@ -37,6 +37,8 @@ export default function Admin({ profile }) {
   const [users, setUsers] = useState([]);
   const [items, setItems] = useState([]);
   const [arenas, setArenas] = useState([]);
+  const [payments, setPayments] = useState(null);
+  const checkOrder = async (id) => { await api(`/api/admin/payments/${id}/check`, { method: 'POST' }); setPayments(await api('/api/admin/payments')); };
   const [term, setTerm] = useState('');
   const [err, setErr] = useState('');
 
@@ -47,6 +49,7 @@ export default function Admin({ profile }) {
       if (tab === 'Usuários') setUsers((await api(`/api/admin/users?q=${encodeURIComponent(term)}`)).users);
       if (tab === 'Itens') setItems((await api('/api/admin/items')).items);
       if (tab === 'Mapas') setArenas((await api('/api/admin/arenas')).arenas);
+      if (tab === 'Pagamentos') setPayments(await api('/api/admin/payments'));
     } catch (e) { setErr(e.message); }
   };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [tab]);
@@ -153,6 +156,35 @@ export default function Admin({ profile }) {
         </div>
       )}
 
+      {tab === 'Pagamentos' && payments && (
+        <div className="adm-block">
+          <div className="adm-stats" style={{ marginBottom: 14 }}>
+            <div className="adm-stat"><b>R$ {(payments.totals.receita_cents / 100).toFixed(2).replace('.', ',')}</b><span>receita total</span></div>
+            <div className="adm-stat"><b>{payments.totals.pagos}</b><span>pagos</span></div>
+            <div className="adm-stat"><b>{payments.totals.pendentes}</b><span>pendentes</span></div>
+          </div>
+          <table className="adm-table">
+            <thead><tr><th>Data/Hora</th><th>Comprador</th><th>Pack</th><th>💎</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {payments.orders.map((o) => (
+                <tr key={o.id}>
+                  <td>{new Date(o.created_at).toLocaleDateString('pt-BR')} {new Date(o.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
+                  <td>{o.fighter_name || '—'}<br /><small style={{ color: 'var(--muted)' }}>{o.email}</small></td>
+                  <td>{o.pack_id}</td>
+                  <td>{o.diamonds}</td>
+                  <td>R$ {(o.amount_cents / 100).toFixed(2).replace('.', ',')}</td>
+                  <td>
+                    <span className={`adm-pay-badge s-${o.status}`}>
+                      {o.status === 'paid' ? '✅ pago' : o.status === 'pending' ? '⏳ pendente' : '❌ ' + o.status}
+                    </span>
+                  </td>
+                  <td>{o.status === 'pending' && <button className="adm-btn" onClick={() => checkOrder(o.id)}>↻ verificar</button>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {tab === 'Mapas' && (
         <div className="adm-table-wrap">
           <table className="adm-table">

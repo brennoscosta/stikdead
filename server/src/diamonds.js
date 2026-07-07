@@ -102,6 +102,20 @@ router.post('/webhook', async (req, res) => {
   }
 });
 
+// reconciliação reutilizável (admin e cliente)
+export async function reconcileOrder(orderId) {
+  const search = await fetch(
+    `https://api.mercadopago.com/v1/payments/search?external_reference=${orderId}`,
+    { headers: { Authorization: `Bearer ${MP_TOKEN}` } }
+  );
+  if (search.ok) {
+    const d = await search.json();
+    for (const p of d.results || []) if (p.status === 'approved') await creditPayment(p.id);
+  }
+  const after = await q('SELECT status FROM diamond_orders WHERE id = $1', [orderId]);
+  return after.rows[0]?.status || 'unknown';
+}
+
 // segurança extra: o cliente pode pedir reconciliação do próprio pedido ao voltar da tela do MP
 router.post('/reconcile/:orderId', requireAuth, async (req, res) => {
   const { rows } = await q(
