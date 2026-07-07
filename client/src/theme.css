@@ -1094,3 +1094,5 @@ body.in-fight .topnav-spacer { display: none; }
 .exc-tip.gold .exc-sep { background: linear-gradient(90deg, transparent, rgba(255,215,106,0.6), transparent); }
 .exc-tip.gold .exc-line { color: #ffd76a; text-shadow: 0 0 8px rgba(255,215,106,0.3); }
 .exc-tip.gold .exc-rarity { color: #cdb26a; }
+
+.topnav-me { display: flex; flex-direction: column; align-items: flex-end; background: none; border: none; padding: 0; }
