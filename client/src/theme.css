@@ -410,3 +410,71 @@ html, body { touch-action: manipulation; }
   background: linear-gradient(180deg, rgba(60, 8, 18, 0.35), rgba(217, 4, 41, 0.08)) !important;
 }
 .style-card.locked:hover { border-color: rgba(224, 161, 11, 0.4); }
+
+/* ============================================================
+   MOBILE: navegação vira APP BAR INFERIOR (≤760px)
+   Topo fica compacto: logo + moedas + jogador.
+   ============================================================ */
+@media (max-width: 760px) {
+  /* topo enxuto — sem os links */
+  .topnav { justify-content: space-between; gap: 10px; }
+  .topnav-logo img { height: 64px; margin: -14px 0; }
+
+  /* a barra de links desce para o rodapé, estilo app */
+  .topnav-links {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    gap: 0;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(20, 9, 13, 0.97), rgba(8, 5, 7, 0.99));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(217, 4, 41, 0.4);
+    box-shadow: 0 -4px 26px rgba(0, 0, 0, 0.6), 0 -1px 14px rgba(217, 4, 41, 0.15);
+  }
+  .topnav-links a, .topnav-links .topnav-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    padding: 4px 2px;
+    border-radius: 10px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    background: none;
+    border: none;
+    transition: color 0.15s, transform 0.12s;
+  }
+  .topnav-links .topnav-ico { font-size: 21px; line-height: 1; }
+  .topnav-links .topnav-label { font-size: 9.5px; }
+  .topnav-links a.on {
+    color: var(--bone);
+  }
+  .topnav-links a.on .topnav-ico {
+    filter: drop-shadow(0 0 10px rgba(255, 34, 68, 0.9));
+    transform: translateY(-1px) scale(1.12);
+  }
+  .topnav-links a.on::after {
+    content: '';
+    width: 18px; height: 2.5px;
+    border-radius: 2px;
+    background: var(--blood);
+    box-shadow: 0 0 10px rgba(217, 4, 41, 0.9);
+    margin-top: 1px;
+  }
+  .topnav-links a:active { transform: scale(0.94); }
+  .topnav-links .topnav-soon { opacity: 0.45; }
+
+  /* conteúdo respira acima da app bar (todas as telas com navbar) */
+  .scene-nav, .dash, .lobby2, .scene:has(.topnav) {
+    padding-bottom: calc(86px + env(safe-area-inset-bottom)) !important;
+  }
+  /* botão de skill e controles da luta não são afetados (telas sem navbar) */
+}
