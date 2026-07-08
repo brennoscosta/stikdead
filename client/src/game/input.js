@@ -10,8 +10,6 @@ const KEYMAP = {
   KeyD: 'heavy',   // chute (no dash = rasteira)
   KeyF: 'dash',
   ShiftLeft: 'block', ShiftRight: 'block',
-  // legado silencioso
-  KeyJ: 'light', KeyK: 'heavy', KeyL: 'block', KeyH: 'skill',
 };
 
 export function createInput() {
