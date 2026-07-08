@@ -13,7 +13,8 @@ const withTimeout = (p, ms, label) =>
 export async function createRenderer(host, theme = 'dojo') {
   console.log('[stikdead] renderer v7.4 — iniciando, arena =', theme);
   const app = new Application();
-  await withTimeout(app.init({ background: '#e7dfcf', resizeTo: host, antialias: true }), 10000, 'pixi init');
+  const IS_TOUCH = matchMedia('(pointer: coarse)').matches;
+  await withTimeout(app.init({ background: '#e7dfcf', resizeTo: host, antialias: !IS_TOUCH }), 10000, 'pixi init');
   console.log('[stikdead] pixi ok');
   host.appendChild(app.canvas);
   app.canvas.style.display = 'block';
@@ -30,7 +31,9 @@ export async function createRenderer(host, theme = 'dojo') {
   const WEAK_DEVICE = (navigator.hardwareConcurrency || 8) <= 4
     || (navigator.deviceMemory || 8) <= 3
     || /android [4-8]\./i.test(navigator.userAgent);
-  const VIDEO_ARENAS = WEAK_DEVICE ? {} : Object.fromEntries(VIDEO_THEMES.map((t) => [t, `/arenas/${t}.mp4`]));
+  const VIDEO_ARENAS = WEAK_DEVICE ? {} : Object.fromEntries(
+    VIDEO_THEMES.map((t) => [t, IS_TOUCH ? `/arenas/${t}_sd.mp4` : `/arenas/${t}.mp4`])
+  );
   if (WEAK_DEVICE) console.log('[stikdead] dispositivo modesto — arenas procedurais assumem 🎨');
   const loadArenaVideo = (src) => new Promise((resolve, reject) => {
     const v = document.createElement('video');
@@ -53,7 +56,9 @@ export async function createRenderer(host, theme = 'dojo') {
       try {
         const vid = await loadArenaVideo(VIDEO_ARENAS[theme]);
         tex = Texture.from(vid);
-        console.log('[stikdead] arena em VÍDEO carregada 🎬');
+        // o jogo roda a 60fps, mas a textura do vídeo só sobe à GPU 24x/s
+        try { if (tex.source && 'updateFPS' in tex.source) tex.source.updateFPS = 24; } catch { /* versão sem a alavanca */ }
+        console.log('[stikdead] arena em VÍDEO carregada 🎬', IS_TOUCH ? '(tier mobile)' : '');
       } catch (e) {
         console.warn('[stikdead] vídeo falhou, tentando pintura:', e.message);
       }
