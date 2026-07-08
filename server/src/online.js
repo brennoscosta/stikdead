@@ -354,6 +354,10 @@ export function attachOnline(io) {
     socket.on('challenge:send', ({ to }) => {
       const target = online.get(Number(to));
       if (!target || userRoom.has(user.id) || userRoom.has(Number(to)) || Number(to) === user.id) return;
+      if (AWAY_IDS.has(Number(to))) {
+        socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: `${target.user.name} está ausente 💤 — não pode ser desafiado agora.`, ts: Date.now() });
+        return;
+      }
       const id = `c${nextChallenge++}`;
       const ch = {
         id, from: user.id, to: Number(to),

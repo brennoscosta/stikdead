@@ -172,14 +172,17 @@ export default function Lobby({ profile, onProfile }) {
                 <p className="dash-empty">Ninguém mais online agora. Chame os amigos!</p>
               )}
               {others.map((p) => (
-                <li key={p.id}>
-                  {p.away
-                    ? <span className="fr-zzz" title="Ausente — cochilando">💤</span>
-                    : <span className="lobby-dot" data-busy={p.inMatch} />}
+                <li key={p.id} className={p.away ? 'is-away' : ''}>
+                  <span
+                    className={`lobby-dot ${p.away ? 'st-away' : p.inMatch ? 'st-busy' : 'st-free'}`}
+                    title={p.away ? 'Ausente' : p.inMatch ? 'Em jogo' : 'Online e disponível'}
+                  />
                   <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
                   <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}</span>
-                  {p.inMatch ? (
-                    <span className="lobby-busy">EM LUTA</span>
+                  {p.away ? (
+                    <span className="lobby-busy st-away-tag">💤 AUSENTE</span>
+                  ) : p.inMatch ? (
+                    <span className="lobby-busy">🟡 EM LUTA</span>
                   ) : (
                     <button
                       className="lobby-challenge"

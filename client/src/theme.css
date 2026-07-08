@@ -1113,7 +1113,7 @@ body.in-fight .topnav-spacer { display: none; }
 .gift-item-cur { font-size: 84px; padding: 10px 24px; }
 
 /* ===== presença: ausente 💤 ===== */
-.fr-dot.away, .lobby-dot.away { background: #ffd76a !important; box-shadow: 0 0 8px rgba(255,215,106,0.8) !important; }
+.fr-dot.away { background: #ffd76a !important; box-shadow: 0 0 8px rgba(255,215,106,0.8) !important; }
 .pc-away { font-size: 15px; vertical-align: middle; }
 
 .fr-zzz { font-size: 14px; flex: none; filter: drop-shadow(0 0 4px rgba(255,215,106,0.6)); }
@@ -1145,3 +1145,10 @@ body.in-fight .topnav-spacer { display: none; }
 @keyframes kh-ready { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
 /* só desktop: dedo grosso não precisa de teclado */
 @media (pointer: coarse), (max-width: 820px) { .keys-hud { display: none; } }
+
+/* ===== lista do lobby: os 3 estados de presença ===== */
+.lobby-dot.st-free { background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,0.8); }
+.lobby-dot.st-busy { background: #ffd76a; box-shadow: 0 0 8px rgba(255,215,106,0.8); }
+.lobby-dot.st-away { background: #6a6270; box-shadow: none; opacity: 0.9; }
+.lobby-list li.is-away { opacity: 0.62; }
+.st-away-tag { color: #b8b0be; }
