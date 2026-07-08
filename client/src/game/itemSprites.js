@@ -17,7 +17,6 @@ const CFG = {
   foice: { attach: 'hand', len: 74, grip: 0.9 },
   foice_sangrenta: { attach: 'hand', len: 76, grip: 0.9 },
   dual_blades: { attach: 'hand', len: 46, grip: 0.85 },
-  arco: { attach: 'hand', len: 66, grip: 0.5 },
   // ----- cabeça (assenta no topo) -----
   chapeu_palha: { attach: 'head', len: 36, maxW: 74, overlap: 12 },
   coroa: { attach: 'head', len: 26, maxW: 36, overlap: 7 },
@@ -37,7 +36,6 @@ const CFG = {
   esm_weapon_spear: { attach: 'hand', len: 88, grip: 0.72 },
   esm_weapon_axe: { attach: 'hand', len: 58, grip: 0.88 },
   esm_weapon_scythe: { attach: 'hand', len: 76, grip: 0.9 },
-  esm_weapon_bow: { attach: 'hand', len: 66, grip: 0.5 },
   // ----- rostos de cristal (arte IA original) -----
   saf_face_mask_oni: { attach: 'face', len: 100, maxW: 95 },
   saf_face_eyes_red: { attach: 'face', len: 26, maxW: 60 },
@@ -49,7 +47,7 @@ const CFG = {
 // itens que usam sprite MESMO com o interruptor mestre desligado
 const SPRITE_WHITELIST = new Set([
   'dia_katana_gelo', 'dia_foice_glacial', 'dia_lancas_cristal', 'dia_machado_abismo',
-  'esm_weapon_katana', 'esm_weapon_spear', 'esm_weapon_axe', 'esm_weapon_scythe', 'esm_weapon_bow',
+  'esm_weapon_katana', 'esm_weapon_spear', 'esm_weapon_axe', 'esm_weapon_scythe',
   'saf_face_mask_oni', 'saf_face_eyes_red',
   'esm_face_mask_oni', 'esm_face_mask_skull', 'esm_face_eyes_red',
 ]);
