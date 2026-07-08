@@ -227,7 +227,7 @@ export default function Lobby({ profile, onProfile }) {
               <input
                 value={chatText}
                 onChange={(e) => setChatText(e.target.value)}
-                maxLength={200}
+                maxLength={100}
                 placeholder="Digite sua mensagem…"
               />
               <button type="submit">➤</button>

@@ -256,7 +256,7 @@ export function attachOnline(io) {
     };
 
     const handleSend = (payload, channel) => {
-      const text = String(payload?.text || '').trim().slice(0, 200);
+      const text = String(payload?.text || '').trim().slice(0, 100);
       if (!text) return;
       const now = Date.now();
       if (now - (chatLast.get(user.id) || 0) < 1000) return; // 1 msg/s
