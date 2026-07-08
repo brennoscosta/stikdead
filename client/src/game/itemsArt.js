@@ -8,7 +8,8 @@ const LAYER = {
   cape: 'back', aura: 'back', sheath: 'back',
   vest: 'body', scarf: 'body', gloves: 'body', gauntlets: 'body', bands: 'body',
   shorts: 'body', pants: 'body', kneepads: 'body', shoes: 'body', boots: 'body',
-  band: 'front', hat: 'front', hood: 'front', crown: 'front',
+  band: 'front', hat: 'front', hood: 'front', crown: 'front', ice_crown: 'front',
+  prisma_armor: 'body', prisma_blades: 'front',
   bandana: 'front', mask_skull: 'front', mask_oni: 'front', mask_hockey: 'front', eyes_red: 'front',
   katana: 'front', bo: 'front', nunchaku: 'front', axe: 'front', spear: 'front',
   scythe: 'front', dual: 'front', bow: 'front',
@@ -33,6 +34,14 @@ export function drawItems(ctx, loadout, layer) {
 }
 
 // ===== helpers =====
+// espectro do prisma: h em voltas (0..1) -> cor RGB viva
+function hue(h) {
+  const f = (n) => {
+    const k = (n + h * 12) % 12;
+    return Math.round(255 * (0.62 - 0.38 * Math.max(-1, Math.min(k - 3, 9 - k, 1))));
+  };
+  return (f(0) << 16) | (f(8) << 8) | f(4);
+}
 function dir(a, b) {
   const dx = b[0] - a[0], dy = b[1] - a[1];
   const L = Math.hypot(dx, dy) || 1;
@@ -338,6 +347,122 @@ const TEMPLATES = {
       .lineTo(hx + 7, y0 - 3).lineTo(hx + 13, y0 - 8).lineTo(hx + 13, y0).closePath()
       .fill(col).stroke({ width: 2.5, color: OUT });
     g.circle(hx, y0 - 8, 2.2).fill(0xd90429);
+  },
+
+  // ===== EXCELENTES: Coroa do Gelo Eterno — picos cristalinos, névoa e flocos =====
+  ice_crown({ g, T, sk, elapsed }, p) {
+    const base = C(p.color ?? '#8fe3ff');
+    const [hx, hy] = T(sk.head);
+    const y0 = hy - 14;
+    // aro de gelo
+    g.moveTo(hx - 14, y0).lineTo(hx + 14, y0).stroke({ width: 5.5, color: OUT, cap: 'round' });
+    g.moveTo(hx - 14, y0).lineTo(hx + 14, y0).stroke({ width: 3.2, color: base, cap: 'round' });
+    // picos irregulares de cristal (5 estalactites invertidas)
+    const picos = [[-12, 9], [-6, 13], [0, 17], [6, 13], [12, 9]];
+    for (let i = 0; i < picos.length; i++) {
+      const [ox, alt] = picos[i];
+      const cintila = 0.75 + 0.25 * Math.sin(elapsed * 3.2 + i * 1.7);
+      const x = hx + ox;
+      g.moveTo(x - 3, y0).lineTo(x, y0 - alt).lineTo(x + 3, y0).closePath()
+        .fill({ color: base, alpha: 0.9 }).stroke({ width: 2, color: OUT });
+      // faceta interna translúcida (lado da luz)
+      g.moveTo(x - 1.5, y0 - 1).lineTo(x, y0 - alt + 2).lineTo(x + 1.2, y0 - alt * 0.45).closePath()
+        .fill({ color: 0xffffff, alpha: 0.5 * cintila });
+    }
+    // gema congelada central
+    g.circle(hx, y0 - 6, 2.6).fill(0xdff6ff).stroke({ width: 1.5, color: OUT });
+    g.circle(hx, y0 - 6, 1.1).fill({ color: 0xffffff, alpha: 0.9 });
+    // flocos caindo devagar ao redor da coroa
+    for (let i = 0; i < 4; i++) {
+      const fase = (elapsed * 0.55 + i * 0.25) % 1;
+      const fx = hx + Math.sin(elapsed * 1.3 + i * 2.1) * (10 + i * 3);
+      const fy = y0 - 16 + fase * 26;
+      g.circle(fx, fy, 1.1).fill({ color: 0xffffff, alpha: 0.55 * (1 - fase) });
+    }
+  },
+
+  // ===== EXCELENTES: Armadura Prismática — facetas com o espectro vivo =====
+  prisma_armor({ g, T, sk, face, elapsed }, p) {
+    const n = T(sk.neck), h = T(sk.hip);
+    // base do torso (cristal escuro)
+    seg(g, n, h, 26, 0x1a2430, true, false);
+    // facetas triangulares iridescentes ao longo do torso
+    const [dx, dy] = dir(n, h);
+    const px = -dy, py = dx; // perpendicular
+    for (let i = 0; i < 4; i++) {
+      const t0 = i / 4, t1 = (i + 1) / 4;
+      const a = [n[0] + (h[0] - n[0]) * t0, n[1] + (h[1] - n[1]) * t0];
+      const b = [n[0] + (h[0] - n[0]) * t1, n[1] + (h[1] - n[1]) * t1];
+      const corA = hue((elapsed * 0.12 + i * 0.17) % 1);
+      const corB = hue((elapsed * 0.12 + i * 0.17 + 0.09) % 1);
+      const zig = i % 2 === 0 ? 1 : -1;
+      // duas metades trianguladas (o zigue-zague do prisma)
+      g.moveTo(a[0] - px * 11, a[1] - py * 11).lineTo(a[0] + px * 11, a[1] + py * 11)
+        .lineTo(b[0] + px * 11 * zig, b[1] + py * 11 * zig).closePath()
+        .fill({ color: corA, alpha: 0.85 });
+      g.moveTo(b[0] - px * 11, b[1] - py * 11).lineTo(b[0] + px * 11, b[1] + py * 11)
+        .lineTo(a[0] - px * 11 * zig, a[1] - py * 11 * zig).closePath()
+        .fill({ color: corB, alpha: 0.65 });
+      // linha de refração entre placas
+      g.moveTo(a[0] - px * 11, a[1] - py * 11).lineTo(a[0] + px * 11, a[1] + py * 11)
+        .stroke({ width: 1.6, color: 0xffffff, alpha: 0.35 });
+    }
+    // contorno cristalino
+    seg(g, n, h, 26, 0x000000, true, false); // reforço do outline
+    g.moveTo(n[0] - px * 13, n[1] - py * 13).lineTo(h[0] - px * 13, h[1] - py * 13).stroke({ width: 3, color: OUT });
+    g.moveTo(n[0] + px * 13, n[1] + py * 13).lineTo(h[0] + px * 13, h[1] + py * 13).stroke({ width: 3, color: OUT });
+    // ombreiras: cristais lapidados girando de cor
+    for (const lado of [-1, 1]) {
+      const ox = n[0] + lado * 12, oy = n[1] + 1;
+      const cor = hue((elapsed * 0.12 + (lado + 1) * 0.31) % 1);
+      g.moveTo(ox, oy - 7).lineTo(ox + 6, oy).lineTo(ox, oy + 7).lineTo(ox - 6, oy).closePath()
+        .fill(cor).stroke({ width: 2.5, color: OUT });
+      g.moveTo(ox, oy - 7).lineTo(ox, oy + 7).stroke({ width: 1.2, color: 0xffffff, alpha: 0.4 });
+    }
+    // brilho especular varrendo o peito
+    const varre = ((elapsed * 0.4) % 1.6) - 0.3;
+    if (varre >= 0 && varre <= 1) {
+      const vx = n[0] + (h[0] - n[0]) * varre, vy = n[1] + (h[1] - n[1]) * varre;
+      g.moveTo(vx - px * 12, vy - py * 12).lineTo(vx + px * 12, vy + py * 12)
+        .stroke({ width: 4, color: 0xffffff, alpha: 0.3 });
+    }
+  },
+
+  // ===== EXCELENTES: Lâminas do Prisma — cristal facetado com o espectro na alma =====
+  prisma_blades({ g, T, sk, elapsed }, p) {
+    let bi = 0;
+    for (const [e, h] of [[sk.elbF, sk.handF], [sk.elbB, sk.handB]]) {
+      const eh = T(e), hh = T(h);
+      const [dx, dy] = dir(eh, hh);
+      const px = -dy, py = dx;
+      const tip = [hh[0] + dx * 40, hh[1] + dy * 40];
+      const meio = [hh[0] + dx * 18, hh[1] + dy * 18];
+      const corNucleo = hue((elapsed * 0.25 + bi * 0.5) % 1);
+      // guarda de cristal
+      g.moveTo(hh[0] - px * 6, hh[1] - py * 6).lineTo(hh[0] + px * 6, hh[1] + py * 6)
+        .stroke({ width: 4.5, color: OUT, cap: 'round' });
+      g.moveTo(hh[0] - px * 6, hh[1] - py * 6).lineTo(hh[0] + px * 6, hh[1] + py * 6)
+        .stroke({ width: 2.6, color: 0xdff6ff, cap: 'round' });
+      // lâmina losango facetada (translúcida com alma espectral)
+      g.moveTo(hh[0], hh[1]).lineTo(meio[0] + px * 4.5, meio[1] + py * 4.5).lineTo(tip[0], tip[1])
+        .lineTo(meio[0] - px * 4.5, meio[1] - py * 4.5).closePath()
+        .fill({ color: 0xeaf9ff, alpha: 0.85 }).stroke({ width: 2.2, color: OUT });
+      // núcleo espectral pulsando
+      g.moveTo(hh[0] + dx * 4, hh[1] + dy * 4).lineTo(tip[0] - dx * 3, tip[1] - dy * 3)
+        .stroke({ width: 2.4, color: corNucleo, alpha: 0.95 });
+      // faceta de luz
+      g.moveTo(hh[0] + dx * 6 + px * 1.5, hh[1] + dy * 6 + py * 1.5)
+        .lineTo(meio[0] + px * 3.2, meio[1] + py * 3.2).lineTo(tip[0] - dx * 5, tip[1] - dy * 5)
+        .stroke({ width: 1.2, color: 0xffffff, alpha: 0.6 });
+      // refração: raiozinhos de arco-íris saindo da ponta
+      for (let r = 0; r < 3; r++) {
+        const ang = Math.atan2(dy, dx) + (r - 1) * 0.5 + Math.sin(elapsed * 2.4 + bi) * 0.12;
+        const L = 7 + 3 * Math.sin(elapsed * 3.1 + r * 2 + bi * 3);
+        g.moveTo(tip[0], tip[1]).lineTo(tip[0] + Math.cos(ang) * L, tip[1] + Math.sin(ang) * L)
+          .stroke({ width: 1.4, color: hue((elapsed * 0.3 + r * 0.33) % 1), alpha: 0.6 });
+      }
+      bi++;
+    }
   },
   bandana({ g, T, sk }, p) {
     const col = C(p.color);
