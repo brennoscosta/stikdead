@@ -11,8 +11,8 @@ export default function FriendAskModal() {
 
   useEffect(() => {
     const s = getSocket();
-    const onAsk = (p) => setModal({ mode: 'ask', requestId: p.requestId, name: p.from, deadline: Date.now() + (p.ttl || 15) * 1000 });
-    const onWait = (p) => setModal({ mode: 'wait', requestId: p.requestId, name: p.to, deadline: Date.now() + (p.ttl || 15) * 1000 });
+    const onAsk = (p) => setModal({ mode: 'ask', requestId: p.requestId, name: p.from, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
+    const onWait = (p) => setModal({ mode: 'wait', requestId: p.requestId, name: p.to, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
     const onAnswer = (p) => setModal((m) => (m && m.requestId === p.requestId)
       ? { mode: 'result', requestId: p.requestId, name: p.with, accepted: p.accepted, deadline: Date.now() + 2200 }
       : m);
@@ -39,7 +39,7 @@ export default function FriendAskModal() {
 
   if (!modal) return null;
   const restante = Math.max(0, Math.ceil((modal.deadline - now) / 1000));
-  const frac = Math.max(0, (modal.deadline - now) / 15000);
+  const frac = Math.max(0, (modal.deadline - now) / (modal.total || 30000));
 
   const respond = async (accept) => {
     if (busyRef.current) return;

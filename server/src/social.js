@@ -87,11 +87,11 @@ router.post('/friends/request', requireAuth, async (req, res) => {
     const d = den.rows[0];
     const seteDias = 7 * 24 * 3600 * 1000;
     const desde = Date.now() - new Date(d.last_at).getTime();
-    if (d.count >= 5 && desde < seteDias) {
+    if (d.count >= 3 && desde < seteDias) {
       const dias = Math.ceil((seteDias - desde) / (24 * 3600 * 1000));
-      return res.status(429).json({ error: `Limite de 5 pedidos atingido. Tente novamente em ${dias} dia${dias === 1 ? '' : 's'}.` });
+      return res.status(429).json({ error: `Limite de 3 pedidos atingido. Tente novamente em ${dias} dia${dias === 1 ? '' : 's'}.` });
     }
-    if (d.count >= 5 && desde >= seteDias) {
+    if (d.count >= 3 && desde >= seteDias) {
       await q('DELETE FROM friend_denials WHERE requester_id = $1 AND addressee_id = $2', [req.userId, target]);
     }
   }
@@ -116,8 +116,8 @@ router.post('/friends/request', requireAuth, async (req, res) => {
   logActivity(target, 'friend_request', { from: fromName, requestId });
   notifyUser(target, 'social:ping', { type: 'friend_request', from: fromName });
   // os dois modais: quem recebe decide, quem pediu aguarda
-  notifyUser(target, 'friend:ask', { requestId, from: fromName, ttl: 15 });
-  notifyUser(req.userId, 'friend:waiting', { requestId, to: targetName, ttl: 15 });
+  notifyUser(target, 'friend:ask', { requestId, from: fromName, ttl: 30 });
+  notifyUser(req.userId, 'friend:waiting', { requestId, to: targetName, ttl: 30 });
   // expiração autoritativa: 15s e a proposta evapora (sem contar como recusa)
   const requesterId = req.userId;
   setTimeout(async () => {
@@ -129,7 +129,7 @@ router.post('/friends/request', requireAuth, async (req, res) => {
       notifyUser(target, 'friend:expired', { requestId });
       notifyUser(target, 'social:ping', { type: 'friend_expired' });
     } catch { /* fica para a lista como plano B */ }
-  }, 15000);
+  }, 30000);
   res.json({ ok: true, status: 'pending_out' });
 });
 
