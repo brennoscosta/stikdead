@@ -39,11 +39,10 @@ const CFG = {
   esm_weapon_scythe: { attach: 'hand', len: 76, grip: 0.9 },
   esm_weapon_bow: { attach: 'hand', len: 66, grip: 0.5 },
   // ----- rostos de cristal (arte IA original) -----
-  saf_face_mask_oni: { attach: 'face', len: 91, maxW: 86 },
-  saf_face_mask_skull: { attach: 'face', len: 41, maxW: 40 },
+  saf_face_mask_oni: { attach: 'face', len: 100, maxW: 95 },
   saf_face_eyes_red: { attach: 'face', len: 26, maxW: 60 },
-  esm_face_mask_oni: { attach: 'face', len: 91, maxW: 86 },
-  esm_face_mask_skull: { attach: 'face', len: 82, maxW: 79 },
+  esm_face_mask_oni: { attach: 'face', len: 100, maxW: 95 },
+  esm_face_mask_skull: { attach: 'face', len: 90, maxW: 87 },
   esm_face_eyes_red: { attach: 'face', len: 26, maxW: 60 },
 };
 
@@ -51,7 +50,7 @@ const CFG = {
 const SPRITE_WHITELIST = new Set([
   'dia_katana_gelo', 'dia_foice_glacial', 'dia_lancas_cristal', 'dia_machado_abismo',
   'esm_weapon_katana', 'esm_weapon_spear', 'esm_weapon_axe', 'esm_weapon_scythe', 'esm_weapon_bow',
-  'saf_face_mask_oni', 'saf_face_mask_skull', 'saf_face_eyes_red',
+  'saf_face_mask_oni', 'saf_face_eyes_red',
   'esm_face_mask_oni', 'esm_face_mask_skull', 'esm_face_eyes_red',
 ]);
 
