@@ -137,7 +137,7 @@ export default function Friends({ profile }) {
             {chat.length === 0 && <p className="dash-empty">O salão está em silêncio... quebra o gelo!</p>}
           </div>
           <form className="fr-input" onSubmit={send}>
-            <input ref={inputRef} value={text} onChange={(e) => setText(e.target.value)} placeholder="Fala com o clã... (/nome sussurra)" maxLength={200} />
+            <input ref={inputRef} value={text} onChange={(e) => setText(e.target.value)} placeholder="Fala com o clã... (/nome sussurra)" maxLength={100} />
             <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 18px' }}>➤</button>
           </form>
         </div>
