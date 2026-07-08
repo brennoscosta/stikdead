@@ -1241,7 +1241,7 @@ body.in-fight .topnav-spacer { display: none; }
 .car-patente { width: 92px; height: 92px; border-radius: 16px; overflow: hidden; border: 2px solid rgba(224,161,11,0.6); box-shadow: 0 0 24px rgba(224,161,11,0.25); flex: none; background: #17121a; }
 .car-patente img { width: 100%; height: 100%; object-fit: cover; }
 .car-patente-emoji { width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 42px; }
-.car-nome { font-family: 'Rubik Wet Paint', sans-serif; font-size: clamp(26px, 5vw, 40px); margin: 0; }
+.car-nome { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(28px, 5vw, 42px); margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 18px rgba(217,4,41,0.35); }
 .car-pat-nome { color: #ffd76a; }
 .car-sub { color: var(--text); font-size: 15px; margin-top: 2px; }
 .car-sub2 { color: var(--muted); font-size: 12.5px; margin-top: 3px; }

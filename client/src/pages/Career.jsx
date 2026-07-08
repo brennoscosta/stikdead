@@ -62,6 +62,14 @@ export default function Career({ profile }) {
           <Stat label="VS MÁQUINAS (total)" value={`${c.bots.wins}V · ${c.bots.losses}D`} />
           <Stat label="APOSTAS GANHAS" value={fmt(c.apostas.ganhas)} sub={`+${fmt(c.apostas.totalGanho)} arrecadado`} cor="#7de0a8" />
           <Stat label="APOSTAS PERDIDAS" value={fmt(c.apostas.perdidas)} sub={`-${fmt(c.apostas.totalPerdido)} transferido`} cor="#ff8fa3" />
+          <Stat
+            label="GANHOS COM APOSTAS"
+            value={`${c.apostas.totalGanho - c.apostas.totalPerdido >= 0 ? '+' : '-'}${fmt(Math.abs(c.apostas.totalGanho - c.apostas.totalPerdido))}`}
+            sub="saldo líquido dos duelos apostados"
+            cor={c.apostas.totalGanho - c.apostas.totalPerdido >= 0 ? '#7de0a8' : '#ff8fa3'}
+          />
+          <Stat label="PARTIDAS ONLINE" value={fmt(p.wins + p.losses)} sub="duelos contra jogadores" />
+          <Stat label="PARTIDAS VS BOT" value={fmt(c.bots.wins + c.bots.losses)} sub="treinos contra a máquina" />
           <Stat label="COFRE" value={`🪙 ${fmt(p.coins)}`} sub={`💎 ${fmt(p.diamonds)}`} />
           <Stat label="PATENTES" value={`${desbloq}/${PATENTS.length}`} sub="conquistas de nível" cor="#ffd76a" />
         </div>
