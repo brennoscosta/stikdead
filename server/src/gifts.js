@@ -71,8 +71,18 @@ router.post('/send', requireAuth, async (req, res) => {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Este item não está no seu baú.' });
     }
-    // se estiver equipado, desequipa
-    await client.query('DELETE FROM loadouts WHERE user_id = $1 AND item_id = $2', [req.userId, itemId]);
+    // item equipado não viaja: o dono precisa tirar do corpo primeiro (mensagem honesta)
+    const equipado = await client.query('SELECT 1 FROM loadouts WHERE user_id = $1 AND item_id = $2', [req.userId, itemId]);
+    if (equipado.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Este item está EQUIPADO no seu lutador — remova-o do corpo (Inventário) antes de presentear.' });
+    }
+    // o destinatário já tem esse item? presente repetido não existe
+    const jaTem = await client.query('SELECT 1 FROM user_items WHERE user_id = $1 AND item_id = $2', [to.user_id, itemId]);
+    if (jaTem.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `${to.fighter_name} já possui este item no baú — escolha outro presente.` });
+    }
     await client.query('DELETE FROM user_items WHERE ctid = $1', [owned.rows[0].ctid]);
     await client.query(
       `INSERT INTO user_items (user_id, item_id, source) VALUES ($1, $2, 'gift')`,
