@@ -68,12 +68,12 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
   return (
     <div className="dash">
-      <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações" aria-label="Configurações">⚙️</button>
       {showCfg && <SettingsModal onClose={() => setShowCfg(false)} />}
       <Navbar profile={profile} />
 
       {/* cabeçalho com arte pintada */}
       <section className="dash-hero">
+        <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações">⚙️</button>
         <div className="dash-hero-info">
           {editing ? (
             <div className="dash-edit">
