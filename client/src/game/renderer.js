@@ -26,7 +26,12 @@ export async function createRenderer(host, theme = 'dojo') {
 
   // arenas VIVAS: vídeo em loop (se existir) -> pintura webp -> vetorial
   const VIDEO_THEMES = ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio', 'cemiterio'];
-  const VIDEO_ARENAS = Object.fromEntries(VIDEO_THEMES.map((t) => [t, `/arenas/${t}.mp4`]));
+  // porteiro de hardware: máquina fraca vai direto para a cena procedural (leve)
+  const WEAK_DEVICE = (navigator.hardwareConcurrency || 8) <= 4
+    || (navigator.deviceMemory || 8) <= 3
+    || /android [4-8]\./i.test(navigator.userAgent);
+  const VIDEO_ARENAS = WEAK_DEVICE ? {} : Object.fromEntries(VIDEO_THEMES.map((t) => [t, `/arenas/${t}.mp4`]));
+  if (WEAK_DEVICE) console.log('[stikdead] dispositivo modesto — arenas procedurais assumem 🎨');
   const loadArenaVideo = (src) => new Promise((resolve, reject) => {
     const v = document.createElement('video');
     v.src = src; v.muted = true; v.loop = true; v.playsInline = true;
