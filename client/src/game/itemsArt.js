@@ -9,7 +9,8 @@ const LAYER = {
   vest: 'body', scarf: 'body', gloves: 'body', gauntlets: 'body', bands: 'body',
   shorts: 'body', pants: 'body', kneepads: 'body', shoes: 'body', boots: 'body',
   band: 'front', hat: 'front', hood: 'front', crown: 'front', ice_crown: 'front',
-  prisma_armor: 'torso', prisma_blades: 'front',
+  prisma_armor: 'torso', prisma_blades: 'front', crystal_armor: 'torso',
+  crystal_katana: 'front', crystal_scythe: 'front', crystal_spear: 'front', crystal_axe: 'front', crystal_bow: 'front',
   bandana: 'front', mask_skull: 'front', mask_oni: 'front', mask_hockey: 'front', eyes_red: 'front',
   katana: 'front', bo: 'front', nunchaku: 'front', axe: 'front', spear: 'front',
   scythe: 'front', dual: 'front', bow: 'front',
@@ -34,6 +35,15 @@ export function drawItems(ctx, loadout, layer) {
 }
 
 // ===== helpers =====
+// refração de cristal: raiozinhos dançando na ponta, na cor do núcleo
+function refracao(g, ponta, d2, cor, el, fase) {
+  for (let r = 0; r < 3; r++) {
+    const ang = Math.atan2(d2[1], d2[0]) + (r - 1) * 0.5 + Math.sin(el * 2.4 + fase) * 0.12;
+    const L = 6 + 3 * Math.sin(el * 3.1 + r * 2 + fase * 1.7);
+    g.moveTo(ponta[0], ponta[1]).lineTo(ponta[0] + Math.cos(ang) * L, ponta[1] + Math.sin(ang) * L)
+      .stroke({ width: 1.4, color: cor, alpha: 0.6 });
+  }
+}
 // espectro do prisma: h em voltas (0..1) -> cor RGB viva
 function hue(h) {
   const f = (n) => {
@@ -490,6 +500,169 @@ const TEMPLATES = {
       }
       bi++;
     }
+  },
+
+  // ===== EXCELENTES: armadura de cristal (paleta própria por item) =====
+  crystal_armor({ g, T, sk, elapsed }, p) {
+    const c1 = C(p.c1 ?? p.color ?? '#7fd9ff');
+    const c2 = C(p.c2 ?? p.glow ?? '#bfefff');
+    const gema = C(p.gem ?? p.glow ?? '#ffffff');
+    const n = T(sk.neck), h = T(sk.hip);
+    const [ax, ay] = dir(n, h);
+    const px = -ay, py = ax;
+    const HW = 15;
+    const c0 = [n[0] - ax * 3, n[1] - ay * 3], c1p = [h[0] + ax * 4, h[1] + ay * 4];
+    // placa-base
+    g.moveTo(c0[0] - px * HW, c0[1] - py * HW).lineTo(c0[0] + px * HW, c0[1] + py * HW)
+      .lineTo(c1p[0] + px * (HW - 3), c1p[1] + py * (HW - 3)).lineTo(c1p[0] - px * (HW - 3), c1p[1] - py * (HW - 3))
+      .closePath().fill(0x101820).stroke({ width: 3, color: OUT, join: 'round' });
+    // facetas alternando entre os dois tons, com cintilar por fase
+    for (let i = 0; i < 4; i++) {
+      const t0 = i / 4, t1 = (i + 1) / 4;
+      const a = [c0[0] + (c1p[0] - c0[0]) * t0, c0[1] + (c1p[1] - c0[1]) * t0];
+      const b = [c0[0] + (c1p[0] - c0[0]) * t1, c0[1] + (c1p[1] - c0[1]) * t1];
+      const wA = HW - 1 - t0 * 3, wB = HW - 1 - t1 * 3;
+      const cint = 0.72 + 0.2 * Math.sin(elapsed * 2.2 + i * 1.9);
+      const corA = i % 2 === 0 ? c1 : c2;
+      const corB = i % 2 === 0 ? c2 : c1;
+      if (i % 2 === 0) {
+        g.moveTo(a[0] - px * wA, a[1] - py * wA).lineTo(a[0] + px * wA, a[1] + py * wA)
+          .lineTo(b[0] - px * wB, b[1] - py * wB).closePath().fill({ color: corA, alpha: cint });
+        g.moveTo(a[0] + px * wA, a[1] + py * wA).lineTo(b[0] + px * wB, b[1] + py * wB)
+          .lineTo(b[0] - px * wB, b[1] - py * wB).closePath().fill({ color: corB, alpha: cint * 0.8 });
+      } else {
+        g.moveTo(a[0] - px * wA, a[1] - py * wA).lineTo(a[0] + px * wA, a[1] + py * wA)
+          .lineTo(b[0] + px * wB, b[1] + py * wB).closePath().fill({ color: corA, alpha: cint });
+        g.moveTo(a[0] - px * wA, a[1] - py * wA).lineTo(b[0] + px * wB, b[1] + py * wB)
+          .lineTo(b[0] - px * wB, b[1] - py * wB).closePath().fill({ color: corB, alpha: cint * 0.8 });
+      }
+      g.moveTo(a[0] - px * wA, a[1] - py * wA).lineTo(a[0] + px * wA, a[1] + py * wA)
+        .stroke({ width: 1.4, color: 0xffffff, alpha: 0.28 });
+    }
+    // gema do peito
+    const gx = n[0] + (h[0] - n[0]) * 0.32, gy = n[1] + (h[1] - n[1]) * 0.32;
+    const pulso = 0.8 + 0.2 * Math.sin(elapsed * 3);
+    g.moveTo(gx, gy - 6).lineTo(gx + 5, gy).lineTo(gx, gy + 6).lineTo(gx - 5, gy).closePath()
+      .fill({ color: gema, alpha: pulso }).stroke({ width: 2, color: OUT });
+    g.circle(gx - 1, gy - 1.5, 1.4).fill({ color: 0xffffff, alpha: 0.85 });
+    // ombreiras
+    for (const lado of [-1, 1]) {
+      const ox = n[0] + px * 13 * lado, oy = n[1] + py * 13 * lado;
+      g.moveTo(ox, oy - 7).lineTo(ox + 6, oy - 1).lineTo(ox + 3, oy + 6).lineTo(ox - 3, oy + 6)
+        .lineTo(ox - 6, oy - 1).closePath().fill(lado === -1 ? c1 : c2).stroke({ width: 2.5, color: OUT, join: 'round' });
+      g.moveTo(ox - 2, oy - 5).lineTo(ox + 2, oy + 4).stroke({ width: 1.2, color: 0xffffff, alpha: 0.4 });
+    }
+    // saiote
+    for (const lado of [-1, 1]) {
+      const sx0 = h[0] + px * 7 * lado, sy0 = h[1] + py * 7 * lado;
+      g.moveTo(sx0 - px * 5 * lado, sy0 - py * 5 * lado)
+        .lineTo(sx0 + px * 5 * lado, sy0 + py * 5 * lado)
+        .lineTo(sx0 + px * 4 * lado + ax * 13, sy0 + py * 4 * lado + ay * 13)
+        .lineTo(sx0 - px * 3 * lado + ax * 11, sy0 - py * 3 * lado + ay * 11)
+        .closePath().fill({ color: lado === -1 ? c2 : c1, alpha: 0.85 }).stroke({ width: 2.2, color: OUT, join: 'round' });
+    }
+    // brilho especular varrendo
+    const varre = ((elapsed * 0.35) % 1.8) - 0.4;
+    if (varre >= 0 && varre <= 1) {
+      const vx = c0[0] + (c1p[0] - c0[0]) * varre, vy = c0[1] + (c1p[1] - c0[1]) * varre;
+      const w = HW - 2 - varre * 3;
+      g.moveTo(vx - px * w, vy - py * w).lineTo(vx + px * w, vy + py * w)
+        .stroke({ width: 3.5, color: 0xffffff, alpha: 0.3 });
+    }
+  },
+
+  // ===== EXCELENTES: armas de cristal (núcleo vivo + refração na ponta) =====
+  crystal_katana(ctx, p) {
+    weaponAlongArm(ctx, (g, h, d2) => {
+      const core = C(p.core ?? p.glow ?? '#8fe3ff');
+      const el = ctx.elapsed || 0;
+      const tip = [h[0] + d2[0] * 52, h[1] + d2[1] * 52];
+      const px2 = -d2[1], py2 = d2[0];
+      seg(g, [h[0] - d2[0] * 10, h[1] - d2[1] * 10], h, 5, 0x14202a, true, true);
+      g.moveTo(h[0] - d2[1] * 6, h[1] + d2[0] * 6).lineTo(h[0] + d2[1] * 6, h[1] - d2[0] * 6).stroke({ width: 4, color: OUT });
+      // lâmina losango translúcida
+      const meio = [h[0] + d2[0] * 24, h[1] + d2[1] * 24];
+      g.moveTo(h[0], h[1]).lineTo(meio[0] + px2 * 4, meio[1] + py2 * 4).lineTo(tip[0], tip[1])
+        .lineTo(meio[0] - px2 * 4, meio[1] - py2 * 4).closePath()
+        .fill({ color: C(p.blade ?? '#eaf9ff'), alpha: 0.88 }).stroke({ width: 2.2, color: OUT });
+      // núcleo pulsando
+      g.moveTo(h[0] + d2[0] * 4, h[1] + d2[1] * 4).lineTo(tip[0] - d2[0] * 3, tip[1] - d2[1] * 3)
+        .stroke({ width: 2.2, color: core, alpha: 0.75 + 0.25 * Math.sin(el * 3.4) });
+      refracao(g, tip, d2, core, el, 0);
+    });
+  },
+  crystal_scythe(ctx, p) {
+    weaponAlongArm(ctx, (g, h, d2, face) => {
+      const core = C(p.core ?? p.glow ?? '#7fd9ff');
+      const el = ctx.elapsed || 0;
+      const top = [h[0] + d2[0] * 46, h[1] + d2[1] * 46];
+      seg(g, [h[0] - d2[0] * 16, h[1] - d2[1] * 16], top, 5, 0x14202a, true, true);
+      const n = [-d2[1] * face, d2[0] * face];
+      g.moveTo(top[0], top[1])
+        .quadraticCurveTo(top[0] + n[0] * 34, top[1] + n[1] * 34, top[0] + n[0] * 30 + d2[0] * 26, top[1] + n[1] * 30 + d2[1] * 26)
+        .quadraticCurveTo(top[0] + n[0] * 22, top[1] + n[1] * 22, top[0] + d2[0] * 2, top[1] + d2[1] * 2)
+        .closePath().fill({ color: C(p.blade ?? '#eaf9ff'), alpha: 0.88 }).stroke({ width: 3, color: OUT });
+      // núcleo na curva da lâmina
+      g.moveTo(top[0] + d2[0] * 2, top[1] + d2[1] * 2)
+        .quadraticCurveTo(top[0] + n[0] * 26, top[1] + n[1] * 26, top[0] + n[0] * 27 + d2[0] * 22, top[1] + n[1] * 27 + d2[1] * 22)
+        .stroke({ width: 2.2, color: core, alpha: 0.75 + 0.25 * Math.sin(el * 3.1) });
+      const ponta = [top[0] + n[0] * 30 + d2[0] * 26, top[1] + n[1] * 30 + d2[1] * 26];
+      refracao(g, ponta, d2, core, el, 1);
+    });
+  },
+  crystal_spear(ctx, p) {
+    weaponAlongArm(ctx, (g, h, d2) => {
+      const core = C(p.core ?? p.glow ?? '#8fe3ff');
+      const el = ctx.elapsed || 0;
+      const tip = [h[0] + d2[0] * 58, h[1] + d2[1] * 58];
+      seg(g, [h[0] - d2[0] * 26, h[1] - d2[1] * 26], tip, 4, 0x14202a, true, true);
+      // ponta de cristal grande (losango)
+      const fim = [tip[0] + d2[0] * 16, tip[1] + d2[1] * 16];
+      g.moveTo(fim[0], fim[1]).lineTo(tip[0] - d2[1] * 6, tip[1] + d2[0] * 6)
+        .lineTo(tip[0] - d2[0] * 6, tip[1] - d2[1] * 6).lineTo(tip[0] + d2[1] * 6, tip[1] - d2[0] * 6)
+        .closePath().fill({ color: C(p.blade ?? '#eaf9ff'), alpha: 0.9 }).stroke({ width: 2.5, color: OUT });
+      g.moveTo(tip[0] - d2[0] * 4, tip[1] - d2[1] * 4).lineTo(fim[0] - d2[0] * 2, fim[1] - d2[1] * 2)
+        .stroke({ width: 2, color: core, alpha: 0.75 + 0.25 * Math.sin(el * 3.3) });
+      refracao(g, fim, d2, core, el, 2);
+    });
+  },
+  crystal_axe(ctx, p) {
+    weaponAlongArm(ctx, (g, h, d2, face) => {
+      const core = C(p.core ?? p.glow ?? '#5d8dff');
+      const el = ctx.elapsed || 0;
+      const tip = [h[0] + d2[0] * 40, h[1] + d2[1] * 40];
+      seg(g, [h[0] - d2[0] * 8, h[1] - d2[1] * 8], tip, 5, 0x14202a);
+      const n = [-d2[1] * face, d2[0] * face];
+      g.moveTo(tip[0], tip[1])
+        .lineTo(tip[0] + n[0] * 20 + d2[0] * 6, tip[1] + n[1] * 20 + d2[1] * 6)
+        .quadraticCurveTo(tip[0] + n[0] * 24 - d2[0] * 10, tip[1] + n[1] * 24 - d2[1] * 10, tip[0] + n[0] * 16 - d2[0] * 14, tip[1] + n[1] * 16 - d2[1] * 14)
+        .closePath().fill({ color: C(p.blade ?? '#eaf9ff'), alpha: 0.88 }).stroke({ width: 3, color: OUT });
+      g.moveTo(tip[0] + n[0] * 6, tip[1] + n[1] * 6)
+        .lineTo(tip[0] + n[0] * 19 - d2[0] * 4, tip[1] + n[1] * 19 - d2[1] * 4)
+        .stroke({ width: 2.2, color: core, alpha: 0.75 + 0.25 * Math.sin(el * 3) });
+      const ponta = [tip[0] + n[0] * 20 + d2[0] * 6, tip[1] + n[1] * 20 + d2[1] * 6];
+      refracao(g, ponta, d2, core, el, 3);
+    });
+  },
+  crystal_bow(ctx, p) {
+    weaponAlongArm(ctx, (g, h, d2) => {
+      const core = C(p.core ?? p.glow ?? '#4dee98');
+      const el = ctx.elapsed || 0;
+      const n = [-d2[1], d2[0]];
+      // arco de cristal translúcido
+      g.moveTo(h[0] + n[0] * 26, h[1] + n[1] * 26)
+        .quadraticCurveTo(h[0] + d2[0] * 16, h[1] + d2[1] * 16, h[0] - n[0] * 26, h[1] - n[1] * 26)
+        .stroke({ width: 6.5, color: OUT, cap: 'round' });
+      g.moveTo(h[0] + n[0] * 26, h[1] + n[1] * 26)
+        .quadraticCurveTo(h[0] + d2[0] * 16, h[1] + d2[1] * 16, h[0] - n[0] * 26, h[1] - n[1] * 26)
+        .stroke({ width: 4.5, color: C(p.blade ?? '#eaf9ff'), alpha: 0.9, cap: 'round' });
+      // corda de energia
+      g.moveTo(h[0] + n[0] * 26, h[1] + n[1] * 26).lineTo(h[0] - n[0] * 26, h[1] - n[1] * 26)
+        .stroke({ width: 1.6, color: core, alpha: 0.75 + 0.25 * Math.sin(el * 4) });
+      // gema no punho
+      g.circle(h[0] + d2[0] * 8, h[1] + d2[1] * 8, 3).fill(core).stroke({ width: 1.6, color: OUT });
+      refracao(g, [h[0] + d2[0] * 12, h[1] + d2[1] * 12], d2, core, el, 4);
+    });
   },
   bandana({ g, T, sk }, p) {
     const col = C(p.color);
