@@ -28,6 +28,7 @@ export default function ClanHall({ profile }) {
   const [text, setText] = useState('');
   const [card, setCard] = useState(null);
   const [erro, setErro] = useState('');
+  const [editando, setEditando] = useState(false);
   // form de fundação
   const [nome, setNome] = useState('');
   const [lema, setLema] = useState('');
@@ -66,6 +67,21 @@ export default function ClanHall({ profile }) {
   }, [meu]);
   useEffect(() => { boxRef.current?.scrollTo(0, 999999); }, [chat]);
 
+  const abrirEdicao = () => {
+    setNome(meu.clan.name); setLema(meu.clan.motto || ''); setCor(meu.clan.flagColor || '#d90429');
+    setFlagData(null); setErro(''); setEditando(true);
+  };
+  const salvarEdicao = async (e) => {
+    e.preventDefault();
+    setErro('');
+    try {
+      const body = { name: nome, motto: lema, flagColor: cor };
+      if (flagData) body.flagData = flagData;
+      await api('/api/clans', { method: 'PATCH', body });
+      setEditando(false);
+      load();
+    } catch (err) { setErro(err.message || 'Erro ao salvar.'); }
+  };
   const fundar = async (e) => {
     e.preventDefault();
     setErro('');
@@ -163,6 +179,25 @@ export default function ClanHall({ profile }) {
             </div>
           ))}
           {meu.isOwner && <p className="dash-empty" style={{ fontSize: 12 }}>👑 Para convidar: clique no nome de alguém em qualquer salão e use o botão do clã.</p>}
+          {meu.isOwner && !editando && (
+            <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px', marginTop: 4 }} onClick={abrirEdicao}>⚙️ Editar clã</button>
+          )}
+          {meu.isOwner && editando && (
+            <form className="cla-fundar" style={{ marginTop: 8 }} onSubmit={salvarEdicao}>
+              <h3 className="pc-section">EDITAR CLÃ</h3>
+              <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={12} placeholder="Nome (até 12)" required />
+              <input value={lema} onChange={(e) => setLema(e.target.value)} maxLength={30} placeholder="Lema (até 30)" />
+              <div className="cla-flag-row">
+                <label className="cla-flag-opt">🎨 Cor da bandeira <input type="color" value={cor} onChange={(e) => setCor(e.target.value)} /></label>
+                <label className="cla-flag-opt">🖼️ Trocar imagem <input type="file" accept="image/png,image/jpeg,image/webp" onChange={escolherBandeira} /></label>
+              </div>
+              {flagData && <img src={flagData} alt="prévia" className="cla-flag-preview" />}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 20px' }}>💾 Salvar</button>
+                <button type="button" className="btn btn-ghost" style={{ width: 'auto', padding: '10px 16px' }} onClick={() => setEditando(false)}>Cancelar</button>
+              </div>
+            </form>
+          )}
           <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px', marginTop: 8 }}
             onClick={async () => { try { await api('/api/clans/leave', { method: 'POST', body: {} }); load(); } catch (e) { setErro(e.message); } }}>
             {meu.isOwner ? 'Dissolver (se vazio)' : 'Sair do clã'}

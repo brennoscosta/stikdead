@@ -84,6 +84,57 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
+// ===== editar (só o dono): nome, lema, cor e bandeira =====
+router.patch('/', requireAuth, async (req, res) => {
+  const p = await meuPerfil(req.userId);
+  if (!p?.clan_id) return res.status(400).json({ error: 'Você não tem clã.' });
+  const { rows: c } = await q('SELECT * FROM clans WHERE id = $1', [p.clan_id]);
+  if (Number(c[0].owner_id) !== req.userId) return res.status(403).json({ error: 'Só o dono edita o clã.' });
+
+  const sets = [], vals = [];
+  const add = (col, v) => { vals.push(v); sets.push(`${col} = $${vals.length}`); };
+
+  if (req.body.name !== undefined) {
+    const name = String(req.body.name || '').trim();
+    if (name.length < 2 || name.length > 12) return res.status(400).json({ error: 'Nome do clã: 2 a 12 caracteres.' });
+    add('name', name);
+  }
+  if (req.body.motto !== undefined) add('motto', String(req.body.motto || '').trim().slice(0, 30));
+  if (req.body.flagColor !== undefined && /^#[0-9a-fA-F]{6}$/.test(req.body.flagColor)) add('flag_color', req.body.flagColor);
+
+  const data = req.body.flagData;
+  if (typeof data === 'string' && data.startsWith('data:image/')) {
+    const m = data.match(/^data:image\/(png|jpe?g|webp);base64,(.+)$/);
+    if (!m) return res.status(400).json({ error: 'Bandeira: use PNG, JPG ou WEBP.' });
+    const buf = Buffer.from(m[2], 'base64');
+    if (buf.length > 400 * 1024) return res.status(400).json({ error: 'Bandeira: máximo 400KB.' });
+    if (!existsSync(FLAGS_DIR)) await mkdir(FLAGS_DIR, { recursive: true });
+    const bruto = path.join(FLAGS_DIR, `tmp${Date.now()}.${m[1] === 'jpeg' ? 'jpg' : m[1]}`);
+    await writeFile(bruto, buf);
+    let novo = `f${Date.now()}.webp`;
+    try {
+      await execF('ffmpeg', ['-y', '-loglevel', 'error', '-i', bruto,
+        '-vf', 'scale=512:512:force_original_aspect_ratio=increase,crop=512:512', path.join(FLAGS_DIR, novo)]);
+      await unlink(bruto).catch(() => {});
+    } catch { novo = path.basename(bruto); }
+    if (c[0].flag_file) unlink(path.join(FLAGS_DIR, c[0].flag_file)).catch(() => {});
+    add('flag_file', novo);
+  } else if (req.body.removeFlag === true) {
+    if (c[0].flag_file) unlink(path.join(FLAGS_DIR, c[0].flag_file)).catch(() => {});
+    add('flag_file', null);
+  }
+
+  if (!sets.length) return res.status(400).json({ error: 'Nada para mudar.' });
+  vals.push(p.clan_id);
+  try {
+    await q(`UPDATE clans SET ${sets.join(', ')} WHERE id = $${vals.length}`, vals);
+  } catch (e) {
+    if (String(e.message).includes('unique')) return res.status(400).json({ error: 'Já existe um clã com esse nome.' });
+    throw e;
+  }
+  res.json({ ok: true, clan: await clanCompleto(p.clan_id) });
+});
+
 // ===== meu clã =====
 router.get('/mine', requireAuth, async (req, res) => {
   const p = await meuPerfil(req.userId);
