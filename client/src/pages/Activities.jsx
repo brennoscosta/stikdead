@@ -4,7 +4,7 @@ import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import PlayerCard from '../lib/PlayerCard.jsx';
 
-const ICON = { diamond_purchase: '💎', friend_request: '🤝', friend_accept: '✅', gift_sent: '🎁', gift_received: '🎁' };
+const ICON = { diamond_purchase: '💎', friend_request: '🤝', friend_accept: '✅', gift_sent: '🎁', gift_received: '🎁', bet_win: '💰', bet_loss: '💸' };
 
 export default function Activities({ profile }) {
   const [feed, setFeed] = useState(null);
@@ -23,6 +23,8 @@ export default function Activities({ profile }) {
     const d = a.data || {};
     switch (a.kind) {
       case 'diamond_purchase': return <>Você comprou <b style={{ color: '#9fc4ff' }}>💎 {Number(d.diamonds).toLocaleString('pt-BR')} diamantes</b></>;
+      case 'bet_win': return <>Você <b style={{ color: '#7de0a8' }}>ganhou {d.kind === 'diamonds' ? '💎' : '🪙'} {Number(d.amount).toLocaleString('pt-BR')}</b> em um duelo apostado com <Name n={d.with} /></>;
+      case 'bet_loss': return <>Você <b style={{ color: '#ff8fa3' }}>perdeu {d.kind === 'diamonds' ? '💎' : '🪙'} {Number(d.amount).toLocaleString('pt-BR')}</b> em um duelo apostado com <Name n={d.with} /></>;
       case 'friend_request': return <><Name n={d.from} /> solicitou sua amizade {a.actionable && <button className="adm-btn" onClick={() => accept(d.requestId)}>✓ aceitar</button>}</>;
       case 'friend_accept': return <>Você e <Name n={d.with} /> agora são amigos</>;
       case 'gift_sent': return d.kind === 'coins' || d.kind === 'diamonds'

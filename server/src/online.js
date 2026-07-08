@@ -235,6 +235,17 @@ export function attachOnline(io) {
         }
       }
       await client.query('COMMIT');
+      // apostas viram história no feed de atividades
+      if (room.bet && transfer > 0) {
+        try {
+          const { logActivity } = await import('./activities.js');
+          const vencedor = room.users[winnerSide], perdedor = room.users[1 - winnerSide];
+          logActivity(vencedor, 'bet_win', { amount: transfer, kind: room.bet.kind, with: room.names[1 - winnerSide] });
+          logActivity(perdedor, 'bet_loss', { amount: transfer, kind: room.bet.kind, with: room.names[winnerSide] });
+          notifyUser(vencedor, 'social:ping', { type: 'bet_win' });
+          notifyUser(perdedor, 'social:ping', { type: 'bet_loss' });
+        } catch { /* feed não derruba o acerto */ }
+      }
     } catch (err) {
       await client.query('ROLLBACK');
       console.error('finishRoom', err);
