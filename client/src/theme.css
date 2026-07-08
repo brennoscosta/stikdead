@@ -1369,3 +1369,10 @@ body.in-fight .topnav-spacer { display: none; }
 /* bandeira do resumo no perfil: cobre certinho */
 .cla-resumo-flag { border: 1px solid var(--line); }
 .cla-resumo-flag img { display: block; }
+
+/* ===== HUD do duo: as mini-placas da dupla irmã ===== */
+.bt-sis { margin-top: 5px; }
+.bt-sis-name { font: 700 11.5px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.08em; }
+.bt-bar.sis { height: 7px; margin-top: 3px; opacity: 0.9; }
+.bt-fill.sisfill { background: linear-gradient(90deg, #ffd76a, #e0a10b); }
+.bt-fill.sisfill.dark { background: linear-gradient(90deg, #8fb8d9, #5a7d9e); }

@@ -83,6 +83,15 @@ export async function createRenderer(host, theme = 'dojo') {
   ghostA.alpha = 0.22;
   ghostB.alpha = 0.22;
   world.addChild(ghostA, ghostB, slashG);
+  // ===== a linha de trás: a luta da dupla irmã, na MESMA arena =====
+  const sisLayer = new Container();
+  sisLayer.position.set(0, -20); // chão levemente mais fundo
+  sisLayer.scale.set(0.9);
+  sisLayer.alpha = 0.95;
+  world.addChild(sisLayer);
+  const gC = new Graphics();
+  const gD = new Graphics();
+  sisLayer.addChild(gC, gD);
   const gA = new Graphics();
   const gB = new Graphics();
   // P1: cabeças pintadas (opcional) + olhos vetoriais vivos por cima
@@ -99,6 +108,8 @@ export async function createRenderer(host, theme = 'dojo') {
     world.addChild(headA, eyesA, headB, eyesB);
   const wsA = createWeaponSprite(world, gA);
   const wsB = createWeaponSprite(world, gB);
+  const wsC = createWeaponSprite(sisLayer, gC);
+  const wsD = createWeaponSprite(sisLayer, gD);
   const fx = createFx(world);
   const fxRef = fx;
 
@@ -108,6 +119,12 @@ export async function createRenderer(host, theme = 'dojo') {
   tagA.anchor.set(0.5, 1);
   tagB.anchor.set(0.5, 1);
   world.addChild(tagA, tagB);
+  const tagSisStyle = { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, fill: 0x2b2620, letterSpacing: 1 };
+  const tagC = new Text({ text: '', style: tagSisStyle });
+  const tagD = new Text({ text: '', style: tagSisStyle });
+  tagC.anchor.set(0.5, 1);
+  tagD.anchor.set(0.5, 1);
+  sisLayer.addChild(tagC, tagD);
 
   // balões de dano
   const dmgLayer = new Container();
@@ -160,13 +177,15 @@ export async function createRenderer(host, theme = 'dojo') {
     }
   };
   if (painted) {
-    for (const t of [tagA, tagB]) {
+    for (const t of [tagA, tagB, tagC, tagD]) {
       t.style.fill = 0xf2efe9;
       t.style.dropShadow = { distance: 2, blur: 3, alpha: 0.8, color: 0x000000 };
     }
   }
   let loadouts = [null, null];
   let names = ['', ''];
+  let sisNames = ['', ''];
+  let sisLoKey = '';
 
   const flash = new Graphics();
   app.stage.addChild(flash);
@@ -192,7 +211,7 @@ export async function createRenderer(host, theme = 'dojo') {
     world.y = h * 0.82 + (match && match.phase === 'countdown' ? 40 * (world.scale.x / scale) * 0 : 0);
   }
 
-  function frame(match, events, dt) {
+  function frame(match, events, dt, sis) {
     elapsed += dt;
     layout(match);
 
@@ -317,6 +336,31 @@ export async function createRenderer(host, theme = 'dojo') {
     tagA.position.set(a.x, -(a.y + 152));
     tagB.position.set(b.x, -(b.y + 152));
 
+    // ===== a batalha irmã na linha de trás (time 0 âmbar, time 1 azul-aço) =====
+    if (sis && sis.f && sis.f.length === 2) {
+      sisLayer.visible = true;
+      const key = (sis.lo || []).map((L) => (L || []).map((it) => it.id).join(',')).join('|');
+      if (key !== sisLoKey) {
+        sisLoKey = key;
+        wsC.setLoadout(sis.lo?.[0] || []);
+        wsD.setLoadout(sis.lo?.[1] || []);
+      }
+      const [c, d] = sis.f;
+      const poseC = drawFighter(gC, c, MOVES, 0xe0a10b, elapsed, filterForVector(sis.lo?.[0], wsC), {});
+      const poseD = drawFighter(gD, d, MOVES, 0x5a7d9e, elapsed, filterForVector(sis.lo?.[1], wsD), {});
+      void poseC; void poseD;
+      wsC.update(c, MOVES);
+      wsD.update(d, MOVES);
+      tagC.text = sisNames[0];
+      tagD.text = sisNames[1];
+      tagC.position.set(c.x, -(c.y + 152));
+      tagD.position.set(d.x, -(d.y + 152));
+      sisLayer.alpha = sis.over ? 0.45 : 0.95; // duelo irmão terminou? vira lembrança
+    } else {
+      sisLayer.visible = false;
+      gC.clear(); gD.clear();
+    }
+
     fxStep(fx, dt);
     stepDmg(dt);
 
@@ -351,6 +395,7 @@ export async function createRenderer(host, theme = 'dojo') {
       wsA.setLoadout(arguments[0]);
       wsB.setLoadout(arguments[1]); loadouts = [la || null, lb || null]; },
     setNames(na, nb) { names = [na || '', nb || '']; },
+    setSister(ns) { sisNames = [ns?.[0] || '', ns?.[1] || '']; },
     destroy() {
       app.destroy(true, { children: true });
     },

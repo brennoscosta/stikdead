@@ -76,7 +76,14 @@ export function attachOnline(io) {
       away: AWAY_IDS.has(user.id),
       id: user.id, name: user.name, level: user.level, tier: user.tier,
       inMatch: userRoom.has(user.id) || BOT_FIGHT.has(user.id), loadout: loadout || [],
-      duo: DUO_OF.has(user.id), duoLeader: DUOS.has(user.id) && !DUOS.get(user.id).searching ? true : DUOS.has(user.id),
+      duo: DUO_OF.has(user.id), duoLeader: DUOS.has(user.id),
+      duoWith: (() => {
+        const lid = DUO_OF.get(user.id);
+        if (!lid) return null;
+        const d = DUOS.get(lid);
+        const outro = d ? (d.leader === user.id ? d.partner : d.leader) : null;
+        return outro ? online.get(outro)?.user.name || null : null;
+      })(),
     }));
   const broadcastPresence = () => io.emit('presence', { players: presencePayload() });
 
@@ -111,8 +118,12 @@ export function attachOnline(io) {
     dequeue(A.leader); dequeue(A.partner); dequeue(B.leader); dequeue(B.partner);
     const duoId = `d${nextDuo++}`;
     DUO_MATCHES.set(duoId, { teams: [[A.leader, A.partner], [B.leader, B.partner]], done: 0, winsCount: [0, 0], roundWins: [0, 0] });
-    createRoom(A.leader, B.leader, null, duoId);
-    createRoom(A.partner, B.partner, null, duoId);
+    const r1 = createRoom(A.leader, B.leader, null, duoId);
+    const r2 = createRoom(A.partner, B.partner, null, duoId);
+    if (r1 && r2) {
+      r2.arena = r1.arena; // a MESMA arena para os 4
+      r1.sisterRoom = r2; r2.sisterRoom = r1;
+    }
   }
 
   // fim de uma sala-irmã: soma no placar da batalha de clã
@@ -182,6 +193,7 @@ export function attachOnline(io) {
         socket.join(roomId);
         socket.emit('match:start', {
           roomId, side, arena: room.arena,
+          duo: room.duo && room.sisterRoom ? { sisNames: room.sisterRoom.names } : null,
           players: room.users.map((uid, s) => {
             const u = online.get(uid).user;
             return { name: u.name, level: u.level, tier: u.tier, loadout: louts[s], style: online.get(uid)?.style || 'ronin' };
@@ -192,11 +204,20 @@ export function attachOnline(io) {
 
     room.interval = setInterval(() => tickRoom(room), TICK * 1000);
     broadcastPresence();
+    return room;
   }
+
+  const reduceF = (f) => ({
+    x: Math.round(f.x * 10) / 10, y: Math.round(f.y * 10) / 10,
+    face: f.face, hp: f.hp, state: f.state, t: f.t,
+    vy: Math.round(f.vy), hitstun: f.hitstun || 0, combo: f.combo, fury: Math.round(f.fury * 10) / 10, style: f.style,
+  });
 
   function snapshot(room, ev) {
     const m = room.match;
+    const sr = room.sisterRoom;
     return {
+      sis: sr ? { f: sr.match.fighters.map(reduceF), wins: sr.match.wins, lo: sr.loadouts || null, over: !!sr.finished } : undefined,
       phase: m.phase, phaseT: m.phaseT, timer: m.timer, round: m.round,
       wins: m.wins, suddenDeath: m.suddenDeath,
       f: m.fighters.map((f) => ({

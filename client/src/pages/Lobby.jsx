@@ -201,7 +201,7 @@ export default function Lobby({ profile, onProfile }) {
                     title={p.away ? 'Ausente' : p.inMatch ? 'Em jogo' : 'Online e disponível'}
                   />
                   <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
-                  <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}{p.duo ? ' · 🤝' : ''}</span>
+                  <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}{p.duo ? <b style={{ color: '#ffd76a' }}> · 🤝{p.duoWith ? ` c/ ${p.duoWith}` : ''}</b> : ''}</span>
                   {p.away ? (
                     <span className="lobby-busy st-away-tag">💤 AUSENTE</span>
                   ) : p.inMatch ? (
@@ -418,6 +418,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
   const hostRef = useRef(null);
   const hud = {
     hpA: useRef(null), hpB: useRef(null), skillCd: useRef(null),
+    hpC: useRef(null), hpD: useRef(null),
     dotsA: useRef(null), dotsB: useRef(null),
     timer: useRef(null), announce: useRef(null),
     combo: useRef(null), center: useRef(null), vs: useRef(null),
@@ -450,6 +451,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     // estado de rede: dois últimos snapshots para interpolação
     let prevSnap = null;
     let curSnap = null;
+    const sisRef = { current: null };
     let curAt = 0;
     let pendingEv = [];
 
@@ -466,6 +468,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
       prevSnap = curSnap;
       curSnap = snap;
       curAt = performance.now();
+      if (snap.sis) sisRef.current = snap.sis;
       if (snap.ev?.length) pendingEv.push(...snap.ev);
     };
     const onEnd = (r) => {
@@ -520,6 +523,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         renderer.setLoadouts(session.players[0]?.loadout, session.players[1]?.loadout);
         renderer.setNames(names[0], names[1]);
         renderer.setMySide(me);
+        if (session.duo?.sisNames) renderer.setSister(session.duo.sisNames);
         clearTimeout(watchdog);
         setLoading(false);
         console.log('[stikdead] luta online pronta');
@@ -627,7 +631,13 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           if (announceT <= 0 && hud.announce.current) hud.announce.current.className = 'bt-announce';
         }
 
-        renderer.frame(clientMatch, events, dt);
+        renderer.frame(clientMatch, events, dt, sisRef.current);
+        // mini-barras da dupla irmã (aliado à esquerda, rival à direita)
+        const sf = sisRef.current?.f;
+        if (sf) {
+          if (hud.hpC.current) hud.hpC.current.style.width = `${sf[me]?.hp ?? 0}%`;
+          if (hud.hpD.current) hud.hpD.current.style.width = `${sf[opp]?.hp ?? 0}%`;
+        }
         if (hud.skill?.current && curSnap?.f?.[me]) {
           const cd = curSnap.f[me].skillCd || 0;
           const max = (STYLES[curSnap.f[me].style] || STYLES.ronin).cd;
@@ -686,12 +696,24 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           <div className="bt-name">{names[me]}</div>
           <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
           <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
+          {session?.duo?.sisNames && (
+            <div className="bt-sis">
+              <span className="bt-sis-name" style={{ color: '#ffd76a' }}>🤝 {session.duo.sisNames[me]}</span>
+              <div className="bt-bar sis"><div className="bt-fill sisfill" ref={hud.hpC} /></div>
+            </div>
+          )}
         </div>
         <div className="bt-timer" ref={hud.timer}>99</div>
         <div className="bt-plate right">
           <div className="bt-name">{names[opp]}</div>
           <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
           <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
+          {session?.duo?.sisNames && (
+            <div className="bt-sis">
+              <span className="bt-sis-name" style={{ color: '#8fb8d9' }}>{session.duo.sisNames[opp]}</span>
+              <div className="bt-bar sis"><div className="bt-fill sisfill dark" ref={hud.hpD} /></div>
+            </div>
+          )}
         </div>
       </div>
 
