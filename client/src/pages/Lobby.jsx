@@ -216,7 +216,7 @@ export default function Lobby({ profile, onProfile }) {
                       <button className="lobby-challenge lc-duo" title="Convidar para ser sua dupla (amigos)" onClick={() => getSocket().emit('duo:invite', { to: p.id })}>🤝</button>
                     </span>
                   ) : (
-                    <button className="lobby-challenge" disabled={!!sent} onClick={() => setBetFor(p)}>DESAFIAR</button>
+                    <span className="lobby-busy" title="Você está em dupla">🤝 EM DUPLA</span>
                   )}
                 </li>
               ))}
@@ -277,13 +277,16 @@ export default function Lobby({ profile, onProfile }) {
           <div className="plaza plaza-big" ref={plazaHost} />
           <button
             className="lobby-cta"
-            onClick={() => { if (!inQueue) goFullscreen(); socket.emit(inQueue ? 'queue:leave' : 'queue:join'); }}
+            disabled={!!duo}
+            title={duo ? 'Você está em dupla — desfaça-a para lutar sozinho' : undefined}
+            onClick={() => { if (duo) return; if (!inQueue) goFullscreen(); socket.emit(inQueue ? 'queue:leave' : 'queue:join'); }}
           >
             {inQueue ? '⏳ PROCURANDO OPONENTE… (cancelar)' : '⚔ BUSCAR PARTIDA'}
             <small>{inQueue ? 'pareamento automático' : 'partida rápida 1v1'}</small>
           </button>
           <div className="lobby-quick">
-            <button onClick={() => nav('/treino')}>🤖 TREINO</button>
+            <button disabled={!!duo} title={duo ? 'Em dupla não se treina sozinho — desfaça-a primeiro' : undefined}
+              onClick={() => { if (!duo) nav('/treino'); }}>🤖 TREINO{duo ? <small>desfaça a dupla</small> : null}</button>
             <button onClick={() => nav('/loja')}>🛒 LOJA</button>
             <button onClick={() => nav('/missoes')}>📜 MISSÕES</button>
             <button className="soon">🏆 TORNEIO<small>em breve</small></button>

@@ -563,7 +563,9 @@ export function attachOnline(io) {
 
     broadcastPresence();
 
+    const avisaDuo = () => socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: '🤝 Você está em DUPLA — desfaça-a para lutar sozinho.', ts: Date.now() });
     socket.on('queue:join', () => {
+      if (DUO_OF.has(user.id)) return avisaDuo();
       if (userRoom.has(user.id) || queue.includes(user.id)) return;
       queue.push(user.id);
       socket.emit('queue:status', { inQueue: true });
@@ -576,6 +578,8 @@ export function attachOnline(io) {
     });
 
     socket.on('challenge:send', async ({ to, bet }) => {
+      if (DUO_OF.has(user.id)) return avisaDuo();
+      if (DUO_OF.has(Number(to))) return socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: '🤝 Esse lutador está em DUPLA — desafie a dupla dele!', ts: Date.now() });
       const target = online.get(Number(to));
       if (!target || userRoom.has(user.id) || userRoom.has(Number(to)) || Number(to) === user.id) return;
       // aposta: validação + saldo dos DOIS antes de propor
@@ -631,6 +635,7 @@ export function attachOnline(io) {
     });
 
     socket.on('challenge:answer', async ({ id, accept }) => {
+      if (accept && DUO_OF.has(user.id)) return avisaDuo();
       const ch = challenges.get(id);
       if (!ch || ch.to !== user.id) return;
       clearTimeout(ch.timer);
