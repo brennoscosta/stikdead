@@ -11,10 +11,10 @@ export default function FriendAskModal() {
 
   useEffect(() => {
     const s = getSocket();
-    const onAsk = (p) => setModal({ mode: 'ask', requestId: p.requestId, name: p.from, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
+    const onAsk = (p) => setModal((m) => m ? m : { mode: 'ask', requestId: p.requestId, name: p.from, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
     const onWait = (p) => setModal({ mode: 'wait', requestId: p.requestId, name: p.to, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
     const onAnswer = (p) => setModal((m) => (m && m.requestId === p.requestId)
-      ? { mode: 'result', requestId: p.requestId, name: p.with, accepted: p.accepted, deadline: Date.now() + 2200 }
+      ? { mode: 'result', requestId: p.requestId, name: p.with, accepted: p.accepted, deadline: Date.now() + 30000 }
       : m);
     const onExpired = (p) => setModal((m) => (m && m.requestId === p.requestId)
       ? { mode: 'result', requestId: p.requestId, name: m.name, accepted: null, deadline: Date.now() + 1800 }
@@ -46,7 +46,7 @@ export default function FriendAskModal() {
     busyRef.current = true;
     try { await api('/api/friends/respond', { method: 'POST', body: { requestId: modal.requestId, accept } }); } catch { /* expirou no caminho */ }
     busyRef.current = false;
-    if (accept) setModal((m) => m ? { ...m, mode: 'result', accepted: true, deadline: Date.now() + 1800 } : m);
+    if (accept) setModal((m) => m ? { ...m, mode: 'result', accepted: true, deadline: Date.now() + 30000 } : m);
     else setModal(null);
   };
 
@@ -78,10 +78,13 @@ export default function FriendAskModal() {
           <>
             <div className="fa-icon">{modal.accepted === true ? '🎉' : modal.accepted === false ? '💔' : '⏱️'}</div>
             <h2 className="fa-title">
-              {modal.accepted === true && <>Vocês agora são amigos!</>}
+              {modal.accepted === true && <><span className="fa-name">{modal.name}</span> aceitou! Vocês agora são amigos</>}
               {modal.accepted === false && <><span className="fa-name">{modal.name}</span> recusou o pedido</>}
               {modal.accepted === null && <>Tempo esgotado — a proposta evaporou</>}
             </h2>
+            <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 26px', marginTop: 8 }} onClick={() => setModal(null)}>
+              Fechar
+            </button>
           </>
         )}
       </div>
