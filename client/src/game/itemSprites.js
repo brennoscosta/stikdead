@@ -37,11 +37,11 @@ const CFG = {
   esm_weapon_axe: { attach: 'hand', len: 58, grip: 0.88 },
   esm_weapon_scythe: { attach: 'hand', len: 76, grip: 0.9 },
   // ----- rostos de cristal (arte IA original) -----
-  saf_face_mask_oni: { attach: 'face', len: 100, maxW: 95 },
-  saf_face_eyes_red: { attach: 'face', len: 26, maxW: 60 },
-  esm_face_mask_oni: { attach: 'face', len: 100, maxW: 95 },
-  esm_face_mask_skull: { attach: 'face', len: 90, maxW: 87 },
-  esm_face_eyes_red: { attach: 'face', len: 26, maxW: 60 },
+  saf_face_mask_oni: { attach: 'face', len: 120, maxW: 114 },
+  saf_face_eyes_red: { attach: 'face', len: 31, maxW: 72 },
+  esm_face_mask_oni: { attach: 'face', len: 120, maxW: 114 },
+  esm_face_mask_skull: { attach: 'face', len: 108, maxW: 104 },
+  esm_face_eyes_red: { attach: 'face', len: 31, maxW: 72 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
