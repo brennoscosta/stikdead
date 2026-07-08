@@ -1,51 +1,85 @@
-// STIKDEAD :: medalha do status atual (tier) — arte Nano Banana + numeral por cima
-const MEDAL_META = {
-  BRONZE: { glow: 'rgba(169,113,61,0.55)', nome: 'Bronze' },
-  PRATA: { glow: 'rgba(185,194,204,0.55)', nome: 'Prata' },
-  OURO: { glow: 'rgba(224,161,11,0.6)', nome: 'Ouro' },
-  PLATINA: { glow: 'rgba(95,208,197,0.55)', nome: 'Platina' },
-  DIAMANTE: { glow: 'rgba(139,92,246,0.6)', nome: 'Diamante' },
-  MASTER: { glow: 'rgba(217,4,41,0.6)', nome: 'Mestre' },
-  GRANDMASTER: { glow: 'rgba(255,34,68,0.7)', nome: 'Grão-Mestre' },
-};
-const TIER_ORDEM = ['BRONZE', 'PRATA', 'OURO', 'PLATINA', 'DIAMANTE', 'MASTER', 'GRANDMASTER'];
-const SUB_ORDEM = ['III', 'II', 'I']; // III entra, I reina
+// STIKDEAD :: FORMA ATUAL — o algoritmo que mede o momento do lutador (1-7)
+// Digere ranking, aproveitamento, sequência, jornada e rodagem → um veredito com motivo.
+
+const NIVEIS = [
+  { metal: 'bronze', nome: 'Bronze', glow: 'rgba(169,113,61,0.55)' },
+  { metal: 'prata', nome: 'Prata', glow: 'rgba(185,194,204,0.55)' },
+  { metal: 'ouro', nome: 'Ouro', glow: 'rgba(224,161,11,0.6)' },
+  { metal: 'platina', nome: 'Platina', glow: 'rgba(95,208,197,0.55)' },
+  { metal: 'diamante', nome: 'Diamante', glow: 'rgba(139,92,246,0.6)' },
+  { metal: 'master', nome: 'Mestre', glow: 'rgba(217,4,41,0.6)' },
+  { metal: 'grandmaster', nome: 'Grão-Mestre', glow: 'rgba(255,34,68,0.7)' },
+];
+// a régua de 7 cores: do cinza apagado ao vermelho sangue
+export const CORES_FORMA = ['#6e6a6e', '#8a6a66', '#a3655c', '#b95a4e', '#cc4740', '#d62b33', '#d90429'];
+
+// ===== O ALGORITMO DA FORMA (0-100) =====
+// ranking 35% · aproveitamento 25% · sequência 20% · jornada 10% · rodagem 10%
+export function calculaForma(p) {
+  const pontos = Number(p.rank_points || 0);
+  const wins = Number(p.wins || 0), losses = Number(p.losses || 0);
+  const total = wins + losses;
+  const winrate = total > 0 ? wins / total : 0;
+  const streak = Number(p.win_streak || 0);
+  const nivel = Number(p.level || 1);
+
+  const fRanking = Math.min(pontos / 1000, 1) * 35;          // 1000+ pts = componente cheio
+  const fAproveit = winrate * 25 * Math.min(total / 5, 1);   // winrate só vale com pelo menos 5 duelos
+  const fSequencia = Math.min(streak / 5, 1) * 20;           // 5 seguidas = fogo total
+  const fJornada = Math.min(nivel / 50, 1) * 10;             // experiência acumulada
+  const fRodagem = Math.min(total / 60, 1) * 10;             // quilometragem online
+
+  const score = fRanking + fAproveit + fSequencia + fJornada + fRodagem;
+  const forma = Math.max(1, Math.min(7, 1 + Math.floor(score / 14.3)));
+
+  // o motivo: fatores em % do próprio teto → o que carrega e o que segura
+  const fatores = [
+    { nome: 'pontos de ranking', pct: fRanking / 35, dica: 'vença partidas online para somar pontos' },
+    { nome: 'aproveitamento', pct: total >= 5 ? winrate : 0, dica: 'melhore a taxa de vitórias' },
+    { nome: 'sequência de vitórias', pct: Math.min(streak / 5, 1), dica: 'emende vitórias sem perder' },
+    { nome: 'experiência (nível)', pct: Math.min(nivel / 50, 1), dica: 'suba de nível lutando' },
+    { nome: 'rodagem online', pct: Math.min(total / 60, 1), dica: 'dispute mais duelos' },
+  ].sort((a, b) => b.pct - a.pct);
+
+  return { score: Math.round(score), forma, forte: fatores[0], fraco: fatores[fatores.length - 1], winrate, streak, total };
+}
 
 export default function StatusMedal({ profile }) {
-  const [tierNome, subNome] = String(profile.tier || 'BRONZE_III').split('_');
-  const st = MEDAL_META[tierNome] || MEDAL_META.BRONZE;
-  const pontos = Number(profile.rank_points || 0);
-  const degrau = Math.floor(pontos / 100);
-  const topo = tierNome === 'GRANDMASTER' && subNome === 'I';
-  const faltam = topo ? 0 : (degrau + 1) * 100 - pontos;
-  let proximo = '';
-  if (!topo) {
-    const si = SUB_ORDEM.indexOf(subNome);
-    if (si < 2) proximo = `${st.nome} ${SUB_ORDEM[si + 1]}`;
-    else {
-      const prox = MEDAL_META[TIER_ORDEM[Math.min(TIER_ORDEM.indexOf(tierNome) + 1, TIER_ORDEM.length - 1)]];
-      proximo = prox.nome + ' III';
-    }
-  }
+  const f = calculaForma(profile);
+  const N = NIVEIS[f.forma - 1];
+
   return (
     <div className="medal-box">
-      <div className="medal-art" style={{ boxShadow: `0 0 30px ${st.glow}` }}>
-        <img src={`/medalhas/${tierNome.toLowerCase()}.webp`} alt={st.nome}
+      <div className="medal-art" style={{ boxShadow: `0 0 30px ${N.glow}` }}>
+        <img src={`/medalhas/${N.metal}.webp`} alt={N.nome}
           onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-        <span className="medal-num">{subNome}</span>
       </div>
       <div className="medal-info">
-        <div className="medal-titulo">{st.nome} {subNome}</div>
+        <div className="medal-titulo">{N.nome} <span className="medal-forma-tag">FORMA {f.forma}/7</span></div>
+
+        {/* a régua da forma: 7 blocos do cinza ao sangue */}
+        <div className="forma-bar" role="img" aria-label={`Forma ${f.forma} de 7`}>
+          {CORES_FORMA.map((cor, i) => (
+            <span key={i} className={`forma-seg ${i < f.forma ? 'on' : ''}`}
+              style={i < f.forma ? { background: cor, boxShadow: `0 0 8px ${cor}` } : undefined} />
+          ))}
+        </div>
+
         <p className="medal-explica">
-          Este é o seu <b>status atual</b> na arena: <b>{pontos.toLocaleString('pt-BR')} pontos</b> de ranking,
-          forjados em <b style={{ color: '#7de0a8' }}>{profile.wins}V</b> · <b style={{ color: '#ff8fa3' }}>{profile.losses}D</b> online.
-          Vitórias somam pontos, derrotas tiram — a medalha sobe e desce com você.
+          O algoritmo da arena avaliou tudo que você viveu — ranking, aproveitamento, sequência, nível e rodagem —
+          e cravou <b>{f.score}/100</b>. O que mais pesa a seu favor: <b style={{ color: '#7de0a8' }}>{f.forte.nome}</b>
+          {f.streak >= 2 ? <> (🔥 {f.streak} seguidas)</> : null}.
+          O que te segura: <b style={{ color: '#ff8fa3' }}>{f.fraco.nome}</b> — {f.fraco.dica}.
         </p>
-        {topo ? (
-          <p className="medal-meta">👑 Você está no topo absoluto. Defenda o trono.</p>
-        ) : (
-          <p className="medal-meta">⬆️ Faltam <b style={{ color: '#ffd76a' }}>{faltam}</b> pontos para <b>{proximo}</b>.</p>
-        )}
+        <p className="medal-meta">
+          {f.forma >= 7
+            ? '👑 Melhor momento possível. O jogo inteiro está olhando para você.'
+            : f.forma >= 5
+              ? '⚔️ Momento forte. Mantenha o ritmo para alcançar o topo.'
+              : f.forma >= 3
+                ? '📈 Em construção. Cada vitória online empurra a régua para o sangue.'
+                : '🩸 Início de jornada. Lute online: é lá que a forma nasce.'}
+        </p>
       </div>
     </div>
   );
