@@ -1,14 +1,16 @@
 // STIKDEAD :: entrada unificada — teclado, gamepad e touch produzem o mesmo input
 
 const KEYMAP = {
-  KeyA: 'left', ArrowLeft: 'left',
-  KeyD: 'right', ArrowRight: 'right',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
   KeyW: 'jump', Space: 'jump', ArrowUp: 'jump',
-  KeyJ: 'light',
-  KeyK: 'heavy',
-  KeyL: 'block',
-  KeyH: 'skill',
+  KeyA: 'skill',   // especial
+  KeyS: 'light',   // murro
+  KeyD: 'heavy',   // chute (no dash = rasteira)
+  KeyF: 'block',
   ShiftLeft: 'dash', ShiftRight: 'dash',
+  // legado silencioso (memória muscular de quem já jogava)
+  KeyJ: 'light', KeyK: 'heavy', KeyL: 'block', KeyH: 'skill',
 };
 
 export function createInput() {

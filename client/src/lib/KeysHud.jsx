@@ -2,12 +2,13 @@
 import { forwardRef } from 'react';
 
 const KEYS = [
-  { k: 'A D', acao: 'mover' },
+  { k: '← →', acao: 'mover' },
   { k: 'W', acao: 'pular' },
-  { k: 'J', acao: 'soco rápido' },
-  { k: 'K', acao: 'golpe pesado' },
-  { k: 'L', acao: 'bloquear' },
+  { k: 'S', acao: 'murro' },
+  { k: 'D', acao: 'chute' },
+  { k: 'F', acao: 'bloquear' },
   { k: 'SHIFT', acao: 'dash' },
+  { k: 'SHIFT D', acao: 'rasteira' },
 ];
 
 const KeysHud = forwardRef(function KeysHud({ skillName }, ref) {
@@ -20,7 +21,7 @@ const KeysHud = forwardRef(function KeysHud({ skillName }, ref) {
         </div>
       ))}
       <div className="kh-row kh-skill">
-        <span className="kh-keys"><kbd className="kh-key-skill">H</kbd></span>
+        <span className="kh-keys"><kbd className="kh-key-skill">A</kbd></span>
         <span className="kh-acao">
           <b>{skillName || 'ESPECIAL'}</b>
           <span className="kh-cdbar"><span ref={ref} /></span>

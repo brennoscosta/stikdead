@@ -6,7 +6,10 @@ export const ARENA = { left: -410, right: 410 };
 export const MOVES = {
   light: { startup: 0.08, active: 0.07, recover: 0.16, range: 95, dmg: 8, hitstun: 0.28, kb: 140, chip: 1, freeze: 0.05 },
   heavy: { startup: 0.22, active: 0.09, recover: 0.3, range: 120, dmg: 18, hitstun: 0.5, kb: 360, chip: 4, freeze: 0.09 },
+  // RASTEIRA: chute durante o dash — desliza rente ao chão varrendo o oponente
+  rasteira: { startup: 0.05, active: 0.24, recover: 0.2, range: 105, dmg: 13, hitstun: 0.55, kb: 340, chip: 2, freeze: 0.07 },
 };
+const RAST_SPEED = 520;
 
 const SPEED = 260;
 const AIR_CONTROL = 0.55;
@@ -296,7 +299,31 @@ function updateFighter(m, idx, inp, dt, ev) {
     }
     case 'dash': {
       f.vx = DASH_SPEED * f.dashDir;
+      // chute no meio do dash = RASTEIRA
+      if (pressed(inp, f.prev, 'heavy')) {
+        f.state = 'rasteira'; f.t = 0; f.hitDone = false; f.rastDir = f.dashDir;
+        ev.push({ type: 'rasteira', idx, x: f.x });
+        break;
+      }
       if (f.t >= DASH_TIME) { f.state = 'idle'; f.vx = 0; }
+      break;
+    }
+    case 'rasteira': {
+      const mv = MOVES.rasteira;
+      const total = mv.startup + mv.active + mv.recover;
+      // desliza forte e vai perdendo o embalo
+      f.vx = RAST_SPEED * (f.rastDir || f.face) * Math.max(0.15, 1 - (f.t / total) * 0.85);
+      const inActive = f.t >= mv.startup && f.t < mv.startup + mv.active;
+      if (inActive && !f.hitDone && m.phase === 'fight') {
+        const dist = Math.abs(opp.x - f.x);
+        const targetable = !['ko', 'victory'].includes(opp.state) && opp.invuln === 0;
+        if (dist <= mv.range && targetable) {
+          f.hitDone = true;
+          f.face = opp.x >= f.x ? 1 : -1; // varre para onde o corpo está
+          applyHit(m, idx, mv, ev);
+        }
+      }
+      if (f.t >= total) { f.state = 'idle'; f.vx = 0; }
       break;
     }
     case 'skill': {

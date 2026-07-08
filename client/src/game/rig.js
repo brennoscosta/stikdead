@@ -77,6 +77,13 @@ export function poseFor(f, moves) {
       if (t < mv.startup + mv.active) return POSES.kick;
       return mix(POSES.kick, POSES.guard, (t - mv.startup - mv.active) / mv.recover);
     }
+    case 'rasteira': {
+      const mv = moves.rasteira;
+      const slide = { ...POSES.kick, hipY: -16, lean: -0.38 };
+      if (t < mv.startup) return mix(POSES.dashP, slide, t / mv.startup);
+      if (t < mv.startup + mv.active) return slide;
+      return mix(slide, POSES.guard, (t - mv.startup - mv.active) / mv.recover);
+    }
     case 'hit':
       return mix(POSES.hitP, POSES.guard, t / Math.max(f.hitstun || 0.3, 0.15));
     case 'victory': {

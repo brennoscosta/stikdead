@@ -217,6 +217,7 @@ export async function createRenderer(host, theme = 'dojo') {
       if (e.type === 'hit') { fxHit(fx, e.x, e.y, e.attacker === 0 ? 1 : -1, e); spawnDmg(e, match); }
       if (e.type === 'ko') fxKo(fx, e.x, e.y, e.winner === 0 ? 1 : -1);
       if (e.type === 'dash') fxDash(fx, e.x);
+      if (e.type === 'rasteira') { fxDash(fx, e.x); fxDash(fx, e.x + 24); }
       if (e.type === 'skill') {
         const col = { ronin: 0xffffff, shinobi: 0x8b5cf6, monge: 0xffc14d, berserker: 0xff2244, espectro: 0x9fd8ff }[e.style] || 0xffffff;
         fx.rings.push({ x: e.x, y: e.y, r: 8, vr: 460, life: 0.32, maxLife: 0.32, color: col, w: 4 });
