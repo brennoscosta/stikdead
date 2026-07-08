@@ -43,6 +43,12 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
 
   const load = () => api(`/api/players/by-name/${encodeURIComponent(name)}`).then(setP).catch((e) => setErr(e.message));
   useEffect(() => { setP(null); setErr(null); load(); /* eslint-disable-next-line */ }, [name]);
+  useEffect(() => {
+    const sair = () => onClose?.();
+    window.addEventListener('stik:closecard', sair);
+    return () => window.removeEventListener('stik:closecard', sair);
+    /* eslint-disable-next-line */
+  }, []);
 
   const request = async () => {
     setBusy(true);

@@ -11,8 +11,14 @@ export default function FriendAskModal() {
 
   useEffect(() => {
     const s = getSocket();
-    const onAsk = (p) => setModal((m) => m ? m : { mode: 'ask', requestId: p.requestId, name: p.from, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
-    const onWait = (p) => setModal({ mode: 'wait', requestId: p.requestId, name: p.to, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
+    const onAsk = (p) => {
+      window.dispatchEvent(new Event('stik:closecard')); // o palco é do modal
+      setModal((m) => m ? m : { mode: 'ask', requestId: p.requestId, name: p.from, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
+    };
+    const onWait = (p) => {
+      window.dispatchEvent(new Event('stik:closecard'));
+      setModal({ mode: 'wait', requestId: p.requestId, name: p.to, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
+    };
     const onAnswer = (p) => setModal((m) => (m && String(m.requestId) === String(p.requestId))
       ? { mode: 'result', requestId: p.requestId, name: p.with, accepted: p.accepted, deadline: Date.now() + 30000 }
       : m);
