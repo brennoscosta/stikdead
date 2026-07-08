@@ -34,7 +34,7 @@ export default function PatentTip() {
         </span>
         <div>
           <div className="pat-tip-nome">{unlocked ? p.name : '? ? ?'}</div>
-          <div className="pat-tip-ato">{p.ato}</div>
+          <div className="pat-tip-ato">ATO: {p.ato}</div>
         </div>
       </div>
       <div className="pat-tip-sep" />

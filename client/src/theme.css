@@ -1271,7 +1271,7 @@ body.in-fight .topnav-spacer { display: none; }
 .pat-tip-ico img { width: 100%; height: 100%; object-fit: cover; }
 .pat-tip-emoji { font-size: 26px; }
 .pat-tip-nome { color: #ffffff; font-weight: 800; font-size: 15.5px; letter-spacing: 0.02em; }
-.pat-tip-ato { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: 0.22em; margin-top: 2px; }
+.pat-tip-ato { color: #7de0a8; font-size: 10px; font-weight: 800; letter-spacing: 0.22em; margin-top: 2px; }
 .pat-tip-sep { height: 1px; background: linear-gradient(90deg, transparent, rgba(224,161,11,0.5), transparent); margin: 9px 0; }
 .pat-tip.locked .pat-tip-sep { background: linear-gradient(90deg, transparent, #3a2f38, transparent); }
 .pat-tip-desc { color: #ff5a6e; font-size: 13px; line-height: 1.5; font-style: italic; }
