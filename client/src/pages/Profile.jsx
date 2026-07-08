@@ -110,36 +110,29 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         </div>
       </section>
 
-      {/* ===== MINHAS CONQUISTAS :: patentes de nível ===== */}
+      {/* ===== faixa compacta: conquistas (clique = carreira completa) ===== */}
       <section className="conq-wrap">
         <div className="conq-head">
-          <h2 className="dash-h2">🏆 MINHAS CONQUISTAS</h2>
+          <button className="conq-title-link" onClick={() => nav('/carreira')} title="Ver a carreira completa">
+            🏆 CONQUISTAS <span className="conq-arrow">›</span>
+          </button>
           <span className="conq-progress">
-            Patentes de Nível · <b>{PATENTS.filter((p) => profile.level >= p.level).length}</b>/{PATENTS.length}
+            <b>{PATENTS.filter((p) => profile.level >= p.level).length}</b>/{PATENTS.length} patentes
           </span>
         </div>
-        <div className="conq-grid">
+        <div className="conq-strip">
           {PATENTS.map((p) => {
             const won = profile.level >= p.level;
             return (
-              <div key={p.id} className={`conq-slot ${won ? 'won' : ''}`} title={won ? `${p.name} — conquistada no nível ${p.level}` : `??? — desbloqueia no nível ${p.level}`}>
+              <button key={p.id} className={`conq-mini ${won ? 'won' : ''}`} onClick={() => nav('/carreira')}
+                title={won ? `${p.name} — nível ${p.level}` : `??? — nível ${p.level}`}>
                 {won ? (
                   <>
-                    <img
-                      src={p.icon}
-                      alt={p.name}
-                      onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }}
-                    />
-                    <span className="conq-fallback" style={{ display: 'none' }}>{p.emoji}</span>
-                    <span className="conq-name">{p.name}</span>
+                    <img src={p.icon} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }} />
+                    <span style={{ display: 'none' }}>{p.emoji}</span>
                   </>
-                ) : (
-                  <>
-                    <span className="conq-lock">🔒</span>
-                    <span className="conq-req">Nv {p.level}</span>
-                  </>
-                )}
-              </div>
+                ) : <span className="conq-mini-lock">🔒</span>}
+              </button>
             );
           })}
         </div>

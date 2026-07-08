@@ -119,4 +119,35 @@ router.get('/summary', requireAuth, async (req, res) => {
   res.json(rows[0]);
 });
 
+
+// ===== A CARREIRA COMPLETA DO LUTADOR =====
+router.get('/career', requireAuth, async (req, res) => {
+  const uid = req.userId;
+  const [prof, pos, semana, insano, bots, apostas, recentes] = await Promise.all([
+    q('SELECT p.fighter_name, p.level, p.xp, p.coins, p.diamonds, p.rank_points, p.tier, p.wins, p.losses, p.win_streak, u.created_at FROM profiles p JOIN users u ON u.id = p.user_id WHERE p.user_id = $1', [uid]),
+    q('SELECT COUNT(*) + 1 AS pos FROM profiles WHERE rank_points > (SELECT rank_points FROM profiles WHERE user_id = $1)', [uid]),
+    q(`SELECT COUNT(*) FILTER (WHERE won) AS w, COUNT(*) FILTER (WHERE NOT won) AS l
+         FROM matches WHERE user_id = $1 AND opponent_type = 'player' AND created_at > now() - interval '7 days'`, [uid]),
+    q(`SELECT COUNT(*) FILTER (WHERE won) AS w, COUNT(*) FILTER (WHERE NOT won) AS l
+         FROM matches WHERE user_id = $1 AND opponent_type = 'bot' AND difficulty = 'insano'`, [uid]),
+    q(`SELECT COUNT(*) FILTER (WHERE won) AS w, COUNT(*) FILTER (WHERE NOT won) AS l
+         FROM matches WHERE user_id = $1 AND opponent_type = 'bot'`, [uid]),
+    q(`SELECT kind, COUNT(*) AS n, COALESCE(SUM((data->>'amount')::bigint), 0) AS total
+         FROM activities WHERE user_id = $1 AND kind IN ('bet_win','bet_loss') GROUP BY kind`, [uid]),
+    q(`SELECT opponent_type, difficulty, won, wins_a, wins_b, xp_gain, coin_gain, created_at
+         FROM matches WHERE user_id = $1 ORDER BY id DESC LIMIT 10`, [uid]),
+  ]);
+  const bw = apostas.rows.find((r) => r.kind === 'bet_win') || { n: 0, total: 0 };
+  const bl = apostas.rows.find((r) => r.kind === 'bet_loss') || { n: 0, total: 0 };
+  res.json({
+    profile: prof.rows[0],
+    rankGlobal: Number(pos.rows[0]?.pos || 0),
+    semana: { wins: Number(semana.rows[0]?.w || 0), losses: Number(semana.rows[0]?.l || 0) },
+    insano: { wins: Number(insano.rows[0]?.w || 0), losses: Number(insano.rows[0]?.l || 0) },
+    bots: { wins: Number(bots.rows[0]?.w || 0), losses: Number(bots.rows[0]?.l || 0) },
+    apostas: { ganhas: Number(bw.n), perdidas: Number(bl.n), totalGanho: Number(bw.total), totalPerdido: Number(bl.total) },
+    recentes: recentes.rows,
+  });
+});
+
 export default router;

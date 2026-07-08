@@ -7,6 +7,7 @@ import Matches from './pages/Matches.jsx';
 import { Esqueci, Redefinir } from './pages/Reset.jsx';
 import Friends from './pages/Friends.jsx';
 import Activities from './pages/Activities.jsx';
+import Career from './pages/Career.jsx';
 import GiftModal from './lib/GiftModal.jsx';
 import ExcellentTip from './lib/ExcellentTip.jsx';
 import FriendAskModal from './lib/FriendAskModal.jsx';
@@ -64,6 +65,7 @@ export default function App() {
         <Route path="/esqueci" element={<Esqueci />} />
         <Route path="/cla" element={profile ? <Friends profile={profile} /> : null} />
         <Route path="/atividades" element={profile ? <Activities profile={profile} /> : null} />
+        <Route path="/carreira" element={profile ? <Career profile={profile} /> : null} />
         <Route path="/redefinir" element={<Redefinir />} />
         <Route
           path="/partidas"
