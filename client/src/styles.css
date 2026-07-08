@@ -656,11 +656,13 @@ body {
   background: #0b0709;
 }
 .ink-spinner {
-  width: 64px; height: 64px; border-radius: 50%;
-  border: 6px solid transparent;
-  border-top-color: #d90429; border-right-color: #d90429;
+  width: 58px; height: 58px; border-radius: 50%;
+  /* cauda de cometa: arco em degradê, sem as quinas do truque de bordas */
+  background: conic-gradient(from 0deg, transparent 0 30%, rgba(217, 4, 41, 0.35) 55%, #d90429 82%, #ff6a4a 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
   animation: ink-spin 0.9s linear infinite;
-  box-shadow: 0 0 24px rgba(217, 4, 41, 0.3);
+  filter: drop-shadow(0 0 10px rgba(217, 4, 41, 0.45));
 }
 @keyframes ink-spin { to { transform: rotate(360deg); } }
 .bt-loading-title { font: 700 20px 'Barlow Condensed', sans-serif; letter-spacing: 0.22em; color: #f2efe9; }
