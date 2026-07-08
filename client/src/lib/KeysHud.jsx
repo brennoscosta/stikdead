@@ -3,12 +3,13 @@ import { forwardRef } from 'react';
 
 const KEYS = [
   { k: '← →', acao: 'mover' },
-  { k: 'W', acao: 'pular' },
-  { k: 'S', acao: 'murro' },
+  { k: 'W ↑', acao: 'pular' },
+  { k: '↓', acao: 'abaixar (esquiva o soco)' },
+  { k: 'S', acao: 'soco' },
   { k: 'D', acao: 'chute' },
-  { k: 'F', acao: 'bloquear' },
-  { k: 'SHIFT', acao: 'dash' },
-  { k: 'SHIFT D', acao: 'rasteira' },
+  { k: 'F', acao: 'dash' },
+  { k: 'F D', acao: 'rasteira' },
+  { k: 'SHIFT', acao: 'bloquear' },
 ];
 
 const KeysHud = forwardRef(function KeysHud({ skillName }, ref) {

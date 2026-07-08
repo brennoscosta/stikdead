@@ -4,17 +4,18 @@ const KEYMAP = {
   ArrowLeft: 'left',
   ArrowRight: 'right',
   KeyW: 'jump', Space: 'jump', ArrowUp: 'jump',
+  ArrowDown: 'crouch', // abaixa: esquiva o soco
   KeyA: 'skill',   // especial
-  KeyS: 'light',   // murro
+  KeyS: 'light',   // soco
   KeyD: 'heavy',   // chute (no dash = rasteira)
-  KeyF: 'block',
-  ShiftLeft: 'dash', ShiftRight: 'dash',
-  // legado silencioso (memória muscular de quem já jogava)
+  KeyF: 'dash',
+  ShiftLeft: 'block', ShiftRight: 'block',
+  // legado silencioso
   KeyJ: 'light', KeyK: 'heavy', KeyL: 'block', KeyH: 'skill',
 };
 
 export function createInput() {
-  const keys = { left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false };
+  const keys = { left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false, crouch: false };
   const touch = { ...keys };
 
   const down = (e) => {

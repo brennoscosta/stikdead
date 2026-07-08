@@ -77,6 +77,10 @@ export function poseFor(f, moves) {
       if (t < mv.startup + mv.active) return POSES.kick;
       return mix(POSES.kick, POSES.guard, (t - mv.startup - mv.active) / mv.recover);
     }
+    case 'crouch': {
+      const p = { ...POSES.blockP, hipY: -15, lean: 0.1 };
+      return p;
+    }
     case 'rasteira': {
       const mv = moves.rasteira;
       const slide = { ...POSES.kick, hipY: -16, lean: -0.38 };

@@ -57,7 +57,7 @@ const dmgMod = (atk) =>
   (atk.fury > 0 ? 1.5 : 1) * (atk.style === 'berserker' && atk.hp < 40 ? 1.15 : 1);
 
 export const EMPTY_INPUT = Object.freeze({
-  left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false,
+  left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false, crouch: false,
 });
 
 function createFighter(x, face) {
@@ -289,6 +289,29 @@ function updateFighter(m, idx, inp, dt, ev) {
         f.state = 'heavy'; f.t = 0; f.hitDone = false; f.vx = 0;
       } else if (inp.block && grounded) {
         f.state = 'block'; f.vx = 0;
+      } else if (inp.crouch && grounded) {
+        f.state = 'crouch'; f.vx = 0; // abaixa: o soco passa por cima
+      }
+      break;
+    }
+    case 'crouch': {
+      f.face = opp.x >= f.x ? 1 : -1;
+      f.vx = 0;
+      if (pressed(inp, f.prev, 'jump') && grounded) {
+        f.vy = JUMP_VY * (f.style === 'espectro' ? 1.15 : 1); f.y = 0.01; f.state = 'jump'; f.t = 0;
+        ev.push({ type: 'jump', idx });
+      } else if (pressed(inp, f.prev, 'dash') && f.dashCd === 0) {
+        f.state = 'dash'; f.t = 0; f.dashCd = DASH_CD * (f.style === 'shinobi' ? 0.75 : 1); f.invuln = DASH_INVULN;
+        f.dashDir = dir !== 0 ? dir : f.face;
+        ev.push({ type: 'dash', idx, x: f.x });
+      } else if (pressed(inp, f.prev, 'skill') && grounded && f.skillCd === 0) {
+        castSkill(m, idx, ev);
+      } else if (pressed(inp, f.prev, 'light') && grounded) {
+        f.state = 'light'; f.t = 0; f.hitDone = false; f.vx = 0;
+      } else if (pressed(inp, f.prev, 'heavy') && grounded) {
+        f.state = 'heavy'; f.t = 0; f.hitDone = false; f.vx = 0;
+      } else if (!inp.crouch) {
+        f.state = 'idle';
       }
       break;
     }
@@ -354,9 +377,13 @@ function updateFighter(m, idx, inp, dt, ev) {
         const dist = Math.abs(opp.x - f.x);
         const inFront = Math.sign(opp.x - f.x) === f.face || dist < BODY_GAP;
         const targetable = !['ko', 'victory'].includes(opp.state) && opp.invuln === 0;
-        if (dist <= move.range && inFront && targetable) {
+        const esquivou = f.state === 'light' && opp.state === 'crouch'; // agachado: o soco passa por cima
+        if (dist <= move.range && inFront && targetable && !esquivou) {
           f.hitDone = true;
           applyHit(m, idx, move, ev);
+        } else if (dist <= move.range && inFront && esquivou && !f.hitDone) {
+          f.hitDone = true;
+          ev.push({ type: 'dodge', idx: 1 - idx, x: opp.x });
         }
       }
       if (f.t >= move.startup + move.active + move.recover) { f.state = 'idle'; f.vx = 0; }
