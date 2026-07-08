@@ -6,6 +6,7 @@ import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
 import { ARENAS, ARENA_KEYS } from '../game/arena.js';
 import KeysHud from '../lib/KeysHud.jsx';
+import { getSocket } from '../lib/socket.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import Navbar from '../lib/Navbar.jsx';
@@ -114,6 +115,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
   }, []);
 
   useEffect(() => {
+    try { getSocket().emit('status:battle', { on: true }); } catch { /* sem socket, sem drama */ }
     let alive = true;
     let renderer = null;
     let raf = 0;
@@ -280,6 +282,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
     onRotate();
 
     return () => {
+      try { getSocket().emit('status:battle', { on: false }); } catch { /* idem */ }
       alive = false;
       cancelAnimationFrame(raf);
       window.removeEventListener('keydown', onKey);
