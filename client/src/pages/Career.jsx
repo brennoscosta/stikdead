@@ -11,7 +11,6 @@ const pct = (w, l) => (w + l > 0 ? Math.round((w / (w + l)) * 100) : 0);
 
 export default function Career({ profile }) {
   const [c, setC] = useState(null);
-  const [tip, setTip] = useState(null); // {patent, unlocked}
   useEffect(() => { api('/api/matches/career').then(setC).catch(() => {}); }, []);
   if (!c) return (<><Navbar profile={profile} /><div className="career-wrap"><p className="dash-empty">Abrindo o dossiê...</p></div></>);
 
@@ -31,7 +30,7 @@ export default function Career({ profile }) {
   return (
     <>
       <Navbar profile={profile} />
-      {tip && <PatentTip patent={tip.patent} unlocked={tip.unlocked} onClose={() => setTip(null)} />}
+      <PatentTip />
       <div className="career-wrap">
         {/* cabeçalho: quem é este lutador */}
         <header className="car-hero">
@@ -84,7 +83,7 @@ export default function Career({ profile }) {
             const won = p.level >= pt.level;
             return (
               <div key={pt.id} className={`conq-slot ${won ? 'won' : ''}`} style={{ cursor: 'pointer' }}
-                onClick={() => setTip({ patent: pt, unlocked: won })}
+                onPointerDown={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('stik:patenttip', { detail: { patent: pt, unlocked: won, x: e.clientX, y: e.clientY } })); }}
                 title={won ? `${pt.name} — nível ${pt.level}` : `??? — desbloqueia no nível ${pt.level}`}>
                 {won ? (
                   <>

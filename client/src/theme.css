@@ -1260,22 +1260,21 @@ body.in-fight .topnav-spacer { display: none; }
 .car-r-gain { margin-left: auto; font-weight: 700; }
 .car-r-data { color: var(--muted); font-size: 11.5px; }
 
-/* ===== balão da glória (patente) ===== */
-.pt-card { position: relative; background: linear-gradient(168deg, #1c1216, #0c0709); border: 1px solid rgba(224,161,11,0.55); border-radius: 20px; padding: 24px 28px 20px; max-width: 380px; width: 100%; text-align: center; overflow: hidden; box-shadow: 0 0 60px rgba(224,161,11,0.22), 0 24px 60px rgba(0,0,0,0.7); animation: pt-entrada 0.42s cubic-bezier(0.2, 1.5, 0.4, 1); }
-@keyframes pt-entrada { from { transform: scale(0.6) translateY(30px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-.pt-card.pt-locked { border-color: #3a2f38; box-shadow: 0 24px 60px rgba(0,0,0,0.7); }
-.pt-rays { position: absolute; inset: -60%; background: conic-gradient(from 0deg, transparent 0 8%, rgba(224,161,11,0.06) 12%, transparent 16%, transparent 33%, rgba(224,161,11,0.06) 37%, transparent 41%, transparent 58%, rgba(224,161,11,0.06) 62%, transparent 66%, transparent 83%, rgba(224,161,11,0.06) 87%, transparent 91%); animation: pt-girar 14s linear infinite; pointer-events: none; }
-.pt-locked .pt-rays { display: none; }
-@keyframes pt-girar { to { transform: rotate(360deg); } }
-.pt-insignia { position: relative; width: 128px; height: 128px; margin: 0 auto 10px; border-radius: 22px; overflow: hidden; border: 2px solid rgba(224,161,11,0.65); box-shadow: 0 0 28px rgba(224,161,11,0.35), inset 0 0 20px rgba(0,0,0,0.5); background: #17121a; animation: pt-pulse 2.6s ease-in-out infinite; }
-.pt-locked .pt-insignia { border-color: #3a2f38; box-shadow: none; animation: none; }
-@keyframes pt-pulse { 0%,100% { box-shadow: 0 0 22px rgba(224,161,11,0.3); } 50% { box-shadow: 0 0 42px rgba(224,161,11,0.55); } }
-.pt-insignia img { width: 100%; height: 100%; object-fit: cover; }
-.pt-emoji { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 52px; }
-.pt-ato { position: relative; color: var(--muted); font: 800 10.5px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.3em; }
-.pt-nome { position: relative; font-family: 'Rubik Wet Paint', 'Barlow Condensed', sans-serif; font-size: 27px; color: #ffffff; margin: 4px 0 8px; text-shadow: 0 2px 14px rgba(0,0,0,0.8); }
-.pt-desc { position: relative; color: #ff5a6e; font-size: 14.5px; line-height: 1.55; font-style: italic; margin: 0 0 12px; text-shadow: 0 1px 8px rgba(217,4,41,0.25); }
-.pt-locked .pt-desc { color: #8a7f88; }
-.pt-nivel { position: relative; display: inline-block; background: rgba(224,161,11,0.14); border: 1px solid rgba(224,161,11,0.6); color: #ffd76a; font: 800 12.5px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.12em; border-radius: 999px; padding: 9px 16px; margin-bottom: 14px; }
-.pt-locked .pt-nivel { background: rgba(120,110,120,0.1); border-color: #4a3f48; color: #a89fa6; }
-.pt-fechar { position: relative; width: auto; padding: 9px 26px; }
+
+/* ===== balão da patente (popover estilo item) ===== */
+.pat-tip { position: fixed; z-index: 480; background: linear-gradient(168deg, rgba(24,16,20,0.98), rgba(10,7,9,0.98)); border: 1px solid rgba(224,161,11,0.55); border-radius: 14px; padding: 12px 14px; box-shadow: 0 0 24px rgba(224,161,11,0.2), 0 14px 40px rgba(0,0,0,0.7); animation: pat-pop 0.16s ease-out; }
+@keyframes pat-pop { from { transform: translateY(6px) scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+.pat-tip.locked { border-color: #3a2f38; box-shadow: 0 14px 40px rgba(0,0,0,0.7); }
+.pat-tip-head { display: flex; align-items: center; gap: 10px; }
+.pat-tip-ico { width: 54px; height: 54px; border-radius: 10px; overflow: hidden; flex: none; border: 1px solid rgba(224,161,11,0.5); background: #17121a; display: flex; align-items: center; justify-content: center; }
+.pat-tip.locked .pat-tip-ico { border-color: #3a2f38; }
+.pat-tip-ico img { width: 100%; height: 100%; object-fit: cover; }
+.pat-tip-emoji { font-size: 26px; }
+.pat-tip-nome { color: #ffffff; font-weight: 800; font-size: 15.5px; letter-spacing: 0.02em; }
+.pat-tip-ato { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: 0.22em; margin-top: 2px; }
+.pat-tip-sep { height: 1px; background: linear-gradient(90deg, transparent, rgba(224,161,11,0.5), transparent); margin: 9px 0; }
+.pat-tip.locked .pat-tip-sep { background: linear-gradient(90deg, transparent, #3a2f38, transparent); }
+.pat-tip-desc { color: #ff5a6e; font-size: 13px; line-height: 1.5; font-style: italic; }
+.pat-tip.locked .pat-tip-desc { color: #8a7f88; }
+.pat-tip-nivel { margin-top: 9px; display: inline-block; background: rgba(224,161,11,0.13); border: 1px solid rgba(224,161,11,0.55); color: #ffd76a; font-weight: 800; font-size: 11px; letter-spacing: 0.1em; border-radius: 999px; padding: 6px 12px; }
+.pat-tip.locked .pat-tip-nivel { background: rgba(120,110,120,0.1); border-color: #4a3f48; color: #a89fa6; }

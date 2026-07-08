@@ -25,7 +25,6 @@ export default function Profile({ profile, onUpdate, onLogout }) {
   const nav = useNavigate();
   const [editing, setEditing] = useState(false);
   const [showCfg, setShowCfg] = useState(false);
-  const [patTip, setPatTip] = useState(null);
   const [name, setName] = useState(profile.fighter_name);
   const [err, setErr] = useState('');
   const [loadout, setLoadout] = useState([]);
@@ -72,7 +71,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
   return (
     <div className="dash">
       {showCfg && <SettingsModal onClose={() => setShowCfg(false)} />}
-      {patTip && <PatentTip patent={patTip.patent} unlocked={patTip.unlocked} onClose={() => setPatTip(null)} />}
+      <PatentTip />
       <Navbar profile={profile} />
 
       {/* cabeçalho com arte pintada */}
@@ -127,7 +126,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           {PATENTS.map((p) => {
             const won = profile.level >= p.level;
             return (
-              <button key={p.id} className={`conq-mini ${won ? 'won' : ''}`} onClick={() => setPatTip({ patent: p, unlocked: won })}
+              <button key={p.id} className={`conq-mini ${won ? 'won' : ''}`}
+                onPointerDown={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('stik:patenttip', { detail: { patent: p, unlocked: won, x: e.clientX, y: e.clientY } })); }}
                 title={won ? `${p.name} — nível ${p.level}` : `??? — nível ${p.level}`}>
                 {won ? (
                   <>
