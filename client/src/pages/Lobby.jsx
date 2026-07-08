@@ -206,10 +206,8 @@ export default function Lobby({ profile, onProfile }) {
                     <span className="lobby-busy st-away-tag">💤 AUSENTE</span>
                   ) : p.inMatch ? (
                     <span className="lobby-busy">🟡 EM LUTA</span>
-                  ) : duo && duo.leader.id === profile.id && p.duo ? (
-                    <button className="lobby-challenge" onClick={() => getSocket().emit('duo:challenge', { toLeader: p.id })}>
-                      ⚔️ DUO
-                    </button>
+                  ) : p.duo && duo ? (
+                    <span className="lobby-busy" title="Desafie pela lista de duplas abaixo">🤝</span>
                   ) : !duo ? (
                     <span style={{ display: 'flex', gap: 6 }}>
                       <button className="lobby-challenge" disabled={!!sent} onClick={() => setBetFor(p)}>DESAFIAR</button>
@@ -222,6 +220,45 @@ export default function Lobby({ profile, onProfile }) {
               ))}
             </ul>
             {sent && <p className="dash-empty">Desafio enviado para {sent}. Aguardando…</p>}
+
+            {/* ===== o mural amarelo das DUPLAS ===== */}
+            {(() => {
+              const porLider = new Map();
+              for (const p of players) {
+                if (p.duo && p.duoLeaderId) {
+                  if (!porLider.has(p.duoLeaderId)) porLider.set(p.duoLeaderId, []);
+                  porLider.get(p.duoLeaderId).push(p);
+                }
+              }
+              const duplas = [...porLider.entries()].filter(([, ms]) => ms.length === 2);
+              if (duplas.length === 0) return null;
+              return (
+                <div className="duo-mural">
+                  <h3 className="pc-section" style={{ margin: '0 0 6px', color: '#ffd76a' }}>🤝 DUPLAS NA ARENA</h3>
+                  {duplas.map(([lid, ms]) => {
+                    const minha = duo && ms.some((m) => m.id === profile.id);
+                    const lutando = ms.some((m) => m.inMatch);
+                    return (
+                      <div key={lid} className="duo-mural-linha">
+                        <span className="duo-mural-nomes">
+                          <b>{ms[0].name}</b> + <b>{ms[1].name}</b>
+                          {minha ? <em> · sua dupla</em> : null}
+                        </span>
+                        {minha ? null : lutando ? (
+                          <span className="lobby-busy">🟡 EM BATALHA</span>
+                        ) : duo ? (
+                          <button className="btn btn-blood duo-btn" onClick={() => getSocket().emit('duo:challenge', { toLeader: lid })}>
+                            ⚔️ DESAFIAR DUPLA
+                          </button>
+                        ) : (
+                          <small style={{ color: 'var(--muted)' }}>forme uma dupla para desafiar</small>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
             {duo && (
               <div className="duo-bar">
                 🤝 DUPLA: <b>{duo.leader.name}</b> + <b>{duo.partner.name}</b>

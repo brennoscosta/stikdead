@@ -1376,3 +1376,11 @@ body.in-fight .topnav-spacer { display: none; }
 .bt-bar.sis { height: 7px; margin-top: 3px; opacity: 0.9; }
 .bt-fill.sisfill { background: linear-gradient(90deg, #ffd76a, #e0a10b); }
 .bt-fill.sisfill.dark { background: linear-gradient(90deg, #8fb8d9, #5a7d9e); }
+
+/* ===== o mural amarelo das duplas ===== */
+.duo-mural { background: rgba(224,161,11,0.09); border: 1px solid rgba(224,161,11,0.55); border-radius: 14px; padding: 12px 14px; margin-top: 12px; box-shadow: 0 0 18px rgba(224,161,11,0.12); }
+.duo-mural-linha { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed rgba(224,161,11,0.25); }
+.duo-mural-linha:last-child { border-bottom: none; }
+.duo-mural-nomes { font-size: 13.5px; }
+.duo-mural-nomes b { color: #ffd76a; }
+.duo-mural-nomes em { color: var(--muted); font-size: 12px; }

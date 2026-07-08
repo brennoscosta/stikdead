@@ -77,7 +77,7 @@ export function attachOnline(io) {
       id: user.id, name: user.name, level: user.level, tier: user.tier,
       inMatch: userRoom.has(user.id) || BOT_FIGHT.has(user.id), loadout: loadout || [],
       clan: user.clan || null,
-      duo: DUO_OF.has(user.id), duoLeader: DUOS.has(user.id),
+      duo: DUO_OF.has(user.id), duoLeader: DUOS.has(user.id), duoLeaderId: DUO_OF.get(user.id) || null,
       duoWith: (() => {
         const lid = DUO_OF.get(user.id);
         if (!lid) return null;
@@ -506,10 +506,13 @@ export function attachOnline(io) {
     });
     // desafio direto dupla -> dupla (pela lista do lobby)
     socket.on('duo:challenge', ({ toLeader }) => {
-      const meu = DUOS.get(user.id);
-      const dele = DUOS.get(Number(toLeader));
+      const meuLider = DUO_OF.get(user.id);              // qualquer membro pode puxar o desafio
+      const liderDele = DUO_OF.get(Number(toLeader));    // e mirar qualquer membro da outra dupla
+      const meu = meuLider ? DUOS.get(meuLider) : null;
+      const dele = liderDele ? DUOS.get(liderDele) : null;
       if (!meu || !dele || meu === dele) return;
-      online.get(Number(toLeader))?.socket.emit('duo:challenged', { from: { id: user.id, name: user.name } });
+      online.get(liderDele)?.socket.emit('duo:challenged', { from: { id: meuLider, name: user.name } });
+      socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: '⚔️ Desafio de dupla enviado! Aguardando o líder deles...', ts: Date.now() });
     });
     socket.on('duo:challenge:answer', ({ from, accept }) => {
       const rival = Number(from);
