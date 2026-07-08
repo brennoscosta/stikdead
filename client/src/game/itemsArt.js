@@ -1,6 +1,6 @@
 // STIKDEAD :: arte dos itens equipados — templates paramétricos presos aos ossos
 // Cada item do catálogo = { slot, template, params }. Camadas: back → body → torso → front.
-import { Assets } from 'pixi.js';
+import { Assets, Matrix } from 'pixi.js';
 
 // textura da Armadura Prismática (a MESMA imagem da loja), carregada uma vez
 let PRISMA_TEX = null;
@@ -408,7 +408,8 @@ const TEMPLATES = {
       const p11 = [cx + px * W / 2 + ax * H / 2, cy + py * W / 2 + ay * H / 2];
       const p01 = [cx - px * W / 2 + ax * H / 2, cy - py * W / 2 + ay * H / 2];
       const sx = W / PRISMA_TEX.width, sy = H / PRISMA_TEX.height;
-      const matrix = { a: px * sx, b: py * sx, c: ax * sy, d: ay * sy, tx: p00[0], ty: p00[1] };
+      // matriz textura->mundo... invertida, porque o fill do Pixi espera mundo->textura
+      const matrix = new Matrix(px * sx, py * sx, ax * sy, ay * sy, p00[0], p00[1]).invert();
       g.poly([p00[0], p00[1], p10[0], p10[1], p11[0], p11[1], p01[0], p01[1]])
         .fill({ texture: PRISMA_TEX, matrix });
       return;
