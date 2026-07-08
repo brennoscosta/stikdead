@@ -49,10 +49,10 @@ export default function Navbar({ profile }) {
           <span className="topnav-coins">🪙 {Number(profile.coins).toLocaleString('pt-BR')}</span>
           <span className="topnav-diamonds">💎 {Number(profile.diamonds || 0).toLocaleString('pt-BR')}</span>
         </span>
-        <div className="topnav-me">
-          <button className="topnav-name topnav-name-btn" onClick={() => nav('/atividades')} title="Suas atividades">{profile.fighter_name}</button>
-          <button className="topnav-level topnav-name-btn" onClick={() => nav('/atividades')} title="Suas atividades">Nv. {profile.level}</button>
-        </div>
+        <button className="topnav-chip" onClick={() => nav('/atividades')} title="Suas atividades">
+          <span className="topnav-chip-name">{profile.fighter_name}</span>
+          <span className="topnav-chip-lv">Nv {profile.level}</span>
+        </button>
       </div>
     </header>
     <div className="topnav-spacer" aria-hidden="true" />
