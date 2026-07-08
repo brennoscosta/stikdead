@@ -2,7 +2,9 @@
 
 .bt-root {
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0;
+  height: 100vh;   /* fallback */
+  height: 100dvh;  /* iOS: acompanha a barra dinâmica do Safari */
   background: #0a0a0a;
   overflow: hidden;
   user-select: none;
@@ -194,7 +196,8 @@
 .bt-stick {
   position: absolute;
   left: 4vw;
-  bottom: 6vh;
+  bottom: 6vh; /* fallback */
+  bottom: calc(4svh + env(safe-area-inset-bottom, 0px) + 10px);
   width: 128px; height: 128px;
   border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.22);
@@ -214,7 +217,8 @@
 .bt-actions {
   position: absolute;
   right: 3vw;
-  bottom: 5vh;
+  bottom: 5vh; /* fallback */
+  bottom: calc(3.5svh + env(safe-area-inset-bottom, 0px) + 10px);
   width: 220px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
