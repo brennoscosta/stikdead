@@ -2,12 +2,12 @@
 const KEY = 'stik_keys';
 
 export const DEFAULT_BINDS = {
-  skill: 'KeyA',   // especial
-  light: 'KeyS',   // soco
-  heavy: 'KeyD',   // chute
-  dash:  'KeyF',   // dash
-  block: 'ShiftLeft',
-  jump:  'KeyW',   // pulo extra (a seta ↑ sempre pula)
+  skill: 'KeyC',   // especial
+  light: 'KeyV',   // soco
+  heavy: 'KeyB',   // chute
+  dash:  'KeyN',   // dash
+  block: 'KeyM',   // bloquear
+  jump:  'Space',  // pular (a seta ↑ também pula)
 };
 
 export const BIND_ORDER = ['skill', 'light', 'heavy', 'dash', 'block', 'jump'];

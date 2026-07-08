@@ -66,7 +66,7 @@ export default function SettingsModal({ onClose }) {
               </div>
             ))}
             <button className="btn-link" style={{ marginTop: 6 }} onClick={() => { setBinds(resetBinds()); setCapturando(null); }}>
-              ↺ restaurar padrão (A S D F · SHIFT · W)
+              ↺ restaurar padrão (C V B N M · ESPAÇO)
             </button>
           </div>
         )}
