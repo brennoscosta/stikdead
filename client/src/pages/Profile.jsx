@@ -7,6 +7,7 @@ import ItemIcon from '../lib/ItemIcon.jsx';
 import { createPreview } from '../game/preview.js';
 import SettingsModal from '../lib/SettingsModal.jsx';
 import { PATENTS } from '../../../shared/patents.js';
+import PatentTip from '../lib/PatentTip.jsx';
 import { RARITY_LABEL } from './Shop.jsx';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 
@@ -24,6 +25,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
   const nav = useNavigate();
   const [editing, setEditing] = useState(false);
   const [showCfg, setShowCfg] = useState(false);
+  const [patTip, setPatTip] = useState(null);
   const [name, setName] = useState(profile.fighter_name);
   const [err, setErr] = useState('');
   const [loadout, setLoadout] = useState([]);
@@ -70,6 +72,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
   return (
     <div className="dash">
       {showCfg && <SettingsModal onClose={() => setShowCfg(false)} />}
+      {patTip && <PatentTip patent={patTip.patent} unlocked={patTip.unlocked} onClose={() => setPatTip(null)} />}
       <Navbar profile={profile} />
 
       {/* cabeçalho com arte pintada */}
@@ -124,7 +127,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           {PATENTS.map((p) => {
             const won = profile.level >= p.level;
             return (
-              <button key={p.id} className={`conq-mini ${won ? 'won' : ''}`} onClick={() => nav('/carreira')}
+              <button key={p.id} className={`conq-mini ${won ? 'won' : ''}`} onClick={() => setPatTip({ patent: p, unlocked: won })}
                 title={won ? `${p.name} — nível ${p.level}` : `??? — nível ${p.level}`}>
                 {won ? (
                   <>
