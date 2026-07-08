@@ -40,6 +40,10 @@ export default function Lobby({ profile, onProfile }) {
   const [inQueue, setInQueue] = useState(false);
   const [incoming, setIncoming] = useState(null); // {id, from, expiresAt, bet}
   const [betFor, setBetFor] = useState(null); // jogador alvo do modal de desafio/aposta
+  const [duo, setDuo] = useState(null); // { leader, partner } quando a dupla está formada
+  const [duoIn, setDuoIn] = useState(null); // convite de dupla recebido {from}
+  const [duoChIn, setDuoChIn] = useState(null); // desafio duo recebido {from}
+  const [duoBusca, setDuoBusca] = useState(false);
   const [sent, setSent] = useState(null);
   const [session, setSession] = useState(null); // {side, players}
   const [chat, setChat] = useState([]);
@@ -85,6 +89,18 @@ export default function Lobby({ profile, onProfile }) {
     socket.on('challenge:cancel', onCancel);
     socket.on('challenge:sent', onSent);
     socket.on('match:start', onStart);
+    const onDuoInvited = ({ from }) => setDuoIn({ from });
+    const onDuoFormed = (d) => { setDuo(d); setDuoIn(null); setDuoBusca(false); };
+    const onDuoBroken = ({ reason }) => { setDuo(null); setDuoBusca(false); setChat((c) => [...c.slice(-49), { name: 'STIKDEAD', system: true, text: `Dupla desfeita: ${reason}.`, ts: Date.now() }]); };
+    const onDuoSearching = () => setDuoBusca(true);
+    const onDuoChallenged = ({ from }) => setDuoChIn({ from });
+    const onDuoResult = ({ texto }) => setChat((c) => [...c.slice(-49), { name: 'STIKDEAD', system: true, text: texto, ts: Date.now() }]);
+    socket.on('duo:invited', onDuoInvited);
+    socket.on('duo:formed', onDuoFormed);
+    socket.on('duo:broken', onDuoBroken);
+    socket.on('duo:searching', onDuoSearching);
+    socket.on('duo:challenged', onDuoChallenged);
+    socket.on('duo:result', onDuoResult);
     const onChatHistory = ({ messages }) => setChat(messages);
     const onChatMsg = (msg) => {
       setChat((c) => [...c.slice(-49), msg]);
@@ -103,6 +119,12 @@ export default function Lobby({ profile, onProfile }) {
       socket.off('challenge:cancel', onCancel);
       socket.off('challenge:sent', onSent);
       socket.off('match:start', onStart);
+      socket.off('duo:invited', onDuoInvited);
+      socket.off('duo:formed', onDuoFormed);
+      socket.off('duo:broken', onDuoBroken);
+      socket.off('duo:searching', onDuoSearching);
+      socket.off('duo:challenged', onDuoChallenged);
+      socket.off('duo:result', onDuoResult);
       socket.off('chat:history', onChatHistory);
       socket.off('chat:msg', onChatMsg);
       socket.off('connect', onReconnect);
@@ -179,24 +201,38 @@ export default function Lobby({ profile, onProfile }) {
                     title={p.away ? 'Ausente' : p.inMatch ? 'Em jogo' : 'Online e disponível'}
                   />
                   <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
-                  <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}</span>
+                  <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}{p.duo ? ' · 🤝' : ''}</span>
                   {p.away ? (
                     <span className="lobby-busy st-away-tag">💤 AUSENTE</span>
                   ) : p.inMatch ? (
                     <span className="lobby-busy">🟡 EM LUTA</span>
-                  ) : (
-                    <button
-                      className="lobby-challenge"
-                      disabled={!!sent}
-                      onClick={() => setBetFor(p)}
-                    >
-                      DESAFIAR
+                  ) : duo && duo.leader.id === profile.id && p.duo ? (
+                    <button className="lobby-challenge" onClick={() => getSocket().emit('duo:challenge', { toLeader: p.id })}>
+                      ⚔️ DUO
                     </button>
+                  ) : !duo ? (
+                    <span style={{ display: 'flex', gap: 6 }}>
+                      <button className="lobby-challenge" disabled={!!sent} onClick={() => setBetFor(p)}>DESAFIAR</button>
+                      <button className="lobby-challenge lc-duo" title="Convidar para ser sua dupla (amigos)" onClick={() => getSocket().emit('duo:invite', { to: p.id })}>🤝</button>
+                    </span>
+                  ) : (
+                    <button className="lobby-challenge" disabled={!!sent} onClick={() => setBetFor(p)}>DESAFIAR</button>
                   )}
                 </li>
               ))}
             </ul>
             {sent && <p className="dash-empty">Desafio enviado para {sent}. Aguardando…</p>}
+            {duo && (
+              <div className="duo-bar">
+                🤝 DUPLA: <b>{duo.leader.name}</b> + <b>{duo.partner.name}</b>
+                {duo.leader.id === profile.id ? (
+                  duoBusca
+                    ? <span className="duo-busca">🔎 buscando batalha de clã...</span>
+                    : <button className="btn btn-blood duo-btn" onClick={() => getSocket().emit('duo:queue')}>🛡️ Buscar batalha de clã</button>
+                ) : <span className="duo-busca">aguardando o líder buscar...</span>}
+                <button className="btn btn-ghost duo-btn" onClick={() => getSocket().emit('duo:cancel')}>desfazer</button>
+              </div>
+            )}
           </section>
 
           <section className="dash-card" style={{ flex: 1 }}>
@@ -314,6 +350,26 @@ export default function Lobby({ profile, onProfile }) {
               }}
               onClose={() => setBetFor(null)}
             />
+          </div>
+        </div>
+      )}
+      {duoIn && (
+        <div className="bt-overlay">
+          <div className="bt-panel">
+            <h2>🤝 DUPLA!</h2>
+            <p style={{ margin: '0 0 14px', fontSize: 19 }}><b style={{ color: '#ffd76a' }}>{duoIn.from.name}</b> te chamou para ser a dupla dele nas batalhas de clã.</p>
+            <button className="btn btn-blood" onClick={() => { getSocket().emit('duo:answer', { from: duoIn.from.id, accept: true }); setDuoIn(null); }}>Aceitar</button>
+            <button className="btn btn-ghost" onClick={() => { getSocket().emit('duo:answer', { from: duoIn.from.id, accept: false }); setDuoIn(null); }}>Recusar</button>
+          </div>
+        </div>
+      )}
+      {duoChIn && (
+        <div className="bt-overlay">
+          <div className="bt-panel">
+            <h2>⚔️ BATALHA DE CLÃ!</h2>
+            <p style={{ margin: '0 0 14px', fontSize: 19 }}>A dupla de <b style={{ color: '#d90429' }}>{duoChIn.from.name}</b> desafiou a sua! 2 contra 2, sem apostas.</p>
+            <button className="btn btn-blood" onClick={() => { goFullscreen(); getSocket().emit('duo:challenge:answer', { from: duoChIn.from.id, accept: true }); setDuoChIn(null); }}>Aceitar</button>
+            <button className="btn btn-ghost" onClick={() => { getSocket().emit('duo:challenge:answer', { from: duoChIn.from.id, accept: false }); setDuoChIn(null); }}>Recusar</button>
           </div>
         </div>
       )}

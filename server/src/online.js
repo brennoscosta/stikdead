@@ -19,6 +19,21 @@ const ONLINE_IDS = new Set();
 export const getOnlineIds = () => ONLINE_IDS;
 const CLAN_ROOM = new Set(); // quem está com a aba Amigos aberta (canal dos amigos)
 const GUILD_ROOM = new Map(); // userId -> clanId (aba do clã aberta)
+// ===== MODO DUO (2v2): duplas, fila e batalhas de clã =====
+const DUO_OF = new Map();      // userId -> leaderId (membro de dupla formada)
+const DUOS = new Map();        // leaderId -> { leader, partner, searching }
+const duoQueue = [];           // leaderIds buscando batalha
+const DUO_MATCHES = new Map(); // duoId -> { teams: [[a1,a2],[b1,b2]], done: [], roundWins: [0,0], winsCount: [0,0] }
+let nextDuo = 1;
+const breakDuo = (leaderId, reason) => {
+  const d = DUOS.get(leaderId);
+  if (!d) return;
+  DUOS.delete(leaderId);
+  DUO_OF.delete(d.leader); DUO_OF.delete(d.partner);
+  const qi = duoQueue.indexOf(leaderId);
+  if (qi >= 0) duoQueue.splice(qi, 1);
+  for (const uid of [d.leader, d.partner]) online.get(uid)?.socket.emit('duo:broken', { reason });
+};
 const BOT_FIGHT = new Set(); // quem está lutando contra a máquina
 export const getClanIds = () => CLAN_ROOM;
 let ONLINE_REF = null; // preenchido no attachOnline
@@ -61,6 +76,7 @@ export function attachOnline(io) {
       away: AWAY_IDS.has(user.id),
       id: user.id, name: user.name, level: user.level, tier: user.tier,
       inMatch: userRoom.has(user.id) || BOT_FIGHT.has(user.id), loadout: loadout || [],
+      duo: DUO_OF.has(user.id), duoLeader: DUOS.has(user.id) && !DUOS.get(user.id).searching ? true : DUOS.has(user.id),
     }));
   const broadcastPresence = () => io.emit('presence', { players: presencePayload() });
 
@@ -82,7 +98,63 @@ export function attachOnline(io) {
     }
   }
 
-  function createRoom(idA, idB, bet = null) {
+  // batalha de clã: líder vs líder + parceiro vs parceiro, salas irmãs
+  function startDuoMatch(leaderA, leaderB) {
+    const A = DUOS.get(leaderA), B = DUOS.get(leaderB);
+    if (!A || !B) return;
+    for (const uid of [A.leader, A.partner, B.leader, B.partner]) {
+      if (!online.has(uid) || userRoom.has(uid)) return; // alguém caiu/entrou em luta
+    }
+    const qi = duoQueue.indexOf(leaderA); if (qi >= 0) duoQueue.splice(qi, 1);
+    const qj = duoQueue.indexOf(leaderB); if (qj >= 0) duoQueue.splice(qj, 1);
+    A.searching = false; B.searching = false;
+    dequeue(A.leader); dequeue(A.partner); dequeue(B.leader); dequeue(B.partner);
+    const duoId = `d${nextDuo++}`;
+    DUO_MATCHES.set(duoId, { teams: [[A.leader, A.partner], [B.leader, B.partner]], done: 0, winsCount: [0, 0], roundWins: [0, 0] });
+    createRoom(A.leader, B.leader, null, duoId);
+    createRoom(A.partner, B.partner, null, duoId);
+  }
+
+  // fim de uma sala-irmã: soma no placar da batalha de clã
+  async function settleDuoRoom(room, winnerSide) {
+    const dm = DUO_MATCHES.get(room.duo);
+    if (!dm) return;
+    // qual time é o lado 0 desta sala?
+    const t0 = dm.teams[0].includes(room.users[0]) ? 0 : 1;
+    const timeVencedor = winnerSide === 0 ? t0 : 1 - t0;
+    dm.winsCount[timeVencedor] += 1;
+    dm.roundWins[t0] += room.match.wins?.[0] || 0;
+    dm.roundWins[1 - t0] += room.match.wins?.[1] || 0;
+    dm.done += 1;
+    if (dm.done < 2) return;
+    DUO_MATCHES.delete(room.duo);
+    // veredito: partidas vencidas; empate 1-1 -> rounds; ainda -> empate
+    let vencedor = dm.winsCount[0] > dm.winsCount[1] ? 0 : dm.winsCount[1] > dm.winsCount[0] ? 1 : -1;
+    if (vencedor === -1) vencedor = dm.roundWins[0] > dm.roundWins[1] ? 0 : dm.roundWins[1] > dm.roundWins[0] ? 1 : -1;
+    // reputação: time com clã unificado conta batalha; vencedor conta vitória
+    try {
+      const todos = [...dm.teams[0], ...dm.teams[1]];
+      const { rows } = await q('SELECT user_id, clan_id FROM profiles WHERE user_id = ANY($1)', [todos]);
+      const claDe = (uid) => rows.find((r) => Number(r.user_id) === uid)?.clan_id || null;
+      for (let t = 0; t < 2; t++) {
+        const [x, y] = dm.teams[t];
+        const cla = claDe(x) && claDe(x) === claDe(y) ? claDe(x) : null;
+        if (cla) await q('UPDATE clans SET duo_battles = duo_battles + 1, duo_wins = duo_wins + $1 WHERE id = $2', [vencedor === t ? 1 : 0, cla]);
+      }
+    } catch { /* reputação não derruba o jogo */ }
+    // aviso aos 4 guerreiros
+    for (let t = 0; t < 2; t++) {
+      const placar = `${dm.winsCount[t]} x ${dm.winsCount[1 - t]}`;
+      const texto = vencedor === -1
+        ? `🤝 Batalha de clã EMPATADA (${placar}, rounds ${dm.roundWins[t]}x${dm.roundWins[1 - t]}).`
+        : vencedor === t
+          ? `🏆 SUA DUPLA VENCEU a batalha de clã! (${placar})`
+          : `💀 Sua dupla perdeu a batalha de clã (${placar}).`;
+      for (const uid of dm.teams[t]) online.get(uid)?.socket.emit('duo:result', { won: vencedor === t, draw: vencedor === -1, texto });
+    }
+  }
+
+  function createRoom(idA, idB, bet = null, duo = null) {
     const roomId = `r${nextRoom++}`;
     const players = [online.get(idA), online.get(idB)];
     const room = {
@@ -90,6 +162,7 @@ export function attachOnline(io) {
       arena: ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio', 'cemiterio'][Math.floor(Math.random() * 8)],
       users: [idA, idB],
       bet,
+      duo,
       names: [players[0].user.name, players[1].user.name],
       match: createMatch({ styles: [players[0]?.style || 'ronin', players[1]?.style || 'ronin'] }),
       inputs: [{ ...EMPTY_INPUT }, { ...EMPTY_INPUT }],
@@ -236,6 +309,7 @@ export function attachOnline(io) {
         }
       }
       await client.query('COMMIT');
+      if (room.duo) settleDuoRoom(room, winnerSide).catch(() => {});
       // apostas viram história no feed de atividades
       if (room.bet && transfer > 0) {
         try {
@@ -349,6 +423,70 @@ export function attachOnline(io) {
       if (rows[0]?.clan_id) GUILD_ROOM.set(user.id, Number(rows[0].clan_id));
     });
     socket.on('guild:leave', () => { GUILD_ROOM.delete(user.id); });
+
+    // ===== DUPLA: amigo convida amigo =====
+    socket.on('duo:invite', async ({ to }) => {
+      const alvo = Number(to);
+      const t = online.get(alvo);
+      if (!t || alvo === user.id || DUO_OF.has(user.id) || DUO_OF.has(alvo) || userRoom.has(user.id) || userRoom.has(alvo)) return;
+      const { rows: amigos } = await q(
+        `SELECT 1 FROM friendships WHERE status = 'accepted' AND
+           ((requester_id = $1 AND addressee_id = $2) OR (requester_id = $2 AND addressee_id = $1))`,
+        [user.id, alvo]);
+      if (!amigos[0]) {
+        socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: 'Duplas são entre AMIGOS — peça amizade primeiro. 🤝', ts: Date.now() });
+        return;
+      }
+      t.socket.emit('duo:invited', { from: { id: user.id, name: user.name, level: user.level } });
+      socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: `Convite de dupla enviado para ${t.user.name}. 🤝`, ts: Date.now() });
+    });
+    socket.on('duo:answer', ({ from, accept }) => {
+      const lider = Number(from);
+      const L = online.get(lider);
+      if (!L || DUO_OF.has(user.id) || DUO_OF.has(lider)) return;
+      if (!accept) { L.socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: `${user.name} recusou a dupla.`, ts: Date.now() }); return; }
+      DUOS.set(lider, { leader: lider, partner: user.id, searching: false });
+      DUO_OF.set(lider, lider); DUO_OF.set(user.id, lider);
+      const payload = { leader: { id: lider, name: L.user.name }, partner: { id: user.id, name: user.name } };
+      L.socket.emit('duo:formed', payload);
+      socket.emit('duo:formed', payload);
+      broadcastPresence();
+    });
+    socket.on('duo:cancel', () => {
+      const lid = DUO_OF.get(user.id);
+      if (lid) { breakDuo(lid, `${user.name} desfez a dupla`); broadcastPresence(); }
+    });
+
+    // líder busca batalha de clã (fila duo) — SEM APOSTAS por natureza
+    socket.on('duo:queue', () => {
+      const d = DUOS.get(user.id);
+      if (!d || userRoom.has(d.leader) || userRoom.has(d.partner)) return;
+      if (!online.has(d.partner)) { breakDuo(user.id, 'parceiro offline'); return; }
+      if (duoQueue.includes(user.id)) return;
+      // já tem alguém esperando? luta AGORA
+      const rivalLeader = duoQueue.shift();
+      if (rivalLeader && rivalLeader !== user.id && DUOS.has(rivalLeader)) {
+        startDuoMatch(user.id, rivalLeader);
+      } else {
+        if (rivalLeader) duoQueue.unshift(rivalLeader);
+        duoQueue.push(user.id);
+        d.searching = true;
+        for (const uid of [d.leader, d.partner]) online.get(uid)?.socket.emit('duo:searching');
+      }
+    });
+    // desafio direto dupla -> dupla (pela lista do lobby)
+    socket.on('duo:challenge', ({ toLeader }) => {
+      const meu = DUOS.get(user.id);
+      const dele = DUOS.get(Number(toLeader));
+      if (!meu || !dele || meu === dele) return;
+      online.get(Number(toLeader))?.socket.emit('duo:challenged', { from: { id: user.id, name: user.name } });
+    });
+    socket.on('duo:challenge:answer', ({ from, accept }) => {
+      const rival = Number(from);
+      if (!accept) { online.get(rival)?.socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: 'Desafio de dupla recusado.', ts: Date.now() }); return; }
+      if (!DUOS.has(user.id) || !DUOS.has(rival)) return;
+      startDuoMatch(rival, user.id);
+    });
     socket.on('guild:send', (payload) => {
       const meuCla = GUILD_ROOM.get(user.id);
       if (!meuCla) return;
@@ -510,6 +648,8 @@ export function attachOnline(io) {
 
     socket.on('disconnect', () => {
       if (online.get(user.id)?.socket === socket) { ONLINE_IDS.delete(user.id); CLAN_ROOM.delete(user.id); GUILD_ROOM.delete(user.id); AWAY_IDS.delete(user.id); BOT_FIGHT.delete(user.id); }
+      const duoLid = DUO_OF.get(user.id);
+      if (duoLid && !userRoom.has(user.id)) breakDuo(duoLid, `${user.name} saiu`);
       if (online.get(user.id)?.socket === socket) online.delete(user.id);
       dequeue(user.id);
       const rid = userRoom.get(user.id);

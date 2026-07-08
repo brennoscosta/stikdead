@@ -1346,3 +1346,10 @@ body.in-fight .topnav-spacer { display: none; }
 .cla-resumo-flag { width: 40px; height: 40px; border-radius: 9px; overflow: hidden; flex: none; display: flex; align-items: center; justify-content: center; font: 900 14px/1 'Barlow Condensed', sans-serif; color: #fff; }
 .cla-resumo-flag img { width: 100%; height: 100%; object-fit: cover; }
 .cla-resumo-lema { color: var(--muted); font-size: 12px; }
+
+/* ===== modo duo ===== */
+.duo-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: rgba(224,161,11,0.08); border: 1px solid rgba(224,161,11,0.45); border-radius: 12px; padding: 9px 13px; margin-top: 8px; font-size: 13.5px; }
+.duo-bar b { color: #ffd76a; }
+.duo-btn { width: auto !important; padding: 8px 14px !important; font-size: 12.5px; }
+.duo-busca { color: var(--muted); font-size: 12.5px; }
+.lc-duo { padding: 6px 10px; }
