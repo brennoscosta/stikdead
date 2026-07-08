@@ -26,15 +26,9 @@ export async function createRenderer(host, theme = 'dojo') {
   camera.addChild(world);
 
   // arenas VIVAS: vídeo em loop (se existir) -> pintura webp -> vetorial
+  // regra simples: qualidade máxima = vídeo em alta em QUALQUER dispositivo; modo leve = foto
   const VIDEO_THEMES = ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio', 'cemiterio'];
-  // porteiro de hardware: máquina fraca vai direto para a cena procedural (leve)
-  const WEAK_DEVICE = (navigator.hardwareConcurrency || 8) <= 4
-    || (navigator.deviceMemory || 8) <= 3
-    || /android [4-8]\./i.test(navigator.userAgent);
-  const VIDEO_ARENAS = WEAK_DEVICE ? {} : Object.fromEntries(
-    VIDEO_THEMES.map((t) => [t, IS_TOUCH ? `/arenas/${t}_sd.mp4` : `/arenas/${t}.mp4`])
-  );
-  if (WEAK_DEVICE) console.log('[stikdead] dispositivo modesto — arenas procedurais assumem 🎨');
+  const VIDEO_ARENAS = Object.fromEntries(VIDEO_THEMES.map((t) => [t, `/arenas/${t}.mp4`]));
   const loadArenaVideo = (src) => new Promise((resolve, reject) => {
     const v = document.createElement('video');
     v.src = src; v.muted = true; v.loop = true; v.playsInline = true;
@@ -59,13 +53,12 @@ export async function createRenderer(host, theme = 'dojo') {
         tex = Texture.from(vid);
         // o jogo roda a 60fps, mas a textura do vídeo só sobe à GPU 24x/s
         try { if (tex.source && 'updateFPS' in tex.source) tex.source.updateFPS = IS_TOUCH ? 18 : 24; } catch { /* versão sem a alavanca */ }
-        console.log('[stikdead] arena em VÍDEO carregada 🎬', IS_TOUCH ? '(tier mobile)' : '');
+        console.log('[stikdead] arena em VÍDEO alta resolução 🎬');
       } catch (e) {
-        console.warn('[stikdead] vídeo falhou, tentando pintura:', e.message);
+        console.warn('[stikdead] vídeo indisponível — foto assume:', e.message);
       }
     }
-    if (!tex && !LITE && ANIMATED_THEMES.has(theme)) throw new Error('cena viva assume');
-    if (!tex && LITE) console.log('[stikdead] modo leve: arena em FOTO 🖼️');
+    if (!tex) console.log(LITE ? '[stikdead] modo leve: arena em FOTO 🖼️' : '[stikdead] arena em FOTO (fallback) 🖼️');
     if (!tex) tex = await withTimeout(Assets.load(`/arenas/${theme}.webp`), 8000, 'arte da arena');
     console.log('[stikdead] arena pintada carregada');
     const backing = new Graphics();
