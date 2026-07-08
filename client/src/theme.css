@@ -1278,3 +1278,15 @@ body.in-fight .topnav-spacer { display: none; }
 .pat-tip.locked .pat-tip-desc { color: #8a7f88; }
 .pat-tip-nivel { margin-top: 9px; display: inline-block; background: rgba(224,161,11,0.13); border: 1px solid rgba(224,161,11,0.55); color: #ffd76a; font-weight: 800; font-size: 11px; letter-spacing: 0.1em; border-radius: 999px; padding: 6px 12px; }
 .pat-tip.locked .pat-tip-nivel { background: rgba(120,110,120,0.1); border-color: #4a3f48; color: #a89fa6; }
+
+/* ===== rankings: placas + patente ===== */
+.rk-boards { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; margin: 14px 0 6px; }
+.rk-board { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px; color: var(--text); font-weight: 800; font-size: 12.5px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+.rk-board.on { border-color: rgba(217,4,41,0.75); box-shadow: 0 0 14px rgba(217,4,41,0.3); color: #fff; }
+.rk-limits { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+.rk-limit { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 5px 12px; color: var(--muted); font-weight: 700; font-size: 11.5px; cursor: pointer; }
+.rk-limit.on { border-color: rgba(224,161,11,0.65); color: #ffd76a; }
+.rk-pat { width: 34px; height: 34px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(224,161,11,0.45); background: #17121a; flex: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+.rk-pat:hover { transform: scale(1.15); }
+.rk-pat img { width: 100%; height: 100%; object-fit: cover; }
+.rk-pat-vazia { border: none; background: none; color: var(--muted); cursor: default; }
