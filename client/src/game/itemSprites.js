@@ -38,12 +38,23 @@ const CFG = {
   esm_weapon_axe: { attach: 'hand', len: 58, grip: 0.88 },
   esm_weapon_scythe: { attach: 'hand', len: 76, grip: 0.9 },
   esm_weapon_bow: { attach: 'hand', len: 66, grip: 0.5 },
+  // ----- rostos de cristal (arte IA original) -----
+  saf_face_bandana: { attach: 'face', len: 22, maxW: 42 },
+  saf_face_mask_oni: { attach: 'face', len: 38, maxW: 36 },
+  saf_face_mask_skull: { attach: 'face', len: 34, maxW: 33 },
+  saf_face_eyes_red: { attach: 'face', len: 13, maxW: 30 },
+  esm_face_bandana: { attach: 'face', len: 22, maxW: 42 },
+  esm_face_mask_oni: { attach: 'face', len: 38, maxW: 36 },
+  esm_face_mask_skull: { attach: 'face', len: 34, maxW: 33 },
+  esm_face_eyes_red: { attach: 'face', len: 13, maxW: 30 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
 const SPRITE_WHITELIST = new Set([
   'dia_katana_gelo', 'dia_foice_glacial', 'dia_lancas_cristal', 'dia_machado_abismo',
   'esm_weapon_katana', 'esm_weapon_spear', 'esm_weapon_axe', 'esm_weapon_scythe', 'esm_weapon_bow',
+  'saf_face_bandana', 'saf_face_mask_oni', 'saf_face_mask_skull', 'saf_face_eyes_red',
+  'esm_face_bandana', 'esm_face_mask_oni', 'esm_face_mask_skull', 'esm_face_eyes_red',
 ]);
 
 // ============================================================
