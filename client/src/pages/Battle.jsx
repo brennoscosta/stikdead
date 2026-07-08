@@ -429,9 +429,25 @@ export function TouchControls({ inputRef }) {
   };
 
   useEffect(() => {
+    // iOS interrompeu (notificação, gesto, troca de aba)? solta todos os dedos virtuais
+    const soltaTudo = () => {
+      if (!inputRef.current) return;
+      const t = inputRef.current.touch;
+      for (const k of Object.keys(t)) t[k] = false;
+      if (knobRef.current) knobRef.current.style.transform = '';
+    };
+    document.addEventListener('visibilitychange', soltaTudo);
+    window.addEventListener('pagehide', soltaTudo);
+    window.addEventListener('blur', soltaTudo);
     const zone = stickRef.current;
     const knob = knobRef.current;
-    if (!zone) return;
+    if (!zone) { 
+      return () => {
+        document.removeEventListener('visibilitychange', soltaTudo);
+        window.removeEventListener('pagehide', soltaTudo);
+        window.removeEventListener('blur', soltaTudo);
+      };
+    }
     let pid = null;
 
     const move = (e) => {
@@ -465,6 +481,9 @@ export function TouchControls({ inputRef }) {
       zone.removeEventListener('pointermove', moveH);
       zone.removeEventListener('pointerup', upH);
       zone.removeEventListener('pointercancel', upH);
+      document.removeEventListener('visibilitychange', soltaTudo);
+      window.removeEventListener('pagehide', soltaTudo);
+      window.removeEventListener('blur', soltaTudo);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -472,8 +491,10 @@ export function TouchControls({ inputRef }) {
   const Btn = ({ act, label, cls = '' }) => (
     <button
       className={`bt-btn ${cls}`}
-      onPointerDown={(e) => { e.preventDefault(); setTouch(act, true); }}
+      onPointerDown={(e) => { e.preventDefault(); e.currentTarget.setPointerCapture?.(e.pointerId); setTouch(act, true); }}
       onPointerUp={() => setTouch(act, false)}
+      onPointerCancel={() => setTouch(act, false)}
+      onLostPointerCapture={() => setTouch(act, false)}
       onPointerLeave={() => setTouch(act, false)}
       onContextMenu={(e) => e.preventDefault()}
     >
@@ -489,7 +510,6 @@ export function TouchControls({ inputRef }) {
       <div className="bt-actions">
         <Btn act="dash" label="DASH" cls="sm" />
         <Btn act="block" label="BLOCK" cls="sm blue" />
-        <Btn act="jump" label="JUMP" cls="sm green" />
         <Btn act="light" label="SOCO" cls="gold" />
         <Btn act="heavy" label="PESADO" cls="red" />
       </div>
