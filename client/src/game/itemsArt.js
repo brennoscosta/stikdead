@@ -1,15 +1,5 @@
 // STIKDEAD :: arte dos itens equipados — templates paramétricos presos aos ossos
 // Cada item do catálogo = { slot, template, params }. Camadas: back → body → torso → front.
-import { Assets, Matrix } from 'pixi.js';
-
-// textura da Armadura Prismática (a MESMA imagem da loja), carregada uma vez
-let PRISMA_TEX = null;
-let PRISMA_PEDIDA = false;
-function pedePrismaTex() {
-  if (PRISMA_PEDIDA) return;
-  PRISMA_PEDIDA = true;
-  Assets.load('/items/dia_veste_prisma.webp').then((t) => { PRISMA_TEX = t; }).catch(() => {});
-}
 
 const C = (hex) => (typeof hex === 'string' ? parseInt(hex.replace('#', ''), 16) : hex ?? 0xd90429);
 const OUT = 0x080808;
@@ -391,39 +381,77 @@ const TEMPLATES = {
     }
   },
 
-  // ===== EXCELENTES: Armadura Prismática — a imagem da loja vestida no tronco =====
+  // ===== EXCELENTES: Armadura Prismática — vetor puro, o motor que funciona =====
   prisma_armor({ g, T, sk, elapsed }, p) {
-    pedePrismaTex();
     const n = T(sk.neck), h = T(sk.hip);
-    // eixo do tronco (já espelhado pelo T) e perpendicular
     const [ax, ay] = dir(n, h);
     const px = -ay, py = ax;
-    const cx = (n[0] + h[0]) / 2, cy = (n[1] + h[1]) / 2;
+    const HW = 15; // meia-largura do peitoral (abraça o tronco de 26)
 
-    if (PRISMA_TEX) {
-      // fill texturizado com Matrix DE VERDADE (padrão->local, sem inverter): estável e fiel
-      const H = 67, W = 50; // -20%
-      const p00 = [cx - px * W / 2 - ax * H / 2, cy - py * W / 2 - ay * H / 2];
-      const p10 = [cx + px * W / 2 - ax * H / 2, cy + py * W / 2 - ay * H / 2];
-      const p11 = [cx + px * W / 2 + ax * H / 2, cy + py * W / 2 + ay * H / 2];
-      const p01 = [cx - px * W / 2 + ax * H / 2, cy - py * W / 2 + ay * H / 2];
-      const sx = W / PRISMA_TEX.width, sy = H / PRISMA_TEX.height;
-      const matrix = new Matrix(px * sx, py * sx, ax * sy, ay * sy, p00[0], p00[1]);
-      g.poly([p00[0], p00[1], p10[0], p10[1], p11[0], p11[1], p01[0], p01[1]])
-        .fill({ texture: PRISMA_TEX, matrix, alpha: 1 });
-      return;
-    }
+    // placa-base do peitoral (cristal escuro, cobre o tronco inteiro)
+    const c0 = [n[0] - ax * 3, n[1] - ay * 3], c1 = [h[0] + ax * 4, h[1] + ay * 4];
+    g.moveTo(c0[0] - px * HW, c0[1] - py * HW).lineTo(c0[0] + px * HW, c0[1] + py * HW)
+      .lineTo(c1[0] + px * (HW - 3), c1[1] + py * (HW - 3)).lineTo(c1[0] - px * (HW - 3), c1[1] - py * (HW - 3))
+      .closePath().fill(0x141c26).stroke({ width: 3, color: OUT, join: 'round' });
 
-    // fallback vetorial enquanto a textura carrega (ou se faltar no servidor)
+    // facetas iridescentes em zigue-zague (o coração do prisma)
     for (let i = 0; i < 4; i++) {
       const t0 = i / 4, t1 = (i + 1) / 4;
-      const a = [n[0] + (h[0] - n[0]) * t0, n[1] + (h[1] - n[1]) * t0];
-      const b = [n[0] + (h[0] - n[0]) * t1, n[1] + (h[1] - n[1]) * t1];
-      const corA = hue((elapsed * 0.12 + i * 0.17) % 1);
-      const zig = i % 2 === 0 ? 1 : -1;
-      g.moveTo(a[0] - px * 11, a[1] - py * 11).lineTo(a[0] + px * 11, a[1] + py * 11)
-        .lineTo(b[0] + px * 11 * zig, b[1] + py * 11 * zig).closePath()
-        .fill({ color: corA, alpha: 0.8 });
+      const a = [c0[0] + (c1[0] - c0[0]) * t0, c0[1] + (c1[1] - c0[1]) * t0];
+      const b = [c0[0] + (c1[0] - c0[0]) * t1, c0[1] + (c1[1] - c0[1]) * t1];
+      const wA = HW - 1 - t0 * 3, wB = HW - 1 - t1 * 3;
+      const corA = hue((elapsed * 0.1 + i * 0.16) % 1);
+      const corB = hue((elapsed * 0.1 + i * 0.16 + 0.08) % 1);
+      if (i % 2 === 0) {
+        g.moveTo(a[0] - px * wA, a[1] - py * wA).lineTo(a[0] + px * wA, a[1] + py * wA)
+          .lineTo(b[0] - px * wB, b[1] - py * wB).closePath().fill({ color: corA, alpha: 0.9 });
+        g.moveTo(a[0] + px * wA, a[1] + py * wA).lineTo(b[0] + px * wB, b[1] + py * wB)
+          .lineTo(b[0] - px * wB, b[1] - py * wB).closePath().fill({ color: corB, alpha: 0.72 });
+      } else {
+        g.moveTo(a[0] - px * wA, a[1] - py * wA).lineTo(a[0] + px * wA, a[1] + py * wA)
+          .lineTo(b[0] + px * wB, b[1] + py * wB).closePath().fill({ color: corA, alpha: 0.9 });
+        g.moveTo(a[0] - px * wA, a[1] - py * wA).lineTo(b[0] + px * wB, b[1] + py * wB)
+          .lineTo(b[0] - px * wB, b[1] - py * wB).closePath().fill({ color: corB, alpha: 0.72 });
+      }
+      // vinco de refração
+      g.moveTo(a[0] - px * wA, a[1] - py * wA).lineTo(a[0] + px * wA, a[1] + py * wA)
+        .stroke({ width: 1.4, color: 0xffffff, alpha: 0.3 });
+    }
+
+    // núcleo: gema do peito pulsando no espectro
+    const gx = n[0] + (h[0] - n[0]) * 0.32, gy = n[1] + (h[1] - n[1]) * 0.32;
+    const corGema = hue((elapsed * 0.22) % 1);
+    g.moveTo(gx, gy - 6).lineTo(gx + 5, gy).lineTo(gx, gy + 6).lineTo(gx - 5, gy).closePath()
+      .fill(corGema).stroke({ width: 2, color: OUT });
+    g.circle(gx - 1, gy - 1.5, 1.4).fill({ color: 0xffffff, alpha: 0.85 });
+
+    // ombreiras: cristais lapidados mudando de cor
+    for (const lado of [-1, 1]) {
+      const ox = n[0] + px * 13 * lado, oy = n[1] + py * 13 * lado;
+      const cor = hue((elapsed * 0.1 + (lado + 1) * 0.28) % 1);
+      g.moveTo(ox, oy - 7).lineTo(ox + 6, oy - 1).lineTo(ox + 3, oy + 6).lineTo(ox - 3, oy + 6)
+        .lineTo(ox - 6, oy - 1).closePath().fill(cor).stroke({ width: 2.5, color: OUT, join: 'round' });
+      g.moveTo(ox - 2, oy - 5).lineTo(ox + 2, oy + 4).stroke({ width: 1.2, color: 0xffffff, alpha: 0.45 });
+    }
+
+    // saiote: duas placas curtas protegendo o alto das pernas
+    for (const lado of [-1, 1]) {
+      const sx0 = h[0] + px * 7 * lado, sy0 = h[1] + py * 7 * lado;
+      const cor = hue((elapsed * 0.1 + 0.5 + lado * 0.12) % 1);
+      g.moveTo(sx0 - px * 5 * lado, sy0 - py * 5 * lado)
+        .lineTo(sx0 + px * 5 * lado, sy0 + py * 5 * lado)
+        .lineTo(sx0 + px * 4 * lado + ax * 13, sy0 + py * 4 * lado + ay * 13)
+        .lineTo(sx0 - px * 3 * lado + ax * 11, sy0 - py * 3 * lado + ay * 11)
+        .closePath().fill({ color: cor, alpha: 0.85 }).stroke({ width: 2.2, color: OUT, join: 'round' });
+    }
+
+    // brilho especular varrendo o peitoral
+    const varre = ((elapsed * 0.35) % 1.8) - 0.4;
+    if (varre >= 0 && varre <= 1) {
+      const vx = c0[0] + (c1[0] - c0[0]) * varre, vy = c0[1] + (c1[1] - c0[1]) * varre;
+      const w = HW - 2 - varre * 3;
+      g.moveTo(vx - px * w, vy - py * w).lineTo(vx + px * w, vy + py * w)
+        .stroke({ width: 3.5, color: 0xffffff, alpha: 0.32 });
     }
   },
 
