@@ -401,14 +401,9 @@ const TEMPLATES = {
     const cx = (n[0] + h[0]) / 2, cy = (n[1] + h[1]) / 2;
 
     if (PRISMA_TEX) {
-      // a IMAGEM em si, desenhada direto no Graphics: 84x62, girando com o tronco
+      // a IMAGEM em si, do jeito mais simples que existe: retângulo 84x62 centrado no tronco
       const H = 84, W = 62;
-      const ang = Math.atan2(h[1] - n[1], h[0] - n[0]) - Math.PI / 2; // eixo do tronco
-      g.save();
-      g.translate(cx, cy);
-      g.rotate(ang);
-      g.texture(PRISMA_TEX, 0xffffff, -W / 2, -H / 2, W, H);
-      g.restore();
+      g.texture(PRISMA_TEX, 0xffffff, cx - W / 2, cy - H / 2, W, H);
       return;
     }
 
