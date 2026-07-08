@@ -63,7 +63,7 @@ export default function ClanHall({ profile }) {
 
   useEffect(() => {
     if (!meu?.clan || !plazaRef.current) return;
-    plazaRef.current.setPlayers(meu.clan.membros.map((m) => ({ id: m.user_id, name: m.fighter_name, loadout: [] })));
+    plazaRef.current.setPlayers(meu.clan.membros.map((m) => ({ id: m.user_id, name: m.fighter_name, loadout: [], clan: { name: meu.clan.name, color: meu.clan.flagColor } })));
   }, [meu]);
   useEffect(() => { boxRef.current?.scrollTo(0, 999999); }, [chat]);
 

@@ -11,6 +11,8 @@ export default function Friends({ profile }) {
   const [chat, setChat] = useState([]);
   const [text, setText] = useState('');
   const [card, setCard] = useState(null); // { name, gift? }
+  const [meuCla, setMeuCla] = useState(null);
+  useEffect(() => { api('/api/clans/mine').then((r) => setMeuCla(r.clan ? { name: r.clan.name, color: r.clan.flagColor } : null)).catch(() => {}); }, []);
   const plazaHost = useRef(null);
   const plazaRef = useRef(null);
   const boxRef = useRef(null);
@@ -35,8 +37,8 @@ export default function Friends({ profile }) {
   }, []);
   useEffect(() => {
     const walkers = data.friends.filter((f) => f.inClan)
-      .map((f) => ({ id: f.user_id, name: f.fighter_name, loadout: [] }));
-    walkers.push({ id: profile.id, name: profile.fighter_name, loadout: [] });
+      .map((f) => ({ id: f.user_id, name: f.fighter_name, loadout: [], clan: f.clan_name ? { name: f.clan_name, color: f.clan_color } : null }));
+    walkers.push({ id: profile.id, name: profile.fighter_name, loadout: [], clan: meuCla });
     plazaRef.current?.setPlayers(walkers);
   }, [data, profile]);
 

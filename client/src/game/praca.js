@@ -84,8 +84,27 @@ export async function createPlaza(host, opts = {}) {
       tag.on('pointertap', () => onNameClick(p.name));
     }
     layer.addChild(wrap, tag);
+    // estandarte do clã: bandeirinha na cor + nome em azul claro, acima do nome do lutador
+    let clanTag = null;
+    if (p.clan?.name) {
+      clanTag = new Container();
+      const fl = new Graphics();
+      fl.moveTo(0, 0).lineTo(11, 0).lineTo(11, 8).lineTo(8, 6).lineTo(0, 8).closePath()
+        .fill(parseInt(String(p.clan.color || '#d90429').replace('#', ''), 16))
+        .stroke({ width: 1, color: 0x080808 });
+      fl.rect(-1.5, 0, 1.5, 10).fill(0x8a7a66);
+      const ct = new Text({
+        text: p.clan.name.toUpperCase(),
+        style: { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 10, fill: 0x9fd8ff, letterSpacing: 1.2, fontWeight: '700' },
+      });
+      ct.anchor.set(0, 0.5);
+      ct.position.set(14, 4.5);
+      clanTag.addChild(fl, ct);
+      clanTag.pivot.set((14 + ct.width) / 2, 4.5);
+      layer.addChild(clanTag);
+    }
     return {
-      wrap, g, ws, tag, name: p.name, away: !!p.away, loadout: p.loadout || [], bubble: null, bubbleUntil: 0,
+      wrap, g, ws, tag, clanTag, name: p.name, away: !!p.away, loadout: p.loadout || [], bubble: null, bubbleUntil: 0,
       f: {
         x: 60 + Math.random() * Math.max(120, W - 120), y: 0, vx: 0, vy: 0,
         face: Math.random() < 0.5 ? 1 : -1, hp: 100, state: 'walk', t: Math.random() * 3, hitstun: 0, combo: 0,
@@ -144,6 +163,7 @@ export async function createPlaza(host, opts = {}) {
       drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, filterForVector(a.loadout, a.ws));
       a.ws.update(a.f, MOVES);
       a.tag.position.set(a.f.x * scale, H - 40 - 158 * scale);
+      if (a.clanTag) a.clanTag.position.set(a.f.x * scale, H - 40 - 158 * scale - 16);
       a.tag.text = a.away ? `${a.name} 💤` : a.name;
     }
   });
@@ -195,6 +215,7 @@ export async function createPlaza(host, opts = {}) {
           a.ws.destroy();
           a.wrap.destroy({ children: true });
           a.tag.destroy();
+          if (a.clanTag) a.clanTag.destroy({ children: true });
           actors.delete(id);
         }
       }

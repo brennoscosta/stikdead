@@ -183,10 +183,12 @@ router.get('/friends', requireAuth, async (req, res) => {
   const onlineIds = getOnlineIds();
   const clanIds = getClanIds();
   const friends = await q(
-    `SELECT f.id AS friendship_id, u.id AS user_id, p.fighter_name, p.level, p.tier, p.rank_points, p.last_seen
+    `SELECT f.id AS friendship_id, u.id AS user_id, p.fighter_name, p.level, p.tier, p.rank_points, p.last_seen,
+            c.name AS clan_name, c.flag_color AS clan_color
        FROM friendships f
        JOIN users u ON u.id = CASE WHEN f.requester_id = $1 THEN f.addressee_id ELSE f.requester_id END
   LEFT JOIN profiles p ON p.user_id = u.id
+  LEFT JOIN clans c ON c.id = p.clan_id
       WHERE (f.requester_id = $1 OR f.addressee_id = $1) AND f.status = 'accepted'
    ORDER BY p.fighter_name`,
     [req.userId]

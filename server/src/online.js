@@ -76,6 +76,7 @@ export function attachOnline(io) {
       away: AWAY_IDS.has(user.id),
       id: user.id, name: user.name, level: user.level, tier: user.tier,
       inMatch: userRoom.has(user.id) || BOT_FIGHT.has(user.id), loadout: loadout || [],
+      clan: user.clan || null,
       duo: DUO_OF.has(user.id), duoLeader: DUOS.has(user.id),
       duoWith: (() => {
         const lid = DUO_OF.get(user.id);
@@ -368,6 +369,14 @@ export function attachOnline(io) {
     q('SELECT style FROM profiles WHERE user_id = $1', [user.id])
       .then(({ rows }) => { const e = online.get(user.id); if (e) e.style = rows[0]?.style || 'ronin'; })
       .catch(() => {});
+    const carregaCla = () => q(
+      `SELECT c.name, c.flag_color FROM profiles p JOIN clans c ON c.id = p.clan_id WHERE p.user_id = $1`, [user.id])
+      .then(({ rows }) => {
+        user.clan = rows[0] ? { name: rows[0].name, color: rows[0].flag_color } : null;
+        broadcastPresence();
+      }).catch(() => {});
+    carregaCla();
+    socket.on('clan:refresh', carregaCla);
     getLoadout(user.id).then((l) => {
       const entry = online.get(user.id);
       if (entry && entry.socket === socket) { entry.loadout = l; broadcastPresence(); }
