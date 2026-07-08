@@ -1,15 +1,19 @@
 // STIKDEAD :: CLÃS — nome curto, lema, bandeira e reputação 🛡️
 import { Router } from 'express';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const execF = promisify(execFile);
 import { q } from './db.js';
 import { requireAuth } from './auth.js';
 import { logActivity } from './activities.js';
 import { notifyUser } from './online.js';
 
 const router = Router();
-const FLAGS_DIR = path.resolve('uploads/clans');
+const FLAGS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'uploads', 'clans'); // ancorado ao código, imune ao cwd do pm2
 const CRIAR_NIVEL = 10, ENTRAR_NIVEL = 5;
 
 const meuPerfil = async (uid) =>
@@ -54,8 +58,17 @@ router.post('/', requireAuth, async (req, res) => {
     const buf = Buffer.from(m[2], 'base64');
     if (buf.length > 400 * 1024) return res.status(400).json({ error: 'Bandeira: máximo 400KB.' });
     if (!existsSync(FLAGS_DIR)) await mkdir(FLAGS_DIR, { recursive: true });
-    flagFile = `f${Date.now()}.${m[1] === 'jpeg' ? 'jpg' : m[1]}`;
-    await writeFile(path.join(FLAGS_DIR, flagFile), buf);
+    // conversão: 512x512 webp levinha (cover + crop central); ffmpeg falhou? guarda o original
+    const bruto = path.join(FLAGS_DIR, `tmp${Date.now()}.${m[1] === 'jpeg' ? 'jpg' : m[1]}`);
+    await writeFile(bruto, buf);
+    flagFile = `f${Date.now()}.webp`;
+    try {
+      await execF('ffmpeg', ['-y', '-loglevel', 'error', '-i', bruto,
+        '-vf', 'scale=512:512:force_original_aspect_ratio=increase,crop=512:512', path.join(FLAGS_DIR, flagFile)]);
+      await unlink(bruto).catch(() => {});
+    } catch {
+      flagFile = path.basename(bruto); // sem ffmpeg: fica o original
+    }
   }
 
   try {
@@ -63,6 +76,7 @@ router.post('/', requireAuth, async (req, res) => {
       `INSERT INTO clans (name, motto, flag_color, flag_file, owner_id) VALUES ($1,$2,$3,$4,$5) RETURNING id`,
       [name, motto, flagColor, flagFile, req.userId]);
     await q('UPDATE profiles SET clan_id = $1 WHERE user_id = $2', [rows[0].id, req.userId]);
+    await q('INSERT INTO clan_history (user_id, clan_id, clan_name) VALUES ($1,$2,$3)', [req.userId, rows[0].id, name]);
     res.json({ ok: true, clan: await clanCompleto(rows[0].id) });
   } catch (e) {
     if (String(e.message).includes('unique')) return res.status(400).json({ error: 'Já existe um clã com esse nome.' });
@@ -123,6 +137,7 @@ router.post('/respond', requireAuth, async (req, res) => {
   if (p.clan_id) return res.status(400).json({ error: 'Você já tem clã.' });
   if (p.level < ENTRAR_NIVEL) return res.status(400).json({ error: `Nível ${ENTRAR_NIVEL}+ para entrar.` });
   await q('UPDATE profiles SET clan_id = $1 WHERE user_id = $2', [inv.clan_id, req.userId]);
+  await q('INSERT INTO clan_history (user_id, clan_id, clan_name) VALUES ($1,$2,$3)', [req.userId, inv.clan_id, inv.name]);
   logActivity(Number(inv.invited_by), 'clan_joined', { who: p.fighter_name, clan: inv.name });
   notifyUser(Number(inv.invited_by), 'social:ping', { type: 'clan_joined' });
   res.json({ ok: true, joined: true });
@@ -134,15 +149,26 @@ router.post('/leave', requireAuth, async (req, res) => {
   if (!p?.clan_id) return res.status(400).json({ error: 'Você não tem clã.' });
   const { rows: c } = await q('SELECT owner_id FROM clans WHERE id = $1', [p.clan_id]);
   const souDono = Number(c[0].owner_id) === req.userId;
+  const fechaHistoria = () => q('UPDATE clan_history SET left_at = now() WHERE user_id = $1 AND clan_id = $2 AND left_at IS NULL', [req.userId, p.clan_id]);
   if (souDono) {
     const { rows: n } = await q('SELECT COUNT(*) AS n FROM profiles WHERE clan_id = $1', [p.clan_id]);
     if (Number(n[0].n) > 1) return res.status(400).json({ error: 'O dono só sai quando o clã estiver vazio.' });
     await q('UPDATE profiles SET clan_id = NULL WHERE user_id = $1', [req.userId]);
+    await fechaHistoria();
     await q('DELETE FROM clans WHERE id = $1', [p.clan_id]);
     return res.json({ ok: true, dissolved: true });
   }
   await q('UPDATE profiles SET clan_id = NULL WHERE user_id = $1', [req.userId]);
+  await fechaHistoria();
   res.json({ ok: true });
+});
+
+// ===== perfil público do clã: lutadores, patentes e medalhas =====
+router.get('/:id/public', async (req, res) => {
+  const id = Number(req.params.id) || 0;
+  const clan = await clanCompleto(id);
+  if (!clan) return res.status(404).json({ error: 'Clã não encontrado (pode ter sido dissolvido).' });
+  res.json({ clan });
 });
 
 export default router;

@@ -10,6 +10,7 @@ import Activities from './pages/Activities.jsx';
 import Career from './pages/Career.jsx';
 import Social from './pages/Social.jsx';
 import ClanHall from './pages/ClanHall.jsx';
+import ClanPublic from './pages/ClanPublic.jsx';
 import GiftModal from './lib/GiftModal.jsx';
 import ExcellentTip from './lib/ExcellentTip.jsx';
 import FriendAskModal from './lib/FriendAskModal.jsx';
@@ -71,6 +72,7 @@ export default function App() {
         <Route path="/social" element={profile ? <Social profile={profile} /> : null} />
         <Route path="/social/amigos" element={profile ? <Friends profile={profile} /> : null} />
         <Route path="/social/cla" element={profile ? <ClanHall profile={profile} /> : null} />
+        <Route path="/cla/:id" element={profile ? <ClanPublic profile={profile} /> : null} />
         <Route path="/redefinir" element={<Redefinir />} />
         <Route
           path="/partidas"

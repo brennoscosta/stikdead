@@ -187,6 +187,21 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
                 ))}
               </div>
             ) : <p className="dash-empty">Luta no estilo raiz — nada equipado.</p>}
+            {(p.clan || p.clanHistory?.length > 0) && (
+              <div className="pc-clas">
+                <h4 className="pc-section" style={{ margin: '8px 0 4px' }}>🛡️ CLÃS</h4>
+                {p.clan && (
+                  <button className="pc-cla-chip atual" onClick={() => { onClose?.(); window.location.href = `/cla/${p.clan.id}`; }}>
+                    {p.clan.name} <small>· atual</small>
+                  </button>
+                )}
+                {p.clanHistory?.filter((h) => !h.atual).map((h, i) => (
+                  h.id
+                    ? <button key={i} className="pc-cla-chip" onClick={() => { onClose?.(); window.location.href = `/cla/${h.id}`; }}>{h.name}</button>
+                    : <span key={i} className="pc-cla-chip morto" title="Clã dissolvido">{h.name} ✝</span>
+                ))}
+              </div>
+            )}
             <div className="pc-actions">
               {p.friendship === 'none' && <button className="btn btn-blood" disabled={busy} onClick={request}>➕ Pedir amizade</button>}
               {p.friendship !== 'self' && (

@@ -11,8 +11,10 @@ const router = Router();
 router.get('/players/by-name/:name', requireAuth, async (req, res) => {
   const { rows } = await q(
     `SELECT u.id, p.fighter_name, p.style, p.level, p.tier, p.rank_points,
-            p.wins, p.losses, p.win_streak, p.title, p.last_seen
+            p.wins, p.losses, p.win_streak, p.title, p.last_seen, p.clan_id,
+            c.name AS clan_name
        FROM profiles p JOIN users u ON u.id = p.user_id
+       LEFT JOIN clans c ON c.id = p.clan_id
       WHERE lower(p.fighter_name) = lower($1)`,
     [String(req.params.name || '')]
   );
@@ -45,12 +47,17 @@ router.get('/players/by-name/:name', requireAuth, async (req, res) => {
     }
   } else friendship = 'self';
 
+  const { rows: hist } = await q(
+    `SELECT clan_id, clan_name, joined_at, left_at FROM clan_history
+      WHERE user_id = $1 ORDER BY joined_at DESC LIMIT 8`, [p.id]);
   res.json({
     userId: p.id,
     name: p.fighter_name,
     style: p.style,
     level: p.level,
     tier: p.tier,
+    clan: p.clan_id ? { id: Number(p.clan_id), name: p.clan_name } : null,
+    clanHistory: hist.map((h) => ({ id: h.clan_id ? Number(h.clan_id) : null, name: h.clan_name, atual: !h.left_at })),
     trophies: p.rank_points,
     wins: p.wins,
     losses: p.losses,
