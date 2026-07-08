@@ -6,7 +6,7 @@ import { bumpMissions } from './missions.js';
 // Recompensas calculadas SEMPRE no servidor (cliente nunca envia valores de XP/moeda).
 import { computeRewards as computeBase, applyXp, xpForLevel } from './rewards.js';
 
-const TRAINING_FACTOR = 0.5; // treino vs bot rende 50% e não afeta ranking/registro
+const TRAINING_FACTOR = 0.25; // treino vs bot rende 25% (cortado pela metade em 07/2026) e não afeta ranking
 const DIFFS = new Set(['facil', 'medio', 'dificil', 'insano']);
 const DIFF_BONUS = { facil: 0, medio: 0.1, dificil: 0.25, insano: 0.5 };
 
