@@ -13,10 +13,10 @@ export default function FriendAskModal() {
     const s = getSocket();
     const onAsk = (p) => setModal((m) => m ? m : { mode: 'ask', requestId: p.requestId, name: p.from, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
     const onWait = (p) => setModal({ mode: 'wait', requestId: p.requestId, name: p.to, total: (p.ttl || 30) * 1000, deadline: Date.now() + (p.ttl || 30) * 1000 });
-    const onAnswer = (p) => setModal((m) => (m && m.requestId === p.requestId)
+    const onAnswer = (p) => setModal((m) => (m && String(m.requestId) === String(p.requestId))
       ? { mode: 'result', requestId: p.requestId, name: p.with, accepted: p.accepted, deadline: Date.now() + 30000 }
       : m);
-    const onExpired = (p) => setModal((m) => (m && m.requestId === p.requestId)
+    const onExpired = (p) => setModal((m) => (m && String(m.requestId) === String(p.requestId))
       ? { mode: 'result', requestId: p.requestId, name: m.name, accepted: null, deadline: Date.now() + 1800 }
       : m);
     s.on('friend:ask', onAsk);
@@ -50,9 +50,12 @@ export default function FriendAskModal() {
     else setModal(null);
   };
 
+  const mood = modal.mode === 'result'
+    ? (modal.accepted === true ? 'fa-win' : modal.accepted === false ? 'fa-lose' : 'fa-timeout')
+    : '';
   return createPortal(
     <div className="pc-overlay" style={{ zIndex: 450 }}>
-      <div className="fa-card">
+      <div className={`fa-card ${mood}`}>
         {modal.mode === 'ask' && (
           <>
             <div className="fa-icon">🤝</div>
@@ -76,13 +79,19 @@ export default function FriendAskModal() {
         )}
         {modal.mode === 'result' && (
           <>
-            <div className="fa-icon">{modal.accepted === true ? '🎉' : modal.accepted === false ? '💔' : '⏱️'}</div>
+            <div className="fa-icon fa-icon-pop">{modal.accepted === true ? '🤝' : modal.accepted === false ? '💔' : '⏱️'}</div>
+            {modal.accepted === true && <div className="fa-sparks">✦ ✧ ✦</div>}
             <h2 className="fa-title">
-              {modal.accepted === true && <><span className="fa-name">{modal.name}</span> aceitou! Vocês agora são amigos</>}
-              {modal.accepted === false && <><span className="fa-name">{modal.name}</span> recusou o pedido</>}
-              {modal.accepted === null && <>Tempo esgotado — a proposta evaporou</>}
+              {modal.accepted === true && <>AMIZADE SELADA!</>}
+              {modal.accepted === false && <>Pedido recusado</>}
+              {modal.accepted === null && <>Tempo esgotado</>}
             </h2>
-            <button className="btn btn-ghost" style={{ width: 'auto', padding: '10px 26px', marginTop: 8 }} onClick={() => setModal(null)}>
+            <p className="fa-sub">
+              {modal.accepted === true && <><span className="fa-name">{modal.name}</span> aceitou seu pedido — vocês agora lutam do mesmo lado. Encontre-o no 🛡️ Clã!</>}
+              {modal.accepted === false && <><span className="fa-name">{modal.name}</span> recusou desta vez. Cabeça erguida, guerreiro.</>}
+              {modal.accepted === null && <>A proposta evaporou sem resposta — tente quando <span className="fa-name">{modal.name}</span> estiver na área.</>}
+            </p>
+            <button className={`btn ${modal.accepted === true ? 'btn-blood' : 'btn-ghost'}`} style={{ width: 'auto', padding: '11px 30px', marginTop: 10 }} onClick={() => setModal(null)}>
               Fechar
             </button>
           </>

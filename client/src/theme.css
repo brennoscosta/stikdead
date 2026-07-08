@@ -1152,3 +1152,14 @@ body.in-fight .topnav-spacer { display: none; }
 .lobby-dot.st-away { background: #6a6270; box-shadow: none; opacity: 0.9; }
 .lobby-list li.is-away { opacity: 0.62; }
 .st-away-tag { color: #b8b0be; }
+
+/* ===== veredito da amizade: bonito ===== */
+.fa-card { transition: border-color 0.3s, box-shadow 0.3s; }
+.fa-card.fa-win { border-color: rgba(74,222,128,0.65); box-shadow: 0 0 60px rgba(74,222,128,0.3); }
+.fa-card.fa-lose { border-color: rgba(120,110,120,0.5); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+.fa-card.fa-timeout { border-color: rgba(255,215,106,0.4); }
+.fa-icon-pop { animation: fa-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1); }
+@keyframes fa-pop { from { transform: scale(0.2) rotate(-14deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+.fa-sparks { color: #7de0a8; font-size: 18px; letter-spacing: 14px; animation: burst-fade 1.6s ease-out forwards; margin-bottom: 2px; }
+.fa-win .fa-title { color: #7de0a8; text-shadow: 0 0 18px rgba(74,222,128,0.5); }
+.fa-sub { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 2px 0 4px; }
