@@ -6,6 +6,7 @@ import Navbar from '../lib/Navbar.jsx';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import { createPreview } from '../game/preview.js';
 import SettingsModal from '../lib/SettingsModal.jsx';
+import { PATENTS } from '../../../shared/patents.js';
 import { RARITY_LABEL } from './Shop.jsx';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 
@@ -106,6 +107,41 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             <button className="btn btn-blood" onClick={() => nav('/lobby')}>⚔️ Jogar online</button>
             <button className="btn btn-ghost" onClick={() => nav('/treino')}>🤖 Treino vs bot</button>
           </div>
+        </div>
+      </section>
+
+      {/* ===== MINHAS CONQUISTAS :: patentes de nível ===== */}
+      <section className="conq-wrap">
+        <div className="conq-head">
+          <h2 className="dash-h2">🏆 MINHAS CONQUISTAS</h2>
+          <span className="conq-progress">
+            Patentes de Nível · <b>{PATENTS.filter((p) => profile.level >= p.level).length}</b>/{PATENTS.length}
+          </span>
+        </div>
+        <div className="conq-grid">
+          {PATENTS.map((p) => {
+            const won = profile.level >= p.level;
+            return (
+              <div key={p.id} className={`conq-slot ${won ? 'won' : ''}`} title={won ? `${p.name} — conquistada no nível ${p.level}` : `??? — desbloqueia no nível ${p.level}`}>
+                {won ? (
+                  <>
+                    <img
+                      src={p.icon}
+                      alt={p.name}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }}
+                    />
+                    <span className="conq-fallback" style={{ display: 'none' }}>{p.emoji}</span>
+                    <span className="conq-name">{p.name}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="conq-lock">🔒</span>
+                    <span className="conq-req">Nv {p.level}</span>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 

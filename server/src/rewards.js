@@ -38,11 +38,13 @@ export function computeRewards({ won, stats = {}, winsB = 0, diffMult = 1, facto
 export function applyXp(level, xp, gain) {
   xp += gain;
   let levelsUp = 0;
-  while (xp >= xpForLevel(level)) {
+  const MAX_LEVEL = 100;
+  while (level < MAX_LEVEL && xp >= xpForLevel(level)) {
     xp -= xpForLevel(level);
     level++;
     levelsUp++;
   }
+  if (level >= MAX_LEVEL) { level = MAX_LEVEL; xp = Math.min(xp, xpForLevel(MAX_LEVEL) - 1); }
   return { level, xp, levelsUp };
 }
 
