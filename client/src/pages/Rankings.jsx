@@ -5,6 +5,7 @@ import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import { patentFor } from '../../../shared/patents.js';
 import PatentTip from '../lib/PatentTip.jsx';
+import { formaMetal } from '../lib/StatusMedal.jsx';
 
 const TIER_COLOR = {
   BRONZE: '#a9713d', PRATA: '#b9c2cc', OURO: '#e0a10b',
@@ -71,6 +72,7 @@ export default function Rankings({ profile }) {
         {!data && <p className="switch-line">Consultando os anais da arena...</p>}
         {data?.top.map((r) => {
           const pat = patentFor(r.level);
+          const fm = formaMetal(r);
           return (
             <div key={r.position} className={`rank-row ${r.me ? 'me' : ''} ${r.position <= 3 ? `top${r.position}` : ''}`}>
               <span className="rank-pos">{r.position <= 3 ? ['🥇', '🥈', '🥉'][r.position - 1] : `#${r.position}`}</span>
@@ -80,7 +82,7 @@ export default function Rankings({ profile }) {
                 </button>
               ) : <span className="rk-pat rk-pat-vazia">—</span>}
               <span className="rank-name">{r.name}{r.me ? ' (você)' : ''}</span>
-              <span className="rank-tier" style={{ color: tierColor(r.tier) }}>{tierName(r.tier)}</span>
+              <span className="rank-tier" style={{ color: fm.cor }} title={`Forma ${fm.forma}/7`}>{fm.nome}</span>
               <span className="rank-record">{r.wins}V · {r.losses}D</span>
               <span className="rank-points">{B.metric(r.metric)}</span>
             </div>

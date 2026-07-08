@@ -1,7 +1,7 @@
 // STIKDEAD :: FORMA ATUAL — o algoritmo que mede o momento do lutador (1-7)
 // Digere ranking, aproveitamento, sequência, jornada e rodagem → um veredito com motivo.
 
-const NIVEIS = [
+export const NIVEIS = [
   { metal: 'bronze', nome: 'Bronze', glow: 'rgba(169,113,61,0.55)' },
   { metal: 'prata', nome: 'Prata', glow: 'rgba(185,194,204,0.55)' },
   { metal: 'ouro', nome: 'Ouro', glow: 'rgba(224,161,11,0.6)' },
@@ -42,6 +42,14 @@ export function calculaForma(p) {
   ].sort((a, b) => b.pct - a.pct);
 
   return { score: Math.round(score), forma, forte: fatores[0], fraco: fatores[fatores.length - 1], winrate, streak, total };
+}
+
+// nome + cor do metal da forma, para qualquer tela
+const CORES_METAL = { bronze: '#a9713d', prata: '#b9c2cc', ouro: '#e0a10b', platina: '#5fd0c5', diamante: '#8b5cf6', master: '#d90429', grandmaster: '#ff2244' };
+export function formaMetal(p) {
+  const f = calculaForma(p);
+  const N = NIVEIS[f.forma - 1];
+  return { ...N, forma: f.forma, cor: CORES_METAL[N.metal] };
 }
 
 export default function StatusMedal({ profile }) {

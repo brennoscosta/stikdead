@@ -8,7 +8,7 @@ import { createPreview } from '../game/preview.js';
 import SettingsModal from '../lib/SettingsModal.jsx';
 import { PATENTS } from '../../../shared/patents.js';
 import PatentTip from '../lib/PatentTip.jsx';
-import StatusMedal from '../lib/StatusMedal.jsx';
+import StatusMedal, { formaMetal } from '../lib/StatusMedal.jsx';
 import { RARITY_LABEL } from './Shop.jsx';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 
@@ -94,8 +94,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           )}
           <div className="dash-sub">
             Nível <b>{profile.level}</b>
-            <span className="tier-badge" style={{ borderColor: tierColor(profile.tier), color: tierColor(profile.tier) }}>
-              {tierName(profile.tier)}
+            <span className="tier-badge" style={{ borderColor: formaMetal(profile).cor, color: formaMetal(profile).cor }}>
+              {formaMetal(profile).nome}
             </span>
             🏆 {fmt(profile.rank_points)}
           </div>
@@ -159,7 +159,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         <section className="dash-card">
           <h2>RANK ATUAL</h2>
           <div className="dash-rank">
-            <span className="dash-rank-tier" style={{ color: tierColor(profile.tier) }}>{tierName(profile.tier)}</span>
+            <span className="dash-rank-tier" style={{ color: formaMetal(profile).cor }}>{formaMetal(profile).nome}</span>
             <span className="dash-rank-pts">{fmt(profile.rank_points)} pontos</span>
             <div className="mission-bar"><div className="mission-fill" style={{ width: `${rankPct}%` }} /></div>
             <span className="dash-rank-next">{100 - rankPct} pts para o próximo rank</span>

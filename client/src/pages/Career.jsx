@@ -4,7 +4,7 @@ import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import { PATENTS, patentFor } from '../../../shared/patents.js';
 import PatentTip from '../lib/PatentTip.jsx';
-import StatusMedal from '../lib/StatusMedal.jsx';
+import StatusMedal, { formaMetal } from '../lib/StatusMedal.jsx';
 
 const TIER_NOME = (t) => String(t || '').replace('_', ' ').toUpperCase();
 const fmt = (n) => Number(n || 0).toLocaleString('pt-BR');
@@ -44,7 +44,7 @@ export default function Career({ profile }) {
           <div>
             <h1 className="car-nome">{p.fighter_name}</h1>
             <div className="car-sub">
-              {patente ? <b className="car-pat-nome">{patente.name}</b> : 'Sem patente'} · Nível {p.level}/100 · {TIER_NOME(p.tier)}
+              {patente ? <b className="car-pat-nome">{patente.name}</b> : 'Sem patente'} · Nível {p.level}/100 · <b style={{ color: formaMetal(p).cor }}>{formaMetal(p).nome}</b>
             </div>
             <div className="car-sub2">Lutando desde {new Date(p.created_at).toLocaleDateString('pt-BR')}</div>
           </div>
