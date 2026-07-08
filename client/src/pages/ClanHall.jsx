@@ -169,7 +169,7 @@ export default function ClanHall({ profile }) {
       <div className="fr-layout">
         <div className="fr-list">
           <h3 className="pc-section" style={{ margin: '0 0 6px' }}>MEMBROS</h3>
-          {c.membros.map((m) => (
+          {c.membros.filter((m) => m.user_id !== Number(profile.id)).map((m) => (
             <div key={m.user_id} className="fr-friend">
               <span className="fr-dot online" />
               <button className="fr-name" onClick={() => setCard({ name: m.fighter_name })}>
@@ -178,6 +178,7 @@ export default function ClanHall({ profile }) {
               <small>Nv {m.level} · 🏆 {fmt(m.rank_points)}</small>
             </div>
           ))}
+          {c.membros.length === 1 && <p className="dash-empty">Só você por enquanto — convide a tropa! 🛡️</p>}
           {meu.isOwner && <p className="dash-empty" style={{ fontSize: 12 }}>👑 Para convidar: clique no nome de alguém em qualquer salão e use o botão do clã.</p>}
           {meu.isOwner && !editando && (
             <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px', marginTop: 4 }} onClick={abrirEdicao}>⚙️ Editar clã</button>

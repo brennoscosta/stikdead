@@ -34,7 +34,7 @@ router.get('/players/by-name/:name', requireAuth, async (req, res) => {
   // relação com quem está olhando
   let friendship = 'none';
   let requestId = null;
-  if (p.id !== req.userId) {
+  if (Number(p.id) !== req.userId) {
     const f = await q(
       `SELECT id, requester_id, status FROM friendships
         WHERE (requester_id = $1 AND addressee_id = $2) OR (requester_id = $2 AND addressee_id = $1)`,
