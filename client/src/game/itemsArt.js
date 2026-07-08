@@ -1,5 +1,15 @@
 // STIKDEAD :: arte dos itens equipados — templates paramétricos presos aos ossos
-// Cada item do catálogo = { slot, template, params }. Camadas: back → body → front.
+// Cada item do catálogo = { slot, template, params }. Camadas: back → body → torso → front.
+import { Assets } from 'pixi.js';
+
+// textura da Armadura Prismática (a MESMA imagem da loja), carregada uma vez
+let PRISMA_TEX = null;
+let PRISMA_PEDIDA = false;
+function pedePrismaTex() {
+  if (PRISMA_PEDIDA) return;
+  PRISMA_PEDIDA = true;
+  Assets.load('/items/dia_veste_prisma.webp').then((t) => { PRISMA_TEX = t; }).catch(() => {});
+}
 
 const C = (hex) => (typeof hex === 'string' ? parseInt(hex.replace('#', ''), 16) : hex ?? 0xd90429);
 const OUT = 0x080808;
@@ -9,7 +19,7 @@ const LAYER = {
   vest: 'body', scarf: 'body', gloves: 'body', gauntlets: 'body', bands: 'body',
   shorts: 'body', pants: 'body', kneepads: 'body', shoes: 'body', boots: 'body',
   band: 'front', hat: 'front', hood: 'front', crown: 'front', ice_crown: 'front',
-  prisma_armor: 'body', prisma_blades: 'front',
+  prisma_armor: 'torso', prisma_blades: 'front',
   bandana: 'front', mask_skull: 'front', mask_oni: 'front', mask_hockey: 'front', eyes_red: 'front',
   katana: 'front', bo: 'front', nunchaku: 'front', axe: 'front', spear: 'front',
   scythe: 'front', dual: 'front', bow: 'front',
@@ -381,49 +391,39 @@ const TEMPLATES = {
     }
   },
 
-  // ===== EXCELENTES: Armadura Prismática — facetas com o espectro vivo =====
-  prisma_armor({ g, T, sk, face, elapsed }, p) {
+  // ===== EXCELENTES: Armadura Prismática — a imagem da loja vestida no tronco =====
+  prisma_armor({ g, T, sk, elapsed }, p) {
+    pedePrismaTex();
     const n = T(sk.neck), h = T(sk.hip);
-    // base do torso (cristal escuro)
-    seg(g, n, h, 26, 0x1a2430, true, false);
-    // facetas triangulares iridescentes ao longo do torso
-    const [dx, dy] = dir(n, h);
-    const px = -dy, py = dx; // perpendicular
+    // eixo do tronco (já espelhado pelo T) e perpendicular
+    const [ax, ay] = dir(n, h);
+    const px = -ay, py = ax;
+    const cx = (n[0] + h[0]) / 2, cy = (n[1] + h[1]) / 2;
+
+    if (PRISMA_TEX) {
+      // quad 200% colado ao corpo: 84 de altura x 62 de largura, girando com o tronco
+      const H = 84, W = 62;
+      const p00 = [cx - px * W / 2 - ax * H / 2, cy - py * W / 2 - ay * H / 2];
+      const p10 = [cx + px * W / 2 - ax * H / 2, cy + py * W / 2 - ay * H / 2];
+      const p11 = [cx + px * W / 2 + ax * H / 2, cy + py * W / 2 + ay * H / 2];
+      const p01 = [cx - px * W / 2 + ax * H / 2, cy - py * W / 2 + ay * H / 2];
+      const sx = W / PRISMA_TEX.width, sy = H / PRISMA_TEX.height;
+      const matrix = { a: px * sx, b: py * sx, c: ax * sy, d: ay * sy, tx: p00[0], ty: p00[1] };
+      g.poly([p00[0], p00[1], p10[0], p10[1], p11[0], p11[1], p01[0], p01[1]])
+        .fill({ texture: PRISMA_TEX, matrix });
+      return;
+    }
+
+    // fallback vetorial enquanto a textura carrega (ou se faltar no servidor)
     for (let i = 0; i < 4; i++) {
       const t0 = i / 4, t1 = (i + 1) / 4;
       const a = [n[0] + (h[0] - n[0]) * t0, n[1] + (h[1] - n[1]) * t0];
       const b = [n[0] + (h[0] - n[0]) * t1, n[1] + (h[1] - n[1]) * t1];
       const corA = hue((elapsed * 0.12 + i * 0.17) % 1);
-      const corB = hue((elapsed * 0.12 + i * 0.17 + 0.09) % 1);
       const zig = i % 2 === 0 ? 1 : -1;
-      // duas metades trianguladas (o zigue-zague do prisma)
       g.moveTo(a[0] - px * 11, a[1] - py * 11).lineTo(a[0] + px * 11, a[1] + py * 11)
         .lineTo(b[0] + px * 11 * zig, b[1] + py * 11 * zig).closePath()
-        .fill({ color: corA, alpha: 0.85 });
-      g.moveTo(b[0] - px * 11, b[1] - py * 11).lineTo(b[0] + px * 11, b[1] + py * 11)
-        .lineTo(a[0] - px * 11 * zig, a[1] - py * 11 * zig).closePath()
-        .fill({ color: corB, alpha: 0.65 });
-      // linha de refração entre placas
-      g.moveTo(a[0] - px * 11, a[1] - py * 11).lineTo(a[0] + px * 11, a[1] + py * 11)
-        .stroke({ width: 1.6, color: 0xffffff, alpha: 0.35 });
-    }
-    // contorno cristalino (só as bordas — sem cobrir as facetas)
-    g.moveTo(n[0] - px * 13, n[1] - py * 13).lineTo(h[0] - px * 13, h[1] - py * 13).stroke({ width: 3, color: OUT, cap: 'round' });
-    g.moveTo(n[0] + px * 13, n[1] + py * 13).lineTo(h[0] + px * 13, h[1] + py * 13).stroke({ width: 3, color: OUT, cap: 'round' });
-    // ombreiras: cristais lapidados girando de cor
-    for (const lado of [-1, 1]) {
-      const ox = n[0] + lado * 12, oy = n[1] + 1;
-      const cor = hue((elapsed * 0.12 + (lado + 1) * 0.31) % 1);
-      g.moveTo(ox, oy - 7).lineTo(ox + 6, oy).lineTo(ox, oy + 7).lineTo(ox - 6, oy).closePath()
-        .fill(cor).stroke({ width: 2.5, color: OUT });
-      g.moveTo(ox, oy - 7).lineTo(ox, oy + 7).stroke({ width: 1.2, color: 0xffffff, alpha: 0.4 });
-    }
-    // brilho especular varrendo o peito
-    const varre = ((elapsed * 0.4) % 1.6) - 0.3;
-    if (varre >= 0 && varre <= 1) {
-      const vx = n[0] + (h[0] - n[0]) * varre, vy = n[1] + (h[1] - n[1]) * varre;
-      g.moveTo(vx - px * 12, vy - py * 12).lineTo(vx + px * 12, vy + py * 12)
-        .stroke({ width: 4, color: 0xffffff, alpha: 0.3 });
+        .fill({ color: corA, alpha: 0.8 });
     }
   },
 

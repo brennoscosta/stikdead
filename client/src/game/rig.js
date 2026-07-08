@@ -185,6 +185,7 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
     capsule(sk.hip, sk.kneB, RIG.wLeg, BODY_BACK, false);
     capsule(sk.kneB, sk.footB, RIG.wShin, BODY_BACK, false);
     capsule(sk.hip, sk.neck, RIG.wTorso, BODY, true);
+    if (loadout) drawItems(ctx, loadout, 'torso'); // armaduras: na frente do tronco, atrás dos membros da frente
     capsule(sk.hip, sk.kneF, RIG.wLeg, BODY, true);
     capsule(sk.kneF, sk.footF, RIG.wShin, BODY, true);
     capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);

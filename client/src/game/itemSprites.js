@@ -28,12 +28,10 @@ const CFG = {
   mascara_hockey: { attach: 'face', len: 36, maxW: 34 },
   // ----- costas -----
   bainha: { attach: 'back', len: 58, grip: 0.5, rot: 0.6, maxW: 16 },
-  // ----- torso (imagem da loja vestida no peito) -----
-  dia_veste_prisma: { attach: 'torso', len: 84, maxW: 62, src: '/items/dia_veste_prisma.webp' },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
-const SPRITE_WHITELIST = new Set(['dia_veste_prisma']);
+const SPRITE_WHITELIST = new Set([]);
 
 // ============================================================
 // INTERRUPTOR MESTRE: sprites pintados no boneco (experimental).
