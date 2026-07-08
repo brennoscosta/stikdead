@@ -70,10 +70,14 @@ router.get('/players/by-name/:name', requireAuth, async (req, res) => {
 // ===== amizades =====
 router.post('/friends/request', requireAuth, async (req, res) => {
   const name = String(req.body?.name || '').trim();
-  const { rows } = await q('SELECT user_id FROM profiles WHERE lower(fighter_name) = lower($1)', [name]);
+  const { rows } = await q('SELECT user_id, fighter_name FROM profiles WHERE lower(fighter_name) = lower($1)', [name]);
   const target = rows[0]?.user_id;
+  const targetName = rows[0]?.fighter_name;
   if (!target) return res.status(404).json({ error: 'Lutador não encontrado.' });
   if (target === req.userId) return res.status(400).json({ error: 'Você já é seu melhor amigo.' });
+  if (!getOnlineIds().has(Number(target))) {
+    return res.status(400).json({ error: `${targetName} não está online — só dá para pedir amizade a quem está na área.` });
+  }
   // disciplina: 5 recusas -> 7 dias de espera
   const den = await q(
     'SELECT count, last_at FROM friend_denials WHERE requester_id = $1 AND addressee_id = $2',
@@ -107,8 +111,25 @@ router.post('/friends/request', requireAuth, async (req, res) => {
   const ins = await q('INSERT INTO friendships (requester_id, addressee_id) VALUES ($1, $2) RETURNING id', [req.userId, target]);
   const meName = await q('SELECT fighter_name FROM profiles WHERE user_id = $1', [req.userId]);
   const { logActivity } = await import('./activities.js');
-  logActivity(target, 'friend_request', { from: meName.rows[0]?.fighter_name, requestId: ins.rows[0].id });
-  notifyUser(target, 'social:ping', { type: 'friend_request', from: meName.rows[0]?.fighter_name });
+  const requestId = ins.rows[0].id;
+  const fromName = meName.rows[0]?.fighter_name;
+  logActivity(target, 'friend_request', { from: fromName, requestId });
+  notifyUser(target, 'social:ping', { type: 'friend_request', from: fromName });
+  // os dois modais: quem recebe decide, quem pediu aguarda
+  notifyUser(target, 'friend:ask', { requestId, from: fromName, ttl: 15 });
+  notifyUser(req.userId, 'friend:waiting', { requestId, to: targetName, ttl: 15 });
+  // expiração autoritativa: 15s e a proposta evapora (sem contar como recusa)
+  const requesterId = req.userId;
+  setTimeout(async () => {
+    try {
+      const { rows: still } = await q(`SELECT 1 FROM friendships WHERE id = $1 AND status = 'pending'`, [requestId]);
+      if (!still[0]) return; // já respondida
+      await q('DELETE FROM friendships WHERE id = $1', [requestId]);
+      notifyUser(requesterId, 'friend:expired', { requestId });
+      notifyUser(target, 'friend:expired', { requestId });
+      notifyUser(target, 'social:ping', { type: 'friend_expired' });
+    } catch { /* fica para a lista como plano B */ }
+  }, 15000);
   res.json({ ok: true, status: 'pending_out' });
 });
 
@@ -133,11 +154,14 @@ router.post('/friends/respond', requireAuth, async (req, res) => {
       logActivity(pair.rows[0].requester_id, 'friend_accept', { with: nameOf[Number(pair.rows[0].addressee_id)] });
       logActivity(pair.rows[0].addressee_id, 'friend_accept', { with: nameOf[Number(pair.rows[0].requester_id)] });
       notifyUser(pair.rows[0].requester_id, 'social:ping', { type: 'friend_accept', with: nameOf[Number(pair.rows[0].addressee_id)] });
+      notifyUser(pair.rows[0].requester_id, 'friend:answer', { requestId: id, accepted: true, with: nameOf[Number(pair.rows[0].addressee_id)] });
     }
   } else {
     const pair = await q('SELECT requester_id, addressee_id FROM friendships WHERE id = $1', [id]);
     await q('DELETE FROM friendships WHERE id = $1', [id]);
     if (pair.rows[0]) {
+      const respName = await q('SELECT fighter_name FROM profiles WHERE user_id = $1', [pair.rows[0].addressee_id]);
+      notifyUser(pair.rows[0].requester_id, 'friend:answer', { requestId: id, accepted: false, with: respName.rows[0]?.fighter_name });
       await q(
         `INSERT INTO friend_denials (requester_id, addressee_id, count, last_at) VALUES ($1, $2, 1, now())
          ON CONFLICT (requester_id, addressee_id) DO UPDATE SET count = friend_denials.count + 1, last_at = now()`,

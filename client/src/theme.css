@@ -1117,3 +1117,14 @@ body.in-fight .topnav-spacer { display: none; }
 .pc-away { font-size: 15px; vertical-align: middle; }
 
 .fr-zzz { font-size: 14px; flex: none; filter: drop-shadow(0 0 4px rgba(255,215,106,0.6)); }
+
+/* ===== pedido de amizade relâmpago ===== */
+.fa-card { background: linear-gradient(170deg, #1a1114, #0d080a); border: 1px solid rgba(217,4,41,0.5); border-radius: 18px; padding: 26px 30px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 0 50px rgba(217,4,41,0.25); }
+.fa-icon { font-size: 52px; margin-bottom: 6px; }
+.fa-pulse { animation: fa-pulse 1.2s ease-in-out infinite; display: inline-block; }
+@keyframes fa-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+.fa-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: 0.04em; margin: 0 0 10px; }
+.fa-name { color: #ffd76a; }
+.fa-timerbar { height: 6px; background: var(--panel-2); border-radius: 999px; overflow: hidden; margin: 6px 0 4px; }
+.fa-timerbar > div { height: 100%; background: linear-gradient(90deg, #d90429, #ff6a4a); border-radius: 999px; transition: width 0.12s linear; }
+.fa-count { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
