@@ -25,7 +25,7 @@ export async function createRenderer(host, theme = 'dojo') {
   camera.addChild(world);
 
   // arenas VIVAS: vídeo em loop (se existir) -> pintura webp -> vetorial
-  const VIDEO_ARENAS = { cidade_rio: '/arenas/cidade_rio.mp4' };
+  const VIDEO_ARENAS = { cidade_rio: '/arenas/cidade_rio.mp4', cemiterio: '/arenas/cemiterio.mp4' };
   const loadArenaVideo = (src) => new Promise((resolve, reject) => {
     const v = document.createElement('video');
     v.src = src; v.muted = true; v.loop = true; v.playsInline = true;
