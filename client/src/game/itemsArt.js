@@ -1,6 +1,6 @@
 // STIKDEAD :: arte dos itens equipados — templates paramétricos presos aos ossos
 // Cada item do catálogo = { slot, template, params }. Camadas: back → body → torso → front.
-import { Assets, Matrix } from 'pixi.js';
+import { Assets } from 'pixi.js';
 
 // textura da Armadura Prismática (a MESMA imagem da loja), carregada uma vez
 let PRISMA_TEX = null;
@@ -401,17 +401,14 @@ const TEMPLATES = {
     const cx = (n[0] + h[0]) / 2, cy = (n[1] + h[1]) / 2;
 
     if (PRISMA_TEX) {
-      // quad 200% colado ao corpo: 84 de altura x 62 de largura, girando com o tronco
+      // a IMAGEM em si, desenhada direto no Graphics: 84x62, girando com o tronco
       const H = 84, W = 62;
-      const p00 = [cx - px * W / 2 - ax * H / 2, cy - py * W / 2 - ay * H / 2];
-      const p10 = [cx + px * W / 2 - ax * H / 2, cy + py * W / 2 - ay * H / 2];
-      const p11 = [cx + px * W / 2 + ax * H / 2, cy + py * W / 2 + ay * H / 2];
-      const p01 = [cx - px * W / 2 + ax * H / 2, cy - py * W / 2 + ay * H / 2];
-      const sx = W / PRISMA_TEX.width, sy = H / PRISMA_TEX.height;
-      // matriz textura->mundo... invertida, porque o fill do Pixi espera mundo->textura
-      const matrix = new Matrix(px * sx, py * sx, ax * sy, ay * sy, p00[0], p00[1]).invert();
-      g.poly([p00[0], p00[1], p10[0], p10[1], p11[0], p11[1], p01[0], p01[1]])
-        .fill({ texture: PRISMA_TEX, matrix });
+      const ang = Math.atan2(h[1] - n[1], h[0] - n[0]) - Math.PI / 2; // eixo do tronco
+      g.save();
+      g.translate(cx, cy);
+      g.rotate(ang);
+      g.texture(PRISMA_TEX, 0xffffff, -W / 2, -H / 2, W, H);
+      g.restore();
       return;
     }
 
