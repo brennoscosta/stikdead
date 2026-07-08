@@ -73,8 +73,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
       {/* cabeçalho com arte pintada */}
       <section className="dash-hero">
-        <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações">⚙️</button>
         <div className="dash-hero-info">
+          <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações">⚙️</button>
           {editing ? (
             <div className="dash-edit">
               <input value={name} onChange={(e) => setName(e.target.value)} maxLength={16} />
