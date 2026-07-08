@@ -28,10 +28,23 @@ const CFG = {
   mascara_hockey: { attach: 'face', len: 36, maxW: 34 },
   // ----- costas -----
   bainha: { attach: 'back', len: 58, grip: 0.5, rot: 0.6, maxW: 16 },
+  // ----- armas de cristal (arte IA original, recortada) -----
+  dia_katana_gelo: { attach: 'hand', len: 66, grip: 0.86 },
+  dia_foice_glacial: { attach: 'hand', len: 76, grip: 0.9 },
+  dia_lancas_cristal: { attach: 'hand', len: 88, grip: 0.72 },
+  dia_machado_abismo: { attach: 'hand', len: 58, grip: 0.88 },
+  esm_weapon_katana: { attach: 'hand', len: 66, grip: 0.86 },
+  esm_weapon_spear: { attach: 'hand', len: 88, grip: 0.72 },
+  esm_weapon_axe: { attach: 'hand', len: 58, grip: 0.88 },
+  esm_weapon_scythe: { attach: 'hand', len: 76, grip: 0.9 },
+  esm_weapon_bow: { attach: 'hand', len: 66, grip: 0.5 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
-const SPRITE_WHITELIST = new Set([]);
+const SPRITE_WHITELIST = new Set([
+  'dia_katana_gelo', 'dia_foice_glacial', 'dia_lancas_cristal', 'dia_machado_abismo',
+  'esm_weapon_katana', 'esm_weapon_spear', 'esm_weapon_axe', 'esm_weapon_scythe', 'esm_weapon_bow',
+]);
 
 // ============================================================
 // INTERRUPTOR MESTRE: sprites pintados no boneco (experimental).
