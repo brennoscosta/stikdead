@@ -189,6 +189,15 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
             ) : <p className="dash-empty">Luta no estilo raiz — nada equipado.</p>}
             <div className="pc-actions">
               {p.friendship === 'none' && <button className="btn btn-blood" disabled={busy} onClick={request}>➕ Pedir amizade</button>}
+              {p.friendship !== 'self' && (
+                <button className="btn btn-ghost" style={{ width: 'auto' }} disabled={busy} title="Convidar para o seu clã (só o dono)"
+                  onClick={async () => {
+                    setBusy(true);
+                    try { await api('/api/clans/invite', { method: 'POST', body: { name } }); setErr('✅ Convite de clã enviado!'); }
+                    catch (e) { setErr(e.message || 'Não foi possível convidar.'); }
+                    setBusy(false);
+                  }}>🛡️ Clã</button>
+              )}
               
               {p.friendship === 'pending_in' && (
                 <>

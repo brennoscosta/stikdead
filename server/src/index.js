@@ -33,6 +33,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', (await import('./admin.js')).default);
 app.use('/api/diamonds', (await import('./diamonds.js')).default);
 app.use('/api', (await import('./social.js')).default);
+app.use('/api/clans', (await import('./clans.js')).default);
 app.use('/api/gifts', (await import('./gifts.js')).default);
 app.use('/api/activities', (await import('./activities.js')).default);
 app.use('/api/matches', matchesRouter);

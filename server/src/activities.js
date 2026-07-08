@@ -26,7 +26,7 @@ router.get('/', requireAuth, async (req, res) => {
   res.json({
     personal: personal.rows.map((a) => ({
       ...a,
-      actionable: a.kind === 'friend_request' && pendIds.has(Number(a.data?.requestId)),
+      actionable: (a.kind === 'friend_request' && pendIds.has(Number(a.data?.requestId))) || a.kind === 'clan_invite',
     })),
     global: global.rows,
   });

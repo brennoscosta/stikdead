@@ -4,7 +4,7 @@ import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import PlayerCard from '../lib/PlayerCard.jsx';
 
-const ICON = { diamond_purchase: '💎', friend_request: '🤝', friend_accept: '✅', gift_sent: '🎁', gift_received: '🎁', bet_win: '💰', bet_loss: '💸' };
+const ICON = { diamond_purchase: '💎', friend_request: '🤝', friend_accept: '✅', gift_sent: '🎁', gift_received: '🎁', bet_win: '💰', bet_loss: '💸', clan_invite: '🛡️', clan_joined: '🛡️' };
 
 export default function Activities({ profile }) {
   const [feed, setFeed] = useState(null);
@@ -23,6 +23,10 @@ export default function Activities({ profile }) {
     const d = a.data || {};
     switch (a.kind) {
       case 'diamond_purchase': return <>Você comprou <b style={{ color: '#9fc4ff' }}>💎 {Number(d.diamonds).toLocaleString('pt-BR')} diamantes</b></>;
+      case 'clan_invite': return <><Name n={d.from} /> te convidou para o clã <b style={{ color: '#ffd76a' }}>{d.clan}</b>
+        {a.actionable && <> <button className="adm-btn" onClick={() => api('/api/clans/respond', { method: 'POST', body: { inviteId: d.inviteId, accept: true } }).then(() => location.reload())}>✓ entrar</button>
+        <button className="adm-btn" onClick={() => api('/api/clans/respond', { method: 'POST', body: { inviteId: d.inviteId, accept: false } }).then(() => location.reload())}>✕</button></>}</>;
+      case 'clan_joined': return <><Name n={d.who} /> entrou no seu clã <b style={{ color: '#ffd76a' }}>{d.clan}</b>! 🛡️</>;
       case 'bet_win': return <>Você <b style={{ color: '#7de0a8' }}>ganhou {d.kind === 'diamonds' ? '💎' : '🪙'} {Number(d.amount).toLocaleString('pt-BR')}</b> em um duelo apostado com <Name n={d.with} /></>;
       case 'bet_loss': return <>Você <b style={{ color: '#ff8fa3' }}>perdeu {d.kind === 'diamonds' ? '💎' : '🪙'} {Number(d.amount).toLocaleString('pt-BR')}</b> em um duelo apostado com <Name n={d.with} /></>;
       case 'friend_request': return <><Name n={d.from} /> solicitou sua amizade {a.actionable && <button className="adm-btn" onClick={() => accept(d.requestId)}>✓ aceitar</button>}</>;

@@ -77,9 +77,9 @@ export default function Friends({ profile }) {
   return (
     <div className="scene dash">
       <Navbar profile={profile} />
-      <h1 className="dash-name" style={{ marginBottom: 2 }}>🛡️ CLÃ</h1>
+      <h1 className="dash-name" style={{ marginBottom: 2 }}>🧑‍🤝‍🧑 AMIGOS</h1>
       <p className="dash-empty" style={{ marginTop: 0 }}>
-        {data.friends.length} amigo{data.friends.length === 1 ? '' : 's'} · {onlineCount} online no salão
+        {data.friends.length} amigo{data.friends.length === 1 ? '' : 's'} · {onlineCount} online no salão dos amigos
       </p>
 
       {data.requests.length > 0 && (
@@ -121,7 +121,7 @@ export default function Friends({ profile }) {
         </div>
 
         <div className="fr-chat">
-          <div className="fr-chat-head">💬 SALÃO DO CLÃ <small style={{ color: 'var(--muted)', fontWeight: 400 }}>· /nome para sussurrar</small></div>
+          <div className="fr-chat-head">💬 SALÃO DOS AMIGOS <small style={{ color: 'var(--muted)', fontWeight: 400 }}>· /nome para sussurrar</small></div>
           <div className="fr-msgs" ref={boxRef}>
             {chat.map((m, i) => (
               <div key={i} className={`clan-line ${m.private ? 'pv' : ''} ${m.system ? 'sys' : ''}`}>

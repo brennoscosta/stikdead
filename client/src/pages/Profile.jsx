@@ -252,10 +252,10 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           <p className="dash-empty" style={{ marginTop: 8 }}>A skill dispara com <b>E</b> (ou o botão redondo no celular) e tem cooldown próprio.</p>
         </section>
 
-        {/* em breve */}
+        {/* clã + status */}
         <section className="dash-card soon">
           <h2>CLÃ</h2>
-          <p className="dash-empty">🛡️ Guerras de clã chegam em breve.</p>
+          <ClanCardResumo />
           <h2 style={{ marginTop: 14 }}>STATUS ATUAL</h2>
           <StatusMedal profile={profile} />
           <button className="btn btn-ghost" style={{ marginTop: 'auto' }} onClick={onLogout}>
@@ -268,3 +268,32 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 }
 
 
+
+
+// ===== resumo do clã no perfil =====
+function ClanCardResumo() {
+  const [meu, setMeu] = useState(null);
+  const nav2 = useNavigate();
+  useEffect(() => { api('/api/clans/mine').then(setMeu).catch(() => {}); }, []);
+  if (!meu) return <p className="dash-empty">🛡️ ...</p>;
+  if (!meu.clan) return (
+    <p className="dash-empty">
+      🛡️ Sem clã. {meu.canCreate ? <button className="btn-link" onClick={() => nav2('/social/cla')}>Fundar o seu →</button> : meu.canJoin ? 'Aguarde um convite (nv 5+).' : 'Disponível no nível 5+.'}
+    </p>
+  );
+  const c = meu.clan;
+  return (
+    <div className="cla-resumo" onClick={() => nav2('/social/cla')} role="button">
+      <span className="cla-resumo-flag" style={c.flagUrl ? undefined : { background: c.flagColor }}>
+        {c.flagUrl ? <img src={c.flagUrl} alt="" /> : c.name.slice(0, 2).toUpperCase()}
+      </span>
+      <span>
+        <b style={{ color: '#ffd76a' }}>{c.name}</b>{meu.isOwner ? ' 👑' : ''}
+        {c.motto && <em className="cla-resumo-lema"> “{c.motto}”</em>}
+        <small style={{ display: 'block', color: 'var(--muted)' }}>
+          👥 {c.membros.length} · ⚔️ {c.reputacao.vitorias} vitórias · 🛡️ {c.reputacao.duoWins}/{c.reputacao.duoBattles} batalhas
+        </small>
+      </span>
+    </div>
+  );
+}

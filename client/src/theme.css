@@ -1313,3 +1313,36 @@ body.in-fight .topnav-spacer { display: none; }
 .forma-seg { flex: 1; height: 9px; border-radius: 4px; background: #241e24; border: 1px solid #322a32; transition: background 0.3s; }
 .forma-seg.on { border-color: transparent; }
 .medal-forma-tag { font-size: 11px; letter-spacing: 0.14em; color: #ffd76a; background: rgba(224,161,11,0.13); border: 1px solid rgba(224,161,11,0.5); border-radius: 999px; padding: 3px 9px; vertical-align: 2px; margin-left: 6px; }
+
+/* ===== SOCIAL hub ===== */
+.soc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; max-width: 720px; margin: 16px auto 0; }
+.soc-card { background: linear-gradient(160deg, #1a1114, #0d080a); border: 1px solid var(--line); border-radius: 18px; padding: 26px 20px; cursor: pointer; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; transition: transform 0.18s, border-color 0.2s, box-shadow 0.2s; color: var(--text); }
+.soc-card:hover { transform: translateY(-3px); border-color: rgba(217,4,41,0.6); box-shadow: 0 10px 30px rgba(217,4,41,0.18); }
+.soc-ico { font-size: 44px; }
+.soc-title { font: 800 20px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.12em; }
+.soc-desc { color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+/* ===== bandeira do clã ===== */
+.flag { position: relative; display: flex; align-items: flex-start; flex: none; }
+.flag-mastro { width: 5px; background: linear-gradient(#7a6a58, #40342a); border-radius: 3px; }
+.flag.g .flag-mastro { height: 120px; }
+.flag-pano { position: relative; width: 84px; height: 58px; margin-top: 6px; clip-path: polygon(0 0, 100% 0, 100% 100%, 78% 84%, 0 100%); overflow: hidden; box-shadow: 4px 5px 14px rgba(0,0,0,0.55); animation: flag-tremula 3.4s ease-in-out infinite; transform-origin: left center; display: flex; align-items: center; justify-content: center; }
+@keyframes flag-tremula { 0%,100% { transform: skewY(0deg); } 50% { transform: skewY(-2.4deg); } }
+.flag-pano img { width: 100%; height: 100%; object-fit: cover; }
+.flag-sigla { font: 900 22px/1 'Barlow Condensed', sans-serif; color: rgba(255,255,255,0.9); text-shadow: 0 2px 6px rgba(0,0,0,0.6); letter-spacing: 0.08em; }
+
+/* ===== quartel do clã ===== */
+.cla-head { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 8px; }
+.cla-lema { color: #ff8fa3; font-style: italic; margin: 2px 0 4px; }
+.cla-rep { color: var(--muted); font-size: 13px; margin: 0; }
+.cla-rep b { color: var(--text); }
+.cla-fundar { max-width: 420px; display: flex; flex-direction: column; gap: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+.cla-fundar input[type=text], .cla-fundar input:not([type]) { background: #17121a; border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; color: var(--text); }
+.cla-flag-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.cla-flag-opt { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: var(--muted); }
+.cla-flag-preview { width: 96px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+.cla-resumo { display: flex; gap: 10px; align-items: center; cursor: pointer; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.cla-resumo:hover { border-color: rgba(224,161,11,0.5); }
+.cla-resumo-flag { width: 40px; height: 40px; border-radius: 9px; overflow: hidden; flex: none; display: flex; align-items: center; justify-content: center; font: 900 14px/1 'Barlow Condensed', sans-serif; color: #fff; }
+.cla-resumo-flag img { width: 100%; height: 100%; object-fit: cover; }
+.cla-resumo-lema { color: var(--muted); font-size: 12px; }

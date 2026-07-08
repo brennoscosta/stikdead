@@ -17,7 +17,8 @@ const sanitizeInput = (i) => ({
 
 const ONLINE_IDS = new Set();
 export const getOnlineIds = () => ONLINE_IDS;
-const CLAN_ROOM = new Set(); // quem está com a aba Clã aberta
+const CLAN_ROOM = new Set(); // quem está com a aba Amigos aberta (canal dos amigos)
+const GUILD_ROOM = new Map(); // userId -> clanId (aba do clã aberta)
 const BOT_FIGHT = new Set(); // quem está lutando contra a máquina
 export const getClanIds = () => CLAN_ROOM;
 let ONLINE_REF = null; // preenchido no attachOnline
@@ -342,6 +343,22 @@ export function attachOnline(io) {
     });
     socket.on('clan:enter', () => { CLAN_ROOM.add(user.id); });
     socket.on('clan:leave', () => { CLAN_ROOM.delete(user.id); });
+    // salão do clã de verdade: filtrado por clan_id (buscado fresco ao entrar)
+    socket.on('guild:enter', async () => {
+      const { rows } = await q('SELECT clan_id FROM profiles WHERE user_id = $1', [user.id]);
+      if (rows[0]?.clan_id) GUILD_ROOM.set(user.id, Number(rows[0].clan_id));
+    });
+    socket.on('guild:leave', () => { GUILD_ROOM.delete(user.id); });
+    socket.on('guild:send', (payload) => {
+      const meuCla = GUILD_ROOM.get(user.id);
+      if (!meuCla) return;
+      const text = String(payload?.text || '').trim().slice(0, 100);
+      if (!text) return;
+      const msg = { name: user.name, userId: user.id, text, ts: Date.now() };
+      for (const [uid, cid] of GUILD_ROOM) {
+        if (cid === meuCla) online.get(uid)?.socket.emit('guild:msg', msg);
+      }
+    });
     socket.on('presence:get', () => {
       socket.emit('presence', { players: presencePayload() });
     });
@@ -492,7 +509,7 @@ export function attachOnline(io) {
     });
 
     socket.on('disconnect', () => {
-      if (online.get(user.id)?.socket === socket) { ONLINE_IDS.delete(user.id); CLAN_ROOM.delete(user.id); AWAY_IDS.delete(user.id); BOT_FIGHT.delete(user.id); }
+      if (online.get(user.id)?.socket === socket) { ONLINE_IDS.delete(user.id); CLAN_ROOM.delete(user.id); GUILD_ROOM.delete(user.id); AWAY_IDS.delete(user.id); BOT_FIGHT.delete(user.id); }
       if (online.get(user.id)?.socket === socket) online.delete(user.id);
       dequeue(user.id);
       const rid = userRoom.get(user.id);
