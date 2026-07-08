@@ -57,7 +57,7 @@ export async function createRenderer(host, theme = 'dojo') {
         const vid = await loadArenaVideo(VIDEO_ARENAS[theme]);
         tex = Texture.from(vid);
         // o jogo roda a 60fps, mas a textura do vídeo só sobe à GPU 24x/s
-        try { if (tex.source && 'updateFPS' in tex.source) tex.source.updateFPS = 24; } catch { /* versão sem a alavanca */ }
+        try { if (tex.source && 'updateFPS' in tex.source) tex.source.updateFPS = IS_TOUCH ? 18 : 24; } catch { /* versão sem a alavanca */ }
         console.log('[stikdead] arena em VÍDEO carregada 🎬', IS_TOUCH ? '(tier mobile)' : '');
       } catch (e) {
         console.warn('[stikdead] vídeo falhou, tentando pintura:', e.message);
