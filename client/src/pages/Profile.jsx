@@ -8,6 +8,7 @@ import { createPreview } from '../game/preview.js';
 import SettingsModal from '../lib/SettingsModal.jsx';
 import { PATENTS } from '../../../shared/patents.js';
 import PatentTip from '../lib/PatentTip.jsx';
+import StatusMedal from '../lib/StatusMedal.jsx';
 import { RARITY_LABEL } from './Shop.jsx';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 
@@ -255,8 +256,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         <section className="dash-card soon">
           <h2>CLÃ</h2>
           <p className="dash-empty">🛡️ Guerras de clã chegam em breve.</p>
-          <h2 style={{ marginTop: 14 }}>CONQUISTAS</h2>
-          <p className="dash-empty">🏅 Medalhas e títulos em breve.</p>
+          <h2 style={{ marginTop: 14 }}>STATUS ATUAL</h2>
+          <StatusMedal profile={profile} />
           <button className="btn btn-ghost" style={{ marginTop: 'auto' }} onClick={onLogout}>
             Sair da conta
           </button>
@@ -265,3 +266,5 @@ export default function Profile({ profile, onUpdate, onLogout }) {
     </div>
   );
 }
+
+

@@ -4,6 +4,7 @@ import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import { PATENTS, patentFor } from '../../../shared/patents.js';
 import PatentTip from '../lib/PatentTip.jsx';
+import StatusMedal from '../lib/StatusMedal.jsx';
 
 const TIER_NOME = (t) => String(t || '').replace('_', ' ').toUpperCase();
 const fmt = (n) => Number(n || 0).toLocaleString('pt-BR');
@@ -48,6 +49,12 @@ export default function Career({ profile }) {
             <div className="car-sub2">Lutando desde {new Date(p.created_at).toLocaleDateString('pt-BR')}</div>
           </div>
         </header>
+
+        {/* status atual: a medalha do presente */}
+        <section className="car-status">
+          <h2 className="dash-h2" style={{ margin: '0 0 4px' }}>🏅 STATUS ATUAL</h2>
+          <StatusMedal profile={p} />
+        </section>
 
         {/* o quadro geral */}
         <div className="car-grid">

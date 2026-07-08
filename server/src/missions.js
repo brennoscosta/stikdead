@@ -133,14 +133,40 @@ router.post('/missions/chest', requireAuth, async (req, res) => {
 
 // ===== ranking =====
 router.get('/rankings', requireAuth, async (req, res) => {
-  const { rows: top } = await q(
-    `SELECT p.fighter_name AS name, p.level, p.tier, p.rank_points, p.wins, p.losses, p.user_id
-       FROM profiles p ORDER BY p.rank_points DESC, p.wins DESC LIMIT 100`
-  );
+  const limit = [10, 50, 100].includes(Number(req.query.limit)) ? Number(req.query.limit) : 10;
+  const board = String(req.query.board || 'geral');
+
+  // cada placa: SELECT com métrica própria (name, level, tier, wins, losses, metric)
+  const BOARDS = {
+    geral: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, p.rank_points AS metric, p.user_id
+              FROM profiles p ORDER BY p.rank_points DESC, p.wins DESC LIMIT ${limit}`,
+    insano: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, COUNT(*) AS metric, p.user_id
+               FROM matches m JOIN profiles p ON p.user_id = m.user_id
+              WHERE m.opponent_type = 'bot' AND m.difficulty = 'insano' AND m.won
+              GROUP BY p.user_id, p.fighter_name, p.level, p.tier, p.wins, p.losses
+              ORDER BY metric DESC LIMIT ${limit}`,
+    apostas: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses,
+                     COALESCE(SUM(CASE WHEN a.kind = 'bet_win' THEN (a.data->>'amount')::bigint
+                                       ELSE -(a.data->>'amount')::bigint END), 0) AS metric, p.user_id
+                FROM activities a JOIN profiles p ON p.user_id = a.user_id
+               WHERE a.kind IN ('bet_win','bet_loss')
+               GROUP BY p.user_id, p.fighter_name, p.level, p.tier, p.wins, p.losses
+               ORDER BY metric DESC LIMIT ${limit}`,
+    bots: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, COUNT(*) AS metric, p.user_id
+             FROM matches m JOIN profiles p ON p.user_id = m.user_id
+            WHERE m.opponent_type = 'bot' AND m.won
+            GROUP BY p.user_id, p.fighter_name, p.level, p.tier, p.wins, p.losses
+            ORDER BY metric DESC LIMIT ${limit}`,
+    pvp: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, p.wins AS metric, p.user_id
+            FROM profiles p WHERE p.wins > 0 ORDER BY p.wins DESC, p.rank_points DESC LIMIT ${limit}`,
+  };
+  const sql = BOARDS[board] || BOARDS.geral;
+  const { rows: top } = await q(sql);
   const { rows: me } = await q('SELECT rank_points FROM profiles WHERE user_id = $1', [req.userId]);
   const { rows: pos } = await q('SELECT 1 + COUNT(*) AS pos FROM profiles WHERE rank_points > $1', [me[0].rank_points]);
   res.json({
-    top: top.map((r, i) => ({ ...r, position: i + 1, me: r.user_id === req.userId, user_id: undefined })),
+    board, limit,
+    top: top.map((r, i) => ({ ...r, metric: Number(r.metric), position: i + 1, me: Number(r.user_id) === req.userId, user_id: undefined })),
     myPosition: Number(pos[0].pos),
     myPoints: me[0].rank_points,
   });

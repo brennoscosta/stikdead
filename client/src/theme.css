@@ -1271,10 +1271,35 @@ body.in-fight .topnav-spacer { display: none; }
 .pat-tip-ico img { width: 100%; height: 100%; object-fit: cover; }
 .pat-tip-emoji { font-size: 26px; }
 .pat-tip-nome { color: #ffffff; font-weight: 800; font-size: 15.5px; letter-spacing: 0.02em; }
-.pat-tip-ato { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: 0.22em; margin-top: 2px; }
+.pat-tip-ato { color: #7de0a8; font-size: 10px; font-weight: 800; letter-spacing: 0.22em; margin-top: 2px; }
 .pat-tip-sep { height: 1px; background: linear-gradient(90deg, transparent, rgba(224,161,11,0.5), transparent); margin: 9px 0; }
 .pat-tip.locked .pat-tip-sep { background: linear-gradient(90deg, transparent, #3a2f38, transparent); }
 .pat-tip-desc { color: #ff5a6e; font-size: 13px; line-height: 1.5; font-style: italic; }
 .pat-tip.locked .pat-tip-desc { color: #8a7f88; }
 .pat-tip-nivel { margin-top: 9px; display: inline-block; background: rgba(224,161,11,0.13); border: 1px solid rgba(224,161,11,0.55); color: #ffd76a; font-weight: 800; font-size: 11px; letter-spacing: 0.1em; border-radius: 999px; padding: 6px 12px; }
 .pat-tip.locked .pat-tip-nivel { background: rgba(120,110,120,0.1); border-color: #4a3f48; color: #a89fa6; }
+
+/* ===== rankings: placas + patente ===== */
+.rk-boards { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; margin: 14px 0 6px; }
+.rk-board { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px; color: var(--text); font-weight: 800; font-size: 12.5px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+.rk-board.on { border-color: rgba(217,4,41,0.75); box-shadow: 0 0 14px rgba(217,4,41,0.3); color: #fff; }
+.rk-limits { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+.rk-limit { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 5px 12px; color: var(--muted); font-weight: 700; font-size: 11.5px; cursor: pointer; }
+.rk-limit.on { border-color: rgba(224,161,11,0.65); color: #ffd76a; }
+.rk-pat { width: 34px; height: 34px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(224,161,11,0.45); background: #17121a; flex: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+.rk-pat:hover { transform: scale(1.15); }
+.rk-pat img { width: 100%; height: 100%; object-fit: cover; }
+.rk-pat-vazia { border: none; background: none; color: var(--muted); cursor: default; }
+
+/* ===== medalha do status atual ===== */
+.medal-box { display: flex; gap: 14px; align-items: flex-start; margin-top: 4px; }
+.medal { position: relative; width: 72px; height: 72px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.25); margin-top: 14px; }
+.medal-sub { font: 900 24px/1 'Barlow Condensed', sans-serif; color: rgba(20,10,8,0.85); text-shadow: 0 1px 0 rgba(255,255,255,0.35); letter-spacing: 0.04em; }
+.medal-fita { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); width: 26px; height: 18px; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 62%, 0 100%); opacity: 0.9; }
+.medal-info { min-width: 0; }
+.medal-titulo { font: 800 17px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #f2efe9; }
+.medal-explica { color: var(--muted); font-size: 12.5px; line-height: 1.55; margin: 6px 0 4px; }
+.medal-explica b { color: var(--text); }
+.medal-meta { color: var(--text); font-size: 12.5px; margin: 0; }
+
+.car-status { background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; margin-top: 14px; }
