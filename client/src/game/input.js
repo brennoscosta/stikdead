@@ -1,20 +1,30 @@
 // STIKDEAD :: entrada unificada — teclado, gamepad e touch produzem o mesmo input
 
-const KEYMAP = {
-  ArrowLeft: 'left',
-  ArrowRight: 'right',
-  KeyW: 'jump', Space: 'jump', ArrowUp: 'jump',
-  ArrowDown: 'crouch', // abaixa: esquiva o soco
-  KeyA: 'skill',   // especial
-  KeyS: 'light',   // soco
-  KeyD: 'heavy',   // chute (no dash = rasteira)
-  KeyF: 'dash',
-  ShiftLeft: 'block', ShiftRight: 'block',
+import { getBinds } from './keybinds.js';
+
+// setas são fixas (movimento); o resto vem das teclas configuradas pelo jogador
+const buildKeymap = () => {
+  const m = {
+    ArrowLeft: 'left', ArrowRight: 'right',
+    ArrowUp: 'jump', ArrowDown: 'crouch',
+    Space: 'jump',
+  };
+  const b = getBinds();
+  for (const [acao, code] of Object.entries(b)) {
+    if (!code) continue;
+    m[code] = acao;
+    if (code === 'ShiftLeft') m.ShiftRight = acao; // shift é ambidestro
+  }
+  return m;
 };
 
 export function createInput() {
   const keys = { left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false, crouch: false };
   const touch = { ...keys };
+
+  let KEYMAP = buildKeymap();
+  const rebuild = () => { KEYMAP = buildKeymap(); };
+  window.addEventListener('stik:keyschanged', rebuild);
 
   const down = (e) => {
     const k = KEYMAP[e.code];
@@ -54,6 +64,7 @@ export function createInput() {
     destroy() {
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
+      window.removeEventListener('stik:keyschanged', rebuild);
     },
   };
 }

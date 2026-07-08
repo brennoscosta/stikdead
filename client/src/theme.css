@@ -1182,3 +1182,11 @@ body.in-fight .topnav-spacer { display: none; }
 .topnav-chip-name { color: var(--text); font-weight: 700; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .topnav-chip-lv { flex: none; background: rgba(217,4,41,0.16); border: 1px solid rgba(217,4,41,0.55); color: #ff8fa3; font: 800 10.5px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.06em; border-radius: 999px; padding: 5px 9px; }
 @media (max-width: 640px) { .topnav-chip { max-width: 128px; padding-left: 10px; } .topnav-chip-name { font-size: 12.5px; } }
+
+/* ===== teclas configuráveis ===== */
+.cfg-keys { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 4px; }
+.cfg-key-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 2px; }
+.cfg-key-acao { font-size: 13.5px; color: var(--text); }
+.cfg-key-btn { min-width: 86px; background: #241a1e; border: 1px solid #4a3a40; border-bottom-width: 3px; border-radius: 8px; padding: 7px 12px; font: 700 12px monospace; color: var(--text); cursor: pointer; transition: border-color 0.2s; }
+.cfg-key-btn:hover { border-color: rgba(217,4,41,0.6); }
+.cfg-key-btn.is-capturing { border-color: #d90429; color: #ff8fa3; animation: kh-ready 0.9s ease-in-out infinite; }
