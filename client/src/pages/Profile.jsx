@@ -5,6 +5,7 @@ import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import { createPreview } from '../game/preview.js';
+import SettingsModal from '../lib/SettingsModal.jsx';
 import { RARITY_LABEL } from './Shop.jsx';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 
@@ -21,6 +22,7 @@ const fmtTime = (s) => (s >= 3600 ? `${Math.floor(s / 3600)}h ${Math.floor((s % 
 export default function Profile({ profile, onUpdate, onLogout }) {
   const nav = useNavigate();
   const [editing, setEditing] = useState(false);
+  const [showCfg, setShowCfg] = useState(false);
   const [name, setName] = useState(profile.fighter_name);
   const [err, setErr] = useState('');
   const [loadout, setLoadout] = useState([]);
@@ -66,6 +68,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
   return (
     <div className="dash">
+      <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações" aria-label="Configurações">⚙️</button>
+      {showCfg && <SettingsModal onClose={() => setShowCfg(false)} />}
       <Navbar profile={profile} />
 
       {/* cabeçalho com arte pintada */}

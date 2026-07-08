@@ -52,7 +52,8 @@ export async function createRenderer(host, theme = 'dojo') {
   let arenaSpr = null;
   try {
     let tex;
-    if (VIDEO_ARENAS[theme]) {
+    const LITE = (localStorage.getItem('stik_quality') || 'max') === 'lite';
+    if (!LITE && VIDEO_ARENAS[theme]) {
       try {
         const vid = await loadArenaVideo(VIDEO_ARENAS[theme]);
         tex = Texture.from(vid);
@@ -63,7 +64,8 @@ export async function createRenderer(host, theme = 'dojo') {
         console.warn('[stikdead] vídeo falhou, tentando pintura:', e.message);
       }
     }
-    if (!tex && ANIMATED_THEMES.has(theme)) throw new Error('cena viva assume');
+    if (!tex && !LITE && ANIMATED_THEMES.has(theme)) throw new Error('cena viva assume');
+    if (!tex && LITE) console.log('[stikdead] modo leve: arena em FOTO 🖼️');
     if (!tex) tex = await withTimeout(Assets.load(`/arenas/${theme}.webp`), 8000, 'arte da arena');
     console.log('[stikdead] arena pintada carregada');
     const backing = new Graphics();
