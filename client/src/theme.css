@@ -1292,7 +1292,7 @@ body.in-fight .topnav-spacer { display: none; }
 .rk-pat-vazia { border: none; background: none; color: var(--muted); cursor: default; }
 
 /* ===== medalha do status atual ===== */
-.medal-box { display: flex; gap: 14px; align-items: flex-start; margin-top: 4px; }
+.medal-box { display: flex; gap: 14px; align-items: flex-start; margin-top: 4px; margin-bottom: 22px; }
 
 
 
