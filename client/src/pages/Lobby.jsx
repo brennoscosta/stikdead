@@ -477,8 +477,12 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     document.body.classList.add('in-fight');
     return () => document.body.classList.remove('in-fight');
   }, []);
-  const opp = 1 - me;
-  const names = [session.players[0]?.name || 'P1', session.players[1]?.name || 'P2'];
+  const quatro = session.players.length === 4;
+  const teams = session.teams || (quatro ? [0, 0, 1, 1] : [0, 1]);
+  const opp = quatro ? (me + 2) % 4 : 1 - me;       // rival espelho
+  const aliado = quatro ? (me % 2 === 0 ? me + 1 : me - 1) : -1;
+  const rival2 = quatro ? (aliado + 2) % 4 : -1;
+  const names = session.players.map((p, i) => p?.name || `P${i + 1}`);
 
   useEffect(() => {
     let alive = true;
@@ -495,13 +499,17 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     let curAt = 0;
     let pendingEv = [];
 
+    const spawns = session.players.length === 4
+      ? [[-230, 1], [-130, 1], [130, -1], [230, -1]]
+      : [[-170, 1], [170, -1]];
     const clientMatch = {
       phase: 'countdown', phaseT: 0, timer: 99, round: 1,
       wins: [0, 0], suddenDeath: false,
-      fighters: [
-        { x: -170, y: 0, vy: 0, face: 1, hp: 100, state: 'idle', t: 0, hitstun: 0, combo: 0 },
-        { x: 170, y: 0, vy: 0, face: -1, hp: 100, state: 'idle', t: 0, hitstun: 0, combo: 0 },
-      ],
+      teams: session.players.length === 4 ? (session.teams || [0, 0, 1, 1]) : null,
+      fighters: spawns.map(([sx, sf], i) => ({
+        x: sx, y: 0, vy: 0, face: sf, hp: 100, state: 'idle', t: 0, hitstun: 0, combo: 0,
+        style: session.players[i]?.style || 'ronin',
+      })),
     };
 
     const onSnapshot = (snap) => {
@@ -563,7 +571,8 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         renderer.setLoadouts(session.players[0]?.loadout, session.players[1]?.loadout);
         renderer.setNames(names[0], names[1]);
         renderer.setMySide(me);
-        if (session.duo?.sisNames) renderer.setSister(session.duo.sisNames);
+        if (session.players.length === 4)
+          renderer.setSquad(names, session.players.map((p) => p?.loadout || []));
         clearTimeout(watchdog);
         setLoading(false);
         console.log('[stikdead] luta online pronta');
@@ -615,6 +624,9 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
             f.vy = cf.vy;
             f.hitstun = cf.hitstun;
             f.combo = cf.combo;
+            if (cf.skillCd !== undefined) f.skillCd = cf.skillCd;
+            if (cf.fury !== undefined) f.fury = cf.fury;
+            if (cf.style) f.style = cf.style;
           });
         }
 
@@ -645,8 +657,8 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         if (hud.hpB.current) hud.hpB.current.style.width = `${fb.hp}%`;
         if (hud.timer.current)
           hud.timer.current.textContent = clientMatch.suddenDeath ? '!!' : String(Math.ceil(clientMatch.timer)).padStart(2, '0');
-        if (hud.dotsA.current) hud.dotsA.current.dataset.wins = clientMatch.wins[me];
-        if (hud.dotsB.current) hud.dotsB.current.dataset.wins = clientMatch.wins[opp];
+        if (hud.dotsA.current) hud.dotsA.current.dataset.wins = clientMatch.wins[teams[me]];
+        if (hud.dotsB.current) hud.dotsB.current.dataset.wins = clientMatch.wins[teams[opp]];
 
         const combo = fa.combo >= 3 ? fa.combo : 0;
         if (hud.combo.current) {
@@ -671,12 +683,11 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           if (announceT <= 0 && hud.announce.current) hud.announce.current.className = 'bt-announce';
         }
 
-        renderer.frame(clientMatch, events, dt, sisRef.current);
-        // mini-barras da dupla irmã (aliado à esquerda, rival à direita)
-        const sf = sisRef.current?.f;
-        if (sf) {
-          if (hud.hpC.current) hud.hpC.current.style.width = `${sf[me]?.hp ?? 0}%`;
-          if (hud.hpD.current) hud.hpD.current.style.width = `${sf[opp]?.hp ?? 0}%`;
+        renderer.frame(clientMatch, events, dt);
+        // mini-barras do 2v2: aliado à esquerda, segundo rival à direita
+        if (aliado >= 0) {
+          if (hud.hpC.current) hud.hpC.current.style.width = `${clientMatch.fighters[aliado]?.hp ?? 0}%`;
+          if (hud.hpD.current) hud.hpD.current.style.width = `${clientMatch.fighters[rival2]?.hp ?? 0}%`;
         }
         if (hud.skill?.current && curSnap?.f?.[me]) {
           const cd = curSnap.f[me].skillCd || 0;
@@ -736,9 +747,9 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           <div className="bt-name">{names[me]}</div>
           <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
           <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
-          {session?.duo?.sisNames && (
+          {quatro && (
             <div className="bt-sis">
-              <span className="bt-sis-name" style={{ color: '#ffd76a' }}>🤝 {session.duo.sisNames[me]}</span>
+              <span className="bt-sis-name" style={{ color: '#ffd76a' }}>🤝 {names[aliado]}</span>
               <div className="bt-bar sis"><div className="bt-fill sisfill" ref={hud.hpC} /></div>
             </div>
           )}
@@ -748,9 +759,9 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           <div className="bt-name">{names[opp]}</div>
           <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
           <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
-          {session?.duo?.sisNames && (
+          {quatro && (
             <div className="bt-sis">
-              <span className="bt-sis-name" style={{ color: '#8fb8d9' }}>{session.duo.sisNames[opp]}</span>
+              <span className="bt-sis-name" style={{ color: '#8fb8d9' }}>{names[rival2]}</span>
               <div className="bt-bar sis"><div className="bt-fill sisfill dark" ref={hud.hpD} /></div>
             </div>
           )}

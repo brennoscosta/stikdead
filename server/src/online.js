@@ -118,13 +118,8 @@ export function attachOnline(io) {
     A.searching = false; B.searching = false;
     dequeue(A.leader); dequeue(A.partner); dequeue(B.leader); dequeue(B.partner);
     const duoId = `d${nextDuo++}`;
-    DUO_MATCHES.set(duoId, { teams: [[A.leader, A.partner], [B.leader, B.partner]], done: 0, winsCount: [0, 0], roundWins: [0, 0] });
-    const r1 = createRoom(A.leader, B.leader, null, duoId);
-    const r2 = createRoom(A.partner, B.partner, null, duoId);
-    if (r1 && r2) {
-      r2.arena = r1.arena; // a MESMA arena para os 4
-      r1.sisterRoom = r2; r2.sisterRoom = r1;
-    }
+    // UMA sala, QUATRO guerreiros: [líder A, parceiro A, líder B, parceiro B] — times [0,0,1,1]
+    createRoom([A.leader, A.partner, B.leader, B.partner], null, null, duoId);
   }
 
   // fim de uma sala-irmã: soma no placar da batalha de clã
@@ -167,26 +162,29 @@ export function attachOnline(io) {
   }
 
   function createRoom(idA, idB, bet = null, duo = null) {
+    const ids = Array.isArray(idA) ? idA : [idA, idB];
     const roomId = `r${nextRoom++}`;
-    const players = [online.get(idA), online.get(idB)];
+    const players = ids.map((uid) => online.get(uid));
     const room = {
       id: roomId,
       arena: ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio', 'cemiterio'][Math.floor(Math.random() * 8)],
-      users: [idA, idB],
+      users: ids,
       bet,
       duo,
-      names: [players[0].user.name, players[1].user.name],
-      match: createMatch({ styles: [players[0]?.style || 'ronin', players[1]?.style || 'ronin'] }),
-      inputs: [{ ...EMPTY_INPUT }, { ...EMPTY_INPUT }],
-      connected: [true, true],
+      names: players.map((p) => p.user.name),
+      match: createMatch({
+        styles: players.map((p) => p?.style || 'ronin'),
+        teams: ids.length === 4 ? [0, 0, 1, 1] : null,
+      }),
+      inputs: ids.map(() => ({ ...EMPTY_INPUT })),
+      connected: ids.map(() => true),
       paused: false,
       pauseDeadline: 0,
       finished: false,
       interval: null,
     };
     rooms.set(roomId, room);
-    userRoom.set(idA, roomId);
-    userRoom.set(idB, roomId);
+    for (const uid of ids) userRoom.set(uid, roomId);
 
     Promise.all(room.users.map((uid) => getLoadout(uid))).then((louts) => {
       room.loadouts = louts;
@@ -194,7 +192,7 @@ export function attachOnline(io) {
         socket.join(roomId);
         socket.emit('match:start', {
           roomId, side, arena: room.arena,
-          duo: room.duo && room.sisterRoom ? { sisNames: room.sisterRoom.names } : null,
+          teams: room.match.teams || null,
           players: room.users.map((uid, s) => {
             const u = online.get(uid).user;
             return { name: u.name, level: u.level, tier: u.tier, loadout: louts[s], style: online.get(uid)?.style || 'ronin' };
@@ -237,12 +235,13 @@ export function attachOnline(io) {
     if (room.paused) {
       if (Date.now() >= room.pauseDeadline) {
         const loser = room.connected.indexOf(false);
-        return finishRoom(room, loser === -1 ? 0 : 1 - loser, { wo: true });
+        const teams = room.match.teams || [0, 1];
+        return finishRoom(room, loser === -1 ? 0 : 1 - teams[loser], { wo: true });
       }
       return;
     }
 
-    const ev = stepMatch(room.match, room.inputs[0], room.inputs[1], TICK);
+    const ev = stepMatch(room.match, room.inputs, null, TICK);
     io.to(room.id).emit('snapshot', snapshot(room, ev));
     if (room.match.phase === 'matchend') finishRoom(room, room.match.winner, {});
   }
@@ -260,32 +259,35 @@ export function attachOnline(io) {
       const { rows } = await client.query(
         `SELECT user_id, level, xp, coins, diamonds, rank_points, wins, losses, win_streak
            FROM profiles WHERE user_id = ANY($1) FOR UPDATE`,
-        [[room.users[0], room.users[1]]]
+        [room.users]
       );
       const profs = room.users.map((uid) => rows.find((r) => Number(r.user_id) === uid));
-      const delta = rankDelta(profs[winnerSide].rank_points, profs[1 - winnerSide].rank_points);
+      const teams = m.teams || [0, 1];
+      const mirrorOf = (s) => (room.users.length === 2 ? 1 - s : (s + 2) % 4); // rival direto (líder↔líder, parceiro↔parceiro)
+      const delta = room.users.length === 2 ? rankDelta(profs[winnerSide].rank_points, profs[1 - winnerSide].rank_points) : null;
 
-      // APOSTA: transferência pura do perdedor para o vencedor (o sistema não premia nem multa)
+      // APOSTA: transferência pura do perdedor para o vencedor (só existe no 1v1)
       let transfer = 0;
       const apostaCol = room.bet ? (room.bet.kind === 'diamonds' ? 'diamonds' : 'coins') : null;
-      if (room.bet) {
+      if (room.bet && room.users.length === 2) {
         const perdedor = profs[1 - winnerSide];
         transfer = Math.min(Number(perdedor[apostaCol] || 0), room.bet.amount);
       }
 
-      for (const side of [0, 1]) {
+      for (const side of room.users.keys()) {
         const p = profs[side];
-        const won = side === winnerSide;
+        const won = teams[side] === winnerSide;
         const streak = won ? p.win_streak + 1 : 0;
         const rewards = computeRewards({
           won,
           stats: m.stats[side],
-          winsB: m.wins[1 - side],
+          winsB: m.wins[1 - teams[side]],
           streak,
           factor: wo && !won ? 0 : 1, // abandono não rende nada ao desistente
         });
         const lv = applyXp(p.level, p.xp, rewards.xp);
-        const newRank = Math.max(0, p.rank_points + (won ? delta.win : -delta.loss));
+        const dPar = delta || rankDelta(profs[side].rank_points, profs[mirrorOf(side)].rank_points);
+        const newRank = Math.max(0, p.rank_points + (won ? dPar.win : -dPar.loss));
         const tier = tierFor(newRank);
         let itemDrop = null;
         if (won && streak > 0 && streak % 3 === 0) itemDrop = await grantStreakDrop(client, room.users[side]);
@@ -309,14 +311,14 @@ export function attachOnline(io) {
         await client.query(
           `INSERT INTO matches (user_id, opponent_type, opponent_id, won, wins_a, wins_b, duration_s, stats, xp_gain, coin_gain)
            VALUES ($1,'player',$2,$3,$4,$5,$6,$7,$8,$9)`,
-          [room.users[side], room.users[1 - side], won, m.wins[side], m.wins[1 - side],
+          [room.users[side], room.users[mirrorOf(side)], won, m.wins[teams[side]], m.wins[1 - teams[side]],
            Math.round(m.elapsed), m.stats[side], rewards.xp, coinDelta]
         );
         results[side] = {
           winnerSide, wo, wins: m.wins, itemDrop,
           bet: room.bet ? { kind: room.bet.kind, amount: transfer, won } : null,
           rewards: { ...rewards, coins: room.bet ? 0 : coinDelta, levelsUp: lv.levelsUp },
-          rank: { points: newRank, delta: won ? delta.win : -delta.loss, tier },
+          rank: { points: newRank, delta: won ? dPar.win : -dPar.loss, tier },
           profile: {
             level: lv.level, xp: lv.xp, xpNext: xpForLevel(lv.level),
             coins: Number(p.coins) + coinDelta,
@@ -331,7 +333,23 @@ export function attachOnline(io) {
         }
       }
       await client.query('COMMIT');
-      if (room.duo) settleDuoRoom(room, winnerSide).catch(() => {});
+      if (room.duo && room.users.length === 4) {
+        (async () => {
+          try {
+            const { rows: cr } = await q('SELECT user_id, clan_id FROM profiles WHERE user_id = ANY($1)', [room.users]);
+            const claDe = (uid) => cr.find((r) => Number(r.user_id) === uid)?.clan_id || null;
+            for (const t of [0, 1]) {
+              const membros = room.users.filter((_, s) => (m.teams || [0, 1])[s] === t);
+              const cla = claDe(membros[0]) && claDe(membros[0]) === claDe(membros[1]) ? claDe(membros[0]) : null;
+              if (cla) await q('UPDATE clans SET duo_battles = duo_battles + 1, duo_wins = duo_wins + $1 WHERE id = $2', [winnerSide === t ? 1 : 0, cla]);
+            }
+          } catch { /* reputação não derruba o jogo */ }
+          room.users.forEach((uid, s) => {
+            const won = (m.teams || [0, 1])[s] === winnerSide;
+            online.get(uid)?.socket.emit('duo:result', { won, draw: false, texto: won ? '🏆 SUA DUPLA VENCEU A BATALHA!' : '💀 A dupla rival levou a batalha.' });
+          });
+        })().catch(() => {});
+      }
       // apostas viram história no feed de atividades
       if (room.bet && transfer > 0) {
         try {

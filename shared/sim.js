@@ -60,6 +60,27 @@ export const EMPTY_INPUT = Object.freeze({
   left: false, right: false, jump: false, light: false, heavy: false, block: false, dash: false, skill: false, crouch: false,
 });
 
+// ===== times: 1v1 clássico (cada um por si) ou 2v2 (teams: [0,0,1,1]) =====
+const teamOf = (m, i) => (m.teams ? m.teams[i] : i);
+const enemiesOf = (m, i) => {
+  const out = [];
+  for (let j = 0; j < m.fighters.length; j++) if (teamOf(m, j) !== teamOf(m, i)) out.push(j);
+  return out;
+};
+const nearestFoe = (m, i) => {
+  const f = m.fighters[i];
+  let best = -1, bd = Infinity;
+  for (const j of enemiesOf(m, i)) {
+    const e = m.fighters[j];
+    const alivePriority = e.state === 'ko' ? 1e6 : 0; // vivo tem prioridade absoluta
+    const d = Math.abs(e.x - f.x) + alivePriority;
+    if (d < bd) { bd = d; best = j; }
+  }
+  return best;
+};
+const teamAllKo = (m, team) => m.fighters.every((f, j) => teamOf(m, j) !== team || f.state === 'ko');
+const teamHp = (m, team) => m.fighters.reduce((s, f, j) => s + (teamOf(m, j) === team ? f.hp : 0), 0);
+
 function createFighter(x, face) {
   return {
     x, y: 0, vx: 0, vy: 0, face,
@@ -71,8 +92,12 @@ function createFighter(x, face) {
   };
 }
 
-export function createMatch({ bestOf = 3, styles = ['ronin', 'ronin'] } = {}) {
+export function createMatch({ bestOf = 3, styles = ['ronin', 'ronin'], teams = null } = {}) {
+  const n = styles.length;
+  const spawns = n === 4 ? [[-230, 1], [-130, 1], [130, -1], [230, -1]] : [[-170, 1], [170, -1]];
   return {
+    teams: teams || (n === 4 ? [0, 0, 1, 1] : null),
+    spawns,
     phase: 'countdown', // countdown | fight | roundend | matchend
     phaseT: 0,
     round: 1,
@@ -84,15 +109,12 @@ export function createMatch({ bestOf = 3, styles = ['ronin', 'ronin'] } = {}) {
     freeze: 0,
     timescale: 1,
     timescaleT: 0,
-    fighters: [Object.assign(createFighter(-170, 1), { style: STYLE_KEYS.includes(styles[0]) ? styles[0] : 'ronin' }), Object.assign(createFighter(170, -1), { style: STYLE_KEYS.includes(styles[1]) ? styles[1] : 'ronin' })],
+    fighters: spawns.map(([sx, sf], i) => Object.assign(createFighter(sx, sf), { style: STYLE_KEYS.includes(styles[i]) ? styles[i] : 'ronin' })),
     roundWinner: -1,
     winner: -1,
     elapsed: 0,
     koFinisher: false,
-    stats: [
-      { damage: 0, hits: 0, maxCombo: 0, blocked: 0 },
-      { damage: 0, hits: 0, maxCombo: 0, blocked: 0 },
-    ],
+    stats: spawns.map(() => ({ damage: 0, hits: 0, maxCombo: 0, blocked: 0 })),
   };
 }
 
@@ -101,9 +123,10 @@ function pressed(inp, prev, key) {
 }
 
 function startRound(m) {
-  const [a, b] = m.fighters;
-  Object.assign(a, createFighter(-170, 1));
-  Object.assign(b, createFighter(170, -1));
+  m.fighters.forEach((f, i) => {
+    const st = f.style;
+    Object.assign(f, createFighter(m.spawns[i][0], m.spawns[i][1]), { style: st });
+  });
   m.timer = ROUND_TIME;
   m.suddenDeath = false;
   m.phase = 'countdown';
@@ -111,24 +134,26 @@ function startRound(m) {
   m.roundWinner = -1;
 }
 
-function endRound(m, winnerIdx, ev) {
+function endRound(m, winnerTeam, ev) {
   m.phase = 'roundend';
   m.phaseT = 0;
-  m.roundWinner = winnerIdx;
-  if (winnerIdx >= 0) m.wins[winnerIdx]++;
-  ev.push({ type: 'roundend', winner: winnerIdx, round: m.round });
-  const loserKo = winnerIdx >= 0 && m.fighters[1 - winnerIdx].state === 'ko';
-  if (winnerIdx >= 0 && loserKo) m.fighters[winnerIdx].state = 'victory';
-  if (winnerIdx >= 0 && m.wins[winnerIdx] >= m.roundsToWin) {
+  m.roundWinner = winnerTeam;
+  if (winnerTeam >= 0) m.wins[winnerTeam]++;
+  ev.push({ type: 'roundend', winner: winnerTeam, round: m.round });
+  const loserKo = winnerTeam >= 0 && teamAllKo(m, 1 - winnerTeam);
+  if (winnerTeam >= 0 && loserKo)
+    m.fighters.forEach((f, j) => { if (teamOf(m, j) === winnerTeam && f.state !== 'ko') f.state = 'victory'; });
+  if (winnerTeam >= 0 && m.wins[winnerTeam] >= m.roundsToWin) {
     m.phase = 'matchend';
-    m.winner = winnerIdx;
-    ev.push({ type: 'matchend', winner: winnerIdx });
+    m.winner = winnerTeam;
+    ev.push({ type: 'matchend', winner: winnerTeam });
   }
 }
 
-function applyHit(m, atkIdx, move, ev) {
+function applyHit(m, atkIdx, move, ev, defIdx = null) {
   const atk = m.fighters[atkIdx];
-  const def = m.fighters[1 - atkIdx];
+  const di = defIdx === null ? 1 - atkIdx : defIdx;
+  const def = m.fighters[di];
   const blocked = def.state === 'block' && def.face === -atk.face;
   const dmg = Math.max(1, Math.round((blocked ? move.chip : move.dmg) * (blocked ? 1 : dmgMod(atk))));
   if (blocked && def.style === 'monge') atk.hp = Math.max(1, atk.hp - 2); // reflexo de Ki
@@ -139,7 +164,7 @@ function applyHit(m, atkIdx, move, ev) {
 
   const st = m.stats[atkIdx];
   st.damage += dmg;
-  if (blocked) m.stats[1 - atkIdx].blocked++;
+  if (blocked) m.stats[di].blocked++;
   else st.hits++;
 
   if (!blocked) {
@@ -162,6 +187,7 @@ function applyHit(m, atkIdx, move, ev) {
     dmg, blocked,
     heavy: move === MOVES.heavy,
     attacker: atkIdx,
+    target: di,
     combo: atk.combo,
   });
 
@@ -178,9 +204,9 @@ function applyHit(m, atkIdx, move, ev) {
     m.timescaleT = 0.9;
     m.koFinisher = move === MOVES.heavy;
     ev.push({ type: 'ko', winner: atkIdx, finisher: move === MOVES.heavy, x: def.x, y: def.y + 90 });
-    endRound(m, atkIdx, ev);
+    if (teamAllKo(m, teamOf(m, di))) endRound(m, teamOf(m, atkIdx), ev); // round cai quando o TIME inteiro cai
   } else if (m.suddenDeath && !blocked) {
-    endRound(m, atkIdx, ev);
+    endRound(m, teamOf(m, atkIdx), ev);
   }
 }
 
@@ -188,12 +214,18 @@ function applyHit(m, atkIdx, move, ev) {
 // (KO, stats, combo, freeze e eventos vêm de graça)
 function skillStrike(m, atkIdx, { dmg, range, kb, hitstun, bidir = false }, ev) {
   const atk = m.fighters[atkIdx];
-  const def = m.fighters[1 - atkIdx];
-  const dx = def.x - atk.x;
-  if (Math.abs(dx) > range) return false;
-  if (!bidir && Math.sign(dx || atk.face) !== atk.face) return false;
-  applyHit(m, atkIdx, { dmg, hitstun, kb, chip: Math.max(1, Math.ceil(dmg / 4)), freeze: 0.06 }, ev);
-  return true;
+  let acertou = false;
+  for (const di of enemiesOf(m, atkIdx)) {
+    const def = m.fighters[di];
+    if (['ko', 'victory'].includes(def.state) || def.invuln > 0) continue;
+    const dx = def.x - atk.x;
+    if (Math.abs(dx) > range) continue;
+    if (!bidir && Math.sign(dx || atk.face) !== atk.face) continue;
+    applyHit(m, atkIdx, { dmg, hitstun, kb, chip: Math.max(1, Math.ceil(dmg / 4)), freeze: 0.06 }, ev, di);
+    acertou = true;
+    if (m.phase !== 'fight') break;
+  }
+  return acertou;
 }
 
 function castSkill(m, idx, ev) {
@@ -209,12 +241,14 @@ function castSkill(m, idx, ev) {
     f.fury = 4.0;
     f.state = 'skill';
   } else if (f.style === 'shinobi') {
-    const opp = m.fighters[1 - idx];
     const from = f.x;
     f.x = Math.max(ARENA.left, Math.min(ARENA.right, f.x + f.face * 150));
     f.invuln = 0.35;
-    // cortou ao atravessar?
-    const crossed = (opp.x - from) * (opp.x - f.x) <= 0;
+    // cortou ao atravessar (qualquer inimigo no caminho)?
+    const crossed = enemiesOf(m, idx).some((j) => {
+      const e = m.fighters[j];
+      return (e.x - from) * (e.x - f.x) <= 0;
+    });
     if (crossed) skillStrike(m, idx, { dmg: 12, range: 200, kb: 160, hitstun: 0.35, bidir: true }, ev);
     f.state = 'skill';
   } else if (f.style === 'espectro') {
@@ -249,7 +283,7 @@ function stepSkill(m, idx, ev) {
 
 function updateFighter(m, idx, inp, dt, ev) {
   const f = m.fighters[idx];
-  const opp = m.fighters[1 - idx];
+  const opp = m.fighters[nearestFoe(m, idx)] || f;
   f.t += dt;
   f.dashCd = Math.max(0, f.dashCd - dt);
   f.invuln = Math.max(0, f.invuln - dt);
@@ -338,12 +372,14 @@ function updateFighter(m, idx, inp, dt, ev) {
       f.vx = RAST_SPEED * (f.rastDir || f.face) * Math.max(0.15, 1 - (f.t / total) * 0.85);
       const inActive = f.t >= mv.startup && f.t < mv.startup + mv.active;
       if (inActive && !f.hitDone && m.phase === 'fight') {
-        const dist = Math.abs(opp.x - f.x);
-        const targetable = !['ko', 'victory'].includes(opp.state) && opp.invuln === 0;
-        if (dist <= mv.range && targetable) {
+        const alvos = enemiesOf(m, idx).filter((j) => {
+          const e = m.fighters[j];
+          return Math.abs(e.x - f.x) <= mv.range && !['ko', 'victory'].includes(e.state) && e.invuln === 0;
+        });
+        if (alvos.length) {
           f.hitDone = true;
-          f.face = opp.x >= f.x ? 1 : -1; // varre para onde o corpo está
-          applyHit(m, idx, mv, ev);
+          f.face = m.fighters[alvos[0]].x >= f.x ? 1 : -1; // varre para onde o corpo está
+          for (const j of alvos) { applyHit(m, idx, mv, ev, j); if (m.phase !== 'fight') break; }
         }
       }
       if (f.t >= total) { f.state = 'idle'; f.vx = 0; }
@@ -374,16 +410,19 @@ function updateFighter(m, idx, inp, dt, ev) {
       f.vx *= 0.85;
       const inActive = f.t >= move.startup && f.t < move.startup + move.active;
       if (inActive && !f.hitDone && m.phase === 'fight') {
-        const dist = Math.abs(opp.x - f.x);
-        const inFront = Math.sign(opp.x - f.x) === f.face || dist < BODY_GAP;
-        const targetable = !['ko', 'victory'].includes(opp.state) && opp.invuln === 0;
-        const esquivou = f.state === 'light' && opp.state === 'crouch'; // agachado: o soco passa por cima
-        if (dist <= move.range && inFront && targetable && !esquivou) {
+        const noArco = enemiesOf(m, idx).filter((j) => {
+          const e = m.fighters[j];
+          const dist = Math.abs(e.x - f.x);
+          const inFront = Math.sign(e.x - f.x) === f.face || dist < BODY_GAP;
+          return dist <= move.range && inFront && !['ko', 'victory'].includes(e.state) && e.invuln === 0;
+        });
+        const golpeaveis = noArco.filter((j) => !(f.state === 'light' && m.fighters[j].state === 'crouch'));
+        if (golpeaveis.length) {
           f.hitDone = true;
-          applyHit(m, idx, move, ev);
-        } else if (dist <= move.range && inFront && esquivou && !f.hitDone) {
+          for (const j of golpeaveis) { applyHit(m, idx, move, ev, j); if (m.phase !== 'fight') break; }
+        } else if (noArco.length) { // todos no arco agachados: o soco passa por cima
           f.hitDone = true;
-          ev.push({ type: 'dodge', idx: 1 - idx, x: opp.x });
+          ev.push({ type: 'dodge', idx: noArco[0], x: m.fighters[noArco[0]].x });
         }
       }
       if (f.t >= move.startup + move.active + move.recover) { f.state = 'idle'; f.vx = 0; }
@@ -409,21 +448,25 @@ function updateFighter(m, idx, inp, dt, ev) {
 }
 
 function separate(m) {
-  const [a, b] = m.fighters;
   const busy = (f) => ['ko', 'hit', 'dash'].includes(f.state);
-  if (busy(a) || busy(b)) return;
-  if (a.y > 0 || b.y > 0) return;
-  const dx = b.x - a.x;
-  if (Math.abs(dx) < BODY_GAP) {
-    const push = (BODY_GAP - Math.abs(dx)) / 2;
-    const s = Math.sign(dx) || 1;
-    a.x -= push * s;
-    b.x += push * s;
+  for (let i = 0; i < m.fighters.length; i++) {
+    for (let j = i + 1; j < m.fighters.length; j++) {
+      const a = m.fighters[i], b = m.fighters[j];
+      if (busy(a) || busy(b) || a.y > 0 || b.y > 0) continue;
+      const dx = b.x - a.x;
+      if (Math.abs(dx) < BODY_GAP) {
+        const push = (BODY_GAP - Math.abs(dx)) / 2;
+        const s = Math.sign(dx) || 1;
+        a.x -= push * s;
+        b.x += push * s;
+      }
+    }
   }
 }
 
 // Avança a simulação. Retorna a lista de eventos do tick (para FX/HUD/replay).
 export function stepMatch(m, inputA, inputB, rawDt) {
+  const inputs = Array.isArray(inputA) ? inputA : [inputA, inputB];
   const ev = [];
   if (m.phase === 'matchend') return ev;
 
@@ -450,8 +493,7 @@ export function stepMatch(m, inputA, inputB, rawDt) {
   }
 
   if (m.phase === 'roundend') {
-    updateFighter(m, 0, EMPTY_INPUT, dt, ev);
-    updateFighter(m, 1, EMPTY_INPUT, dt, ev);
+    for (let i = 0; i < m.fighters.length; i++) updateFighter(m, i, EMPTY_INPUT, dt, ev);
     if (m.phaseT >= ROUND_END_PAUSE) {
       m.round++;
       startRound(m);
@@ -465,20 +507,19 @@ export function stepMatch(m, inputA, inputB, rawDt) {
     m.timer -= dt;
     if (m.timer <= 0) {
       m.timer = 0;
-      const [a, b] = m.fighters;
-      if (a.hp === b.hp) {
+      const hp0 = teamHp(m, 0), hp1 = teamHp(m, 1);
+      if (hp0 === hp1) {
         m.suddenDeath = true;
         ev.push({ type: 'suddendeath' });
       } else {
-        endRound(m, a.hp > b.hp ? 0 : 1, ev);
+        endRound(m, hp0 > hp1 ? 0 : 1, ev);
         return ev;
       }
     }
   }
 
   m.elapsed += dt;
-  updateFighter(m, 0, inputA, dt, ev);
-  updateFighter(m, 1, inputB, dt, ev);
+  for (let i = 0; i < m.fighters.length; i++) updateFighter(m, i, inputs[i] || EMPTY_INPUT, dt, ev);
   separate(m);
   return ev;
 }

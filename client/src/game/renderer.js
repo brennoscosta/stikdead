@@ -153,7 +153,7 @@ export async function createRenderer(host, theme = 'dojo') {
   // eu ataquei -> +X verde sobre o oponente | fui atacado -> -X vermelho sobre mim
   let mySide = 0;
   const spawnDmg = (e, match) => {
-    const def = match?.fighters?.[1 - e.attacker];
+    const def = match?.fighters?.[e.target ?? (1 - e.attacker)];
     if (!def) return;
     const sc = e.blocked ? 0.7 : e.heavy ? 1.3 : 1;
     const iAttacked = e.attacker === mySide;
@@ -186,6 +186,7 @@ export async function createRenderer(host, theme = 'dojo') {
   let names = ['', ''];
   let sisNames = ['', ''];
   let sisLoKey = '';
+  let squad = null; // { names: [4], loadouts: [4] } => 2v2 real
 
   const flash = new Graphics();
   app.stage.addChild(flash);
@@ -336,8 +337,28 @@ export async function createRenderer(host, theme = 'dojo') {
     tagA.position.set(a.x, -(a.y + 152));
     tagB.position.set(b.x, -(b.y + 152));
 
-    // ===== a batalha irmã na linha de trás (time 0 âmbar, time 1 azul-aço) =====
-    if (sis && sis.f && sis.f.length === 2) {
+    // ===== 2v2 real: lutadores 2 e 3 do PRÓPRIO match, tamanho real =====
+    if (squad && match.fighters.length >= 4) {
+      sisLayer.visible = true;
+      const [, , c, d] = match.fighters;
+      const poseC2 = drawFighter(gC, c, MOVES, 0xe0a10b, elapsed, filterForVector(squad.loadouts[2], wsC), {});
+      const poseD2 = drawFighter(gD, d, MOVES, 0x5a7d9e, elapsed, filterForVector(squad.loadouts[3], wsD), {});
+      void poseC2; void poseD2;
+      wsC.update(c, MOVES);
+      wsD.update(d, MOVES);
+      tagC.text = squad.names[2] || '';
+      tagD.text = squad.names[3] || '';
+      tagC.position.set(c.x, -(c.y + 152));
+      tagD.position.set(d.x, -(d.y + 152));
+      drawSlash(c, squad.loadouts[2]);
+      drawSlash(d, squad.loadouts[3]);
+      for (const f of [c, d]) {
+        if (f.fury > 0) {
+          const pulse = 0.16 + 0.1 * Math.sin(elapsed * 12);
+          fighterHalos.ellipse(f.x, -(f.y + 80), 46, 96).fill({ color: 0xd90429, alpha: pulse });
+        }
+      }
+    } else if (sis && sis.f && sis.f.length === 2) {
       sisLayer.visible = true;
       const key = (sis.lo || []).map((L) => (L || []).map((it) => it.id).join(',')).join('|');
       if (key !== sisLoKey) {
@@ -396,6 +417,15 @@ export async function createRenderer(host, theme = 'dojo') {
       wsB.setLoadout(arguments[1]); loadouts = [la || null, lb || null]; },
     setNames(na, nb) { names = [na || '', nb || '']; },
     setSister(ns) { sisNames = [ns?.[0] || '', ns?.[1] || '']; },
+    setSquad(ns, los) {
+      squad = { names: ns || [], loadouts: los || [] };
+      sisLayer.position.set(0, 0); // linha única: os 4 no MESMO chão
+      sisLayer.scale.set(1);
+      sisLayer.alpha = 1;
+      wsC.setLoadout(los?.[2] || []);
+      wsD.setLoadout(los?.[3] || []);
+      loadouts = [los?.[0] || null, los?.[1] || null];
+    },
     destroy() {
       app.destroy(true, { children: true });
     },
