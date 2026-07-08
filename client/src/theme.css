@@ -1190,3 +1190,14 @@ body.in-fight .topnav-spacer { display: none; }
 .cfg-key-btn { min-width: 86px; background: #241a1e; border: 1px solid #4a3a40; border-bottom-width: 3px; border-radius: 8px; padding: 7px 12px; font: 700 12px monospace; color: var(--text); cursor: pointer; transition: border-color 0.2s; }
 .cfg-key-btn:hover { border-color: rgba(217,4,41,0.6); }
 .cfg-key-btn.is-capturing { border-color: #d90429; color: #ff8fa3; animation: kh-ready 0.9s ease-in-out infinite; }
+
+/* ===== apostas ===== */
+.bet-kinds { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
+.bet-kind { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 13px; color: var(--text); font-weight: 700; cursor: pointer; font-size: 13px; }
+.bet-kind.on { border-color: rgba(217,4,41,0.7); box-shadow: 0 0 12px rgba(217,4,41,0.3); }
+.bet-shortcuts { display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.bet-chip { background: #241a1e; border: 1px solid #4a3a40; border-radius: 999px; padding: 7px 14px; color: var(--text); font-weight: 800; cursor: pointer; }
+.bet-chip.on { border-color: #ffd76a; color: #ffd76a; }
+.bet-chip:disabled { opacity: 0.35; cursor: not-allowed; }
+.bet-input { width: 92px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; color: var(--text); font-weight: 800; text-align: center; }
+.bet-tag { background: rgba(224,161,11,0.12); border: 1px solid rgba(224,161,11,0.55); color: #ffd76a; border-radius: 10px; padding: 8px 12px; font-weight: 800; font-size: 13.5px; margin: 0 0 14px; }

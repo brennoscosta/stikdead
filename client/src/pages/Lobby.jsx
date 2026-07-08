@@ -38,7 +38,8 @@ export default function Lobby({ profile, onProfile }) {
     return [...reais, ...npcsRef.current.slice(0, extras)];
   };
   const [inQueue, setInQueue] = useState(false);
-  const [incoming, setIncoming] = useState(null); // {id, from, expiresAt}
+  const [incoming, setIncoming] = useState(null); // {id, from, expiresAt, bet}
+  const [betFor, setBetFor] = useState(null); // jogador alvo do modal de desafio/aposta
   const [sent, setSent] = useState(null);
   const [session, setSession] = useState(null); // {side, players}
   const [chat, setChat] = useState([]);
@@ -61,8 +62,8 @@ export default function Lobby({ profile, onProfile }) {
       plazaRef.current?.setPlayers(withFigurantes(players));
     };
     const onQueue = ({ inQueue }) => setInQueue(inQueue);
-    const onChallenge = ({ id, from, ttl }) =>
-      setIncoming({ id, from, expiresAt: Date.now() + ttl });
+    const onChallenge = ({ id, from, ttl, bet }) =>
+      setIncoming({ id, from, bet, expiresAt: Date.now() + ttl });
     const onCancel = ({ reason }) => {
       setIncoming(null);
       setSent(null);
@@ -187,7 +188,7 @@ export default function Lobby({ profile, onProfile }) {
                     <button
                       className="lobby-challenge"
                       disabled={!!sent}
-                      onClick={() => { goFullscreen(); socket.emit('challenge:send', { to: p.id }); }}
+                      onClick={() => setBetFor(p)}
                     >
                       DESAFIAR
                     </button>
@@ -295,6 +296,27 @@ export default function Lobby({ profile, onProfile }) {
         </div>
       </section>
 
+      {betFor && (
+        <div className="pc-overlay" style={{ zIndex: 460 }} onClick={() => setBetFor(null)}>
+          <div className="fa-card" style={{ maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
+            <h2 className="fa-title">⚔️ Desafiar <span className="fa-name">{betFor.name}</span></h2>
+            <BetPicker
+              profile={profile}
+              onNormal={() => {
+                goFullscreen();
+                getSocket().emit('challenge:send', { to: betFor.id });
+                setBetFor(null);
+              }}
+              onBet={(kind, amount) => {
+                goFullscreen();
+                getSocket().emit('challenge:send', { to: betFor.id, bet: { kind, amount } });
+                setBetFor(null);
+              }}
+              onClose={() => setBetFor(null)}
+            />
+          </div>
+        </div>
+      )}
       {incoming && (
         <div className="bt-overlay">
           <div className="bt-panel">
@@ -302,10 +324,15 @@ export default function Lobby({ profile, onProfile }) {
             <p style={{ margin: '0 0 6px', fontSize: 22 }}>
               <b style={{ color: '#d90429' }}>{incoming.from.name}</b> te desafiou
             </p>
-            <p style={{ margin: '0 0 16px', color: '#9a938a' }}>
+            <p style={{ margin: '0 0 6px', color: '#9a938a' }}>
               Nv {incoming.from.level} · {TIER_LABEL(incoming.from.tier)} ·{' '}
               {Math.max(0, Math.ceil((incoming.expiresAt - Date.now()) / 1000))}s
             </p>
+            {incoming.bet && (
+              <p className="bet-tag">
+                💰 VALENDO {incoming.bet.amount.toLocaleString('pt-BR')} {incoming.bet.kind === 'diamonds' ? '💎' : '🪙'} — quem perder transfere pro vencedor!
+              </p>
+            )}
             <button
               className="btn btn-blood"
               onClick={() => { goFullscreen(); getSocket().emit('challenge:answer', { id: incoming.id, accept: true }); }}
@@ -689,7 +716,13 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
             {result.rewards && (
               <div className="bt-rewards">
                 <div className="bt-reward xp">+{result.rewards.xp} <span>EXP</span></div>
-                <div className={`bt-reward ${result.rewards.coins >= 0 ? 'gold' : 'loss'}`}>{result.rewards.coins >= 0 ? `+${result.rewards.coins}` : result.rewards.coins} <span>MOEDAS</span></div>
+                {result.bet ? (
+                  <div className={`bt-reward ${result.bet.won ? 'gold' : 'loss'}`}>
+                    {result.bet.won ? '+' : '-'}{result.bet.amount.toLocaleString('pt-BR')} <span>{result.bet.kind === 'diamonds' ? '💎 APOSTA' : '🪙 APOSTA'}</span>
+                  </div>
+                ) : (
+                  <div className={`bt-reward ${result.rewards.coins >= 0 ? 'gold' : 'loss'}`}>{result.rewards.coins >= 0 ? `+${result.rewards.coins}` : `-${Math.abs(result.rewards.coins)}`} <span>MOEDAS</span></div>
+                )}
                 {rankLine && <div className="bt-bonus">🏆 {rankLine}</div>}
                 {result.rewards.bonuses?.map((b) => (
                   <div key={b.label} className="bt-bonus">★ {b.label} <span>+{b.xp}</span></div>
@@ -717,6 +750,56 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+
+// ===== escolha da aposta ao desafiar =====
+function BetPicker({ profile, onNormal, onBet, onClose }) {
+  const [kind, setKind] = useState(null); // null = normal
+  const [amount, setAmount] = useState(100);
+  const saldo = kind === 'diamonds' ? Number(profile?.diamonds || 0) : Number(profile?.coins || 0);
+  const atalhos = kind === 'diamonds' ? [10, 50, 100] : [100, 500, 1000];
+  const valido = kind && amount >= 1 && amount <= saldo;
+
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div className="bet-kinds">
+        <button className={`bet-kind ${kind === null ? 'on' : ''}`} onClick={() => setKind(null)}>⚔️ Normal</button>
+        <button className={`bet-kind ${kind === 'coins' ? 'on' : ''}`} onClick={() => { setKind('coins'); setAmount(100); }}>🪙 Apostar</button>
+        <button className={`bet-kind ${kind === 'diamonds' ? 'on' : ''}`} onClick={() => { setKind('diamonds'); setAmount(10); }}>💎 Apostar</button>
+      </div>
+      {kind === null ? (
+        <p className="dash-empty" style={{ margin: '10px 0' }}>Partida comum: recompensas padrão do sistema.</p>
+      ) : (
+        <>
+          <p className="dash-empty" style={{ margin: '8px 0 6px' }}>
+            Quem perder transfere o valor pro vencedor. Seu saldo: <b style={{ color: kind === 'diamonds' ? '#7db4ff' : '#ffd76a' }}>{saldo.toLocaleString('pt-BR')} {kind === 'diamonds' ? '💎' : '🪙'}</b>
+          </p>
+          <div className="bet-shortcuts">
+            {atalhos.map((v) => (
+              <button key={v} className={`bet-chip ${amount === v ? 'on' : ''}`} disabled={v > saldo} onClick={() => setAmount(v)}>{v}</button>
+            ))}
+            <input
+              type="number" min="1" max={saldo} value={amount}
+              onChange={(e) => setAmount(Math.max(1, Math.floor(Number(e.target.value) || 1)))}
+              className="bet-input"
+            />
+          </div>
+          {amount > saldo && <p className="dash-err" style={{ margin: '4px 0' }}>Saldo insuficiente.</p>}
+        </>
+      )}
+      <div className="pc-actions" style={{ justifyContent: 'center', marginTop: 12 }}>
+        {kind === null ? (
+          <button className="btn btn-blood" style={{ width: 'auto', padding: '11px 26px' }} onClick={onNormal}>⚔️ Desafiar</button>
+        ) : (
+          <button className="btn btn-blood" style={{ width: 'auto', padding: '11px 26px' }} disabled={!valido} onClick={() => onBet(kind, amount)}>
+            💰 Desafiar valendo {amount.toLocaleString('pt-BR')} {kind === 'diamonds' ? '💎' : '🪙'}
+          </button>
+        )}
+        <button className="btn btn-ghost" style={{ width: 'auto', padding: '11px 18px' }} onClick={onClose}>Cancelar</button>
+      </div>
     </div>
   );
 }

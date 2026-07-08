@@ -81,13 +81,14 @@ export function attachOnline(io) {
     }
   }
 
-  function createRoom(idA, idB) {
+  function createRoom(idA, idB, bet = null) {
     const roomId = `r${nextRoom++}`;
     const players = [online.get(idA), online.get(idB)];
     const room = {
       id: roomId,
       arena: ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio', 'cemiterio'][Math.floor(Math.random() * 8)],
       users: [idA, idB],
+      bet,
       names: [players[0].user.name, players[1].user.name],
       match: createMatch({ styles: [players[0]?.style || 'ronin', players[1]?.style || 'ronin'] }),
       inputs: [{ ...EMPTY_INPUT }, { ...EMPTY_INPUT }],
@@ -161,12 +162,20 @@ export function attachOnline(io) {
     try {
       await client.query('BEGIN');
       const { rows } = await client.query(
-        `SELECT user_id, level, xp, coins, rank_points, wins, losses, win_streak
+        `SELECT user_id, level, xp, coins, diamonds, rank_points, wins, losses, win_streak
            FROM profiles WHERE user_id = ANY($1) FOR UPDATE`,
         [[room.users[0], room.users[1]]]
       );
       const profs = room.users.map((uid) => rows.find((r) => Number(r.user_id) === uid));
       const delta = rankDelta(profs[winnerSide].rank_points, profs[1 - winnerSide].rank_points);
+
+      // APOSTA: transferência pura do perdedor para o vencedor (o sistema não premia nem multa)
+      let transfer = 0;
+      const apostaCol = room.bet ? (room.bet.kind === 'diamonds' ? 'diamonds' : 'coins') : null;
+      if (room.bet) {
+        const perdedor = profs[1 - winnerSide];
+        transfer = Math.min(Number(perdedor[apostaCol] || 0), room.bet.amount);
+      }
 
       for (const side of [0, 1]) {
         const p = profs[side];
@@ -186,23 +195,37 @@ export function attachOnline(io) {
         if (won && streak > 0 && streak % 3 === 0) itemDrop = await grantStreakDrop(client, room.users[side]);
         bumpMissions(room.users[side], m.stats[side] || {}, won);
 
+        // moedas do sistema: na APOSTA não existem; na normal, o perdedor tem piso ZERO (perde só o que tem)
+        let coinDelta;
+        if (room.bet) {
+          coinDelta = apostaCol === 'coins' ? (won ? transfer : -transfer) : 0;
+        } else {
+          coinDelta = won ? rewards.coins : -Math.min(Number(p.coins), Math.abs(rewards.coins));
+        }
+        const diamDelta = room.bet && apostaCol === 'diamonds' ? (won ? transfer : -transfer) : 0;
+
         await client.query(
-          `UPDATE profiles SET level=$1, xp=$2, coins=GREATEST(0, coins+$3), rank_points=$4, tier=$5,
-                  wins=wins+$6, losses=losses+$7, win_streak=$8, updated_at=now()
-            WHERE user_id=$9`,
-          [lv.level, lv.xp, rewards.coins, newRank, tier, won ? 1 : 0, won ? 0 : 1, streak, room.users[side]]
+          `UPDATE profiles SET level=$1, xp=$2, coins=GREATEST(0, coins+$3), diamonds=GREATEST(0, diamonds+$4),
+                  rank_points=$5, tier=$6, wins=wins+$7, losses=losses+$8, win_streak=$9, updated_at=now()
+            WHERE user_id=$10`,
+          [lv.level, lv.xp, coinDelta, diamDelta, newRank, tier, won ? 1 : 0, won ? 0 : 1, streak, room.users[side]]
         );
         await client.query(
           `INSERT INTO matches (user_id, opponent_type, opponent_id, won, wins_a, wins_b, duration_s, stats, xp_gain, coin_gain)
            VALUES ($1,'player',$2,$3,$4,$5,$6,$7,$8,$9)`,
           [room.users[side], room.users[1 - side], won, m.wins[side], m.wins[1 - side],
-           Math.round(m.elapsed), m.stats[side], rewards.xp, rewards.coins]
+           Math.round(m.elapsed), m.stats[side], rewards.xp, coinDelta]
         );
         results[side] = {
           winnerSide, wo, wins: m.wins, itemDrop,
-          rewards: { ...rewards, levelsUp: lv.levelsUp },
+          bet: room.bet ? { kind: room.bet.kind, amount: transfer, won } : null,
+          rewards: { ...rewards, coins: room.bet ? 0 : coinDelta, levelsUp: lv.levelsUp },
           rank: { points: newRank, delta: won ? delta.win : -delta.loss, tier },
-          profile: { level: lv.level, xp: lv.xp, xpNext: xpForLevel(lv.level), coins: p.coins + rewards.coins },
+          profile: {
+            level: lv.level, xp: lv.xp, xpNext: xpForLevel(lv.level),
+            coins: Number(p.coins) + coinDelta,
+            diamonds: Number(p.diamonds || 0) + diamDelta,
+          },
         };
         const ou = online.get(room.users[side]);
         if (ou) {
@@ -356,9 +379,36 @@ export function attachOnline(io) {
       socket.emit('queue:status', { inQueue: false });
     });
 
-    socket.on('challenge:send', ({ to }) => {
+    socket.on('challenge:send', async ({ to, bet }) => {
       const target = online.get(Number(to));
       if (!target || userRoom.has(user.id) || userRoom.has(Number(to)) || Number(to) === user.id) return;
+      // aposta: validação + saldo dos DOIS antes de propor
+      let aposta = null;
+      if (bet && bet.kind) {
+        const kind = bet.kind === 'diamonds' ? 'diamonds' : 'coins';
+        const amount = Math.floor(Number(bet.amount));
+        if (!Number.isFinite(amount) || amount < 1 || amount > 1000000) {
+          socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: 'Valor de aposta inválido.', ts: Date.now() });
+          return;
+        }
+        const col = kind === 'diamonds' ? 'diamonds' : 'coins';
+        const { rows: saldos } = await q(
+          `SELECT user_id, ${col} AS saldo FROM profiles WHERE user_id = ANY($1)`,
+          [[user.id, Number(to)]]
+        );
+        const meu = saldos.find((r) => Number(r.user_id) === user.id);
+        const dele = saldos.find((r) => Number(r.user_id) === Number(to));
+        const icone = kind === 'diamonds' ? '💎' : '🪙';
+        if (!meu || Number(meu.saldo) < amount) {
+          socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: `Saldo insuficiente para apostar ${amount} ${icone}.`, ts: Date.now() });
+          return;
+        }
+        if (!dele || Number(dele.saldo) < amount) {
+          socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: `${target.user.name} não tem ${amount} ${icone} para cobrir a aposta.`, ts: Date.now() });
+          return;
+        }
+        aposta = { kind, amount };
+      }
       if (AWAY_IDS.has(Number(to))) {
         socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: `${target.user.name} está ausente 💤 — não pode ser desafiado agora.`, ts: Date.now() });
         return;
@@ -369,7 +419,7 @@ export function attachOnline(io) {
       }
       const id = `c${nextChallenge++}`;
       const ch = {
-        id, from: user.id, to: Number(to),
+        id, from: user.id, to: Number(to), bet: aposta,
         timer: setTimeout(() => {
           challenges.delete(id);
           online.get(user.id)?.socket.emit('challenge:cancel', { id, reason: 'expirou' });
@@ -378,13 +428,13 @@ export function attachOnline(io) {
       };
       challenges.set(id, ch);
       target.socket.emit('challenge:received', {
-        id, ttl: CHALLENGE_TTL,
+        id, ttl: CHALLENGE_TTL, bet: aposta,
         from: { id: user.id, name: user.name, level: user.level, tier: user.tier },
       });
-      socket.emit('challenge:sent', { id, to: target.user.name });
+      socket.emit('challenge:sent', { id, to: target.user.name, bet: aposta });
     });
 
-    socket.on('challenge:answer', ({ id, accept }) => {
+    socket.on('challenge:answer', async ({ id, accept }) => {
       const ch = challenges.get(id);
       if (!ch || ch.to !== user.id) return;
       clearTimeout(ch.timer);
@@ -394,9 +444,24 @@ export function attachOnline(io) {
         return;
       }
       if (userRoom.has(ch.from) || userRoom.has(ch.to) || !online.has(ch.from)) return;
+      if (ch.bet) {
+        // o mundo girou desde a proposta: re-checa os dois cofres
+        const col = ch.bet.kind === 'diamonds' ? 'diamonds' : 'coins';
+        const { rows: saldos } = await q(
+          `SELECT user_id, ${col} AS saldo FROM profiles WHERE user_id = ANY($1)`,
+          [[ch.from, ch.to]]
+        );
+        const pobre = saldos.find((r) => Number(r.saldo) < ch.bet.amount);
+        if (pobre || saldos.length < 2) {
+          const motivo = 'aposta cancelada: saldo insuficiente';
+          online.get(ch.from)?.socket.emit('challenge:cancel', { id, reason: motivo });
+          online.get(ch.to)?.socket.emit('challenge:cancel', { id, reason: motivo });
+          return;
+        }
+      }
       dequeue(ch.from);
       dequeue(ch.to);
-      createRoom(ch.from, ch.to);
+      createRoom(ch.from, ch.to, ch.bet);
     });
 
     socket.on('input', (data) => {
