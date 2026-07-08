@@ -29,7 +29,7 @@ const CFG = {
   // ----- costas -----
   bainha: { attach: 'back', len: 58, grip: 0.5, rot: 0.6, maxW: 16 },
   // ----- torso (imagem da loja vestida no peito) -----
-  dia_veste_prisma: { attach: 'torso', len: 42, maxW: 30, src: '/items/dia_veste_prisma.webp' },
+  dia_veste_prisma: { attach: 'torso', len: 84, maxW: 62, src: '/items/dia_veste_prisma.webp' },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -44,7 +44,7 @@ const SPRITES_ENABLED = false;
 
 const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body']);
 
-export function createWeaponSprite(container) {
+export function createWeaponSprite(container, behindOf = null) {
   const active = new Map(); // slot -> { spr, cfg, id }
 
   const clearSlot = (slot) => {
@@ -74,7 +74,12 @@ export function createWeaponSprite(container) {
           const cfg = CFG[id];
           const spr = new Sprite(tex);
           spr.anchor.set(0.5, cfg.grip);
-          container.addChild(spr);
+          // torso: entra ATRÁS do desenho do lutador (braços e pernas cobrem a armadura)
+          if (cfg.attach === 'torso' && behindOf && behindOf.parent === container) {
+            container.addChildAt(spr, container.getChildIndex(behindOf));
+          } else {
+            container.addChild(spr);
+          }
           active.set(slot, { spr, cfg, id });
           console.log(`[stikdead] sprite pintado ativo: ${slot}=${id} (${tex.width}x${tex.height})`);
         } catch (err) {

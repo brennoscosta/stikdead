@@ -71,7 +71,7 @@ export async function createPlaza(host, opts = {}) {
     const wrap = new Container();
     const g = new Graphics();
     wrap.addChild(g);
-    const ws = createWeaponSprite(wrap);
+    const ws = createWeaponSprite(wrap, g);
     ws.setLoadout(p.loadout || []);
     const tag = new Text({
       text: p.name,

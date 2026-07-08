@@ -97,8 +97,8 @@ export async function createRenderer(host, theme = 'dojo') {
   loadPartTextures().then((t) => { partTexs = t; });
   world.addChild(gA, gB);
     world.addChild(headA, eyesA, headB, eyesB);
-  const wsA = createWeaponSprite(world);
-  const wsB = createWeaponSprite(world);
+  const wsA = createWeaponSprite(world, gA);
+  const wsB = createWeaponSprite(world, gB);
   const fx = createFx(world);
   const fxRef = fx;
 

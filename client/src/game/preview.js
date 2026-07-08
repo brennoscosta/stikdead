@@ -14,7 +14,7 @@ export async function createPreview(host) {
   app.stage.addChild(stage);
   const g = new Graphics();
   stage.addChild(g);
-  const ws = createWeaponSprite(stage); // arma pintada na mesma transformação do boneco
+  const ws = createWeaponSprite(stage, g); // arma pintada na mesma transformação do boneco
 
   const fighter = { x: 0, y: 0, vx: 0, vy: 0, face: 1, hp: 100, state: 'idle', t: 0, hitstun: 0, combo: 0 };
   let loadout = [];
