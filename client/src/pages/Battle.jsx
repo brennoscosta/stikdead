@@ -5,6 +5,7 @@ import { createBot, botDecide, DIFFICULTIES } from '../game/bot.js';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
 import { ARENAS, ARENA_KEYS } from '../game/arena.js';
+import KeysHud from '../lib/KeysHud.jsx';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import Navbar from '../lib/Navbar.jsx';
@@ -93,7 +94,7 @@ function DifficultySelect({ onPick, arena, setArena, profile }) {
 function Fight({ profile, difficulty, arena, onExit, onProfile }) {
   const hostRef = useRef(null);
   const hud = {
-    hpA: useRef(null), hpB: useRef(null),
+    hpA: useRef(null), hpB: useRef(null), skillCd: useRef(null),
     dotsA: useRef(null), dotsB: useRef(null),
     timer: useRef(null), announce: useRef(null),
     combo: useRef(null), center: useRef(null), vs: useRef(null),
@@ -221,6 +222,12 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
         // HUD
         const [a, b] = match.fighters;
         if (hud.hpA.current) hud.hpA.current.style.width = `${a.hp}%`;
+        if (hud.skillCd.current) {
+          const total = STYLES[a.style]?.cd || 10;
+          const frac = Math.max(0, Math.min(1, 1 - a.skillCd / total));
+          hud.skillCd.current.style.width = `${frac * 100}%`;
+          hud.skillCd.current.dataset.ready = a.skillCd <= 0 ? '1' : '0';
+        }
         if (hud.hpB.current) hud.hpB.current.style.width = `${b.hp}%`;
         if (hud.timer.current)
           hud.timer.current.textContent = match.suddenDeath ? '!!' : String(Math.ceil(match.timer)).padStart(2, '0');
@@ -286,6 +293,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
   return (
     <div className="bt-root">
       <div className="bt-canvas" ref={hostRef} />
+      <KeysHud ref={hud.skillCd} skillName={STYLES[profile?.style]?.skill} />
       {loading && (
         <div className="bt-loading">
           <img className="bt-loading-logo" src="/logo.webp" alt="STIKDEAD" />

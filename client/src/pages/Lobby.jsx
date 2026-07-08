@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getSocket } from '../lib/socket.js';
 import { createPlaza } from '../game/praca.js';
 import PlayerCard from '../lib/PlayerCard.jsx';
+import KeysHud from '../lib/KeysHud.jsx';
 import Navbar from '../lib/Navbar.jsx';
 import { api } from '../lib/api.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
@@ -330,7 +331,7 @@ export default function Lobby({ profile, onProfile }) {
 function OnlineFight({ profile, session, onProfile, onDone }) {
   const hostRef = useRef(null);
   const hud = {
-    hpA: useRef(null), hpB: useRef(null),
+    hpA: useRef(null), hpB: useRef(null), skillCd: useRef(null),
     dotsA: useRef(null), dotsB: useRef(null),
     timer: useRef(null), announce: useRef(null),
     combo: useRef(null), center: useRef(null), vs: useRef(null),
@@ -505,6 +506,12 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         const fa = clientMatch.fighters[me];
         const fb = clientMatch.fighters[opp];
         if (hud.hpA.current) hud.hpA.current.style.width = `${fa.hp}%`;
+        if (hud.skillCd.current) {
+          const total = STYLES[fa.style]?.cd || 10;
+          const frac = Math.max(0, Math.min(1, 1 - fa.skillCd / total));
+          hud.skillCd.current.style.width = `${frac * 100}%`;
+          hud.skillCd.current.dataset.ready = fa.skillCd <= 0 ? '1' : '0';
+        }
         if (hud.hpB.current) hud.hpB.current.style.width = `${fb.hp}%`;
         if (hud.timer.current)
           hud.timer.current.textContent = clientMatch.suddenDeath ? '!!' : String(Math.ceil(clientMatch.timer)).padStart(2, '0');
@@ -614,6 +621,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
 
       <button className="bt-pausebtn" onClick={() => setPaused(true)} aria-label="Menu">II</button>
 
+      <KeysHud ref={hud.skillCd} skillName={STYLES[session.players?.[me]?.style]?.skill} />
       <SkillButton inputRef={inputRef} hudRef={hud} style={session.players?.[me]?.style || 'ronin'} />
       <TouchControls inputRef={inputRef} />
 
