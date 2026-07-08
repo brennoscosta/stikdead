@@ -407,10 +407,9 @@ const TEMPLATES = {
       g.moveTo(a[0] - px * 11, a[1] - py * 11).lineTo(a[0] + px * 11, a[1] + py * 11)
         .stroke({ width: 1.6, color: 0xffffff, alpha: 0.35 });
     }
-    // contorno cristalino
-    seg(g, n, h, 26, 0x000000, true, false); // reforço do outline
-    g.moveTo(n[0] - px * 13, n[1] - py * 13).lineTo(h[0] - px * 13, h[1] - py * 13).stroke({ width: 3, color: OUT });
-    g.moveTo(n[0] + px * 13, n[1] + py * 13).lineTo(h[0] + px * 13, h[1] + py * 13).stroke({ width: 3, color: OUT });
+    // contorno cristalino (só as bordas — sem cobrir as facetas)
+    g.moveTo(n[0] - px * 13, n[1] - py * 13).lineTo(h[0] - px * 13, h[1] - py * 13).stroke({ width: 3, color: OUT, cap: 'round' });
+    g.moveTo(n[0] + px * 13, n[1] + py * 13).lineTo(h[0] + px * 13, h[1] + py * 13).stroke({ width: 3, color: OUT, cap: 'round' });
     // ombreiras: cristais lapidados girando de cor
     for (const lado of [-1, 1]) {
       const ox = n[0] + lado * 12, oy = n[1] + 1;

@@ -28,7 +28,12 @@ const CFG = {
   mascara_hockey: { attach: 'face', len: 36, maxW: 34 },
   // ----- costas -----
   bainha: { attach: 'back', len: 58, grip: 0.5, rot: 0.6, maxW: 16 },
+  // ----- torso (imagem da loja vestida no peito) -----
+  dia_veste_prisma: { attach: 'torso', len: 42, maxW: 30, src: '/items/dia_veste_prisma.webp' },
 };
+
+// itens que usam sprite MESMO com o interruptor mestre desligado
+const SPRITE_WHITELIST = new Set(['dia_veste_prisma']);
 
 // ============================================================
 // INTERRUPTOR MESTRE: sprites pintados no boneco (experimental).
@@ -37,7 +42,7 @@ const CFG = {
 // ============================================================
 const SPRITES_ENABLED = false;
 
-const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back']);
+const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body']);
 
 export function createWeaponSprite(container) {
   const active = new Map(); // slot -> { spr, cfg, id }
@@ -49,11 +54,11 @@ export function createWeaponSprite(container) {
 
   return {
     async setLoadout(loadout) {
-      if (!SPRITES_ENABLED) return;
       const wanted = new Map();
       for (const it of loadout || []) {
-        if (SPRITE_SLOTS.has(it.slot) && CFG[it.id]) wanted.set(it.slot, it.id);
-        else if (SPRITE_SLOTS.has(it.slot) && it.id)
+        const liberado = SPRITES_ENABLED || SPRITE_WHITELIST.has(it.id);
+        if (liberado && SPRITE_SLOTS.has(it.slot) && CFG[it.id]) wanted.set(it.slot, it.id);
+        else if (SPRITES_ENABLED && SPRITE_SLOTS.has(it.slot) && it.id)
           console.log(`[stikdead] ${it.slot}=${it.id}: sem sprite configurado, vetor assume`);
       }
 
@@ -65,7 +70,7 @@ export function createWeaponSprite(container) {
       for (const [slot, id] of wanted) {
         if (active.has(slot)) continue;
         try {
-          const tex = await Assets.load(`/sprites/${id}.webp`);
+          const tex = await Assets.load(CFG[id].src || `/sprites/${id}.webp`);
           const cfg = CFG[id];
           const spr = new Sprite(tex);
           spr.anchor.set(0.5, cfg.grip);
@@ -112,6 +117,15 @@ export function createWeaponSprite(container) {
           spr.position.set(c[0], c[1]);
           spr.rotation = -sk.lean * 0.4 * face;
           spr.scale.x = s2 * face;
+        } else if (slot === 'body') {
+          // torso: centrado entre pescoço e quadril, girando com a inclinação do tronco
+          spr.anchor.set(0.5, 0.5);
+          const n = sk.neck, hp = sk.hip;
+          const c = T([(n[0] + hp[0]) / 2, (n[1] + hp[1]) / 2 - 1]);
+          spr.position.set(c[0], c[1]);
+          const nT = T(n), hT = T(hp);
+          spr.rotation = Math.atan2(hT[0] - nT[0], hT[1] - nT[1]) * -1;
+          spr.scale.x = Math.abs(spr.scale.y) * face;
         } else if (slot === 'face') {
           // centro exato da cabeça, levemente à frente
           spr.anchor.set(0.5, 0.5);
