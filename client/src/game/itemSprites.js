@@ -84,6 +84,19 @@ const CFG = {
   // ----- cabeças diamante (arte IA) -----
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
+  // ----- cabeças não-diamante (arte IA fiel à identidade de cada item) -----
+  faixa_vermelha: { attach: 'head', len: 26, maxW: 52, overlap: 20 },
+  faixa_branca: { attach: 'head', len: 26, maxW: 52, overlap: 20 },
+  faixa_negra: { attach: 'head', len: 26, maxW: 52, overlap: 20 },
+  faixa_dourada: { attach: 'head', len: 26, maxW: 52, overlap: 20 },
+  faixa_ki: { attach: 'head', len: 26, maxW: 52, overlap: 20 },
+  faixa_branca_2: { attach: 'head', len: 26, maxW: 52, overlap: 20 },
+  chapeu_kasa_negro: { attach: 'head', len: 36, maxW: 74, overlap: 12 },
+  elmo_ronin: { attach: 'head', len: 46, maxW: 52, overlap: 30 },
+  capuz_sangue: { attach: 'head', len: 54, maxW: 54, overlap: 34 },
+  capuz_cinzas: { attach: 'head', len: 54, maxW: 54, overlap: 34 },
+  coroa_sombria: { attach: 'head', len: 26, maxW: 36, overlap: 7 },
+  coroa_espinhos: { attach: 'head', len: 26, maxW: 36, overlap: 7 },
   // ----- pés diamante (par: um sprite em cada pé) -----
   // ----- costas diamante (arte IA, atrás do corpo) -----
   dia_aura_costas: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
@@ -123,6 +136,9 @@ const SPRITE_WHITELIST = new Set([
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_gato', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
   'h4_chapeu_magico', 'h4_cartola_ouro',
+  'faixa_vermelha', 'faixa_branca', 'faixa_negra', 'faixa_dourada', 'faixa_ki', 'faixa_branca_2',
+  'chapeu_palha', 'chapeu_kasa_negro', 'elmo_ronin', 'capuz_sombrio', 'capuz_sangue', 'capuz_cinzas',
+  'coroa', 'coroa_sombria', 'coroa_espinhos',
   
   
   'dia_aura_costas', 'esm_back_aura',
