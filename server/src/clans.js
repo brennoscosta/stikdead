@@ -168,9 +168,15 @@ router.post('/invite', requireAuth, async (req, res) => {
 
   const ins = await q(
     `INSERT INTO clan_invites (clan_id, user_id, invited_by) VALUES ($1,$2,$3)
-     ON CONFLICT (clan_id, user_id) DO NOTHING RETURNING id`, [p.clan_id, alvoId, req.userId]);
-  if (!ins.rows[0]) return res.status(400).json({ error: 'Convite já enviado.' });
+     ON CONFLICT (clan_id, user_id) DO UPDATE SET invited_by = EXCLUDED.invited_by RETURNING id`,
+    [p.clan_id, alvoId, req.userId]);
   logActivity(alvoId, 'clan_invite', { inviteId: ins.rows[0].id, clan: c[0].name, from: p.fighter_name });
+  // popup em tempo real (estilo convite de amizade/dupla)
+  notifyUser(alvoId, 'clan:invited', {
+    inviteId: ins.rows[0].id,
+    clan: { id: c[0].id, name: c[0].name, color: c[0].flag_color },
+    from: p.fighter_name,
+  });
   notifyUser(alvoId, 'social:ping', { type: 'clan_invite' });
   res.json({ ok: true });
 });
@@ -190,8 +196,10 @@ router.post('/respond', requireAuth, async (req, res) => {
   await q('UPDATE profiles SET clan_id = $1 WHERE user_id = $2', [inv.clan_id, req.userId]);
   await q('INSERT INTO clan_history (user_id, clan_id, clan_name) VALUES ($1,$2,$3)', [req.userId, inv.clan_id, inv.name]);
   logActivity(Number(inv.invited_by), 'clan_joined', { who: p.fighter_name, clan: inv.name });
+  // festa dos dois lados: quem convidou vê o popup mudar para "fulano entrou!"
+  notifyUser(Number(inv.invited_by), 'clan:joined-by', { who: p.fighter_name, clan: inv.name });
   notifyUser(Number(inv.invited_by), 'social:ping', { type: 'clan_joined' });
-  res.json({ ok: true, joined: true });
+  res.json({ ok: true, joined: true, clanName: inv.name });
 });
 
 // ===== sair (dono só se estiver sozinho — aí o clã dissolve) =====

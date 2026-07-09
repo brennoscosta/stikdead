@@ -39,6 +39,7 @@ export default function Lobby({ profile, onProfile }) {
   };
   const [inQueue, setInQueue] = useState(false);
   const [incoming, setIncoming] = useState(null); // {id, from, expiresAt, bet}
+  const [clanPop, setClanPop] = useState(null); // {mode:'invite'|'joined'|'entered', ...}
   const [betFor, setBetFor] = useState(null); // jogador alvo do modal de desafio/aposta
   const [duo, setDuo] = useState(null); // { leader, partner } quando a dupla está formada
   const [duoIn, setDuoIn] = useState(null); // convite de dupla recebido {from}
@@ -95,6 +96,10 @@ export default function Lobby({ profile, onProfile }) {
     const onDuoSearching = () => setDuoBusca(true);
     const onDuoChallenged = ({ from }) => setDuoChIn({ from });
     const onDuoResult = ({ texto }) => setChat((c) => [...c.slice(-49), { name: 'STIKDEAD', system: true, text: texto, ts: Date.now() }]);
+    const onClanInvited = (p) => setClanPop({ mode: 'invite', ...p, expiresAt: Date.now() + 30000 });
+    const onClanJoinedBy = (p) => setClanPop({ mode: 'joined', ...p, expiresAt: Date.now() + 6000 });
+    socket.on('clan:invited', onClanInvited);
+    socket.on('clan:joined-by', onClanJoinedBy);
     socket.on('duo:invited', onDuoInvited);
     socket.on('duo:formed', onDuoFormed);
     socket.on('duo:broken', onDuoBroken);
@@ -119,6 +124,8 @@ export default function Lobby({ profile, onProfile }) {
       socket.off('challenge:cancel', onCancel);
       socket.off('challenge:sent', onSent);
       socket.off('match:start', onStart);
+      socket.off('clan:invited', onClanInvited);
+      socket.off('clan:joined-by', onClanJoinedBy);
       socket.off('duo:invited', onDuoInvited);
       socket.off('duo:formed', onDuoFormed);
       socket.off('duo:broken', onDuoBroken);
@@ -133,6 +140,11 @@ export default function Lobby({ profile, onProfile }) {
 
   // countdown do convite recebido
   const [, forceTick] = useState(0);
+  useEffect(() => {
+    if (!clanPop) return;
+    const t = setInterval(() => { if (Date.now() >= clanPop.expiresAt) setClanPop(null); }, 500);
+    return () => clearInterval(t);
+  }, [clanPop]);
   useEffect(() => {
     if (!incoming) return;
     const iv = setInterval(() => {
@@ -410,6 +422,51 @@ export default function Lobby({ profile, onProfile }) {
             <p style={{ margin: '0 0 14px', fontSize: 19 }}>A dupla de <b style={{ color: '#d90429' }}>{duoChIn.from.name}</b> desafiou a sua! 2 contra 2, sem apostas.</p>
             <button className="btn btn-blood" onClick={() => { goFullscreen(); getSocket().emit('duo:challenge:answer', { from: duoChIn.from.id, accept: true }); setDuoChIn(null); }}>Aceitar</button>
             <button className="btn btn-ghost" onClick={() => { getSocket().emit('duo:challenge:answer', { from: duoChIn.from.id, accept: false }); setDuoChIn(null); }}>Recusar</button>
+          </div>
+        </div>
+      )}
+      {clanPop && (
+        <div className="bt-overlay">
+          <div className="bt-panel" style={{ borderColor: clanPop.clan?.color || '#e0a10b' }}>
+            {clanPop.mode === 'invite' && (
+              <>
+                <h2 style={{ color: '#9fd8ff' }}>CONVITE DE CLÃ</h2>
+                <p style={{ margin: '0 0 6px', fontSize: 20 }}>
+                  <b style={{ color: '#ffd76a' }}>{clanPop.from}</b> te chamou para o clã{' '}
+                  <b style={{ color: clanPop.clan?.color || '#9fd8ff' }}>{clanPop.clan?.name}</b>
+                </p>
+                <p style={{ margin: '0 0 10px', color: '#9a938a' }}>
+                  {Math.max(0, Math.ceil((clanPop.expiresAt - Date.now()) / 1000))}s para decidir
+                </p>
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                  <button className="btn btn-blood" onClick={async () => {
+                    try {
+                      const r = await api('/api/clans/respond', { method: 'POST', body: { inviteId: clanPop.inviteId, accept: true } });
+                      if (r.joined) {
+                        getSocket().emit('clan:refresh');
+                        setClanPop({ mode: 'entered', clan: clanPop.clan, expiresAt: Date.now() + 6000 });
+                      } else setClanPop(null);
+                    } catch (e) { setClanPop(null); alert(e.message || 'Não rolou.'); }
+                  }}>⚔️ ENTRAR NO CLÃ</button>
+                  <button className="btn btn-ghost" onClick={async () => {
+                    try { await api('/api/clans/respond', { method: 'POST', body: { inviteId: clanPop.inviteId, accept: false } }); } catch { /* já era */ }
+                    setClanPop(null);
+                  }}>Recusar</button>
+                </div>
+              </>
+            )}
+            {clanPop.mode === 'entered' && (
+              <>
+                <h2 style={{ color: '#7de0a8' }}>🏳️ VOCÊ ENTROU NO CLÃ!</h2>
+                <p style={{ fontSize: 20 }}>Bem-vindo ao <b style={{ color: clanPop.clan?.color || '#9fd8ff' }}>{clanPop.clan?.name}</b> — o quartel te espera no Social.</p>
+              </>
+            )}
+            {clanPop.mode === 'joined' && (
+              <>
+                <h2 style={{ color: '#7de0a8' }}>🎉 RECRUTA A BORDO!</h2>
+                <p style={{ fontSize: 20 }}><b style={{ color: '#ffd76a' }}>{clanPop.who}</b> entrou no clã <b>{clanPop.clan}</b>!</p>
+              </>
+            )}
           </div>
         </div>
       )}
