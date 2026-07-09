@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from './auth.js';
 import { q, pool } from './db.js';
 
-const SLOTS = new Set(['head', 'face', 'body', 'back', 'weapon', 'arms', 'legs', 'feet', 'effect']); // 'style' compra mas não equipa
+const SLOTS = new Set(['head', 'face', 'body', 'back', 'weapon', 'arms', 'legs', 'effect']); // 'style' compra mas não equipa
 
 export async function getLoadout(userId) {
   const { rows } = await q(

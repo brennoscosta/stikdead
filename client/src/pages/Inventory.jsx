@@ -7,7 +7,7 @@ import { createPreview } from '../game/preview.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import { SLOT_LABEL, RARITY_LABEL } from './Shop.jsx';
 
-const SLOTS = ['head', 'face', 'body', 'back', 'weapon', 'arms', 'legs', 'feet', 'effect'];
+const SLOTS = ['head', 'face', 'body', 'back', 'weapon', 'arms', 'legs', 'effect'];
 
 export default function Inventory({ profile }) {
   const nav = useNavigate();
