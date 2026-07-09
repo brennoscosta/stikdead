@@ -85,12 +85,12 @@ const CFG = {
   f2_mascara_medusa: { attach: 'face', len: 116, maxW: 104 },
   f2_mascara_kabuki: { attach: 'face', len: 104, maxW: 90 },
   // ----- braços diamante (par: um sprite em cada antebraço) -----
-  saf_arms_gauntlets: { attach: 'arm', len: 26, maxW: 18, at: 0.6 },
-  saf_arms_gloves: { attach: 'arm', len: 20, maxW: 15, at: 0.8 },
-  saf_arms_bands: { attach: 'arm', len: 16, maxW: 13, at: 0.55 },
-  esm_arms_gauntlets: { attach: 'arm', len: 26, maxW: 18, at: 0.6 },
-  esm_arms_gloves: { attach: 'arm', len: 20, maxW: 15, at: 0.8 },
-  esm_arms_bands: { attach: 'arm', len: 16, maxW: 13, at: 0.55 },
+  saf_arms_gauntlets: { attach: 'arm', len: 22, maxW: 13, at: 0.6 },
+  saf_arms_gloves: { attach: 'arm', len: 14, maxW: 11, at: 0.85 },
+  saf_arms_bands: { attach: 'arm', len: 12, maxW: 10, at: 0.55 },
+  esm_arms_gauntlets: { attach: 'arm', len: 22, maxW: 13, at: 0.6 },
+  esm_arms_gloves: { attach: 'arm', len: 14, maxW: 11, at: 0.85 },
+  esm_arms_bands: { attach: 'arm', len: 12, maxW: 10, at: 0.55 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -182,6 +182,7 @@ export function createWeaponSprite(container, behindOf = null) {
         let s = cfg.len / spr.texture.height;
         if (cfg.maxW) s = Math.min(s, cfg.maxW / spr.texture.width);
         spr.scale.set(s);
+        if (sprT) sprT.scale.set(s);
 
         if (slot === 'weapon') {
           const e = T(sk.elbF);
