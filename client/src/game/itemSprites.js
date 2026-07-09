@@ -84,6 +84,12 @@ const CFG = {
   saf_arms_gloves: { attach: 'arm', len: 18, maxW: 15, grip: 0.55 },
   esm_arms_gauntlets: { attach: 'arm', len: 22, maxW: 16, grip: 0.62 },
   esm_arms_gloves: { attach: 'arm', len: 18, maxW: 15, grip: 0.55 },
+  // ----- cabeças diamante (arte IA) -----
+  dia_coroa_estelar: { attach: 'head', len: 32, maxW: 42, overlap: 8 },
+  h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
+  h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
+  h4_chapeu_mago: { attach: 'head', len: 58, maxW: 62, overlap: 10 },
+  h4_coroa_rei: { attach: 'head', len: 36, maxW: 44, overlap: 8 },
   // ----- rostos diamante 3 -----
   f3_elmo_aguia: { attach: 'face', len: 98, maxW: 85 },
   f3_mascara_urso: { attach: 'face', len: 74, maxW: 66 },
@@ -106,6 +112,7 @@ const SPRITE_WHITELIST = new Set([
   'esm_face_mask_oni', 'esm_face_mask_skull', 'esm_face_eyes_red',
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_katana_trovao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_gato', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
+  'dia_coroa_estelar', 'h4_chapeu_magico', 'h4_cartola_ouro', 'h4_chapeu_mago', 'h4_coroa_rei',
   'saf_arms_gauntlets', 'saf_arms_gloves',
   'esm_arms_gauntlets', 'esm_arms_gloves',
   'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_farao', 'f3_caveira_fogo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte',
