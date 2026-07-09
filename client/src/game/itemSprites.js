@@ -84,11 +84,14 @@ const CFG = {
   // ----- cabeças diamante (arte IA) -----
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
+  // ----- pernas diamante integradas (coxa+canela+pé num sprite só) -----
+  saf_legs_pants: { attach: 'legs', len: 92, maxW: 30, grip: 0.5 },
+  esm_legs_pants: { attach: 'legs', len: 92, maxW: 30, grip: 0.5 },
+  saf_legs_shorts: { attach: 'legs', len: 92, maxW: 32, grip: 0.5 },
+  esm_legs_shorts: { attach: 'legs', len: 92, maxW: 32, grip: 0.5 },
+  saf_legs_kneepads: { attach: 'legs', len: 92, maxW: 28, grip: 0.5 },
+  esm_legs_kneepads: { attach: 'legs', len: 92, maxW: 28, grip: 0.5 },
   // ----- pés diamante (par: um sprite em cada pé) -----
-  saf_feet_boots: { attach: 'leg', len: 78, maxW: 60, grip: 0.82 },
-  saf_feet_shoes: { attach: 'leg', len: 45, maxW: 57, grip: 0.78 },
-  esm_feet_boots: { attach: 'leg', len: 78, maxW: 60, grip: 0.82 },
-  esm_feet_shoes: { attach: 'leg', len: 45, maxW: 57, grip: 0.78 },
   // ----- costas diamante (arte IA, atrás do corpo) -----
   dia_aura_costas: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
   esm_back_aura: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
@@ -127,7 +130,8 @@ const SPRITE_WHITELIST = new Set([
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_gato', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
   'h4_chapeu_magico', 'h4_cartola_ouro',
-  'saf_feet_boots', 'saf_feet_shoes', 'esm_feet_boots', 'esm_feet_shoes',
+  'saf_legs_pants', 'esm_legs_pants', 'saf_legs_shorts', 'esm_legs_shorts', 'saf_legs_kneepads', 'esm_legs_kneepads',
+  
   'dia_aura_costas', 'esm_back_aura',
   'bk_asa_fenix', 'bk_asa_dragao', 'bk_asa_serafim', 'bk_asa_demonio', 'bk_asa_borboleta', 'bk_asa_tempestade', 'bk_asa_sombra', 'bk_asa_morcego', 'bk_asa_mecanica', 'bk_asa_arcoiris', 'dia_capa_aurora', 'dia_capa_nevasca',
   'saf_arms_gloves',
@@ -142,7 +146,7 @@ const SPRITE_WHITELIST = new Set([
 // ============================================================
 const SPRITES_ENABLED = false;
 
-const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms', 'feet']);
+const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms', 'legs']);
 
 export function createWeaponSprite(container, behindOf = null) {
   const active = new Map(); // slot -> { spr, cfg, id }
@@ -251,16 +255,17 @@ export function createWeaponSprite(container, behindOf = null) {
           spr.scale.x = Math.abs(spr.scale.y) * face;
         } else if (cfg.attach === 'arm' || cfg.attach === 'leg') {
           // luva = PUNHO na mão; bota = PÉ com o cano subindo pela canela
-          if (cfg.attach === 'leg') {
-            // BOTA: deitada no pé, bico para a frente do lutador, quase horizontal
+          if (cfg.attach === 'legs') {
+            // PERNA INTEIRA: um sprite do quadril ao pé, alinhado ao membro (como as armas ao braço)
             const calca = (alvo, joe, pe) => {
-              const j = T(joe), p = T(pe);
-              // leve inclinação seguindo a canela, mas o pé fica plano no chão
-              const incl = Math.atan2(p[0] - j[0], -(p[1] - j[1])) * 0.25;
-              alvo.anchor.set(0.5, cfg.grip ?? 0.7);
-              alvo.position.set(p[0], p[1] - (cfg.lift ?? 4));
-              alvo.rotation = incl;
-              alvo.scale.x = Math.abs(alvo.scale.y) * face; // bico segue a direção do lutador
+              const j = T(joe), p = T(pe);        // usa joelho→pé como eixo principal da perna
+              let dx = p[0] - j[0], dy = p[1] - j[1];
+              const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
+              alvo.anchor.set(0.5, cfg.grip ?? 0.28); // 0.28 = topo perto do quadril
+              const q = T(sk.hip);
+              alvo.position.set((q[0] + p[0]) / 2, (q[1] + p[1]) / 2); // centro quadril↔pé
+              alvo.rotation = Math.atan2(dx, -dy);
+              alvo.scale.x = Math.abs(alvo.scale.y) * face;
             };
             calca(spr, sk.kneF, sk.footF);
             if (sprT) calca(sprT, sk.kneB, sk.footB);
