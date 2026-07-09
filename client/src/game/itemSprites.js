@@ -79,10 +79,10 @@ const CFG = {
   f2_mascara_medusa: { attach: 'face', len: 93, maxW: 83 },
   f2_mascara_kabuki: { attach: 'face', len: 83, maxW: 72 },
   // ----- braços diamante (par: um sprite em cada antebraço) -----
-  saf_arms_gauntlets: { attach: 'arm', len: 22, maxW: 16, grip: 0.62 },
-  saf_arms_gloves: { attach: 'arm', len: 18, maxW: 15, grip: 0.55 },
-  esm_arms_gauntlets: { attach: 'arm', len: 22, maxW: 16, grip: 0.62 },
-  esm_arms_gloves: { attach: 'arm', len: 18, maxW: 15, grip: 0.55 },
+  saf_arms_gauntlets: { attach: 'arm', len: 44, maxW: 32, grip: 0.62 },
+  saf_arms_gloves: { attach: 'arm', len: 36, maxW: 30, grip: 0.55 },
+  esm_arms_gauntlets: { attach: 'arm', len: 44, maxW: 32, grip: 0.62 },
+  esm_arms_gloves: { attach: 'arm', len: 36, maxW: 30, grip: 0.55 },
   // ----- cabeças diamante (arte IA) -----
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
@@ -260,6 +260,9 @@ export function createWeaponSprite(container, behindOf = null) {
           };
           veste(spr, sk.elbF, sk.handF);
           if (sprT) veste(sprT, sk.elbB, sk.handB);
+          // par correto: a luva da frente segue o lado do lutador; a de trás é a IRMÃ ESPELHADA
+          spr.scale.x = Math.abs(spr.scale.y) * face;
+          if (sprT) sprT.scale.x = -Math.abs(sprT.scale.y) * face;
         } else if (slot === 'back') {
           spr.anchor.set(0.5, cfg.anch ?? 0.5);
           const bk = T([sk.neck[0] + (cfg.dx ?? -11), sk.neck[1] + (cfg.dy ?? -8)]);
