@@ -85,10 +85,10 @@ const CFG = {
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
   // ----- pés diamante (par: um sprite em cada pé) -----
-  saf_feet_boots: { attach: 'leg', len: 26, maxW: 20, grip: 0.82 },
-  saf_feet_shoes: { attach: 'leg', len: 15, maxW: 19, grip: 0.78 },
-  esm_feet_boots: { attach: 'leg', len: 26, maxW: 20, grip: 0.82 },
-  esm_feet_shoes: { attach: 'leg', len: 15, maxW: 19, grip: 0.78 },
+  saf_feet_boots: { attach: 'leg', len: 78, maxW: 60, grip: 0.82 },
+  saf_feet_shoes: { attach: 'leg', len: 45, maxW: 57, grip: 0.78 },
+  esm_feet_boots: { attach: 'leg', len: 78, maxW: 60, grip: 0.82 },
+  esm_feet_shoes: { attach: 'leg', len: 45, maxW: 57, grip: 0.78 },
   // ----- costas diamante (arte IA, atrás do corpo) -----
   dia_aura_costas: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
   esm_back_aura: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
