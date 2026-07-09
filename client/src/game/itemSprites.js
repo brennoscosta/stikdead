@@ -84,13 +84,6 @@ const CFG = {
   // ----- cabeças diamante (arte IA) -----
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
-  // ----- pernas diamante integradas (coxa+canela+pé num sprite só) -----
-  saf_legs_pants: { attach: 'legs', len: 92, maxW: 30, grip: 0.5 },
-  esm_legs_pants: { attach: 'legs', len: 92, maxW: 30, grip: 0.5 },
-  saf_legs_shorts: { attach: 'legs', len: 92, maxW: 32, grip: 0.5 },
-  esm_legs_shorts: { attach: 'legs', len: 92, maxW: 32, grip: 0.5 },
-  saf_legs_kneepads: { attach: 'legs', len: 92, maxW: 28, grip: 0.5 },
-  esm_legs_kneepads: { attach: 'legs', len: 92, maxW: 28, grip: 0.5 },
   // ----- pés diamante (par: um sprite em cada pé) -----
   // ----- costas diamante (arte IA, atrás do corpo) -----
   dia_aura_costas: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
@@ -130,7 +123,7 @@ const SPRITE_WHITELIST = new Set([
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_gato', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
   'h4_chapeu_magico', 'h4_cartola_ouro',
-  'saf_legs_pants', 'esm_legs_pants', 'saf_legs_shorts', 'esm_legs_shorts', 'saf_legs_kneepads', 'esm_legs_kneepads',
+  
   
   'dia_aura_costas', 'esm_back_aura',
   'bk_asa_fenix', 'bk_asa_dragao', 'bk_asa_serafim', 'bk_asa_demonio', 'bk_asa_borboleta', 'bk_asa_tempestade', 'bk_asa_sombra', 'bk_asa_morcego', 'bk_asa_mecanica', 'bk_asa_arcoiris', 'dia_capa_aurora', 'dia_capa_nevasca',
@@ -146,7 +139,7 @@ const SPRITE_WHITELIST = new Set([
 // ============================================================
 const SPRITES_ENABLED = false;
 
-const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms', 'legs']);
+const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms']);
 
 export function createWeaponSprite(container, behindOf = null) {
   const active = new Map(); // slot -> { spr, cfg, id }
