@@ -86,6 +86,15 @@ const CFG = {
   // ----- cabeças diamante (arte IA) -----
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
+  // ----- costas diamante (arte IA, atrás do corpo) -----
+  dia_aura_costas: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
+  esm_back_aura: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
+  dia_capa_aurora: { attach: 'back', len: 74, maxW: 50, rot: 0.08, dx: -4, dy: 3, anch: 0.06 },
+  dia_capa_cometa: { attach: 'back', len: 74, maxW: 50, rot: 0.08, dx: -4, dy: 3, anch: 0.06 },
+  dia_capa_nevasca: { attach: 'back', len: 74, maxW: 50, rot: 0.08, dx: -4, dy: 3, anch: 0.06 },
+  esm_back_cape: { attach: 'back', len: 74, maxW: 50, rot: 0.08, dx: -4, dy: 3, anch: 0.06 },
+  dia_bainha_gelo: { attach: 'back', len: 58, maxW: 20, rot: 0.6, dx: -11, dy: -8, anch: 0.5 },
+  esm_back_sheath: { attach: 'back', len: 58, maxW: 20, rot: 0.6, dx: -11, dy: -8, anch: 0.5 },
   // ----- rostos diamante 3 -----
   f3_elmo_aguia: { attach: 'face', len: 98, maxW: 85 },
   f3_mascara_urso: { attach: 'face', len: 74, maxW: 66 },
@@ -109,6 +118,7 @@ const SPRITE_WHITELIST = new Set([
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_gato', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
   'h4_chapeu_magico', 'h4_cartola_ouro',
+  'dia_aura_costas', 'esm_back_aura', 'dia_capa_aurora', 'dia_capa_cometa', 'dia_capa_nevasca', 'esm_back_cape', 'dia_bainha_gelo', 'esm_back_sheath',
   'saf_arms_gauntlets', 'saf_arms_gloves',
   'esm_arms_gauntlets', 'esm_arms_gloves',
   'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_farao', 'f3_caveira_fogo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte',
@@ -153,8 +163,8 @@ export function createWeaponSprite(container, behindOf = null) {
           const cfg = CFG[id];
           const spr = new Sprite(tex);
           spr.anchor.set(0.5, cfg.grip ?? 0.5);
-          // torso: entra ATRÁS do desenho do lutador (braços e pernas cobrem a armadura)
-          if (cfg.attach === 'torso' && behindOf && behindOf.parent === container) {
+          // torso e costas: entram ATRÁS do desenho do lutador
+          if ((cfg.attach === 'torso' || cfg.attach === 'back') && behindOf && behindOf.parent === container) {
             container.addChildAt(spr, container.getChildIndex(behindOf));
           } else {
             container.addChild(spr);
@@ -244,10 +254,10 @@ export function createWeaponSprite(container, behindOf = null) {
           veste(spr, sk.elbF, sk.handF);
           if (sprT) veste(sprT, sk.elbB, sk.handB);
         } else if (slot === 'back') {
-          spr.anchor.set(0.5, 0.5);
-          const bk = T([sk.neck[0] - 11, sk.neck[1] - 8]);
+          spr.anchor.set(0.5, cfg.anch ?? 0.5);
+          const bk = T([sk.neck[0] + (cfg.dx ?? -11), sk.neck[1] + (cfg.dy ?? -8)]);
           spr.position.set(bk[0], bk[1]);
-          spr.rotation = (cfg.rot || 0.6) * face;
+          spr.rotation = (cfg.rot ?? 0.6) * face;
           spr.scale.x = Math.abs(spr.scale.y) * face;
         }
       }
