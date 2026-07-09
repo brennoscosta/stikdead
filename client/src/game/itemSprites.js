@@ -176,6 +176,7 @@ export function createWeaponSprite(container, behindOf = null) {
           active.set(slot, { spr, sprT, cfg, id });
           console.log(`[stikdead] sprite pintado ativo: ${slot}=${id} (${tex.width}x${tex.height})`);
         } catch (err) {
+          console.warn('[sprite] falhou ao carregar', id, '→ vetor assume', err?.message || err);
           console.warn(`[stikdead] sprite ${id} indisponível (${err.message}) — usando vetor`);
         }
       }
