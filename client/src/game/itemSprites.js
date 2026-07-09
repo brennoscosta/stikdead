@@ -84,6 +84,11 @@ const CFG = {
   // ----- cabeças diamante (arte IA) -----
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
+  // ----- pés diamante (par: um sprite em cada pé) -----
+  saf_feet_boots: { attach: 'leg', len: 26, maxW: 20, grip: 0.82 },
+  saf_feet_shoes: { attach: 'leg', len: 15, maxW: 19, grip: 0.78 },
+  esm_feet_boots: { attach: 'leg', len: 26, maxW: 20, grip: 0.82 },
+  esm_feet_shoes: { attach: 'leg', len: 15, maxW: 19, grip: 0.78 },
   // ----- costas diamante (arte IA, atrás do corpo) -----
   dia_aura_costas: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
   esm_back_aura: { attach: 'back', len: 80, maxW: 98, rot: 0, dx: -5, dy: 6, anch: 0.4 },
@@ -122,6 +127,7 @@ const SPRITE_WHITELIST = new Set([
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_gato', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
   'h4_chapeu_magico', 'h4_cartola_ouro',
+  'saf_feet_boots', 'saf_feet_shoes', 'esm_feet_boots', 'esm_feet_shoes',
   'dia_aura_costas', 'esm_back_aura',
   'bk_asa_fenix', 'bk_asa_dragao', 'bk_asa_serafim', 'bk_asa_demonio', 'bk_asa_borboleta', 'bk_asa_tempestade', 'bk_asa_sombra', 'bk_asa_morcego', 'bk_asa_mecanica', 'bk_asa_arcoiris', 'dia_capa_aurora', 'dia_capa_nevasca',
   'saf_arms_gloves',
@@ -136,7 +142,7 @@ const SPRITE_WHITELIST = new Set([
 // ============================================================
 const SPRITES_ENABLED = false;
 
-const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms']);
+const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms', 'feet']);
 
 export function createWeaponSprite(container, behindOf = null) {
   const active = new Map(); // slot -> { spr, cfg, id }
@@ -175,7 +181,7 @@ export function createWeaponSprite(container, behindOf = null) {
             container.addChild(spr);
           }
           let sprT = null;
-          if (cfg.attach === 'arm') {
+          if (cfg.attach === 'arm' || cfg.attach === 'leg') {
             // o par do braço de trás — vive ATRÁS do desenho do lutador
             sprT = new Sprite(tex);
             sprT.anchor.set(0.5, cfg.grip ?? 0.5);
@@ -244,20 +250,27 @@ export function createWeaponSprite(container, behindOf = null) {
           spr.position.set(c[0], c[1]);
           spr.rotation = -sk.lean * 0.35 * face;
           spr.scale.x = Math.abs(spr.scale.y) * face;
-        } else if (cfg.attach === 'arm') {
-          // luva/manopla = PUNHO: assenta NA MÃO como um punho de boxe,
-          // apontando na direção do antebraço (a mesma âncora que fez as armas funcionarem)
-          const veste = (alvo, elb, hand) => {
-            const e = T(elb), h = T(hand);
-            let dx = h[0] - e[0], dy = h[1] - e[1];
+        } else if (cfg.attach === 'arm' || cfg.attach === 'leg') {
+          // luva = PUNHO na mão; bota = PÉ com o cano subindo pela canela
+          const perna = cfg.attach === 'leg';
+          const veste = (alvo, junta, ponta) => {
+            const e = T(junta), h = T(ponta);
+            // braço: sprite aponta junta→ponta (soco); perna: ponta→junta (cano da bota sobe)
+            let dx = perna ? e[0] - h[0] : h[0] - e[0];
+            let dy = perna ? e[1] - h[1] : h[1] - e[1];
             const L = Math.hypot(dx, dy) || 1;
             dx /= L; dy /= L;
-            alvo.anchor.set(0.5, cfg.grip ?? 0.7); // grip: quanto do punho avança além da mão
+            alvo.anchor.set(0.5, cfg.grip ?? 0.7);
             alvo.position.set(h[0], h[1]);
             alvo.rotation = Math.atan2(dx, -dy);
           };
-          veste(spr, sk.elbF, sk.handF);
-          if (sprT) veste(sprT, sk.elbB, sk.handB);
+          if (perna) {
+            veste(spr, sk.kneF, sk.footF);
+            if (sprT) veste(sprT, sk.kneB, sk.footB);
+          } else {
+            veste(spr, sk.elbF, sk.handF);
+            if (sprT) veste(sprT, sk.elbB, sk.handB);
+          }
           // par correto (lados trocados a pedido): frente ESPELHADA, trás normal
           spr.scale.x = -Math.abs(spr.scale.y) * face;
           if (sprT) sprT.scale.x = Math.abs(sprT.scale.y) * face;
