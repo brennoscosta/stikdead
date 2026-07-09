@@ -19,12 +19,24 @@
         if (agora - ultimoToque <= 300) e.preventDefault();
         ultimoToque = agora;
       }, { passive: false });
-      // se algo escapar e aplicar zoom, força de volta ao normal ao voltar o foco
-      window.addEventListener('resize', () => {
-        if (window.visualViewport && window.visualViewport.scale !== 1) {
-          document.body.style.zoom = '';
+      // toque com 2+ dedos = tentativa de pinça: bloqueia na origem
+      document.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches.length > 1) e.preventDefault();
+      }, { passive: false });
+      // se o zoom escapar mesmo assim, devolve a escala ao normal
+      const destravaZoom = () => {
+        const vv = window.visualViewport;
+        if (vv && Math.abs(vv.scale - 1) > 0.01) {
+          window.scrollTo(0, 0);
+          document.body.style.transform = 'scale(1)';
+          requestAnimationFrame(() => { document.body.style.transform = ''; });
         }
-      });
+      };
+      window.addEventListener('resize', destravaZoom);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', destravaZoom);
+        window.visualViewport.addEventListener('scroll', destravaZoom);
+      }
     </script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
