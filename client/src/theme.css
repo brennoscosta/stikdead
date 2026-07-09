@@ -1384,3 +1384,15 @@ body.in-fight .topnav-spacer { display: none; }
 .duo-mural-nomes { font-size: 13.5px; }
 .duo-mural-nomes b { color: #ffd76a; }
 .duo-mural-nomes em { color: var(--muted); font-size: 12px; }
+
+/* ===== HUD 2v2: 4 barras iguais empilhadas ===== */
+.bt-hud-duo .bt-team { display: flex; flex-direction: column; gap: 5px; }
+.bt-hud-duo .bt-row { display: flex; align-items: center; gap: 7px; }
+.bt-hud-duo .bt-plate.right .bt-row { flex-direction: row; }
+.bt-hud-duo .bt-row-name { font: 700 12px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.06em; white-space: nowrap; min-width: 74px; }
+.bt-hud-duo .bt-plate.left .bt-row-name { text-align: right; }
+.bt-hud-duo .bt-plate.right .bt-row-name { text-align: left; }
+.bt-hud-duo .bt-row .bt-bar { flex: 1; height: 12px; margin: 0; }
+.bt-hud-duo .bt-fill.sisfill { background: linear-gradient(90deg, #ffd76a, #e0a10b); }
+.bt-hud-duo .bt-fill.sisfill.dark { background: linear-gradient(90deg, #8fb8d9, #5a7d9e); }
+.bt-hud-duo .bt-dots { margin-top: 4px; }

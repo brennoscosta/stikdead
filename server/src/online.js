@@ -528,7 +528,9 @@ export function attachOnline(io) {
       const liderDele = DUO_OF.get(Number(toLeader));    // e mirar qualquer membro da outra dupla
       const meu = meuLider ? DUOS.get(meuLider) : null;
       const dele = liderDele ? DUOS.get(liderDele) : null;
-      if (!meu || !dele || meu === dele) return;
+      if (!meu || !dele || meu === dele || meuLider === liderDele) {
+        return socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: '🤝 Você não pode desafiar a própria dupla!', ts: Date.now() });
+      }
       online.get(liderDele)?.socket.emit('duo:challenged', { from: { id: meuLider, name: user.name } });
       socket.emit('chat:msg', { name: 'STIKDEAD', system: true, text: '⚔️ Desafio de dupla enviado! Aguardando o líder deles...', ts: Date.now() });
     });

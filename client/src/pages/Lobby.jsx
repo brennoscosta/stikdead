@@ -799,28 +799,48 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         onClick={() => setMutedUi(toggleMute())}
         aria-label="Som"
       >{mutedUi ? '🔇' : '🔊'}</button>
-      <div className="bt-hud">
+      <div className={`bt-hud${quatro ? ' bt-hud-duo' : ''}`}>
         <div className="bt-plate left">
-          <div className="bt-name">{names[me]}</div>
-          <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
-          <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
-          {quatro && (
-            <div className="bt-sis">
-              <span className="bt-sis-name" style={{ color: '#ffd76a' }}>🤝 {names[aliado]}</span>
-              <div className="bt-bar sis"><div className="bt-fill sisfill" ref={hud.hpC} /></div>
+          {quatro ? (
+            <div className="bt-team">
+              <div className="bt-row">
+                <span className="bt-row-name">{names[me]}</span>
+                <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
+              </div>
+              <div className="bt-row">
+                <span className="bt-row-name" style={{ color: '#ffd76a' }}>🤝 {names[aliado]}</span>
+                <div className="bt-bar"><div className="bt-fill sisfill" ref={hud.hpC} /></div>
+              </div>
+              <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
             </div>
+          ) : (
+            <>
+              <div className="bt-name">{names[me]}</div>
+              <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
+              <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
+            </>
           )}
         </div>
         <div className="bt-timer" ref={hud.timer}>99</div>
         <div className="bt-plate right">
-          <div className="bt-name">{names[opp]}</div>
-          <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
-          <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
-          {quatro && (
-            <div className="bt-sis">
-              <span className="bt-sis-name" style={{ color: '#8fb8d9' }}>{names[rival2]}</span>
-              <div className="bt-bar sis"><div className="bt-fill sisfill dark" ref={hud.hpD} /></div>
+          {quatro ? (
+            <div className="bt-team">
+              <div className="bt-row">
+                <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
+                <span className="bt-row-name">{names[opp]}</span>
+              </div>
+              <div className="bt-row">
+                <div className="bt-bar"><div className="bt-fill sisfill dark" ref={hud.hpD} /></div>
+                <span className="bt-row-name" style={{ color: '#8fb8d9' }}>{names[rival2]}</span>
+              </div>
+              <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
             </div>
+          ) : (
+            <>
+              <div className="bt-name">{names[opp]}</div>
+              <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
+              <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
+            </>
           )}
         </div>
       </div>
