@@ -1396,3 +1396,16 @@ body.in-fight .topnav-spacer { display: none; }
 .bt-hud-duo .bt-fill.sisfill { background: linear-gradient(90deg, #ffd76a, #e0a10b); }
 .bt-hud-duo .bt-fill.sisfill.dark { background: linear-gradient(90deg, #8fb8d9, #5a7d9e); }
 .bt-hud-duo .bt-dots { margin-top: 4px; }
+
+/* ===== Social responsivo ===== */
+@media (max-width: 600px) {
+  .soc-grid { grid-template-columns: 1fr; gap: 11px; padding: 0 14px; margin-top: 12px; }
+  .soc-card { padding: 20px 16px; border-radius: 15px; }
+  .soc-ico { font-size: 36px; }
+  .soc-title { font-size: 18px; }
+  .soc-desc { font-size: 12.5px; line-height: 1.45; }
+}
+@media (hover: none) {
+  .soc-card:hover { transform: none; box-shadow: none; border-color: var(--line); }
+  .soc-card:active { transform: scale(0.98); border-color: rgba(217,4,41,0.6); }
+}

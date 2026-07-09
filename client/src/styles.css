@@ -569,7 +569,7 @@ body {
 @media (max-width: 640px) { .topnav-label { display: none; } .topnav-name { display: none; } }
 
 /* ===== perfil 2.0 (dashboard) ===== */
-.dash { min-height: 100vh; width: 100%; }
+.dash { min-height: 100vh; width: 100%; padding-top: calc(66px + env(safe-area-inset-top)); box-sizing: border-box; }
 .dash-hero {
   position: relative;
   background: url('/banner.webp') center 30% / cover no-repeat;

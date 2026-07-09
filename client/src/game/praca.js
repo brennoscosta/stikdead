@@ -163,7 +163,11 @@ export async function createPlaza(host, opts = {}) {
       drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, filterForVector(a.loadout, a.ws));
       a.ws.update(a.f, MOVES);
       a.tag.position.set(a.f.x * scale, H - 40 - 158 * scale);
-      if (a.clanTag) a.clanTag.position.set(a.f.x * scale, H - 40 - 158 * scale - 16);
+      if (a.clanTag) {
+        a.clanTag.position.set(a.f.x * scale, H - 40 - 158 * scale - 14 * scale);
+        a.clanTag.scale.set(scale);
+        a.clanTag.visible = a.tag.visible;
+      }
       a.tag.text = a.away ? `${a.name} 💤` : a.name;
     }
   });

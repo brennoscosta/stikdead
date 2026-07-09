@@ -10,6 +10,21 @@
         if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault();
       });
       document.addEventListener('gesturestart', (e) => e.preventDefault());
+      document.addEventListener('gesturechange', (e) => e.preventDefault());
+      document.addEventListener('gestureend', (e) => e.preventDefault());
+      // double-tap zoom (iOS): bloqueia toque duplo em menos de 300ms
+      let ultimoToque = 0;
+      document.addEventListener('touchend', (e) => {
+        const agora = Date.now();
+        if (agora - ultimoToque <= 300) e.preventDefault();
+        ultimoToque = agora;
+      }, { passive: false });
+      // se algo escapar e aplicar zoom, força de volta ao normal ao voltar o foco
+      window.addEventListener('resize', () => {
+        if (window.visualViewport && window.visualViewport.scale !== 1) {
+          document.body.style.zoom = '';
+        }
+      });
     </script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
