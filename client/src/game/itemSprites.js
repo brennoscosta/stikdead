@@ -79,10 +79,8 @@ const CFG = {
   f2_mascara_medusa: { attach: 'face', len: 93, maxW: 83 },
   f2_mascara_kabuki: { attach: 'face', len: 83, maxW: 72 },
   // ----- braços diamante (par: um sprite em cada antebraço) -----
-  saf_arms_gauntlets: { attach: 'arm', len: 44, maxW: 32, grip: 0.62 },
-  saf_arms_gloves: { attach: 'arm', len: 43, maxW: 36, grip: 0.55 },
-  esm_arms_gauntlets: { attach: 'arm', len: 44, maxW: 32, grip: 0.62 },
-  esm_arms_gloves: { attach: 'arm', len: 43, maxW: 36, grip: 0.55 },
+  saf_arms_gloves: { attach: 'arm', len: 52, maxW: 43, grip: 0.5 },
+  esm_arms_gloves: { attach: 'arm', len: 52, maxW: 43, grip: 0.5 },
   // ----- cabeças diamante (arte IA) -----
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
@@ -126,8 +124,8 @@ const SPRITE_WHITELIST = new Set([
   'h4_chapeu_magico', 'h4_cartola_ouro',
   'dia_aura_costas', 'esm_back_aura',
   'bk_asa_fenix', 'bk_asa_dragao', 'bk_asa_serafim', 'bk_asa_demonio', 'bk_asa_borboleta', 'bk_asa_tempestade', 'bk_asa_sombra', 'bk_asa_morcego', 'bk_asa_mecanica', 'bk_asa_arcoiris', 'dia_capa_aurora', 'dia_capa_nevasca',
-  'saf_arms_gauntlets', 'saf_arms_gloves',
-  'esm_arms_gauntlets', 'esm_arms_gloves',
+  'saf_arms_gloves',
+  'esm_arms_gloves',
   'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_farao', 'f3_caveira_fogo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte',
 ]);
 
