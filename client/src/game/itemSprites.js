@@ -192,8 +192,7 @@ export function createWeaponSprite(container, behindOf = null) {
           active.set(slot, { spr, sprT, cfg, id });
           console.log(`[stikdead] sprite pintado ativo: ${slot}=${id} (${tex.width}x${tex.height})`);
         } catch (err) {
-          console.warn('[sprite] falhou ao carregar', id, '→ vetor assume', err?.message || err);
-          console.warn(`[stikdead] sprite ${id} indisponível (${err.message}) — usando vetor`);
+          console.warn(`[stikdead] sprite ${id} indisponível (${err?.message || err}) — usando vetor`);
         }
       }
     },
@@ -252,28 +251,34 @@ export function createWeaponSprite(container, behindOf = null) {
           spr.scale.x = Math.abs(spr.scale.y) * face;
         } else if (cfg.attach === 'arm' || cfg.attach === 'leg') {
           // luva = PUNHO na mão; bota = PÉ com o cano subindo pela canela
-          const perna = cfg.attach === 'leg';
-          const veste = (alvo, junta, ponta) => {
-            const e = T(junta), h = T(ponta);
-            // braço: sprite aponta junta→ponta (soco); perna: ponta→junta (cano da bota sobe)
-            let dx = perna ? e[0] - h[0] : h[0] - e[0];
-            let dy = perna ? e[1] - h[1] : h[1] - e[1];
-            const L = Math.hypot(dx, dy) || 1;
-            dx /= L; dy /= L;
-            alvo.anchor.set(0.5, cfg.grip ?? 0.7);
-            alvo.position.set(h[0], h[1]);
-            alvo.rotation = Math.atan2(dx, -dy);
-          };
-          if (perna) {
-            veste(spr, sk.kneF, sk.footF);
-            if (sprT) veste(sprT, sk.kneB, sk.footB);
+          if (cfg.attach === 'leg') {
+            // BOTA: deitada no pé, bico para a frente do lutador, quase horizontal
+            const calca = (alvo, joe, pe) => {
+              const j = T(joe), p = T(pe);
+              // leve inclinação seguindo a canela, mas o pé fica plano no chão
+              const incl = Math.atan2(p[0] - j[0], -(p[1] - j[1])) * 0.25;
+              alvo.anchor.set(0.5, cfg.grip ?? 0.7);
+              alvo.position.set(p[0], p[1] - (cfg.lift ?? 4));
+              alvo.rotation = incl;
+              alvo.scale.x = Math.abs(alvo.scale.y) * face; // bico segue a direção do lutador
+            };
+            calca(spr, sk.kneF, sk.footF);
+            if (sprT) calca(sprT, sk.kneB, sk.footB);
           } else {
+            // LUVA: punho na mão, apontando pelo antebraço
+            const veste = (alvo, elb, hand) => {
+              const e = T(elb), h = T(hand);
+              let dx = h[0] - e[0], dy = h[1] - e[1];
+              const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
+              alvo.anchor.set(0.5, cfg.grip ?? 0.7);
+              alvo.position.set(h[0], h[1]);
+              alvo.rotation = Math.atan2(dx, -dy);
+            };
             veste(spr, sk.elbF, sk.handF);
             if (sprT) veste(sprT, sk.elbB, sk.handB);
+            spr.scale.x = -Math.abs(spr.scale.y) * face;
+            if (sprT) sprT.scale.x = Math.abs(sprT.scale.y) * face;
           }
-          // par correto (lados trocados a pedido): frente ESPELHADA, trás normal
-          spr.scale.x = -Math.abs(spr.scale.y) * face;
-          if (sprT) sprT.scale.x = Math.abs(sprT.scale.y) * face;
         } else if (slot === 'back') {
           spr.anchor.set(0.5, cfg.anch ?? 0.5);
           const bk = T([sk.neck[0] + (cfg.dx ?? -11), sk.neck[1] + (cfg.dy ?? -8)]);
