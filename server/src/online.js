@@ -388,9 +388,9 @@ export function attachOnline(io) {
       .then(({ rows }) => { const e = online.get(user.id); if (e) e.style = rows[0]?.style || 'ronin'; })
       .catch(() => {});
     const carregaCla = () => q(
-      `SELECT c.name, c.flag_color FROM profiles p JOIN clans c ON c.id = p.clan_id WHERE p.user_id = $1`, [user.id])
+      `SELECT c.id, c.name, c.flag_color FROM profiles p JOIN clans c ON c.id = p.clan_id WHERE p.user_id = $1`, [user.id])
       .then(({ rows }) => {
-        user.clan = rows[0] ? { name: rows[0].name, color: rows[0].flag_color } : null;
+        user.clan = rows[0] ? { id: rows[0].id, name: rows[0].name, color: rows[0].flag_color } : null;
         broadcastPresence();
       }).catch(() => {});
     carregaCla();

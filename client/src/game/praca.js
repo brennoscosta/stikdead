@@ -93,6 +93,20 @@ export async function createPlaza(host, opts = {}) {
         .fill(parseInt(String(p.clan.color || '#d90429').replace('#', ''), 16))
         .stroke({ width: 1, color: 0x080808 });
       fl.rect(-1.5, 0, 1.5, 10).fill(0x8a7a66);
+      // a IMAGEM real da bandeira do clã, recortada dentro do triângulo
+      if (p.clan.id) {
+        Assets.load(`/api/clans/flag/${p.clan.id}`).then((tex) => {
+          if (!clanTag || clanTag.destroyed) return;
+          const bandImg = new Sprite(tex);
+          bandImg.width = 11; bandImg.height = 9;
+          bandImg.position.set(0, 0);
+          const mask = new Graphics();
+          mask.moveTo(0, 0).lineTo(11, 0).lineTo(11, 8).lineTo(8, 6).lineTo(0, 8).closePath().fill(0xffffff);
+          bandImg.mask = mask;
+          clanTag.addChildAt(mask, 0);
+          clanTag.addChildAt(bandImg, 1);
+        }).catch(() => { /* sem imagem: fica a cor sólida */ });
+      }
       const ct = new Text({
         text: p.clan.name.toUpperCase(),
         style: { fontFamily: 'Barlow Condensed, sans-serif', fontSize: 10, fill: 0x9fd8ff, letterSpacing: 1.2, fontWeight: '700' },
@@ -163,11 +177,7 @@ export async function createPlaza(host, opts = {}) {
       drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, filterForVector(a.loadout, a.ws));
       a.ws.update(a.f, MOVES);
       a.tag.position.set(a.f.x * scale, H - 40 - 158 * scale);
-      if (a.clanTag) {
-        a.clanTag.position.set(a.f.x * scale, H - 40 - 158 * scale - 14 * scale);
-        a.clanTag.scale.set(scale);
-        a.clanTag.visible = a.tag.visible;
-      }
+      if (a.clanTag) a.clanTag.position.set(a.f.x * scale, H - 40 - 158 * scale - 16);
       a.tag.text = a.away ? `${a.name} 💤` : a.name;
     }
   });
