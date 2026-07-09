@@ -86,11 +86,6 @@ const CFG = {
   // ----- cabeças diamante (arte IA) -----
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
-  // ----- vestes diamante (arte IA, atrás do corpo: braços e pernas cobrem) -----
-  dia_veste_prisma: { len: 54, maxW: 40 },
-  dia_veste_safira: { len: 54, maxW: 40 },
-  dia_veste_glacial: { len: 54, maxW: 40 },
-  esm_body_vest: { len: 54, maxW: 40 },
   // ----- rostos diamante 3 -----
   f3_elmo_aguia: { attach: 'face', len: 98, maxW: 85 },
   f3_mascara_urso: { attach: 'face', len: 74, maxW: 66 },
@@ -114,7 +109,6 @@ const SPRITE_WHITELIST = new Set([
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_gato', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
   'h4_chapeu_magico', 'h4_cartola_ouro',
-  'dia_veste_prisma', 'dia_veste_safira', 'dia_veste_glacial', 'esm_body_vest',
   'saf_arms_gauntlets', 'saf_arms_gloves',
   'esm_arms_gauntlets', 'esm_arms_gloves',
   'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_farao', 'f3_caveira_fogo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte',
