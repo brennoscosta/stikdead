@@ -37,9 +37,9 @@ const CFG = {
   esm_weapon_axe: { attach: 'hand', len: 58, grip: 0.88 },
   esm_weapon_scythe: { attach: 'hand', len: 76, grip: 0.9 },
   // ----- rostos de cristal (arte IA original) -----
-  saf_face_mask_oni: { attach: 'face', len: 120, maxW: 114 },
+  saf_face_mask_oni: { attach: 'face', len: 96, maxW: 91 },
   saf_face_eyes_red: { attach: 'face', len: 31, maxW: 72 },
-  esm_face_mask_oni: { attach: 'face', len: 120, maxW: 114 },
+  esm_face_mask_oni: { attach: 'face', len: 96, maxW: 91 },
   esm_face_mask_skull: { attach: 'face', len: 108, maxW: 104 },
   esm_face_eyes_red: { attach: 'face', len: 31, maxW: 72 },
   // ----- arsenal diamante 2 (armas) -----
@@ -86,22 +86,16 @@ const CFG = {
   esm_arms_gloves: { attach: 'arm', len: 18, maxW: 15, grip: 0.55 },
   // ----- rostos diamante 3 -----
   f3_elmo_aguia: { attach: 'face', len: 98, maxW: 85 },
-  f3_mascara_urso: { attach: 'face', len: 93, maxW: 83 },
-  f3_mascara_naja: { attach: 'face', len: 96, maxW: 82 },
+  f3_mascara_urso: { attach: 'face', len: 74, maxW: 66 },
+  f3_mascara_naja: { attach: 'face', len: 77, maxW: 66 },
   f3_elmo_leao: { attach: 'face', len: 101, maxW: 93 },
-  f3_mascara_anbu: { attach: 'face', len: 83, maxW: 70 },
   f3_mascara_farao: { attach: 'face', len: 99, maxW: 83 },
-  f3_elmo_viking: { attach: 'face', len: 96, maxW: 83 },
-  f3_rosto_robo: { attach: 'face', len: 90, maxW: 75 },
-  f3_caveira_fogo: { attach: 'face', len: 94, maxW: 82 },
-  f3_mascara_anjo: { attach: 'face', len: 85, maxW: 72 },
-  f3_mascara_diabo: { attach: 'face', len: 91, maxW: 80 },
+  f3_caveira_fogo: { attach: 'face', len: 122, maxW: 107 },
+  f3_mascara_diabo: { attach: 'face', len: 118, maxW: 104 },
   f3_elmo_coruja: { attach: 'face', len: 94, maxW: 85 },
-  f3_face_mumia: { attach: 'face', len: 88, maxW: 75 },
+  f3_face_mumia: { attach: 'face', len: 106, maxW: 90 },
   f3_mascara_geisha: { attach: 'face', len: 85, maxW: 70 },
   f3_elmo_rinoceronte: { attach: 'face', len: 99, maxW: 86 },
-  f3_rosto_diamante: { attach: 'face', len: 86, maxW: 74 },
-  f3_elmo_fenix: { attach: 'face', len: 101, maxW: 90 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -114,7 +108,7 @@ const SPRITE_WHITELIST = new Set([
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_gato', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
   'saf_arms_gauntlets', 'saf_arms_gloves',
   'esm_arms_gauntlets', 'esm_arms_gloves',
-  'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_anbu', 'f3_mascara_farao', 'f3_elmo_viking', 'f3_rosto_robo', 'f3_caveira_fogo', 'f3_mascara_anjo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte', 'f3_rosto_diamante', 'f3_elmo_fenix',
+  'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_farao', 'f3_caveira_fogo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte',
 ]);
 
 // ============================================================
