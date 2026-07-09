@@ -87,10 +87,10 @@ const CFG = {
   h4_chapeu_magico: { attach: 'head', len: 55, maxW: 58, overlap: 10 },
   h4_cartola_ouro: { attach: 'head', len: 50, maxW: 50, overlap: 10 },
   // ----- vestes diamante (arte IA, atrás do corpo: braços e pernas cobrem) -----
-  dia_veste_prisma: { attach: 'torso', len: 52, maxW: 36 },
-  dia_veste_safira: { attach: 'torso', len: 52, maxW: 36 },
-  dia_veste_glacial: { attach: 'torso', len: 52, maxW: 36 },
-  esm_body_vest: { attach: 'torso', len: 52, maxW: 36 },
+  dia_veste_prisma: { len: 54, maxW: 40 },
+  dia_veste_safira: { len: 54, maxW: 40 },
+  dia_veste_glacial: { len: 54, maxW: 40 },
+  esm_body_vest: { len: 54, maxW: 40 },
   // ----- rostos diamante 3 -----
   f3_elmo_aguia: { attach: 'face', len: 98, maxW: 85 },
   f3_mascara_urso: { attach: 'face', len: 74, maxW: 66 },
