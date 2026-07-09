@@ -207,7 +207,8 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
       g.ellipse(hx - R * 0.3, hy - R * 0.42, R * 0.34, R * 0.24).fill({ color: HI, alpha: 0.85 });
       g.ellipse(hx - R * 0.34, hy - R * 0.5, R * 0.16, R * 0.11).fill({ color: HI2, alpha: 0.85 });
     }
-    drawEyes(g, f, hx, hy, face, ko, elapsed);
+    const olhosCobertos = (loadout || []).some((it) => it.slot === 'face' && /eyes/.test(it.id || ''));
+    if (!olhosCobertos) drawEyes(g, f, hx, hy, face, ko, elapsed);
   }
 
   if (loadout) drawItems(ctx, loadout, 'front');
