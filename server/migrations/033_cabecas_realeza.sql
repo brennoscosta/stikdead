@@ -1,4 +1,5 @@
 -- STIKDEAD :: 033 — poda de cabeças + realeza nova (com balões)
+DELETE FROM gifts WHERE item_id IN ('dia_banda_prisma','dia_capuz_aurora','dia_coroa_abismo','esm_head_band','esm_head_hood');
 DELETE FROM loadouts WHERE item_id IN ('dia_banda_prisma','dia_capuz_aurora','dia_coroa_abismo','esm_head_band','esm_head_hood');
 DELETE FROM user_items WHERE item_id IN ('dia_banda_prisma','dia_capuz_aurora','dia_coroa_abismo','esm_head_band','esm_head_hood');
 DELETE FROM items WHERE id IN ('dia_banda_prisma','dia_capuz_aurora','dia_coroa_abismo','esm_head_band','esm_head_hood');
