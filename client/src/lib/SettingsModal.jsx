@@ -6,7 +6,7 @@ import { getBinds, setBind, resetBinds, keyLabel, BIND_ORDER, BIND_LABELS, RESER
 const IS_PC = typeof matchMedia !== 'undefined' && matchMedia('(pointer: fine)').matches;
 
 export default function SettingsModal({ onClose }) {
-  const [maxQ, setMaxQ] = useState((localStorage.getItem('stik_quality') || 'max') === 'max');
+  const [maxQ, setMaxQ] = useState((localStorage.getItem('stik_quality') || 'lite') === 'max');
   const [binds, setBinds] = useState(getBinds());
   const [capturando, setCapturando] = useState(null); // ação aguardando tecla
 

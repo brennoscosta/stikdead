@@ -46,7 +46,7 @@ export async function createRenderer(host, theme = 'dojo') {
   let arenaSpr = null;
   try {
     let tex;
-    const LITE = (localStorage.getItem('stik_quality') || 'max') === 'lite';
+    const LITE = (localStorage.getItem('stik_quality') || 'lite') === 'lite';
     if (!LITE && VIDEO_ARENAS[theme]) {
       try {
         const vid = await loadArenaVideo(VIDEO_ARENAS[theme]);
