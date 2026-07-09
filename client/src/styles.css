@@ -669,7 +669,7 @@ body {
 .bt-loading-tip { color: var(--muted); font-size: 14px; max-width: 320px; text-align: center; }
 
 /* ===== lobby 2.0 (dashboard) ===== */
-.lobby2 { min-height: 100vh; width: 100%; padding-bottom: 30px; }
+.lobby2 { min-height: 100vh; width: 100%; padding-bottom: 30px; padding-top: calc(66px + env(safe-area-inset-top)); }
 .lobby-grid {
   display: grid; grid-template-columns: 290px 1fr 290px; gap: 14px;
   max-width: 1180px; margin: 16px auto 0; padding: 0 18px;
