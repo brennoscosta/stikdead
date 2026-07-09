@@ -919,7 +919,6 @@ body.in-fight .topnav-spacer { display: none; }
 }
 
 /* ===== SÉRIE DIAMANTE: a raridade que enche o olho ===== */
-@keyframes equip-pulse-ice { 0%,100% { box-shadow: 0 0 14px rgba(127,217,255,0.5); } 50% { box-shadow: 0 0 30px rgba(127,217,255,0.95), 0 0 60px rgba(127,217,255,0.3); } }
 @keyframes ice-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
 .item-card.r-diamante {
@@ -928,13 +927,14 @@ body.in-fight .topnav-spacer { display: none; }
     linear-gradient(110deg, transparent 30%, rgba(191, 239, 255, 0.12) 50%, transparent 70%),
     linear-gradient(165deg, rgba(20, 42, 66, 0.9), rgba(8, 16, 30, 0.95)) !important;
   background-size: 200% 100%, 100% 100%;
-  animation: ice-shimmer 3.2s linear infinite, equip-pulse-ice 2.4s ease-in-out infinite;
+  animation: ice-shimmer 3.2s linear infinite;
+  box-shadow: 0 0 12px rgba(127, 217, 255, 0.35);
 }
 .item-card.r-diamante::after { color: #8fe3ff !important; }
 .item-card.r-diamante .item-rarity { color: #bfefff; text-shadow: 0 0 12px rgba(127,217,255,0.7); }
-.inv-slot.r-diamante { border-color: #7fd9ff; animation: equip-pulse-ice 2.4s ease-in-out infinite; }
-.item-card.mini.equipped.r-diamante { animation: ice-shimmer 3.2s linear infinite, equip-pulse-ice 2s ease-in-out infinite; }
-.dash-build-items .item-card.r-diamante { animation: ice-shimmer 3.2s linear infinite, equip-pulse-ice 2.2s ease-in-out infinite; }
+.inv-slot.r-diamante { border-color: #7fd9ff; box-shadow: 0 0 10px rgba(127,217,255,0.3); }
+.item-card.mini.equipped.r-diamante { animation: ice-shimmer 3.2s linear infinite; }
+.dash-build-items .item-card.r-diamante { animation: ice-shimmer 3.2s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .item-card.r-diamante, .inv-slot.r-diamante { animation: none !important; } }
 
 /* ===== loja: seletor de moeda ===== */
