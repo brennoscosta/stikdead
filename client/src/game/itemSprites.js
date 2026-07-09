@@ -85,12 +85,10 @@ const CFG = {
   f2_mascara_medusa: { attach: 'face', len: 116, maxW: 104 },
   f2_mascara_kabuki: { attach: 'face', len: 104, maxW: 90 },
   // ----- braços diamante (par: um sprite em cada antebraço) -----
-  saf_arms_gauntlets: { attach: 'arm', len: 22, maxW: 13, at: 0.6 },
-  saf_arms_gloves: { attach: 'arm', len: 14, maxW: 11, at: 0.85 },
-  saf_arms_bands: { attach: 'arm', len: 12, maxW: 10, at: 0.55 },
-  esm_arms_gauntlets: { attach: 'arm', len: 22, maxW: 13, at: 0.6 },
-  esm_arms_gloves: { attach: 'arm', len: 14, maxW: 11, at: 0.85 },
-  esm_arms_bands: { attach: 'arm', len: 12, maxW: 10, at: 0.55 },
+  saf_arms_gauntlets: { attach: 'arm', len: 22, maxW: 16, grip: 0.62 },
+  saf_arms_gloves: { attach: 'arm', len: 18, maxW: 15, grip: 0.55 },
+  esm_arms_gauntlets: { attach: 'arm', len: 22, maxW: 16, grip: 0.62 },
+  esm_arms_gloves: { attach: 'arm', len: 18, maxW: 15, grip: 0.55 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -101,8 +99,8 @@ const SPRITE_WHITELIST = new Set([
   'esm_face_mask_oni', 'esm_face_mask_skull', 'esm_face_eyes_red',
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_katana_trovao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_mempo_dourado', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_teatro', 'f2_cabeca_lobo', 'f2_mascara_gato', 'f2_elmo_ciclope', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_elmo_tubarao', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
-  'saf_arms_gauntlets', 'saf_arms_gloves', 'saf_arms_bands',
-  'esm_arms_gauntlets', 'esm_arms_gloves', 'esm_arms_bands',
+  'saf_arms_gauntlets', 'saf_arms_gloves',
+  'esm_arms_gauntlets', 'esm_arms_gloves',
 ]);
 
 // ============================================================
@@ -220,15 +218,15 @@ export function createWeaponSprite(container, behindOf = null) {
           spr.rotation = -sk.lean * 0.35 * face;
           spr.scale.x = Math.abs(spr.scale.y) * face;
         } else if (cfg.attach === 'arm') {
-          // manopla/luva/faixa: centrada no antebraço, girando com o osso — nos DOIS braços
+          // luva/manopla = PUNHO: assenta NA MÃO como um punho de boxe,
+          // apontando na direção do antebraço (a mesma âncora que fez as armas funcionarem)
           const veste = (alvo, elb, hand) => {
             const e = T(elb), h = T(hand);
             let dx = h[0] - e[0], dy = h[1] - e[1];
             const L = Math.hypot(dx, dy) || 1;
             dx /= L; dy /= L;
-            const frac = cfg.at ?? 0.62; // 0 = cotovelo, 1 = mão
-            alvo.anchor.set(0.5, 0.5);
-            alvo.position.set(e[0] + dx * L * frac, e[1] + dy * L * frac);
+            alvo.anchor.set(0.5, cfg.grip ?? 0.7); // grip: quanto do punho avança além da mão
+            alvo.position.set(h[0], h[1]);
             alvo.rotation = Math.atan2(dx, -dy);
           };
           veste(spr, sk.elbF, sk.handF);
