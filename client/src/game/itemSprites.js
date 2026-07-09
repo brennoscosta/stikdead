@@ -40,7 +40,7 @@ const CFG = {
   saf_face_mask_oni: { attach: 'face', len: 96, maxW: 91 },
   saf_face_eyes_red: { attach: 'face', len: 31, maxW: 72 },
   esm_face_mask_oni: { attach: 'face', len: 96, maxW: 91 },
-  esm_face_mask_skull: { attach: 'face', len: 108, maxW: 104 },
+  esm_face_mask_skull: { attach: 'face', len: 76, maxW: 73 },
   esm_face_eyes_red: { attach: 'face', len: 31, maxW: 72 },
   // ----- arsenal diamante 2 (armas) -----
   w2_martelo_tempestade: { attach: 'hand', len: 56, grip: 0.85 },
@@ -91,10 +91,10 @@ const CFG = {
   f3_elmo_leao: { attach: 'face', len: 101, maxW: 93 },
   f3_mascara_farao: { attach: 'face', len: 99, maxW: 83 },
   f3_caveira_fogo: { attach: 'face', len: 122, maxW: 107 },
-  f3_mascara_diabo: { attach: 'face', len: 118, maxW: 104 },
+  f3_mascara_diabo: { attach: 'face', len: 136, maxW: 120 },
   f3_elmo_coruja: { attach: 'face', len: 94, maxW: 85 },
-  f3_face_mumia: { attach: 'face', len: 106, maxW: 90 },
-  f3_mascara_geisha: { attach: 'face', len: 85, maxW: 70 },
+  f3_face_mumia: { attach: 'face', len: 117, maxW: 99 },
+  f3_mascara_geisha: { attach: 'face', len: 94, maxW: 77 },
   f3_elmo_rinoceronte: { attach: 'face', len: 99, maxW: 86 },
 };
 
