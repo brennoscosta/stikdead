@@ -84,6 +84,13 @@ const CFG = {
   f2_mascara_palhaco: { attach: 'face', len: 104, maxW: 92 },
   f2_mascara_medusa: { attach: 'face', len: 116, maxW: 104 },
   f2_mascara_kabuki: { attach: 'face', len: 104, maxW: 90 },
+  // ----- braços diamante (par: um sprite em cada antebraço) -----
+  saf_arms_gauntlets: { attach: 'arm', len: 26, maxW: 18, at: 0.6 },
+  saf_arms_gloves: { attach: 'arm', len: 20, maxW: 15, at: 0.8 },
+  saf_arms_bands: { attach: 'arm', len: 16, maxW: 13, at: 0.55 },
+  esm_arms_gauntlets: { attach: 'arm', len: 26, maxW: 18, at: 0.6 },
+  esm_arms_gloves: { attach: 'arm', len: 20, maxW: 15, at: 0.8 },
+  esm_arms_bands: { attach: 'arm', len: 16, maxW: 13, at: 0.55 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -94,6 +101,8 @@ const SPRITE_WHITELIST = new Set([
   'esm_face_mask_oni', 'esm_face_mask_skull', 'esm_face_eyes_red',
   'w2_martelo_tempestade', 'w2_kanabo_rubi', 'w2_naginata_aurora', 'w2_tridente_maremoto', 'w2_cimitarra_sol', 'w2_adaga_eclipse', 'w2_garra_dragao', 'w2_kama_lua', 'w2_tessen_vendaval', 'w2_chakram_estrela', 'w2_machadao_vulcao', 'w2_katana_trovao', 'w2_lanca_serpente', 'w2_foice_alma', 'w2_bastao_dragao', 'w2_espada_fenix', 'w2_maca_meteoro', 'w2_kunai_sombra', 'w2_sabre_nebulosa', 'w2_alabarda_tita',
   'f2_hannya_carmesim', 'f2_kitsune_branca', 'f2_mempo_dourado', 'f2_elmo_dragao', 'f2_cranio_demonio', 'f2_visor_neon', 'f2_mascara_corvo', 'f2_tengu_rubro', 'f2_capacete_gladiador', 'f2_mascara_teatro', 'f2_cabeca_lobo', 'f2_mascara_gato', 'f2_elmo_ciclope', 'f2_mascara_fantasma', 'f2_respirador_toxico', 'f2_mascara_borboleta', 'f2_elmo_tubarao', 'f2_mascara_palhaco', 'f2_mascara_medusa', 'f2_mascara_kabuki',
+  'saf_arms_gauntlets', 'saf_arms_gloves', 'saf_arms_bands',
+  'esm_arms_gauntlets', 'esm_arms_gloves', 'esm_arms_bands',
 ]);
 
 // ============================================================
@@ -103,14 +112,14 @@ const SPRITE_WHITELIST = new Set([
 // ============================================================
 const SPRITES_ENABLED = false;
 
-const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body']);
+const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms']);
 
 export function createWeaponSprite(container, behindOf = null) {
   const active = new Map(); // slot -> { spr, cfg, id }
 
   const clearSlot = (slot) => {
     const cur = active.get(slot);
-    if (cur) { cur.spr.destroy(); active.delete(slot); }
+    if (cur) { cur.spr.destroy(); cur.sprT?.destroy(); active.delete(slot); }
   };
 
   return {
@@ -134,14 +143,23 @@ export function createWeaponSprite(container, behindOf = null) {
           const tex = await Assets.load(CFG[id].src || `/sprites/${id}.webp`);
           const cfg = CFG[id];
           const spr = new Sprite(tex);
-          spr.anchor.set(0.5, cfg.grip);
+          spr.anchor.set(0.5, cfg.grip ?? 0.5);
           // torso: entra ATRÁS do desenho do lutador (braços e pernas cobrem a armadura)
           if (cfg.attach === 'torso' && behindOf && behindOf.parent === container) {
             container.addChildAt(spr, container.getChildIndex(behindOf));
           } else {
             container.addChild(spr);
           }
-          active.set(slot, { spr, cfg, id });
+          let sprT = null;
+          if (cfg.attach === 'arm') {
+            // o par do braço de trás — vive ATRÁS do desenho do lutador
+            sprT = new Sprite(tex);
+            sprT.anchor.set(0.5, cfg.grip ?? 0.5);
+            sprT.alpha = 0.9;
+            if (behindOf && behindOf.parent === container) container.addChildAt(sprT, container.getChildIndex(behindOf));
+            else container.addChild(sprT);
+          }
+          active.set(slot, { spr, sprT, cfg, id });
           console.log(`[stikdead] sprite pintado ativo: ${slot}=${id} (${tex.width}x${tex.height})`);
         } catch (err) {
           console.warn(`[stikdead] sprite ${id} indisponível (${err.message}) — usando vetor`);
@@ -157,9 +175,10 @@ export function createWeaponSprite(container, behindOf = null) {
       const ko = f.state === 'ko';
       const T = (p) => [f.x + p[0] * face, -(f.y + p[1])];
 
-      for (const [slot, { spr, cfg }] of active) {
-        if (ko) { spr.visible = false; continue; }
+      for (const [slot, { spr, sprT, cfg }] of active) {
+        if (ko) { spr.visible = false; if (sprT) sprT.visible = false; continue; }
         spr.visible = true;
+        if (sprT) sprT.visible = true;
         let s = cfg.len / spr.texture.height;
         if (cfg.maxW) s = Math.min(s, cfg.maxW / spr.texture.width);
         spr.scale.set(s);
@@ -199,6 +218,20 @@ export function createWeaponSprite(container, behindOf = null) {
           spr.position.set(c[0], c[1]);
           spr.rotation = -sk.lean * 0.35 * face;
           spr.scale.x = Math.abs(spr.scale.y) * face;
+        } else if (cfg.attach === 'arm') {
+          // manopla/luva/faixa: centrada no antebraço, girando com o osso — nos DOIS braços
+          const veste = (alvo, elb, hand) => {
+            const e = T(elb), h = T(hand);
+            let dx = h[0] - e[0], dy = h[1] - e[1];
+            const L = Math.hypot(dx, dy) || 1;
+            dx /= L; dy /= L;
+            const frac = cfg.at ?? 0.62; // 0 = cotovelo, 1 = mão
+            alvo.anchor.set(0.5, 0.5);
+            alvo.position.set(e[0] + dx * L * frac, e[1] + dy * L * frac);
+            alvo.rotation = Math.atan2(dx, -dy);
+          };
+          veste(spr, sk.elbF, sk.handF);
+          if (sprT) veste(sprT, sk.elbB, sk.handB);
         } else if (slot === 'back') {
           spr.anchor.set(0.5, 0.5);
           const bk = T([sk.neck[0] - 11, sk.neck[1] - 8]);
