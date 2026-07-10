@@ -12,11 +12,15 @@
       document.addEventListener('gesturestart', (e) => e.preventDefault());
       document.addEventListener('gesturechange', (e) => e.preventDefault());
       document.addEventListener('gestureend', (e) => e.preventDefault());
-      // double-tap zoom (iOS): bloqueia toque duplo em menos de 300ms
+      // double-tap zoom (iOS): bloqueia toque duplo APENAS fora de áreas interativas
+      // (preventDefault no touchend cancela a cadeia de pointer events no WebKit —
+      //  nos botões da luta isso travava o spam de golpes)
       let ultimoToque = 0;
       document.addEventListener('touchend', (e) => {
+        const interativo = e.target.closest &&
+          e.target.closest('button, a, input, select, textarea, canvas, [role="button"], .bt-controls, .kh-keys');
         const agora = Date.now();
-        if (agora - ultimoToque <= 300) e.preventDefault();
+        if (!interativo && agora - ultimoToque <= 300) e.preventDefault();
         ultimoToque = agora;
       }, { passive: false });
       // toque com 2+ dedos = tentativa de pinça: bloqueia na origem
@@ -26,11 +30,7 @@
       // se o zoom escapar mesmo assim, devolve a escala ao normal
       const destravaZoom = () => {
         const vv = window.visualViewport;
-        if (vv && Math.abs(vv.scale - 1) > 0.01) {
-          window.scrollTo(0, 0);
-          document.body.style.transform = 'scale(1)';
-          requestAnimationFrame(() => { document.body.style.transform = ''; });
-        }
+        if (vv && Math.abs(vv.scale - 1) > 0.01) window.scrollTo(0, 0);
       };
       window.addEventListener('resize', destravaZoom);
       if (window.visualViewport) {
