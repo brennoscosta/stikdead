@@ -908,12 +908,12 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
       {result && (
         <div className="bt-overlay">
           <div className="bt-panel">
-            <h1 className={`bt-result ${result.winnerSide === me ? 'win' : 'lose'}`}>
-              {result.winnerSide === me ? 'VITÓRIA' : 'DERROTA'}
+            <h1 className={`bt-result ${(result.won ?? (result.winnerSide === me)) ? 'win' : 'lose'}`}>
+              {(result.won ?? (result.winnerSide === me)) ? 'VITÓRIA' : 'DERROTA'}
             </h1>
             {result.wo && (
               <p style={{ color: '#9a938a', margin: '0 0 10px' }}>
-                {result.winnerSide === me ? 'Vitória por W.O. — o oponente abandonou.' : 'Derrota por abandono.'}
+                {(result.won ?? (result.winnerSide === me)) ? 'Vitória por W.O. — o oponente abandonou.' : 'Derrota por abandono.'}
               </p>
             )}
             <div className="bt-score">

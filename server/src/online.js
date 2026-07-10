@@ -315,7 +315,7 @@ export function attachOnline(io) {
            Math.round(m.elapsed), m.stats[side], rewards.xp, coinDelta]
         );
         results[side] = {
-          winnerSide, wo, wins: m.wins, itemDrop,
+          winnerSide, won, wo, wins: m.wins, itemDrop,
           bet: room.bet ? { kind: room.bet.kind, amount: transfer, won } : null,
           rewards: { ...rewards, coins: room.bet ? 0 : coinDelta, levelsUp: lv.levelsUp },
           rank: { points: newRank, delta: won ? dPar.win : -dPar.loss, tier },
@@ -369,7 +369,7 @@ export function attachOnline(io) {
     }
 
     room.users.forEach((uid, side) => {
-      online.get(uid)?.socket.emit('match:end', results[side] || { winnerSide, wo, wins: m.wins });
+      online.get(uid)?.socket.emit('match:end', results[side] || { winnerSide, won: (m.teams || [0, 1])[side] === winnerSide, wo, wins: m.wins });
       userRoom.delete(uid);
     });
     rooms.delete(room.id);
