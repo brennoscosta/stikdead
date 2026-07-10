@@ -61,7 +61,7 @@ export function attachOnline(io) {
     const agora = Date.now();
     for (const [uid, entry] of online) {
       const pulso = BEAT.get(uid) || 0;
-      if (agora - pulso > 120000 && !userRoom.has(uid)) {
+      if (agora - pulso > 90000 && !userRoom.has(uid)) {
         try { entry.socket.disconnect(true); } catch { /* já foi */ }
       }
     }
@@ -718,6 +718,9 @@ export function attachOnline(io) {
 
     BEAT.set(user.id, Date.now());
     socket.on('beat', () => BEAT.set(user.id, Date.now()));
+    // pulso automático: o transporte entrega pacotes (pong do ping do socket.io a cada ~25s)
+    // enquanto a conexão estiver VIVA — zumbi de verdade não responde nem ping
+    socket.conn.on('packet', () => BEAT.set(user.id, Date.now()));
 
     socket.on('disconnect', () => {
       BEAT.delete(user.id);
