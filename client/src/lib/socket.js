@@ -13,6 +13,8 @@ export function getSocket() {
   const report = () => socket.emit('presence:visibility', { hidden: document.hidden });
   socket.on('connect', report);
   document.addEventListener('visibilitychange', report);
+  // batimento: prova de vida a cada 25s (aba minimizada segue pulsando = away zzz, não zumbi)
+  setInterval(() => { if (socket?.connected) socket.emit('beat'); }, 25000);
   return socket;
 }
 

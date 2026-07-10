@@ -38,6 +38,7 @@ const BOT_FIGHT = new Set(); // quem está lutando contra a máquina
 export const getClanIds = () => CLAN_ROOM;
 let ONLINE_REF = null; // preenchido no attachOnline
 const AWAY_IDS = new Set();
+const BEAT = new Map(); // último sinal de vida por usuário
 export const getAwayIds = () => AWAY_IDS;
 export function notifyUser(userId, event, payload = {}) {
   const e = ONLINE_REF?.get(Number(userId));
@@ -55,6 +56,17 @@ export function attachOnline(io) {
   let nextChallenge = 1;
 
   // ===== autenticação do socket =====
+  // caça-zumbis: sockets mortos que o transporte ainda não detectou
+  setInterval(() => {
+    const agora = Date.now();
+    for (const [uid, entry] of online) {
+      const pulso = BEAT.get(uid) || 0;
+      if (agora - pulso > 120000 && !userRoom.has(uid)) {
+        try { entry.socket.disconnect(true); } catch { /* já foi */ }
+      }
+    }
+  }, 30000);
+
   io.use(async (socket, next) => {
     try {
       const { sub } = jwt.verify(socket.handshake.auth?.token, process.env.JWT_SECRET);
@@ -704,7 +716,11 @@ export function attachOnline(io) {
       finishRoom(room, 1 - side, { wo: true });
     });
 
+    BEAT.set(user.id, Date.now());
+    socket.on('beat', () => BEAT.set(user.id, Date.now()));
+
     socket.on('disconnect', () => {
+      BEAT.delete(user.id);
       if (online.get(user.id)?.socket === socket) { ONLINE_IDS.delete(user.id); CLAN_ROOM.delete(user.id); GUILD_ROOM.delete(user.id); AWAY_IDS.delete(user.id); BOT_FIGHT.delete(user.id); }
       const duoLid = DUO_OF.get(user.id);
       if (duoLid && !userRoom.has(user.id)) breakDuo(duoLid, `${user.name} saiu`);
