@@ -9,7 +9,7 @@ const LAYER = {
   vest: 'body', scarf: 'body', gloves: 'body', gauntlets: 'body', bands: 'body',
   shorts: 'body', pants: 'body', kneepads: 'body', shoes: 'body', boots: 'body',
   band: 'front', hat: 'front', hood: 'front', crown: 'front', ice_crown: 'front',
-  prisma_armor: 'torso', prisma_blades: 'front', crystal_armor: 'torso',
+  prisma_armor: 'torso', prisma_pants: 'torso', prisma_blades: 'front', crystal_armor: 'torso',
   crystal_katana: 'front', crystal_scythe: 'front', crystal_spear: 'front', crystal_axe: 'front', crystal_bow: 'front',
   bandana: 'front', mask_skull: 'front', mask_oni: 'front', mask_hockey: 'front', eyes_red: 'front',
   katana: 'front', bo: 'front', nunchaku: 'front', axe: 'front', spear: 'front',
@@ -392,6 +392,47 @@ const TEMPLATES = {
   },
 
   // ===== EXCELENTES: Armadura Prismática — vetor puro, o motor que funciona =====
+  prisma_pants({ g, T, sk, elapsed }, p) {
+    let li = 0;
+    for (const [hip, kne, foot] of [[sk.hip, sk.kneB, sk.footB], [sk.hip, sk.kneF, sk.footF]]) {
+      const a = T(hip), k = T(kne), ft = T(foot);
+      const end = [k[0] + (ft[0] - k[0]) * 0.82, k[1] + (ft[1] - k[1]) * 0.82];
+      // base: cristal escuro (o mesmo da placa do peitoral)
+      seg(g, a, k, 15, 0x141c26, true, true);
+      seg(g, k, end, 13, 0x141c26);
+      // facetas iridescentes ao longo da perna (o coração do prisma)
+      const facetas = (p0, p1, mw, n, offs) => {
+        const [dx, dy] = dir(p0, p1);
+        const px = -dy, py = dx;
+        for (let i = 0; i < n; i++) {
+          const t0 = i / n, t1 = (i + 1) / n;
+          const m0 = [p0[0] + (p1[0] - p0[0]) * t0, p0[1] + (p1[1] - p0[1]) * t0];
+          const m1 = [p0[0] + (p1[0] - p0[0]) * t1, p0[1] + (p1[1] - p0[1]) * t1];
+          const cor = hue((elapsed * 0.1 + offs + i * 0.14) % 1);
+          const w1 = mw - 0.8;
+          g.moveTo(m0[0] - px * mw, m0[1] - py * mw).lineTo(m0[0] + px * mw, m0[1] + py * mw)
+            .lineTo(m1[0] + px * w1, m1[1] + py * w1).lineTo(m1[0] - px * w1, m1[1] - py * w1)
+            .closePath().fill({ color: cor, alpha: i % 2 ? 0.72 : 0.9 });
+          if (i % 2 === 0)
+            g.moveTo(m0[0] - px * mw, m0[1] - py * mw).lineTo(m0[0] + px * mw, m0[1] + py * mw)
+              .stroke({ width: 1.2, color: 0xffffff, alpha: 0.3 });
+        }
+      };
+      facetas(a, k, 5.6, 3, li * 0.31);
+      facetas(k, end, 4.8, 2, li * 0.31 + 0.4);
+      // punho de cristal no tornozelo, girando no espectro
+      const [dx, dy] = dir(k, end);
+      g.moveTo(end[0] - dy * 7, end[1] + dx * 7).lineTo(end[0] + dy * 7, end[1] - dx * 7)
+        .stroke({ width: 3.5, color: hue((elapsed * 0.22 + li * 0.5) % 1) });
+      li++;
+    }
+    // cinto de cristal com gema espectral pulsando
+    const a = T(sk.hip);
+    g.roundRect(a[0] - 11, a[1] - 5, 22, 5, 2.5).fill(0x141c26).stroke({ width: 2, color: OUT });
+    const corGema = hue((elapsed * 0.22) % 1);
+    g.moveTo(a[0], a[1] - 9).lineTo(a[0] + 4, a[1] - 4).lineTo(a[0], a[1] + 1).lineTo(a[0] - 4, a[1] - 4).closePath()
+      .fill(corGema).stroke({ width: 1.5, color: OUT });
+  },
   prisma_armor({ g, T, sk, elapsed }, p) {
     const n = T(sk.neck), h = T(sk.hip);
     const [ax, ay] = dir(n, h);
