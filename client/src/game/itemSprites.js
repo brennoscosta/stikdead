@@ -160,6 +160,8 @@ const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms'])
 
 export function createWeaponSprite(container, behindOf = null) {
   const active = new Map(); // slot -> { spr, cfg, id }
+  let dead = false;         // o dono morreu: cargas pendentes abortam
+  let gen = 0;              // geração do loadout: cargas velhas abortam
 
   const clearSlot = (slot) => {
     const cur = active.get(slot);
@@ -168,6 +170,7 @@ export function createWeaponSprite(container, behindOf = null) {
 
   return {
     async setLoadout(loadout) {
+      const minhaGen = ++gen;
       const wanted = new Map();
       for (const it of loadout || []) {
         const liberado = SPRITES_ENABLED || SPRITE_WHITELIST.has(it.id);
@@ -185,8 +188,11 @@ export function createWeaponSprite(container, behindOf = null) {
         if (active.has(slot)) continue;
         try {
           const tex = await Assets.load(CFG[id].src || `/sprites/${id}.webp`);
+          // corrida: o dono morreu ou trocou de roupa enquanto a imagem baixava — aborta
+          if (dead || minhaGen !== gen || container.destroyed) continue;
           const cfg = CFG[id];
           const spr = new Sprite(tex);
+          spr.visible = false; // nasce invisível: o primeiro update posiciona e revela (sem flash em 0,0)
           spr.anchor.set(0.5, cfg.grip ?? 0.5);
           // torso e costas: entram ATRÁS do desenho do lutador
           if ((cfg.attach === 'torso' || cfg.attach === 'back') && behindOf && behindOf.parent === container) {
@@ -198,6 +204,7 @@ export function createWeaponSprite(container, behindOf = null) {
           if (cfg.attach === 'arm' || cfg.attach === 'leg') {
             // o par do braço de trás — vive ATRÁS do desenho do lutador
             sprT = new Sprite(tex);
+            sprT.visible = false;
             sprT.anchor.set(0.5, cfg.grip ?? 0.5);
             sprT.alpha = 0.9;
             if (behindOf && behindOf.parent === container) container.addChildAt(sprT, container.getChildIndex(behindOf));
@@ -303,7 +310,7 @@ export function createWeaponSprite(container, behindOf = null) {
         }
       }
     },
-    destroy() { for (const slot of [...active.keys()]) clearSlot(slot); },
+    destroy() { dead = true; gen++; for (const slot of [...active.keys()]) clearSlot(slot); },
   };
 }
 
