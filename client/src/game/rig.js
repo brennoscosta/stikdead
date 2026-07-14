@@ -53,8 +53,10 @@ export function poseFor(f, moves) {
       const p = basePose();
       p.legF = [0.55 * s + 0.1, -0.35 - 0.25 * Math.max(0, s)];
       p.legB = [-0.55 * s - 0.1, -0.35 - 0.25 * Math.max(0, -s)];
-      p.armF = [0.45 - 0.35 * s, -1.25];
-      p.armB = [0.45 + 0.35 * s, -1.15];
+      // braços de caminhada: o da arma firme À FRENTE (arma aponta pra onde anda),
+      // o de trás balançando solto — a guarda dobrada ficava com a mão (e a arma) pra trás
+      p.armF = [0.55 + 0.15 * s, -0.45];
+      p.armB = [-0.05 + 0.45 * s, -0.35];
       p.hipY = -2 + 2 * Math.abs(Math.cos(t * 11));
       p.lean = 0.12;
       return p;
