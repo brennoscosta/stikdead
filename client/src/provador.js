@@ -1,7 +1,7 @@
 // STIKDEAD :: PROVADOR OFFLINE — itera o visual do boneco SEM tocar em produção
 // Lição registrada nos docs: nunca mais iterar visual direto em produção.
 // Fileiras: LEGADO (rigLegacy congelado) · NOVO (rig 2.5D) · PINTADO (peças 3D de /parts/)
-import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
+import { Application, Container, Graphics, Text, Sprite, Assets, Texture, Rectangle } from 'pixi.js';
 import { drawFighter as drawNovo, drawEyes } from './game/rig.js';
 import { drawFighter as drawLegado } from './game/rigLegacy.js';
 import { createFighterParts, updateFighterParts } from './game/bodyParts.js';
@@ -39,6 +39,20 @@ async function loadParts() {
     })
   );
   return texs;
+}
+
+// protótipo Caminho A: sprite sheets renderizados em 3D real (Blender no VPS)
+async function loadSheets() {
+  try {
+    const meta = await fetch(`/parts/render_meta.json?v=${__BUILD_ID__}`).then((r) => (r.ok ? r.json() : null));
+    if (!meta) return null;
+    const sheets = {};
+    for (const [nome, m] of Object.entries(meta)) {
+      const tex = await Assets.load(`/parts/render_${nome}.webp?v=${__BUILD_ID__}`);
+      sheets[nome] = { ...m, texs: Array.from({ length: m.frames }, (_, i) => new Texture({ source: tex.source, frame: new Rectangle(i * m.fw, 0, m.fw, m.fh) })) };
+    }
+    return sheets;
+  } catch { return null; }
 }
 
 async function main() {
@@ -101,15 +115,21 @@ async function main() {
 
   // ===== heróis: LEGADO vs NOVO vs PINTADO, grandes =====
   label('STIKDEAD — PROVADOR DO BONECO', 20, 12, 22, 0xffffff);
-  const hx3 = [width / 2 - 480, width / 2, width / 2 + 480];
+  const hx3 = [width / 2 - 600, width / 2 - 220, width / 2 + 160, width / 2 + 560];
   label('LEGADO', hx3[0] - 40, 50);
   label('NOVO (2.5D)', hx3[1] - 55, 50, 15, 0x7fd9ff);
   label(temParts ? 'PINTADO (peças 3D)' : 'PINTADO (sem /parts/)', hx3[2] - 90, 50, 15, 0xf2c14e);
+  const sheets = await loadSheets();
+  label(sheets ? 'RENDERIZADO (3D real)' : 'RENDERIZADO (sem sheets)', hx3[3] - 105, 50, 15, 0x7df29b);
   const heroL = new Graphics();
   mkCell(hx3[0], HERO_H, HERO_SCALE).addChild(heroL);
   const heroN = new Graphics();
   mkCell(hx3[1], HERO_H, HERO_SCALE).addChild(heroN);
   const heroP = mkPainted(mkCell(hx3[2], HERO_H, HERO_SCALE));
+  // herói renderizado: alterna idle -> walk -> punch (mesmas poses da sim, em 3D real)
+  const heroR = new Sprite();
+  heroR.anchor.set(0.5, 0.5);
+  app.stage.addChild(heroR);
 
   // ===== grade de poses =====
   const rows = [
@@ -144,6 +164,19 @@ async function main() {
     drawLegado(heroL, fHero, MOVES, null, elapsed, LOADOUT);
     drawNovo(heroN, fHero, MOVES, null, elapsed, LOADOUT);
     drawPainted(heroP, fHero, elapsed);
+    if (sheets) {
+      const ciclo = ['idle', 'walk', 'punch'];
+      const st = sheets[ciclo[Math.floor(elapsed / 3) % ciclo.length]];
+      if (st) {
+        const fps = st.frames / (st === sheets.punch ? 0.9 : 1.2);
+        heroR.texture = st.texs[Math.floor(elapsed * fps) % st.frames];
+        // câmera orto 2.05m = 205 un do jogo, centro a 78 un do chão
+        const k = HERO_SCALE;
+        heroR.width = 205 * k;
+        heroR.height = 205 * k;
+        heroR.position.set(hx3[3], HERO_H - 78 * k);
+      }
+    }
     for (const item of cells) {
       const f = mkFighter();
       f.t = elapsed;
