@@ -207,6 +207,11 @@ export async function createRenderer(host, theme = 'dojo') {
       const [a, b] = match.fighters;
       focusX = ((a.x + b.x) / 2) * (1 - k);
     }
+    // punch-in do impacto: a câmera mergulha suavemente no ponto do golpe
+    if (fxRef && fxRef.focusK > 0.01) {
+      const k2 = Math.min(0.5, fxRef.focusK);
+      focusX += (fxRef.focusX - focusX) * k2 * 1.5;
+    }
     world.scale.set(scale * (1 + (fxRef?.kick || 0)));
     world.x = w / 2 - focusX * scale;
     world.y = h * 0.82 + (match && match.phase === 'countdown' ? 40 * (world.scale.x / scale) * 0 : 0);
@@ -289,12 +294,24 @@ export async function createRenderer(host, theme = 'dojo') {
       const a0 = f.face === 1 ? -1.9 + p * 2.4 : Math.PI - 0.5 - p * 2.4 + 1.9 - 1.9;
       const start = f.face === 1 ? -1.9 : Math.PI + 1.9 - 2.4;
       const sweep = 2.4 * p;
+      // aura de energia por baixo do arco (o rastro "de cinema" da referência)
+      {
+        const s0 = f.face === 1 ? start : Math.PI - start - sweep;
+        slashG.arc(cx, cy, R - (heavy ? 8 : 6), s0, s0 + sweep)
+          .stroke({ width: heavy ? 20 : 13, color: col, alpha: (1 - p) * 0.22, cap: 'round' });
+      }
       for (let i = 0; i < 3; i++) {
         const rr = R - i * (heavy ? 9 : 7);
         const alpha = (1 - p) * (0.75 - i * 0.22);
         if (alpha <= 0) continue;
         const s0 = f.face === 1 ? start : Math.PI - start - sweep;
         slashG.arc(cx, cy, rr, s0, s0 + sweep).stroke({ width: (heavy ? 7 : 5) - i * 1.5, color: col, alpha, cap: 'round' });
+      }
+      // gume branco-quente na borda externa
+      {
+        const s0 = f.face === 1 ? start : Math.PI - start - sweep;
+        slashG.arc(cx, cy, R + 2, s0, s0 + sweep)
+          .stroke({ width: 2, color: 0xffffff, alpha: (1 - p) * 0.9, cap: 'round' });
       }
       // gume brilhante na ponta do arco
       const tipA = (f.face === 1 ? start : Math.PI - start - sweep) + (f.face === 1 ? sweep : 0);
@@ -385,13 +402,15 @@ export async function createRenderer(host, theme = 'dojo') {
     fxStep(fx, dt);
     stepDmg(dt);
 
-    // tremor de tela
+    // tremor de tela: direcional (empurra no sentido do golpe) + micro-rotação
     if (fx.shake > 0.3) {
-      camera.x = (Math.random() - 0.5) * fx.shake;
-      camera.y = (Math.random() - 0.5) * fx.shake;
+      camera.x = (Math.random() - 0.5) * fx.shake + (fx.shakeDir || 0) * fx.shake * 0.45;
+      camera.y = (Math.random() - 0.5) * fx.shake * 0.7;
+      camera.rotation = (Math.random() - 0.5) * fx.shake * 0.0014;
     } else {
       camera.x = 0;
       camera.y = 0;
+      camera.rotation = 0;
     }
 
     // flash de impacto

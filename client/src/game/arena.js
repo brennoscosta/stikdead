@@ -343,19 +343,25 @@ export function buildPrison() {
 export function createFx(stage) {
   const layer = new Graphics();
   stage.addChild(layer);
-  return { layer, parts: [], rings: [], lines: [], sparks: [], shake: 0, flash: 0, flashRed: 0, kick: 0 };
+  return { layer, parts: [], rings: [], lines: [], sparks: [], splats: [], embers: [], radial: [], shake: 0, shakeDir: 0, flash: 0, flashRed: 0, kick: 0, focusX: 0, focusK: 0 };
 }
 
 export function fxHit(fx, x, y, dir, { blocked, heavy }) {
   if (blocked) {
+    // bloqueio: faíscas METÁLICAS estalando (aço no aço)
     for (let i = 0; i < 8; i++) spawn(fx, x, y, dir, 0xffffff, 180, 0.25);
+    for (let i = 0; i < 12; i++) ember(fx, x, y, dir, 0xffd77a, 520);
     fx.sparks.push({ x, y, life: 0.16, maxLife: 0.16, size: 16, color: 0x9fd8ff });
     fx.rings.push({ x, y, r: 6, vr: 260, life: 0.22, maxLife: 0.22, color: 0x9fd8ff, w: 3 });
-    fx.shake = Math.max(fx.shake, 3);
+    fx.shake = Math.max(fx.shake, 4.5);
+    fx.shakeDir = dir;
     return;
   }
-  const n = heavy ? 26 : 13;
-  for (let i = 0; i < n; i++) spawn(fx, x, y, dir, 0xb0031f, heavy ? 420 : 280, heavy ? 0.7 : 0.45);
+  // sangue: gotas alongadas na direção do golpe (metade vira mancha no chão)
+  const n = heavy ? 34 : 16;
+  for (let i = 0; i < n; i++) spawn(fx, x, y, dir, 0xb0031f, heavy ? 460 : 300, heavy ? 0.75 : 0.5, true);
+  for (let i = 0; i < (heavy ? 10 : 5); i++) ember(fx, x, y, dir, 0xffffff, heavy ? 700 : 480);
+  if (heavy) fx.radial.push({ x, y, life: 0.18, maxLife: 0.18, n: 10, r0: 34, r1: 96 });
   // estrela de impacto (clarão em cruz)
   fx.sparks.push({ x, y, life: heavy ? 0.22 : 0.14, maxLife: heavy ? 0.22 : 0.14, size: heavy ? 34 : 20, color: 0xffffff });
   // anel de choque expandindo
@@ -370,26 +376,35 @@ export function fxHit(fx, x, y, dir, { blocked, heavy }) {
       life: 0.18, maxLife: 0.18, w: 2 + Math.random() * 2,
     });
   }
-  if (heavy) fx.kick = Math.max(fx.kick, 0.05);
-  fx.shake = Math.max(fx.shake, heavy ? 11 : 5);
+  fx.kick = Math.max(fx.kick, heavy ? 0.09 : 0.035);
+  fx.shake = Math.max(fx.shake, heavy ? 14 : 6);
+  fx.shakeDir = dir;
+  // punch-in: a câmera mergulha no ponto do impacto
+  fx.focusX = x;
+  fx.focusK = Math.max(fx.focusK, heavy ? 0.22 : 0.1);
 }
 
 export function fxKo(fx, x, y, dir) {
   fx.sparks.push({ x, y, life: 0.35, maxLife: 0.35, size: 60, color: 0xffffff });
   fx.rings.push({ x, y, r: 10, vr: 900, life: 0.5, maxLife: 0.5, color: 0xff2244, w: 7 });
   fx.rings.push({ x, y, r: 4, vr: 500, life: 0.42, maxLife: 0.42, color: 0xffffff, w: 3 });
-  fx.flashRed = 0.35;
-  fx.kick = Math.max(fx.kick, 0.07);
-  for (let i = 0; i < 46; i++) spawn(fx, x, y, dir, 0xb0031f, 560, 1.1);
-  fx.shake = 16;
-  fx.flash = 0.1;
+  fx.radial.push({ x, y, life: 0.38, maxLife: 0.38, n: 18, r0: 44, r1: 150 }); // explosão radial anime
+  fx.flashRed = 0.4;
+  fx.kick = Math.max(fx.kick, 0.16);
+  fx.focusX = x;
+  fx.focusK = 0.45; // a câmera crava no nocaute (a sim já entra em slow-mo)
+  for (let i = 0; i < 60; i++) spawn(fx, x, y, dir, 0xb0031f, 620, 1.2, true);
+  for (let i = 0; i < 14; i++) ember(fx, x, y, dir, 0xffffff, 800);
+  fx.shake = 22;
+  fx.shakeDir = dir;
+  fx.flash = 0.12;
 }
 
 export function fxDash(fx, x) {
   for (let i = 0; i < 6; i++) spawn(fx, x, 8, 0, 0x999080, 120, 0.3);
 }
 
-function spawn(fx, x, y, dir, color, power, life) {
+function spawn(fx, x, y, dir, color, power, life, drop = false) {
   const a = Math.random() * Math.PI - Math.PI / 2;
   const sp = power * (0.35 + Math.random() * 0.65);
   fx.parts.push({
@@ -397,17 +412,56 @@ function spawn(fx, x, y, dir, color, power, life) {
     vx: Math.cos(a) * sp * (dir || (Math.random() < 0.5 ? -1 : 1)),
     vy: Math.abs(Math.sin(a)) * sp * 0.9 + 60,
     r: 2 + Math.random() * (power > 400 ? 4.5 : 3),
-    color, life, maxLife: life,
+    color, life, maxLife: life, drop,
+  });
+}
+
+// faísca-risco: um traço quente e rápido (metal, brasas do impacto)
+function ember(fx, x, y, dir, color, power) {
+  const a = Math.random() * Math.PI * 2;
+  const sp = power * (0.4 + Math.random() * 0.6);
+  fx.embers.push({
+    x, y,
+    vx: Math.cos(a) * sp + (dir || 0) * power * 0.3,
+    vy: Math.sin(a) * sp * 0.6 + 120,
+    life: 0.22 + Math.random() * 0.14, maxLife: 0.36, color,
   });
 }
 
 export function fxStep(fx, dt) {
   fx.shake = Math.max(0, fx.shake - dt * 34);
+  fx.shakeDir *= Math.max(0, 1 - dt * 8);
   fx.flash = Math.max(0, fx.flash - dt);
   fx.flashRed = Math.max(0, fx.flashRed - dt * 1.6);
-  fx.kick = Math.max(0, fx.kick - dt * 0.35);
+  fx.kick = Math.max(0, fx.kick - dt * 0.5);
+  fx.focusK = Math.max(0, fx.focusK - dt * 0.45);
   const g = fx.layer;
   g.clear();
+
+  // manchas de sangue GRUDADAS no chão (memória da luta, esvaindo devagar)
+  fx.splats = fx.splats.filter((sp) => {
+    sp.life -= dt;
+    if (sp.life <= 0) return false;
+    const k = Math.min(1, sp.life / sp.maxLife * 1.6);
+    g.ellipse(sp.x, -1.5, sp.r * 1.7, sp.r * 0.4).fill({ color: 0x7d0217, alpha: 0.5 * k });
+    return true;
+  });
+
+  // explosão radial (linhas de impacto estilo anime)
+  fx.radial = fx.radial.filter((r) => {
+    r.life -= dt;
+    if (r.life <= 0) return false;
+    const k = r.life / r.maxLife;
+    const grow = 1 + (1 - k) * 0.6;
+    for (let i = 0; i < r.n; i++) {
+      const a = (i / r.n) * Math.PI * 2 + (i % 2) * 0.13;
+      const c = Math.cos(a), sn = Math.sin(a);
+      g.moveTo(r.x + c * r.r0 * grow, -(r.y + sn * r.r0 * grow))
+        .lineTo(r.x + c * r.r1 * grow, -(r.y + sn * r.r1 * grow))
+        .stroke({ width: 3.5 * k + 0.5, color: 0xffffff, alpha: k * 0.85, cap: 'round' });
+    }
+    return true;
+  });
 
   // anéis de choque
   fx.rings = fx.rings.filter((r) => {
@@ -443,15 +497,41 @@ export function fxStep(fx, dt) {
       .stroke({ width: l.w * k, color: 0xffffff, alpha: k * 0.7, cap: 'round' });
     return true;
   });
+  // brasas/faíscas-risco
+  fx.embers = fx.embers.filter((e) => {
+    e.life -= dt;
+    if (e.life <= 0) return false;
+    e.vy -= 1100 * dt;
+    e.x += e.vx * dt;
+    e.y += e.vy * dt;
+    const k = e.life / e.maxLife;
+    g.moveTo(e.x, -e.y).lineTo(e.x - e.vx * 0.028, -(e.y - e.vy * 0.028))
+      .stroke({ width: 1.8 * k + 0.4, color: e.color, alpha: Math.min(1, k * 1.4), cap: 'round' });
+    return true;
+  });
+
   fx.parts = fx.parts.filter((p) => {
     p.life -= dt;
     if (p.life <= 0) return false;
     p.vy -= 1500 * dt;
     p.x += p.vx * dt;
     p.y += p.vy * dt;
-    if (p.y < 2) { p.y = 2; p.vy *= -0.25; p.vx *= 0.6; }
+    if (p.y < 2) {
+      // sangue tocou o chão: parte vira mancha permanente
+      if (p.drop && p.vy < -60 && fx.splats.length < 36 && Math.random() < 0.55) {
+        fx.splats.push({ x: p.x, r: p.r * 2 + 2, life: 6, maxLife: 6 });
+      }
+      p.y = 2; p.vy *= -0.25; p.vx *= 0.6;
+    }
     const alpha = Math.min(1, (p.life / p.maxLife) * 1.6);
-    g.circle(p.x, -p.y, p.r).fill({ color: p.color, alpha });
+    if (p.drop) {
+      // gota alongada pela velocidade (leitura de respingo, não bolinha)
+      const vx = p.vx * 0.016, vy = p.vy * 0.016;
+      g.moveTo(p.x - vx, -(p.y - vy)).lineTo(p.x + vx * 0.4, -(p.y + vy * 0.4))
+        .stroke({ width: p.r * 1.5, color: p.color, alpha, cap: 'round' });
+    } else {
+      g.circle(p.x, -p.y, p.r).fill({ color: p.color, alpha });
+    }
     return true;
   });
 }
