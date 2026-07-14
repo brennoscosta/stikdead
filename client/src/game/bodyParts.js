@@ -5,7 +5,7 @@ import { Sprite, Assets } from 'pixi.js';
 
 // INTERRUPTOR: corpo pintado em obras — desligado até validação offline completa
 export const PARTS_ENABLED = false;
-const FILES = ['head', 'torso', 'thigh', 'shin', 'boot', 'forearm', 'upperarm'];
+const FILES = ['head', 'torso', 'thigh', 'shin', 'boot', 'forearm', 'upperarm', 'hand'];
 let texs = null;
 
 export async function loadPartTextures() {
@@ -34,6 +34,7 @@ const FIT = {
   upperarm: { stretch: 1.4, widthK: 1.8, anchorY: 0.42, tint: false },
   boot:     { size: 2.2, anchorY: 0.42, rotK: 0.55, tint: false },
   forearm:  { stretch: 1.45, widthK: 2.2, anchorY: 0.35, tint: false },
+  hand:     { size: 1.15, tint: false }, // punho preso ao fim do antebraço
 };
 
 export function createFighterParts(world) {
@@ -48,6 +49,7 @@ export function createFighterParts(world) {
   const parts = {
     upperarmB: mk('upperarm', FIT.upperarm.anchorY),
     forearmB: mk('forearm', FIT.forearm.anchorY),
+    handB: mk('hand'),
     thighB: mk('thigh', FIT.thigh.anchorY),
     shinB: mk('shin', FIT.shin.anchorY),
     bootB: mk('boot', FIT.boot.anchorY),
@@ -57,8 +59,9 @@ export function createFighterParts(world) {
     bootF: mk('boot', FIT.boot.anchorY),
     upperarmF: mk('upperarm', FIT.upperarm.anchorY),
     forearmF: mk('forearm', FIT.forearm.anchorY),
+    handF: mk('hand'),
   };
-  for (const k of ['upperarmB', 'forearmB', 'thighB', 'shinB', 'bootB', 'torso', 'thighF', 'shinF', 'bootF', 'upperarmF', 'forearmF'])
+  for (const k of ['upperarmB', 'forearmB', 'handB', 'thighB', 'shinB', 'bootB', 'torso', 'thighF', 'shinF', 'bootF', 'upperarmF', 'forearmF', 'handF'])
     world.addChild(parts[k]);
   return parts;
 }
@@ -131,4 +134,22 @@ export function updateFighterParts(parts, pose, T) {
       spr.rotation = (ang(knee, ankle) - Math.PI / 2) * FIT.boot.rotK;
     }
   } else { parts.bootF.visible = false; parts.bootB.visible = false; }
+
+  if (T.hand) {
+    for (const [spr, elb, wrist] of [
+      [parts.handF, pose.elbowF, pose.wristF],
+      [parts.handB, pose.elbowB, pose.wristB],
+    ]) {
+      spr.texture = T.hand;
+      spr.visible = true;
+      spr.tint = FIT.hand.tint ? BODY_TINT : 0xffffff;
+      const d = pose.headR * FIT.hand.size;
+      const k = d / spr.texture.height;
+      spr.height = d;
+      spr.width = spr.texture.width * k;
+      spr.scale.x = Math.abs(spr.scale.x) * (face < 0 ? -1 : 1);
+      spr.position.set(wrist.x, wrist.y);
+      spr.rotation = ang(elb, wrist) - Math.PI / 2;
+    }
+  } else { parts.handF.visible = false; parts.handB.visible = false; }
 }
