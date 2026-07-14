@@ -15,9 +15,12 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const clamp01 = (t) => Math.max(0, Math.min(1, t));
 const ease = (t) => t * t * (3 - 2 * t);
 
+// guarda de luta: cotovelo dobra PARA FRENTE (bend positivo) — antebraço sobe
+// na frente do corpo e a arma aponta para onde o boneco encara. bend negativo
+// hiperestendia o cotovelo e jogava mão + arma para TRÁS do corpo.
 const basePose = () => ({
   lean: 0.06, hipY: 0, head: 0,
-  armF: [0.55, -1.3], armB: [0.35, -1.15],
+  armF: [0.45, 1.35], armB: [0.3, 1.25],
   legF: [0.18, -0.12], legB: [-0.16, -0.1],
 });
 
@@ -32,15 +35,15 @@ function mix(a, b, t) {
 
 const POSES = {
   guard: basePose(),
-  windupL: { lean: 0.02, hipY: -2, head: 0, armF: [0.2, -2.0], armB: [0.5, -1.2], legF: [0.2, -0.15], legB: [-0.2, -0.1] },
-  punch: { lean: 0.28, hipY: -3, head: 0.05, armF: [1.55, -0.05], armB: [-0.3, -1.4], legF: [0.45, -0.2], legB: [-0.5, -0.25] },
+  windupL: { lean: 0.02, hipY: -2, head: 0, armF: [-0.35, -2.15], armB: [0.4, 1.15], legF: [0.2, -0.15], legB: [-0.2, -0.1] },
+  punch: { lean: 0.28, hipY: -3, head: 0.05, armF: [1.55, -0.05], armB: [-0.35, 1.15], legF: [0.45, -0.2], legB: [-0.5, -0.25] },
   windupH: { lean: -0.18, hipY: -6, head: -0.05, armF: [0.1, -1.9], armB: [0.6, -1.6], legF: [0.5, -1.1], legB: [-0.15, -0.35] },
   kick: { lean: -0.32, hipY: 2, head: 0, armF: [-0.5, -0.9], armB: [0.9, -0.7], legF: [1.5, -0.08], legB: [-0.35, -0.3] },
-  blockP: { lean: 0.1, hipY: -8, head: 0.12, armF: [0.95, -2.2], armB: [0.75, -2.35], legF: [0.3, -0.35], legB: [-0.3, -0.3] },
+  blockP: { lean: 0.1, hipY: -8, head: 0.12, armF: [0.8, 1.5], armB: [0.65, 1.5], legF: [0.3, -0.35], legB: [-0.3, -0.3] },
   hitP: { lean: -0.42, hipY: -6, head: -0.35, armF: [-0.7, -0.5], armB: [-0.9, -0.6], legF: [0.5, -0.3], legB: [-0.1, -0.45] },
-  dashP: { lean: 0.55, hipY: -10, head: 0.1, armF: [-0.9, -0.8], armB: [1.1, -0.6], legF: [0.9, -0.5], legB: [-1.0, -0.9] },
-  jumpUp: { lean: 0.12, hipY: 0, head: -0.06, armF: [1.4, -0.9], armB: [-0.9, -0.9], legF: [0.8, -1.5], legB: [-0.3, -1.2] },
-  jumpDown: { lean: 0.02, hipY: 0, head: 0.1, armF: [0.9, -0.4], armB: [0.6, -0.5], legF: [0.5, -0.6], legB: [-0.4, -0.5] },
+  dashP: { lean: 0.55, hipY: -10, head: 0.1, armF: [1.15, 0.25], armB: [-0.7, -0.5], legF: [0.9, -0.5], legB: [-1.0, -0.9] },
+  jumpUp: { lean: 0.12, hipY: 0, head: -0.06, armF: [1.0, 0.9], armB: [-0.9, -0.9], legF: [0.8, -1.5], legB: [-0.3, -1.2] },
+  jumpDown: { lean: 0.02, hipY: 0, head: 0.1, armF: [0.7, 1.0], armB: [0.6, -0.5], legF: [0.5, -0.6], legB: [-0.4, -0.5] },
   victoryUp: { lean: -0.06, hipY: 0, head: -0.15, armF: [2.4, -0.3], armB: [-0.4, -1.0], legF: [0.15, -0.1], legB: [-0.15, -0.08] },
   victoryDown: { lean: -0.02, hipY: -3, head: -0.05, armF: [2.0, -1.2], armB: [-0.4, -1.0], legF: [0.15, -0.12], legB: [-0.15, -0.1] },
 };
@@ -53,10 +56,10 @@ export function poseFor(f, moves) {
       const p = basePose();
       p.legF = [0.55 * s + 0.1, -0.35 - 0.25 * Math.max(0, s)];
       p.legB = [-0.55 * s - 0.1, -0.35 - 0.25 * Math.max(0, -s)];
-      // braços de caminhada: o da arma firme À FRENTE (arma aponta pra onde anda),
-      // o de trás balançando solto — a guarda dobrada ficava com a mão (e a arma) pra trás
-      p.armF = [0.55 + 0.15 * s, -0.45];
-      p.armB = [-0.05 + 0.45 * s, -0.35];
+      // braços de caminhada: o da arma mantém a guarda À FRENTE (arma apontando
+      // para onde o boneco encara), o de trás balança solto com cotovelo natural
+      p.armF = [0.5 + 0.1 * s, 1.25];
+      p.armB = [-0.05 + 0.45 * s, 0.35];
       p.hipY = -2 + 2 * Math.abs(Math.cos(t * 11));
       p.lean = 0.12;
       return p;
