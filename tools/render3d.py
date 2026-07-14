@@ -27,10 +27,21 @@ mat = bpy.data.materials.new('stik')
 mat.use_nodes = True
 bsdf = mat.node_tree.nodes['Principled BSDF']
 bsdf.inputs['Base Color'].default_value = (0.012, 0.012, 0.014, 1)
-bsdf.inputs['Roughness'].default_value = 0.32
+bsdf.inputs['Roughness'].default_value = 0.42
 if 'Coat Weight' in bsdf.inputs:  # Blender 4.x
-    bsdf.inputs['Coat Weight'].default_value = 0.4
+    bsdf.inputs['Coat Weight'].default_value = 0.25
     bsdf.inputs['Coat Roughness'].default_value = 0.25
+
+# olhos: brancos emissivos (ferozes, como na vista 360 da referência)
+mat_olho = bpy.data.materials.new('olho')
+mat_olho.use_nodes = True
+nt = mat_olho.node_tree
+nt.nodes.clear()
+em = nt.nodes.new('ShaderNodeEmission')
+em.inputs['Strength'].default_value = 9.0
+em.inputs['Color'].default_value = (1, 1, 1, 1)
+sai = nt.nodes.new('ShaderNodeOutputMaterial')
+nt.links.new(em.outputs[0], sai.inputs[0])
 
 # luzes: key quente alto-esquerda-frente, rim fria atrás-direita, fill suave
 def luz(nome, tipo, loc, energia, cor=(1, 1, 1), tam=2.0):
@@ -123,6 +134,21 @@ def monta(sk):
     esfera(PB(sk['handF'], DF), r_limb_lo * 1.5)
     # cabeça
     esfera(P(sk['head']), w['headR'] * S)
+    # olhos ferozes: amêndoas emissivas inclinadas, apontando para onde o boneco encara
+    hc = Vector(P(sk['head']))
+    R = w['headR'] * S
+    def olho(dx, dy, dz, escala, tilt):
+        d = Vector((dx, dy, dz)).normalized()
+        loc = hc + d * R * 0.93
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=R * escala, segments=24, ring_count=12, location=loc)
+        o = bpy.context.object
+        o.scale = (1.0, 0.32, 0.52)
+        o.rotation_euler = (0, tilt, 0)
+        bpy.ops.object.shade_smooth()
+        o.data.materials.append(mat_olho)
+        corpo.append(o)
+    olho(0.60, -0.55, 0.14, 0.34, -0.42)  # olho da frente
+    olho(0.08, -0.74, 0.14, 0.27, -0.30)  # olho de trás
 
 for nome, frames in data['states'].items():
     for i, sk in enumerate(frames):
