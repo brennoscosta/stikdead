@@ -14,17 +14,15 @@ const OUT = path.join(ROOT, 'client/public/parts');
 const url = process.argv[2];
 if (!url) { console.error('Uso: node dissecar.mjs <url>'); process.exit(1); }
 
-// Caixas em pixels do RENDER ORIGINAL (896x1200, A-pose, braços a ~45°).
+// Caixas em pixels do RENDER ORIGINAL (896x1200, PERFIL olhando p/ direita).
+// Braços/mãos NÃO são dissecados: são vetoriais (híbrido) — sprite achata na guarda.
 // rot: graus para deixar a peça VERTICAL apontando para baixo (sharp: horário +).
 // split: 'top'/'bottom' extrai metade superior/inferior APÓS rotação+trim.
 const PARTS = {
-  head: { crop: [258, 60, 384, 400], rot: 0, circle: true },
-  torso: { crop: [338, 455, 224, 430], rot: 0 },
-  upperarm: { crop: [140, 500, 250, 235], rot: 45, split: 'top' },
-  forearm: { crop: [140, 500, 250, 235], rot: 45, split: 'bottom' },
-  hand: { crop: [80, 660, 135, 145], rot: 45 },
-  thigh: { crop: [336, 878, 100, 158], rot: 4 },
-  shin: { crop: [308, 1018, 125, 160], rot: 4, flip: true },
+  head: { crop: [268, 50, 348, 348], rot: 0, circle: true },
+  torso: { crop: [380, 420, 130, 320], rot: 0 },
+  thigh: { crop: [390, 730, 120, 195], rot: 0 },
+  shin: { crop: [390, 920, 175, 225], rot: 0 },
 };
 
 const res = await fetch(url);

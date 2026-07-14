@@ -156,8 +156,10 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
 
   g.clear();
 
-  const shW = ko ? 74 : 46 - Math.min(30, f.y * 0.08);
-  g.ellipse(f.x, 0, Math.max(14, shW), 7).fill(SHADOW);
+  if (!opts.onlyArms) {
+    const shW = ko ? 74 : 46 - Math.min(30, f.y * 0.08);
+    g.ellipse(f.x, 0, Math.max(14, shW), 7).fill(SHADOW);
+  }
 
   const T = (p) => {
     let [x, y] = p;
@@ -223,6 +225,18 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
 
   const ctx = { g, T, sk, f, face, elapsed, ko };
 
+  // modo HÍBRIDO: só os braços vetoriais + punhos, para desenhar POR CIMA das
+  // peças pintadas (sprite de braço achata quando o antebraço aponta pra frente)
+  if (opts.onlyArms) {
+    capsule(sk.neck, sk.elbB, RIG.wLimb, BODY_BACK, false);
+    capsule(sk.elbB, sk.handB, RIG.wLimbLo, BODY_BACK, false);
+    fist(sk.handB, RIG.wLimbLo * 0.68, false);
+    capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);
+    capsule(sk.elbF, sk.handF, RIG.wLimbLo, BODY, true);
+    fist(sk.handF, RIG.wLimbLo * 0.72, true);
+    return null;
+  }
+
   if (loadout) drawItems(ctx, loadout, 'back');
 
   if (!opts.skipBody) {
@@ -240,7 +254,7 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
     capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);
     capsule(sk.elbF, sk.handF, RIG.wLimbLo, BODY, true);
     fist(sk.handF, RIG.wLimbLo * 0.72, true);
-  } else {
+  } else if (!opts.skipBridge) {
     // ponte: braço superior (o kit preto não tem essa peça)
     capsule(sk.neck, sk.elbB, RIG.wLimb, BODY_BACK, false);
     capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);

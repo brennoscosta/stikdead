@@ -2,7 +2,7 @@
 // Lição registrada nos docs: nunca mais iterar visual direto em produção.
 // Fileiras: LEGADO (rigLegacy congelado) · NOVO (rig 2.5D) · PINTADO (peças 3D de /parts/)
 import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
-import { drawFighter as drawNovo } from './game/rig.js';
+import { drawFighter as drawNovo, drawEyes } from './game/rig.js';
 import { drawFighter as drawLegado } from './game/rigLegacy.js';
 import { createFighterParts, updateFighterParts } from './game/bodyParts.js';
 import { MOVES } from './game/sim.js';
@@ -33,7 +33,8 @@ const HERO_H = 440; // baseline (chão) dos heróis
 async function loadParts() {
   const texs = {};
   await Promise.all(
-    ['head', 'torso', 'thigh', 'shin', 'boot', 'forearm', 'upperarm'].map(async (n) => {
+    // braços/mãos agora são vetoriais (híbrido)
+    ['head', 'torso', 'thigh', 'shin'].map(async (n) => {
       try { texs[n] = await Assets.load(`/parts/${n}.webp?v=${__BUILD_ID__}`); } catch { /* peça ausente */ }
     })
   );
@@ -75,11 +76,13 @@ async function main() {
     headSpr.anchor.set(0.5);
     headSpr.visible = false;
     c.addChild(headSpr);
-    return { g, parts, headSpr };
+    const gTop = new Graphics(); // camada de cima: braços vetoriais + olhos
+    c.addChild(gTop);
+    return { g, parts, headSpr, gTop };
   };
 
   const drawPainted = (cell, f, elapsed) => {
-    const opts = { skipBody: !!partTexs.torso, skipHead: !!partTexs.head };
+    const opts = { skipBody: !!partTexs.torso, skipHead: !!partTexs.head, skipBridge: true };
     const pose = drawNovo(cell.g, f, MOVES, null, elapsed, null, opts);
     updateFighterParts(cell.parts, pose, partTexs);
     if (partTexs.head && pose) {
@@ -91,6 +94,9 @@ async function main() {
       cell.headSpr.scale.x = Math.abs(cell.headSpr.scale.x) * (pose.face < 0 ? -1 : 1);
       cell.headSpr.position.set(pose.hx, pose.hy);
     }
+    // híbrido: braços + punhos vetoriais e OLHOS vetoriais por cima da esfera pintada
+    drawNovo(cell.gTop, f, MOVES, null, elapsed, null, { onlyArms: true });
+    if (pose) drawEyes(cell.gTop, f, pose.hx, pose.hy, pose.face, f.state === 'ko', elapsed, pose.headR / 21);
   };
 
   // ===== heróis: LEGADO vs NOVO vs PINTADO, grandes =====
