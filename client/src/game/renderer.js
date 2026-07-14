@@ -80,9 +80,13 @@ export async function createRenderer(host, theme = 'dojo') {
   const slashG = new Graphics();
   const ghostA = new Graphics();
   const ghostB = new Graphics();
+  const ghostA2 = new Graphics();
+  const ghostB2 = new Graphics();
   ghostA.alpha = 0.22;
   ghostB.alpha = 0.22;
-  world.addChild(ghostA, ghostB, slashG);
+  ghostA2.alpha = 0.1;
+  ghostB2.alpha = 0.1;
+  world.addChild(ghostA2, ghostB2, ghostA, ghostB, slashG);
   // ===== a linha de trás: a luta da dupla irmã, na MESMA arena =====
   const sisLayer = new Container();
   sisLayer.position.set(0, -20); // chão levemente mais fundo
@@ -176,6 +180,51 @@ export async function createRenderer(host, theme = 'dojo') {
       d.t.alpha = Math.min(1, d.life / 0.3);
     }
   };
+
+  // ===== COMBO no mundo: "×N" estourando no ponto do impacto, escalando com o combo =====
+  const comboLayer = new Container();
+  world.addChild(comboLayer);
+  const comboPool = [];
+  const comboLive = [];
+  const spawnCombo = (e) => {
+    if (e.blocked || !e.combo || e.combo < 3) return;
+    const tier = e.combo >= 8 ? 3 : e.combo >= 5 ? 2 : 1;
+    const cor = tier === 3 ? 0xff2244 : tier === 2 ? 0xff9f1c : 0xffd166;
+    const t = comboPool.pop() || new Text({
+      text: '',
+      style: {
+        fontFamily: 'Rubik Wet Paint, Barlow Condensed, sans-serif', fontWeight: '700', fontSize: 34,
+        fill: 0xffffff, letterSpacing: 1,
+        stroke: { color: 0x080808, width: 6, join: 'round' },
+      },
+    });
+    t.anchor.set(0.5);
+    t.text = `×${e.combo}`;
+    t.style.fill = cor;
+    t.rotation = (Math.random() - 0.5) * 0.24;
+    t.visible = true;
+    comboLayer.addChild(t);
+    comboLive.push({ t, wx: e.x, wy: e.y + 66, life: 0.7, maxLife: 0.7, sc: 0.8 + tier * 0.25 });
+  };
+  const stepCombo = (dt) => {
+    for (let i = comboLive.length - 1; i >= 0; i--) {
+      const d = comboLive[i];
+      d.life -= dt;
+      if (d.life <= 0) {
+        d.t.visible = false;
+        comboPool.push(d.t);
+        comboLive.splice(i, 1);
+        continue;
+      }
+      const age = d.maxLife - d.life;
+      // POP com overshoot: nasce grande, assenta, sobe e some
+      const pop = age < 0.12 ? 1.7 - (age / 0.12) * 0.7 : 1;
+      d.wy += 46 * dt;
+      d.t.scale.set(d.sc * pop);
+      d.t.position.set(d.wx, -d.wy);
+      d.t.alpha = Math.min(1, d.life / 0.25);
+    }
+  };
   if (painted) {
     for (const t of [tagA, tagB, tagC, tagD]) {
       t.style.fill = 0xf2efe9;
@@ -239,7 +288,7 @@ export async function createRenderer(host, theme = 'dojo') {
 
     for (const e of events) {
       if (e.type === 'fightstart') fx.shake = Math.max(fx.shake, 10);
-      if (e.type === 'hit') { fxHit(fx, e.x, e.y, e.attacker === 0 ? 1 : -1, e); spawnDmg(e, match); }
+      if (e.type === 'hit') { fxHit(fx, e.x, e.y, e.attacker === 0 ? 1 : -1, e); spawnDmg(e, match); spawnCombo(e); }
       if (e.type === 'ko') fxKo(fx, e.x, e.y, e.winner === 0 ? 1 : -1);
       if (e.type === 'dash') fxDash(fx, e.x);
       if (e.type === 'rasteira') { fxDash(fx, e.x); fxDash(fx, e.x + 24); }
@@ -318,14 +367,44 @@ export async function createRenderer(host, theme = 'dojo') {
       slashG.circle(cx + Math.cos(tipA) * R, cy + Math.sin(tipA) * R, heavy ? 5 : 3.5)
         .fill({ color: 0xffffff, alpha: (1 - p) * 0.9 });
     };
+    // WIND-UP: anel convergente telegrafando o golpe pesado (antecipação de cinema)
+    const drawWindup = (f) => {
+      const mv = MOVES[f.state];
+      if (!mv || !mv.active || f.state !== 'heavy' || f.t >= mv.startup) return;
+      const p = Math.min(1, f.t / mv.startup);
+      const wx = f.x + f.face * 26, wy = -(f.y + 96);
+      const R = 34 * (1 - p) + 9;
+      slashG.circle(wx, wy, R).stroke({ width: 2 + p * 2.5, color: 0xffb84d, alpha: 0.12 + p * 0.55 });
+      // fagulhas sendo SUGADAS para o punho (energia juntando)
+      for (let i = 0; i < 3; i++) {
+        const ang = elapsed * 9 + i * 2.09;
+        const rr = R + 8 - p * 6;
+        slashG.circle(wx + Math.cos(ang) * rr, wy + Math.sin(ang) * rr, 2 * (0.5 + p * 0.8))
+          .fill({ color: 0xffd166, alpha: 0.3 + p * 0.6 });
+      }
+      if (p > 0.8) slashG.circle(wx, wy, 5).fill({ color: 0xffffff, alpha: (p - 0.8) * 4 });
+    };
     drawSlash(a, loadouts[0]);
     drawSlash(b, loadouts[1]);
+    drawWindup(a);
+    drawWindup(b);
 
-    // fantasmas de dash (afterimage)
-    ghostA.clear();
-    ghostB.clear();
-    if (a.state === 'dash') drawFighter(ghostA, { ...a, x: a.x - a.face * 20 }, MOVES, 0xd90429, elapsed, null);
-    if (b.state === 'dash') drawFighter(ghostB, { ...b, x: b.x - b.face * 20 }, MOVES, 0x6e6e6e, elapsed, null);
+    // fantasmas de velocidade (afterimage): dash E golpes deixam rastro do corpo
+    const GHOST_STATES = { dash: 20, light: 11, heavy: 15, kick: 13 };
+    const drawGhosts = (g1, g2, f, col) => {
+      g1.clear();
+      g2.clear();
+      const off = GHOST_STATES[f.state];
+      if (!off) return;
+      const mv = MOVES[f.state];
+      // no golpe, o rastro só aparece do meio do startup em diante (leitura de arranque)
+      if (mv && mv.active && f.t < mv.startup * 0.5) return;
+      drawFighter(g1, { ...f, x: f.x - f.face * off }, MOVES, col, elapsed, null);
+      if (f.state === 'dash' || f.state === 'heavy' || (f.combo || 0) >= 5)
+        drawFighter(g2, { ...f, x: f.x - f.face * off * 2 }, MOVES, col, elapsed, null);
+    };
+    drawGhosts(ghostA, ghostA2, a, 0xd90429);
+    drawGhosts(ghostB, ghostB2, b, 0x6e6e6e);
 
     const hasHeadTex = !!(headA.texture && headA.texture.width > 1);
     const hasBody = !!(partTexs && partTexs.torso);
@@ -401,6 +480,7 @@ export async function createRenderer(host, theme = 'dojo') {
 
     fxStep(fx, dt);
     stepDmg(dt);
+    stepCombo(dt);
 
     // tremor de tela: direcional (empurra no sentido do golpe) + micro-rotação
     if (fx.shake > 0.3) {

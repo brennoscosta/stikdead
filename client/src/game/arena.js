@@ -346,7 +346,7 @@ export function createFx(stage) {
   return { layer, parts: [], rings: [], lines: [], sparks: [], splats: [], embers: [], radial: [], shake: 0, shakeDir: 0, flash: 0, flashRed: 0, kick: 0, focusX: 0, focusK: 0 };
 }
 
-export function fxHit(fx, x, y, dir, { blocked, heavy }) {
+export function fxHit(fx, x, y, dir, { blocked, heavy, combo = 0 }) {
   if (blocked) {
     // bloqueio: faíscas METÁLICAS estalando (aço no aço)
     for (let i = 0; i < 8; i++) spawn(fx, x, y, dir, 0xffffff, 180, 0.25);
@@ -357,11 +357,21 @@ export function fxHit(fx, x, y, dir, { blocked, heavy }) {
     fx.shakeDir = dir;
     return;
   }
+  // ESCALADA DE COMBO: quanto maior o combo, mais violento o impacto (só visual)
+  const cmb = Math.min(combo, 12);
+  const esc = 1 + cmb * 0.06;
   // sangue: gotas alongadas na direção do golpe (metade vira mancha no chão)
-  const n = heavy ? 34 : 16;
-  for (let i = 0; i < n; i++) spawn(fx, x, y, dir, 0xb0031f, heavy ? 460 : 300, heavy ? 0.75 : 0.5, true);
-  for (let i = 0; i < (heavy ? 10 : 5); i++) ember(fx, x, y, dir, 0xffffff, heavy ? 700 : 480);
+  const n = Math.round((heavy ? 34 : 16) * esc);
+  for (let i = 0; i < n; i++) spawn(fx, x, y, dir, 0xb0031f, (heavy ? 460 : 300) * esc, heavy ? 0.75 : 0.5, true);
+  for (let i = 0; i < (heavy ? 10 : 5); i++) ember(fx, x, y, dir, 0xffffff, (heavy ? 700 : 480) * esc);
   if (heavy) fx.radial.push({ x, y, life: 0.18, maxLife: 0.18, n: 10, r0: 34, r1: 96 });
+  // marcos do combo (5 e 8): explosão dourada + chuva de fagulhas quentes
+  if (cmb === 5 || cmb === 8) {
+    const dourado = cmb >= 8 ? 0xff2244 : 0xffb347;
+    fx.radial.push({ x, y, life: 0.24, maxLife: 0.24, n: 12, r0: 30, r1: 110 });
+    fx.rings.push({ x, y, r: 8, vr: 700, life: 0.3, maxLife: 0.3, color: dourado, w: 4 });
+    for (let i = 0; i < 12; i++) ember(fx, x, y, dir, dourado, 640);
+  }
   // estrela de impacto (clarão em cruz)
   fx.sparks.push({ x, y, life: heavy ? 0.22 : 0.14, maxLife: heavy ? 0.22 : 0.14, size: heavy ? 34 : 20, color: 0xffffff });
   // anel de choque expandindo
@@ -376,8 +386,8 @@ export function fxHit(fx, x, y, dir, { blocked, heavy }) {
       life: 0.18, maxLife: 0.18, w: 2 + Math.random() * 2,
     });
   }
-  fx.kick = Math.max(fx.kick, heavy ? 0.09 : 0.035);
-  fx.shake = Math.max(fx.shake, heavy ? 14 : 6);
+  fx.kick = Math.max(fx.kick, (heavy ? 0.09 : 0.035) + (cmb >= 5 ? 0.02 : 0));
+  fx.shake = Math.max(fx.shake, (heavy ? 14 : 6) * (cmb >= 5 ? 1.2 : 1));
   fx.shakeDir = dir;
   // punch-in: a câmera mergulha no ponto do impacto
   fx.focusX = x;

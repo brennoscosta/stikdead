@@ -177,6 +177,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
 
       let last = performance.now();
       let lastCount = null;
+      let lastCombo = 0;
 
       const loop = (now) => {
         if (!alive) return;
@@ -240,7 +241,12 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
         const comboEl = hud.combo.current;
         if (comboEl) {
           comboEl.classList.toggle('show', combo > 0);
-          if (combo > 0) comboEl.innerHTML = `<b>${combo}</b> HITS${combo >= 8 ? '<i>COMBO INSANO!</i>' : ''}`;
+          if (combo > 0 && combo !== lastCombo) {
+            // reescreve SÓ quando muda: o <b> novo dispara o pop do CSS
+            comboEl.innerHTML = `<b>${combo}</b> HITS${combo >= 8 ? '<i>COMBO INSANO!</i>' : ''}`;
+            comboEl.dataset.tier = combo >= 8 ? '3' : combo >= 5 ? '2' : '1';
+          }
+          lastCombo = combo;
         }
 
         if (hud.vs.current)

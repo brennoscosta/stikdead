@@ -21,6 +21,16 @@ const LAYER = {
 let CUR_GLOW = 0;
 let CUR_PULSE = 1;
 
+// FX LENDÁRIO: cada arma lendária tem um espírito próprio; as demais ganham brasas douradas
+const WEAPON_TPL = new Set(['katana', 'bo', 'nunchaku', 'axe', 'spear', 'scythe', 'dual', 'bow']);
+const LEND_FX = {
+  katana_infernal: 'fogo',
+  foice_sangrenta: 'sangue',
+  katana_void: 'vazio',
+  arco_fantasma: 'fantasma',
+};
+let CUR_FX = null;
+
 export function drawItems(ctx, loadout, layer) {
   for (const item of loadout) {
     const fn = TEMPLATES[item.template];
@@ -28,8 +38,12 @@ export function drawItems(ctx, loadout, layer) {
       const glowHex = item.rarity === 'diamante' ? (item.params?.glow || '#7fd9ff') : item.params?.glow;
       CUR_GLOW = glowHex ? C(glowHex) : 0;
       CUR_PULSE = 0.7 + 0.3 * Math.sin((ctx.elapsed || 0) * 2.6 + (item.id ? item.id.length : 0));
+      CUR_FX = item.rarity === 'lendario' && WEAPON_TPL.has(item.template)
+        ? (LEND_FX[item.id] || 'brasa')
+        : null;
       fn(ctx, item.params || {});
       CUR_GLOW = 0;
+      CUR_FX = null;
     }
   }
 }
@@ -88,6 +102,116 @@ function glow2(g, a, b, w, color) {
   g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w * 3.2, color, alpha: 0.16, cap: 'round' });
   g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: w * 1.4, color, alpha: 0.35, cap: 'round' });
   g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: 2, color, alpha: 0.95, cap: 'round' });
+}
+
+// ===== FX LENDÁRIO: a alma da arma (só roda quando CUR_FX está armado) =====
+const lerp2 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+
+// fio de luz correndo pela lâmina — toda lendária cintila
+function glint(g, a, b, el) {
+  const t = ((el * 0.55) % 1.35) - 0.2;
+  if (t < 0 || t > 1) return;
+  const p0 = lerp2(a, b, Math.max(0, t - 0.09));
+  const p1 = lerp2(a, b, Math.min(1, t + 0.09));
+  g.moveTo(p0[0], p0[1]).lineTo(p1[0], p1[1]).stroke({ width: 3, color: 0xffffff, alpha: 0.75, cap: 'round' });
+}
+
+// FX ao longo da lâmina (a→b); ponta = onde a arma "termina" (gotas, refração)
+function fxLenda(g, el, a, b, ponta = b) {
+  if (!CUR_FX) return;
+  if (CUR_FX === 'fogo') {
+    // hálito de calor abraçando a lâmina
+    g.moveTo(a[0], a[1]).lineTo(b[0], b[1])
+      .stroke({ width: 13, color: 0xff3d00, alpha: 0.12 + 0.05 * Math.sin(el * 6), cap: 'round' });
+    // línguas de fogo subindo
+    for (let i = 0; i < 4; i++) {
+      const [bx, by] = lerp2(a, b, 0.28 + i * 0.19);
+      const alt = 8 + 3.5 * Math.sin(el * 7 + i * 1.9);
+      const sw = 2.5 * Math.sin(el * 9 + i * 1.3);
+      g.moveTo(bx - 2.6, by)
+        .quadraticCurveTo(bx + sw, by - alt * 0.62, bx + sw * 0.6, by - alt)
+        .quadraticCurveTo(bx + 2.6 + sw * 0.3, by - alt * 0.5, bx + 2.6, by)
+        .closePath().fill({ color: i % 2 ? 0xffd166 : 0xff6a00, alpha: 0.72 });
+      if (i % 2 === 0)
+        g.ellipse(bx + sw * 0.3, by - alt * 0.32, 1.2, alt * 0.26).fill({ color: 0xfff3c4, alpha: 0.6 });
+    }
+    // brasas desprendendo
+    for (let i = 0; i < 3; i++) {
+      const ph = (el * 1.25 + i * 0.33) % 1;
+      const [ex, ey] = lerp2(a, b, 0.3 + i * 0.22);
+      g.circle(ex + Math.sin(el * 3 + i * 2.1) * 4, ey - 6 - ph * 24, 1.7 * (1 - ph))
+        .fill({ color: 0xffb347, alpha: 0.85 * (1 - ph) });
+    }
+  } else if (CUR_FX === 'sangue') {
+    // pulso vermelho na alma da lâmina + veio escorrido
+    g.moveTo(a[0], a[1]).lineTo(b[0], b[1])
+      .stroke({ width: 9, color: 0xd90429, alpha: 0.1 + 0.07 * Math.sin(el * 4.2), cap: 'round' });
+    g.moveTo(lerp2(a, b, 0.35)[0], lerp2(a, b, 0.35)[1]).lineTo(ponta[0], ponta[1])
+      .stroke({ width: 2, color: 0x6f0313, alpha: 0.5, cap: 'round' });
+    // gotas nascendo na ponta e pingando
+    for (let i = 0; i < 2; i++) {
+      const ph = (el * 0.5 + i * 0.5) % 1;
+      if (ph < 0.35) {
+        const r = 0.8 + (ph / 0.35) * 2.1;
+        g.circle(ponta[0], ponta[1] + 2, r).fill({ color: 0x9e0e22, alpha: 0.95 });
+        g.circle(ponta[0] - 0.7, ponta[1] + 1.2, r * 0.32).fill({ color: 0xffffff, alpha: 0.4 });
+      } else {
+        const q = (ph - 0.35) / 0.65;
+        g.ellipse(ponta[0], ponta[1] + 3 + q * 34, 1.5, 3).fill({ color: 0x9e0e22, alpha: 0.9 * (1 - q) });
+      }
+    }
+  } else if (CUR_FX === 'vazio') {
+    // fenda escura no coração da lâmina
+    g.moveTo(a[0], a[1]).lineTo(b[0], b[1]).stroke({ width: 3, color: 0x0d0618, alpha: 0.6, cap: 'round' });
+    const [dx, dy] = dir(a, b);
+    const px = -dy, py = dx;
+    // farrapos de névoa roxa desprendendo
+    for (let i = 0; i < 3; i++) {
+      const ph = (el * 0.7 + i * 0.37) % 1;
+      const [mx, my] = lerp2(a, b, 0.3 + i * 0.22);
+      const lado = i % 2 ? 1 : -1;
+      g.circle(mx + px * lado * (4 + ph * 11), my + py * lado * (4 + ph * 11) - ph * 6, 2.6 * (1 - ph))
+        .fill({ color: 0x8b5cf6, alpha: 0.38 * (1 - ph) });
+    }
+    // poeira de estrelas piscando
+    for (let i = 0; i < 4; i++) {
+      const tw = 0.2 + 0.8 * Math.max(0, Math.sin(el * 4.6 + i * 2.3));
+      const [sx, sy] = lerp2(a, b, 0.18 + i * 0.22);
+      const off = Math.sin(el * 1.6 + i * 2.4) * 5;
+      g.circle(sx + px * off, sy + py * off, 0.9).fill({ color: 0xe8dcff, alpha: tw });
+    }
+  } else if (CUR_FX === 'brasa') {
+    // lendária genérica: aura dourada pulsando + fagulhas subindo
+    const cor = CUR_GLOW || 0xffc36b;
+    g.moveTo(a[0], a[1]).lineTo(b[0], b[1])
+      .stroke({ width: 11, color: cor, alpha: 0.1 + 0.06 * Math.sin(el * 5), cap: 'round' });
+    for (let i = 0; i < 3; i++) {
+      const ph = (el * 1.1 + i * 0.33) % 1;
+      const [ex, ey] = lerp2(a, b, 0.25 + i * 0.25);
+      g.circle(ex + Math.sin(el * 2.6 + i * 2) * 3, ey - 4 - ph * 20, 1.5 * (1 - ph))
+        .fill({ color: cor, alpha: 0.8 * (1 - ph) });
+    }
+  }
+  glint(g, a, b, el);
+}
+
+// fogo-fátuo do Arco Fantasma: chamas espectrais nas pontas + espíritos orbitando
+function fxFantasma(g, el, tips, centro) {
+  if (CUR_FX !== 'fantasma') return false;
+  tips.forEach(([tx, ty], i) => {
+    const fl = 0.6 + 0.4 * Math.sin(el * 6 + i * 2.6);
+    g.circle(tx, ty, 4.5).fill({ color: 0x9fd8ff, alpha: 0.16 * fl });
+    const alt = 6 + 2.5 * Math.sin(el * 7 + i * 2.1);
+    g.moveTo(tx - 2, ty).quadraticCurveTo(tx + Math.sin(el * 8 + i) * 2, ty - alt, tx + 2, ty)
+      .closePath().fill({ color: 0xcfeeff, alpha: 0.55 * fl });
+  });
+  for (let i = 0; i < 2; i++) {
+    const ang = el * 1.6 + i * Math.PI;
+    const ox = centro[0] + Math.cos(ang) * 16, oy = centro[1] + Math.sin(ang) * 24;
+    g.circle(ox, oy, 4).fill({ color: 0x9fd8ff, alpha: 0.12 });
+    g.circle(ox, oy, 1.8).fill({ color: 0xd8f3ff, alpha: 0.5 + 0.3 * Math.sin(el * 5 + i * 3) });
+  }
+  return true;
 }
 
 // ===== templates =====
@@ -764,7 +888,7 @@ const TEMPLATES = {
 
   // -------- armas (na mão da frente) --------
   katana(ctx, p) {
-    weaponAlongArm(ctx, (g, h, d2, face) => {
+    weaponAlongArm(ctx, (g, h, d2, face, elapsed) => {
       const blade = C(p.blade ?? '#d8d3c8');
       const tip = [h[0] + d2[0] * 52, h[1] + d2[1] * 52];
       seg(g, [h[0] - d2[0] * 10, h[1] - d2[1] * 10], h, 5, C(p.grip ?? '#3a1216'), true, true);
@@ -772,12 +896,14 @@ const TEMPLATES = {
       if (p.glow) glow2(g, h, tip, 4.5, C(p.glow));
       seg(g, h, tip, 4.5, blade);
       edge(g, h, tip, 4.5);
+      fxLenda(g, elapsed || 0, h, tip);
     });
   },
   bo(ctx, p) {
-    weaponAlongArm(ctx, (g, h, d2) => {
+    weaponAlongArm(ctx, (g, h, d2, face, elapsed) => {
       seg(g, [h[0] - d2[0] * 34, h[1] - d2[1] * 34], [h[0] + d2[0] * 34, h[1] + d2[1] * 34], 5.5, C(p.color ?? '#6b4a2b'));
       g.circle(h[0], h[1], 3.4).fill(C(p.band ?? '#d90429'));
+      fxLenda(g, elapsed || 0, [h[0] - d2[0] * 34, h[1] - d2[1] * 34], [h[0] + d2[0] * 34, h[1] + d2[1] * 34]);
     });
   },
   nunchaku(ctx, p) {
@@ -791,10 +917,11 @@ const TEMPLATES = {
       seg(g, [h[0] - d2[0] * 18, h[1] - d2[1] * 18], a2, 6, col);
       g.moveTo(a2[0], a2[1]).lineTo(mid[0], mid[1]).stroke({ width: 2, color: 0x8a8a8a });
       seg(g, mid, end, 6, col);
+      fxLenda(g, elapsed || 0, mid, end);
     });
   },
   axe(ctx, p) {
-    weaponAlongArm(ctx, (g, h, d2, face) => {
+    weaponAlongArm(ctx, (g, h, d2, face, elapsed) => {
       const tip = [h[0] + d2[0] * 40, h[1] + d2[1] * 40];
       seg(g, [h[0] - d2[0] * 8, h[1] - d2[1] * 8], tip, 5, C(p.handle ?? '#4a341f'));
       const n = [-d2[1] * face, d2[0] * face];
@@ -805,20 +932,22 @@ const TEMPLATES = {
       g.moveTo(tip[0] + n[0] * 19, tip[1] + n[1] * 19 + 2)
         .lineTo(tip[0] + n[0] * 15 - d2[0] * 11, tip[1] + n[1] * 15 - d2[1] * 11)
         .stroke({ width: 1.6, color: 0xffffff, alpha: 0.5, cap: 'round' });
+      fxLenda(g, elapsed || 0, tip, [tip[0] + n[0] * 20 + d2[0] * 6, tip[1] + n[1] * 20 + d2[1] * 6]);
     });
   },
   spear(ctx, p) {
-    weaponAlongArm(ctx, (g, h, d2) => {
+    weaponAlongArm(ctx, (g, h, d2, face, elapsed) => {
       const tip = [h[0] + d2[0] * 58, h[1] + d2[1] * 58];
       seg(g, [h[0] - d2[0] * 26, h[1] - d2[1] * 26], tip, 4.5, C(p.color ?? '#5a4630'), true, true);
       g.moveTo(tip[0] + d2[0] * 14, tip[1] + d2[1] * 14)
         .lineTo(tip[0] - d2[1] * 5, tip[1] + d2[0] * 5)
         .lineTo(tip[0] + d2[1] * 5, tip[1] - d2[0] * 5)
         .closePath().fill(C(p.blade ?? '#c9c4b8')).stroke({ width: 2.5, color: OUT });
+      fxLenda(g, elapsed || 0, [h[0] + d2[0] * 26, h[1] + d2[1] * 26], [tip[0] + d2[0] * 14, tip[1] + d2[1] * 14]);
     });
   },
   scythe(ctx, p) {
-    weaponAlongArm(ctx, (g, h, d2, face) => {
+    weaponAlongArm(ctx, (g, h, d2, face, elapsed) => {
       const top = [h[0] + d2[0] * 46, h[1] + d2[1] * 46];
       seg(g, [h[0] - d2[0] * 16, h[1] - d2[1] * 16], top, 5, C(p.handle ?? '#2b2b2b'), true, true);
       const n = [-d2[1] * face, d2[0] * face];
@@ -833,6 +962,8 @@ const TEMPLATES = {
         g.circle(top[0], top[1], 9).fill({ color: C(p.glow), alpha: 0.25 });
         g.circle(top[0], top[1], 4).fill({ color: C(p.glow), alpha: 0.9 });
       }
+      const ponta = [top[0] + n[0] * 30 + d2[0] * 26, top[1] + n[1] * 30 + d2[1] * 26];
+      fxLenda(g, elapsed || 0, top, ponta);
     });
   },
   dual({ g, T, sk, face, elapsed }, p) {
@@ -844,17 +975,27 @@ const TEMPLATES = {
       if (p.glow) glow2(g, hh, tip, 4, C(p.glow));
       seg(g, [hh[0] - dx * 6, hh[1] - dy * 6], tip, 4, blade);
       edge(g, [hh[0], hh[1]], tip, 4);
+      fxLenda(g, elapsed || 0, [hh[0], hh[1]], tip);
     }
   },
   bow(ctx, p) {
-    weaponAlongArm(ctx, (g, h, d2, face) => {
+    weaponAlongArm(ctx, (g, h, d2, face, elapsed) => {
       const col = C(p.color ?? '#4a341f');
       const n = [-d2[1], d2[0]];
-      g.moveTo(h[0] + n[0] * 26, h[1] + n[1] * 26)
-        .quadraticCurveTo(h[0] + d2[0] * 16, h[1] + d2[1] * 16, h[0] - n[0] * 26, h[1] - n[1] * 26)
+      const tipA = [h[0] + n[0] * 26, h[1] + n[1] * 26];
+      const tipB = [h[0] - n[0] * 26, h[1] - n[1] * 26];
+      // arco espectral: madeira translúcida com aura gelada por trás
+      if (CUR_FX === 'fantasma')
+        g.moveTo(tipA[0], tipA[1])
+          .quadraticCurveTo(h[0] + d2[0] * 16, h[1] + d2[1] * 16, tipB[0], tipB[1])
+          .stroke({ width: 9, color: 0x9fd8ff, alpha: 0.18, cap: 'round' });
+      g.moveTo(tipA[0], tipA[1])
+        .quadraticCurveTo(h[0] + d2[0] * 16, h[1] + d2[1] * 16, tipB[0], tipB[1])
         .stroke({ width: 5, color: col, cap: 'round' });
-      g.moveTo(h[0] + n[0] * 26, h[1] + n[1] * 26).lineTo(h[0] - n[0] * 26, h[1] - n[1] * 26)
-        .stroke({ width: 1.5, color: 0xcfcabc });
+      g.moveTo(tipA[0], tipA[1]).lineTo(tipB[0], tipB[1])
+        .stroke({ width: 1.5, color: CUR_FX === 'fantasma' ? 0x9fd8ff : 0xcfcabc, alpha: CUR_FX === 'fantasma' ? 0.6 + 0.3 * Math.sin((elapsed || 0) * 5) : 1 });
+      if (!fxFantasma(g, elapsed || 0, [tipA, tipB], [h[0] + d2[0] * 12, h[1] + d2[1] * 12]))
+        fxLenda(g, elapsed || 0, tipA, tipB);
     });
   },
 

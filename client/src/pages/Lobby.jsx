@@ -633,6 +633,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
       if (!alive) return renderer.destroy();
       let last = performance.now();
       let lastCount = null;
+      let lastCombo = 0;
 
       const loop = (now) => {
         if (!alive) return;
@@ -709,8 +710,12 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         const combo = fa.combo >= 3 ? fa.combo : 0;
         if (hud.combo.current) {
           hud.combo.current.classList.toggle('show', combo > 0);
-          if (combo > 0)
+          if (combo > 0 && combo !== lastCombo) {
+            // reescreve SÓ quando muda: o <b> novo dispara o pop do CSS
             hud.combo.current.innerHTML = `<b>${combo}</b> HITS${combo >= 8 ? '<i>COMBO INSANO!</i>' : ''}`;
+            hud.combo.current.dataset.tier = combo >= 8 ? '3' : combo >= 5 ? '2' : '1';
+          }
+          lastCombo = combo;
         }
 
         if (hud.vs.current)
