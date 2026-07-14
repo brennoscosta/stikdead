@@ -34,7 +34,7 @@ async function loadParts() {
   const texs = {};
   await Promise.all(
     ['head', 'torso', 'thigh', 'shin', 'boot', 'forearm', 'upperarm'].map(async (n) => {
-      try { texs[n] = await Assets.load(`/parts/${n}.webp`); } catch { /* peça ausente */ }
+      try { texs[n] = await Assets.load(`/parts/${n}.webp?v=${__BUILD_ID__}`); } catch { /* peça ausente */ }
     })
   );
   return texs;

@@ -20,11 +20,11 @@ if (!url) { console.error('Uso: node dissecar.mjs <url>'); process.exit(1); }
 const PARTS = {
   head: { crop: [258, 60, 384, 400], rot: 0, circle: true },
   torso: { crop: [338, 455, 224, 430], rot: 0 },
-  upperarm: { crop: [128, 495, 270, 280], rot: -45, split: 'top' },
-  forearm: { crop: [128, 495, 270, 280], rot: -45, split: 'bottom' },
-  hand: { crop: [80, 660, 135, 145], rot: -45 },
+  upperarm: { crop: [140, 500, 250, 235], rot: 45, split: 'top' },
+  forearm: { crop: [140, 500, 250, 235], rot: 45, split: 'bottom' },
+  hand: { crop: [80, 660, 135, 145], rot: 45 },
   thigh: { crop: [336, 878, 100, 158], rot: 4 },
-  shin: { crop: [308, 1018, 125, 160], rot: 4 },
+  shin: { crop: [308, 1018, 125, 160], rot: 4, flip: true },
 };
 
 const res = await fetch(url);
@@ -48,13 +48,13 @@ for (const [name, cfg] of Object.entries(PARTS)) {
   if (cfg.split) {
     const h2 = Math.round(t.info.height * 0.56);
     const top = cfg.split === 'top' ? 0 : t.info.height - h2;
-    t = await sharp(t.data, { raw: { width: t.info.width, height: t.info.height, channels: 4 } })
+    t = await sharp(t.data)
       .extract({ left: 0, top, width: t.info.width, height: h2 })
       .png().toBuffer({ resolveWithObject: true });
   }
   // enquadra num quadrado centrado
   const side = Math.max(t.info.width, t.info.height);
-  let framed = await sharp(t.data, { raw: { width: t.info.width, height: t.info.height, channels: 4 } })
+  let framed = await sharp(t.data)
     .extend({
       top: Math.floor((side - t.info.height) / 2),
       bottom: Math.ceil((side - t.info.height) / 2),
@@ -67,7 +67,7 @@ for (const [name, cfg] of Object.entries(PARTS)) {
     framed = await sharp(framed).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer();
   }
   const dest = path.join(OUT, `${name}.webp`);
-  await sharp(framed).resize(512, 512).webp({ quality: 92 }).toFile(dest);
+  await (cfg.flip ? sharp(framed).flop() : sharp(framed)).resize(512, 512).webp({ quality: 92 }).toFile(dest);
   console.log(`✓ ${name} instalado (${cfg.crop.join(',')}${cfg.rot ? ` rot ${cfg.rot}` : ''}${cfg.split ? ` ${cfg.split}` : ''})`);
 }
 console.log('Dissecação completa.');
