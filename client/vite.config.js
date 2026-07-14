@@ -28,6 +28,14 @@ export default defineConfig({
     },
   ],
   define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        provador: resolve(__dirname, 'provador.html'), // provador offline do boneco (dev)
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': 'http://localhost:3001',

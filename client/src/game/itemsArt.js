@@ -324,14 +324,26 @@ const TEMPLATES = {
 
   // -------- cabeça / rosto --------
   band({ g, T, sk, face, elapsed }, p) {
+    // bandana do pôster: faixa arqueada NA TESTA (acima dos olhos), nó atrás
+    // e duas pontas longas dançando ao vento
     const col = C(p.color);
     const [hx, hy] = T(sk.head);
-    const R = 16;
-    g.rect(hx - R, hy - 5, R * 2, 8).fill(col);
-    const wind = Math.sin(elapsed * 9) * 5;
-    const bx = hx - face * R;
-    g.moveTo(bx, hy - 1).lineTo(bx - face * 16, hy - 6 + wind).lineTo(bx - face * 13, hy + 2 + wind * 0.5).closePath().fill(col);
-    g.moveTo(bx, hy + 1).lineTo(bx - face * 13, hy + 7 - wind * 0.6).lineTo(bx - face * 9, hy + 10).closePath().fill(col);
+    const R = 19;
+    const y0 = hy - 12;
+    g.moveTo(hx - R, y0 + 2).quadraticCurveTo(hx, y0 - 3, hx + R, y0 + 2)
+      .lineTo(hx + R, y0 + 9).quadraticCurveTo(hx, y0 + 4, hx - R, y0 + 9)
+      .closePath().fill(col);
+    g.moveTo(hx - R + 2, y0 + 3.4).quadraticCurveTo(hx, y0 - 1.2, hx + R - 2, y0 + 3.4)
+      .stroke({ width: 1.6, color: 0xffffff, alpha: 0.25 });
+    const bx = hx - face * (R - 1), by = y0 + 5;
+    g.circle(bx, by, 3.4).fill(col);
+    const wind = Math.sin(elapsed * 9) * 6, wind2 = Math.sin(elapsed * 9 + 1.4) * 5;
+    g.moveTo(bx, by - 2).quadraticCurveTo(bx - face * 14, by - 8 + wind, bx - face * 26, by - 4 + wind)
+      .lineTo(bx - face * 24, by + 2 + wind * 0.6).quadraticCurveTo(bx - face * 12, by + 1, bx, by + 2)
+      .closePath().fill(col);
+    g.moveTo(bx, by).quadraticCurveTo(bx - face * 10, by + 8 - wind2 * 0.5, bx - face * 20, by + 12 + wind2)
+      .lineTo(bx - face * 17, by + 16 + wind2).quadraticCurveTo(bx - face * 8, by + 10, bx, by + 4)
+      .closePath().fill(col);
   },
   hat({ g, T, sk }, p) {
     const col = C(p.color ?? '#c9a35a');
