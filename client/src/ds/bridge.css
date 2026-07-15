@@ -870,3 +870,122 @@ body .lobby-grid, body .dash-grid { gap: 10px; }
   .loja-menu > button { flex: 1 1 auto; }
   .loja-pagar { flex-direction: row; align-items: center; width: 100%; }
 }
+
+/* ============================================================
+   FASE 8 — HUD DE LUTA: retratos, emblemas e placa do mockup
+   ============================================================ */
+.bt-linha { display: flex; align-items: flex-start; gap: 9px; }
+.bt-linha.inv { justify-content: flex-end; }
+.bt-plate-info { min-width: 0; flex: 1; }
+.bt-retrato {
+  position: relative; flex: none; width: 54px; height: 54px; border-radius: 50%;
+  border: 2.5px solid var(--sd-blood);
+  box-shadow: 0 0 14px rgba(217, 4, 41, 0.5), inset 0 0 8px rgba(0, 0, 0, 0.6);
+}
+.bt-retrato img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.bt-retrato.ele { border-color: #8b5cf6; box-shadow: 0 0 14px rgba(139, 92, 246, 0.5), inset 0 0 8px rgba(0, 0, 0, 0.6); }
+.bt-retrato.bot { border-color: #5f6a78; box-shadow: 0 0 12px rgba(120, 140, 160, 0.4); }
+.bt-nivel {
+  position: absolute; bottom: -5px; left: -5px;
+  min-width: 20px; padding: 1px 4px; text-align: center;
+  font-family: var(--sd-font-impact); font-size: 12px; color: var(--sd-bone);
+  background: linear-gradient(180deg, #241a1f, #0e0a0c); border: 1px solid #3a2a31;
+  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+}
+.bt-sub {
+  display: flex; align-items: center; gap: 4px; margin: 1px 0 4px;
+  font: 700 9.5px var(--sd-font-ui); letter-spacing: 0.14em; color: var(--sd-muted); text-transform: uppercase;
+}
+.bt-plate.right .bt-sub { justify-content: flex-end; }
+.bt-emblema { width: 16px; height: 16px; object-fit: contain; }
+.bt-meio { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.bt-modo {
+  font: 700 9.5px var(--sd-font-ui); letter-spacing: 0.22em; color: var(--sd-muted);
+  text-transform: uppercase; text-shadow: 0 1px 3px #000;
+}
+/* anúncio em faixa de pincel */
+.bt-announce.show {
+  padding: 8px 26px;
+  background: linear-gradient(100deg, transparent, rgba(10, 6, 8, 0.92) 12%, rgba(10, 6, 8, 0.92) 88%, transparent);
+  box-shadow: 0 0 30px rgba(217, 4, 41, 0.25);
+  clip-path: polygon(2% 18%, 98% 0, 100% 82%, 3% 100%);
+}
+@media (max-width: 700px) {
+  .bt-retrato { width: 40px; height: 40px; }
+  .bt-sub { display: none; }
+}
+
+/* ============================================================
+   FASE 9 — TELA DE RESULTADO: a cerimônia do mockup
+   ============================================================ */
+.res-overlay { backdrop-filter: blur(6px); }
+.res-tela {
+  width: min(880px, 94vw); max-height: 92vh; overflow-y: auto;
+  padding: 26px 30px 22px;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(217, 4, 41, 0.16), transparent 55%),
+    linear-gradient(180deg, rgba(22, 12, 16, 0.98), rgba(9, 6, 8, 0.99));
+  clip-path: var(--sd-clip-panel); border-radius: 0;
+  box-shadow: var(--sd-depth-3), 0 0 60px rgba(217, 4, 41, 0.2);
+  text-align: center; animation: sd-rise 0.35s var(--sd-ease-snap);
+}
+.res-topo { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+.res-lutador { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.res-lutador.ele { flex-direction: row-reverse; text-align: right; }
+.res-avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid var(--sd-blood); box-shadow: 0 0 18px rgba(217, 4, 41, 0.45); flex: none; }
+.res-lutador.ele .res-avatar { border-color: #8b5cf6; box-shadow: 0 0 18px rgba(139, 92, 246, 0.45); }
+.res-lut-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.res-lut-info b { font: 800 17px var(--sd-font-ui); letter-spacing: 0.06em; color: var(--sd-bone); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.res-lut-info span { font: 700 10.5px var(--sd-font-ui); letter-spacing: 0.14em; text-transform: uppercase; }
+.res-centro { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.res-titulo { margin: 0; font-family: var(--sd-font-display); font-size: clamp(44px, 8vw, 74px); line-height: 0.95; letter-spacing: 0.02em; }
+.res-titulo.win { color: #fff; text-shadow: 0 0 34px rgba(255, 255, 255, 0.35), 0 4px 14px #000; }
+.res-titulo.lose { color: var(--sd-blood-hot); text-shadow: 0 0 30px rgba(255, 34, 68, 0.45), 0 4px 14px #000; }
+.res-centro small { font: 800 12px var(--sd-font-ui); letter-spacing: 0.24em; color: var(--sd-blood-hot); text-transform: uppercase; }
+.res-placar { display: flex; align-items: baseline; gap: 12px; margin-top: 4px; font-family: var(--sd-font-impact); }
+.res-placar b { font-size: 42px; line-height: 1; }
+.res-placar .p-eu { color: var(--sd-blood-hot); }
+.res-placar .p-ele { color: #b39af5; }
+.res-placar span { font: 800 13px var(--sd-font-ui); letter-spacing: 0.2em; color: var(--sd-muted); }
+.res-grid { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.res-cartao {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 132px; padding: 12px 18px;
+  background: linear-gradient(180deg, rgba(24, 14, 18, 0.92), rgba(11, 7, 9, 0.96));
+  border: 1px solid #2c1f25;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.res-cartao small { font: 700 9.5px var(--sd-font-ui); letter-spacing: 0.2em; color: var(--sd-muted); }
+.res-cartao b { font-family: var(--sd-font-impact); font-size: 30px; line-height: 1; }
+.res-cartao .rc-roxo { color: #b39af5; }
+.res-cartao .rc-ouro { color: var(--sd-gold-hot); }
+.res-cartao .rc-sangue { color: var(--sd-blood-hot); }
+.res-cartao .sd-icon { color: var(--sd-muted); }
+.res-cartao.rc-item em { font: 700 12px var(--sd-font-ui); color: var(--sd-r-raro); font-style: normal; }
+.res-rank {
+  display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px;
+  padding: 10px; background: rgba(255, 255, 255, 0.025);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.res-rank .rank-img { width: 74px; height: 74px; object-fit: contain; }
+.res-rank-info { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.res-rank-info small { font: 700 9.5px var(--sd-font-ui); letter-spacing: 0.2em; color: var(--sd-muted); }
+.res-rank-info b { font-family: var(--sd-font-impact); font-size: 24px; letter-spacing: 0.08em; }
+.res-rank-info span { font: 600 13px var(--sd-font-ui); color: var(--sd-bone); }
+.res-rank-info em { font-style: normal; font-family: var(--sd-font-impact); margin-left: 4px; }
+.res-rank-info em.up { color: #4ade80; }
+.res-rank-info em.down { color: var(--sd-blood-hot); }
+.res-bonus { margin: 0 auto 12px; max-width: 420px; text-align: left; }
+.res-bonus > small { display: block; text-align: center; font: 700 9.5px var(--sd-font-ui); letter-spacing: 0.22em; color: var(--sd-muted); margin-bottom: 6px; }
+.res-bonus-linha {
+  display: flex; align-items: center; gap: 8px; padding: 4px 10px;
+  font: 600 12.5px var(--sd-font-ui); color: var(--sd-bone);
+}
+.res-bonus-linha .sd-icon { color: var(--sd-gold-hot); }
+.res-bonus-linha b { margin-left: auto; font-family: var(--sd-font-impact); color: var(--sd-gold-hot); }
+.res-prog { max-width: 460px; margin: 0 auto 14px; }
+.res-voltar { width: auto !important; padding: 12px 30px !important; display: inline-flex; align-items: center; gap: 8px; }
+@media (max-width: 640px) {
+  .res-topo { flex-direction: column; }
+  .res-lutador.ele { flex-direction: row; text-align: left; }
+}

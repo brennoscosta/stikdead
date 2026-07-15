@@ -10,6 +10,7 @@ import { getSocket } from '../lib/socket.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import Navbar from '../lib/Navbar.jsx';
+import { rankArte, rankNome } from '../ds/rank.js';
 import { api } from '../lib/api.js';
 import '../battle.css';
 
@@ -319,15 +320,36 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       >{mutedUi ? '🔇' : '🔊'}</button>
       <div className="bt-hud">
         <div className="bt-plate left">
-          <div className="bt-name">{profile.fighter_name}</div>
-          <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
-          <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
+          <div className="bt-linha">
+            <div className="bt-retrato eu">
+              <img src="/arte/avatar-padrao.webp" alt="" />
+              <b className="bt-nivel">{profile.level}</b>
+            </div>
+            <div className="bt-plate-info">
+              <div className="bt-name">{profile.fighter_name}</div>
+              <div className="bt-sub"><img className="bt-emblema rank-img" src={rankArte(profile.tier)} alt="" /> {rankNome(profile.tier)}</div>
+              <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
+              <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
+            </div>
+          </div>
         </div>
-        <div className="bt-timer" ref={hud.timer}>99</div>
+        <div className="bt-meio">
+          <div className="bt-modo">TREINO · {DIFF_LABEL[difficulty]}</div>
+          <div className="bt-timer" ref={hud.timer}>99</div>
+        </div>
         <div className="bt-plate right">
-          <div className="bt-name">BOT · {DIFF_LABEL[difficulty]}</div>
-          <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
-          <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
+          <div className="bt-linha inv">
+            <div className="bt-plate-info">
+              <div className="bt-name">BOT · {DIFF_LABEL[difficulty]}</div>
+              <div className="bt-sub">UNIDADE DE TREINO</div>
+              <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
+              <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
+            </div>
+            <div className="bt-retrato ele bot">
+              <img src="/arte/bot.png" alt="" />
+              <b className="bt-nivel">IA</b>
+            </div>
+          </div>
         </div>
       </div>
 

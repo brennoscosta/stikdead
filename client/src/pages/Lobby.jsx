@@ -836,14 +836,24 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
               <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
             </div>
           ) : (
-            <>
-              <div className="bt-name">{names[me]}</div>
-              <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
-              <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
-            </>
+            <div className="bt-linha">
+              <div className="bt-retrato eu">
+                <img src="/arte/avatar-padrao.webp" alt="" />
+                <b className="bt-nivel">{session.players[me]?.level ?? profile.level}</b>
+              </div>
+              <div className="bt-plate-info">
+                <div className="bt-name">{names[me]}</div>
+                <div className="bt-sub"><img className="bt-emblema rank-img" src={rankArte(session.players[me]?.tier || profile.tier)} alt="" /> {rankNome(session.players[me]?.tier || profile.tier)}</div>
+                <div className="bt-bar"><div className="bt-fill" ref={hud.hpA} /></div>
+                <div className="bt-dots" ref={hud.dotsA} data-wins="0"><i /><i /></div>
+              </div>
+            </div>
           )}
         </div>
-        <div className="bt-timer" ref={hud.timer}>99</div>
+        <div className="bt-meio">
+          <div className="bt-modo">{quatro ? '2V2 · CLÃ' : 'RANKED 1V1'}</div>
+          <div className="bt-timer" ref={hud.timer}>99</div>
+        </div>
         <div className="bt-plate right">
           {quatro ? (
             <div className="bt-team">
@@ -858,11 +868,18 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
               <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
             </div>
           ) : (
-            <>
-              <div className="bt-name">{names[opp]}</div>
-              <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
-              <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
-            </>
+            <div className="bt-linha inv">
+              <div className="bt-plate-info">
+                <div className="bt-name">{names[opp]}</div>
+                <div className="bt-sub"><img className="bt-emblema rank-img" src={rankArte(session.players[opp]?.tier)} alt="" /> {rankNome(session.players[opp]?.tier)}</div>
+                <div className="bt-bar"><div className="bt-fill" ref={hud.hpB} /></div>
+                <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
+              </div>
+              <div className="bt-retrato ele">
+                <img src="/arte/avatar-padrao.webp" alt="" />
+                <b className="bt-nivel">{session.players[opp]?.level ?? '?'}</b>
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -927,57 +944,80 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         </div>
       )}
 
-      {result && (
-        <div className="bt-overlay">
-          <div className="bt-panel">
-            <h1 className={`bt-result ${(result.won ?? (result.winnerSide === me)) ? 'win' : 'lose'}`}>
-              {(result.won ?? (result.winnerSide === me)) ? 'VITÓRIA' : 'DERROTA'}
-            </h1>
-            {result.wo && (
-              <p style={{ color: '#9a938a', margin: '0 0 10px' }}>
-                {(result.won ?? (result.winnerSide === me)) ? 'Vitória por W.O. — o oponente abandonou.' : 'Derrota por abandono.'}
-              </p>
-            )}
-            <div className="bt-score">
-              {result.wins?.[me]} <span>VS</span> {result.wins?.[opp]}
-            </div>
-            {result.rewards && (
-              <div className="bt-rewards">
-                <div className="bt-reward xp">+{result.rewards.xp} <span>EXP</span></div>
-                {result.bet ? (
-                  <div className={`bt-reward ${result.bet.won ? 'gold' : 'loss'}`}>
-                    {result.bet.won ? '+' : '-'}{result.bet.amount.toLocaleString('pt-BR')} <span>{result.bet.kind === 'diamonds' ? '💎 APOSTA' : '🪙 APOSTA'}</span>
-                  </div>
-                ) : (
-                  <div className={`bt-reward ${result.rewards.coins >= 0 ? 'gold' : 'loss'}`}>{result.rewards.coins >= 0 ? `+${result.rewards.coins}` : `-${Math.abs(result.rewards.coins)}`} <span>MOEDAS</span></div>
-                )}
-                {rankLine && <div className="bt-bonus">🏆 {rankLine}</div>}
-                {result.rewards.bonuses?.map((b) => (
-                  <div key={b.label} className="bt-bonus">★ {b.label} <span>+{b.xp}</span></div>
-                ))}
-                {result.itemDrop && (
-                  <div className="bt-levelup" style={{ color: '#3d7bd9' }}>
-                    🎁 NOVO ITEM: {result.itemDrop.name}
-                  </div>
-                )}
-                {result.rewards.levelsUp > 0 && (
-                  <div className="bt-levelup">LEVEL UP! Nível {result.profile.level}</div>
-                )}
-                <div className="bt-prog">
-                  <div
-                    className="bt-prog-fill"
-                    style={{ width: `${Math.round((result.profile.xp / result.profile.xpNext) * 100)}%` }}
-                  />
+      {result && (() => {
+        const won = result.won ?? (result.winnerSide === me);
+        return (
+        <div className="bt-overlay res-overlay">
+          <div className="res-tela">
+            <header className="res-topo">
+              <div className="res-lutador eu">
+                <img className="res-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                <div className="res-lut-info">
+                  <b>{names[me]}</b>
+                  <span style={{ color: rankCor(session.players[me]?.tier) }}>{rankNome(session.players[me]?.tier)}</span>
                 </div>
-                <div className="bt-prog-label">
-                  Nível {result.profile.level} · {result.profile.xp}/{result.profile.xpNext} EXP
+              </div>
+              <div className="res-centro">
+                <h1 className={`res-titulo ${won ? 'win' : 'lose'}`}>{won ? 'VITÓRIA' : 'DERROTA'}</h1>
+                <small>{result.wo ? (won ? 'POR W.O. — O OPONENTE ABANDONOU' : 'DERROTA POR ABANDONO') : (won ? 'VOCÊ É IMPLACÁVEL!' : 'A VINGANÇA VEM NA PRÓXIMA')}</small>
+                <div className="res-placar"><b className="p-eu">{result.wins?.[me]}</b><span>VS</span><b className="p-ele">{result.wins?.[opp]}</b></div>
+              </div>
+              <div className="res-lutador ele">
+                <img className="res-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                <div className="res-lut-info">
+                  <b>{names[opp]}</b>
+                  <span style={{ color: rankCor(session.players[opp]?.tier) }}>{rankNome(session.players[opp]?.tier)}</span>
+                </div>
+              </div>
+            </header>
+
+            {result.rewards && (
+              <div className="res-grid">
+                <section className="res-cartao"><small>EXP</small><b className="rc-roxo">+{result.rewards.xp}</b><Icon name="xp" size={18} weight="forte" /></section>
+                {result.bet ? (
+                  <section className="res-cartao"><small>APOSTA</small><b className={result.bet.won ? 'rc-ouro' : 'rc-sangue'}>{result.bet.won ? '+' : '-'}{result.bet.amount.toLocaleString('pt-BR')}</b><Icon name={result.bet.kind === 'diamonds' ? 'diamante' : 'moeda'} size={18} weight="forte" /></section>
+                ) : (
+                  <section className="res-cartao"><small>MOEDAS</small><b className={result.rewards.coins >= 0 ? 'rc-ouro' : 'rc-sangue'}>{result.rewards.coins >= 0 ? `+${result.rewards.coins}` : `-${Math.abs(result.rewards.coins)}`}</b><Icon name="moeda" size={18} weight="forte" /></section>
+                )}
+                {result.itemDrop && (
+                  <section className="res-cartao rc-item"><small>NOVO ITEM</small><ItemIcon item={result.itemDrop} size={46} /><em>{result.itemDrop.name}</em></section>
+                )}
+              </div>
+            )}
+
+            {result.rank && (
+              <div className="res-rank">
+                <img className="rank-img" src={rankArte(result.rank.tier)} alt="" />
+                <div className="res-rank-info">
+                  <small>PROGRESSO DE RANK</small>
+                  <b style={{ color: rankCor(result.rank.tier) }}>{rankNome(result.rank.tier)}</b>
+                  <span>{result.rank.points} pts <em className={result.rank.delta >= 0 ? 'up' : 'down'}>{result.rank.delta > 0 ? '+' : ''}{result.rank.delta}</em></span>
                 </div>
               </div>
             )}
-            <button className="btn btn-blood" onClick={onDone}>Voltar ao lobby</button>
+
+            {result.rewards?.bonuses?.length > 0 && (
+              <div className="res-bonus">
+                <small>DESEMPENHO</small>
+                {result.rewards.bonuses.map((b) => (
+                  <div key={b.label} className="res-bonus-linha"><Icon name="favorito" size={13} weight="forte" /> {b.label} <b>+{b.xp}</b></div>
+                ))}
+              </div>
+            )}
+
+            {result.rewards && (
+              <div className="res-prog">
+                {result.rewards.levelsUp > 0 && <div className="bt-levelup">LEVEL UP! Nível {result.profile.level}</div>}
+                <div className="bt-prog"><div className="bt-prog-fill" style={{ width: `${Math.round((result.profile.xp / result.profile.xpNext) * 100)}%` }} /></div>
+                <div className="bt-prog-label">Nível {result.profile.level} · {result.profile.xp}/{result.profile.xpNext} EXP</div>
+              </div>
+            )}
+
+            <button className="btn btn-blood res-voltar" onClick={onDone}><Icon name="lobby" size={14} weight="forte" /> VOLTAR AO LOBBY</button>
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
