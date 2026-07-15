@@ -11,6 +11,7 @@ import PatentTip from '../lib/PatentTip.jsx';
 import StatusMedal, { formaMetal } from '../lib/StatusMedal.jsx';
 import { RARITY_LABEL } from './Shop.jsx';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
+import Icon from '../ds/Icon.jsx';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
 const TIER_COLOR = {
@@ -78,7 +79,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
       {/* cabeçalho com arte pintada */}
       <section className="dash-hero">
         <div className="dash-hero-info">
-          <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações">⚙️</button>
+          <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações"><Icon name="config" size="sm" weight="forte" /></button>
           {editing ? (
             <div className="dash-edit">
               <input value={name} onChange={(e) => setName(e.target.value)} maxLength={16} />
@@ -89,7 +90,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           ) : (
             <h1 className="dash-name">
               {profile.fighter_name}
-              <button className="btn-link" onClick={() => setEditing(true)} aria-label="Editar nome">✏️</button>
+              <button className="btn-link" onClick={() => setEditing(true)} aria-label="Editar nome"><Icon name="editar" size={14} /></button>
             </h1>
           )}
           <div className="dash-sub">
@@ -97,7 +98,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             <span className="tier-badge" style={{ borderColor: formaMetal(profile).cor, color: formaMetal(profile).cor }}>
               {formaMetal(profile).nome}
             </span>
-            🏆 {fmt(profile.rank_points)}
+            <span className="dash-sub-pts"><Icon name="trofeu" size={14} weight="forte" /> {fmt(profile.rank_points)}</span>
           </div>
           <div className="dash-xp">
             <div className="mission-bar"><div className="mission-fill" style={{ width: `${pct}%` }} /></div>
@@ -105,11 +106,15 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           </div>
           <div className="dash-actions">
           {profile.email === 'souzacostabrenno@gmail.com' && (
-            <button className="btn btn-ghost" style={{ width: 'auto' }} onClick={() => nav('/admin')}>⚙️ Admin</button>
+            <button className="btn btn-ghost" style={{ width: 'auto' }} onClick={() => nav('/admin')}><Icon name="config" size={14} /> Admin</button>
           )}
-            <button className="btn btn-blood" onClick={() => nav('/lobby')}>⚔️ Jogar online</button>
-            <button className="btn btn-ghost" onClick={() => nav('/treino')}>🤖 Treino vs bot</button>
+            <button className="btn btn-blood" onClick={() => nav('/lobby')}><Icon name="espada" size={14} weight="forte" /> Jogar online</button>
+            <button className="btn btn-ghost" onClick={() => nav('/treino')}><Icon name="soco" size={14} /> Treino vs bot</button>
           </div>
+        </div>
+        <div className="hero-emblema" style={{ '--rank-cor': formaMetal(profile).cor }} aria-hidden="true">
+          <span className="emb-anel"><Icon name="liga" size="xl" weight="forte" /></span>
+          <span>{formaMetal(profile).nome}</span>
         </div>
       </section>
 
@@ -117,7 +122,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
       <section className="conq-wrap">
         <div className="conq-head">
           <button className="conq-title-link" onClick={() => nav('/carreira')} title="Ver a carreira completa">
-            🏆 CONQUISTAS <span className="conq-arrow">›</span>
+            <Icon name="trofeu" size={16} weight="forte" className="h2-ico" /> CONQUISTAS <span className="conq-arrow">›</span>
           </button>
           <span className="conq-progress">
             <b>{PATENTS.filter((p) => profile.level >= p.level).length}</b>/{PATENTS.length} patentes
@@ -135,7 +140,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
                     <img src={p.icon} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }} />
                     <span style={{ display: 'none' }}>{p.emoji}</span>
                   </>
-                ) : <span className="conq-mini-lock">🔒</span>}
+                ) : <span className="conq-mini-lock"><Icon name="cadeado" size={15} /></span>}
               </button>
             );
           })}
@@ -145,20 +150,21 @@ export default function Profile({ profile, onUpdate, onLogout }) {
       <div className="dash-grid">
         {/* resumo de carreira */}
         <section className="dash-card span2">
-          <h2>RESUMO DE CARREIRA</h2>
+          <h2><Icon name="conquista" size={15} weight="forte" className="h2-ico" /> RESUMO DE CARREIRA</h2>
           <div className="dash-stats-row">
             <div className="dash-stat"><b>{fmt(profile.wins)}</b><span>VITÓRIAS</span></div>
             <div className="dash-stat"><b>{fmt(profile.losses)}</b><span>DERROTAS</span></div>
             <div className="dash-stat"><b style={{ color: '#e0a10b' }}>{fmt(profile.rank_points)}</b><span>PONTOS</span></div>
-            <div className="dash-stat"><b>{winRate}%</b><span>WIN RATE</span></div>
+            <div className="dash-stat"><b>{winRate}%</b><span>WIN RATE</span><i className="stat-medidor"><em style={{ width: `${winRate}%` }} /></i></div>
             <div className="dash-stat"><b style={{ color: '#ff2244' }}>{profile.streak || 0}</b><span>SEQUÊNCIA</span></div>
           </div>
         </section>
 
         {/* rank atual */}
         <section className="dash-card">
-          <h2>RANK ATUAL</h2>
+          <h2><Icon name="liga" size={15} weight="forte" className="h2-ico" /> RANK ATUAL</h2>
           <div className="dash-rank">
+            <span className="rank-emblema" style={{ '--rank-cor': formaMetal(profile).cor }} aria-hidden="true"><Icon name="liga" size="lg" weight="forte" /></span>
             <span className="dash-rank-tier" style={{ color: formaMetal(profile).cor }}>{formaMetal(profile).nome}</span>
             <span className="dash-rank-pts">{fmt(profile.rank_points)} pontos</span>
             <div className="mission-bar"><div className="mission-fill" style={{ width: `${rankPct}%` }} /></div>
@@ -169,7 +175,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
         {/* build favorita */}
         <section className="dash-card span2">
-          <h2>SUA BUILD</h2>
+          <h2><Icon name="armadura" size={15} weight="forte" className="h2-ico" /> SUA BUILD</h2>
           <div className="dash-build">
             <div className="dash-build-preview" ref={previewHost} />
             <div className="dash-build-items">
@@ -190,7 +196,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
         {/* últimas partidas */}
         <section className="dash-card">
-          <h2>ÚLTIMAS PARTIDAS</h2>
+          <h2><Icon name="espada" size={15} weight="forte" className="h2-ico" /> ÚLTIMAS PARTIDAS</h2>
           <button className="btn-link" style={{ float: 'right', marginTop: -34 }} onClick={() => nav('/partidas')}>Ver todas →</button>
           <div className="dash-matches">
             {history.length === 0 && <p className="dash-empty">Nenhuma partida ainda.</p>}
@@ -207,7 +213,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
         {/* estatísticas gerais */}
         <section className="dash-card span2">
-          <h2>ESTATÍSTICAS GERAIS</h2>
+          <h2><Icon name="nivel" size={15} weight="forte" className="h2-ico" /> ESTATÍSTICAS GERAIS</h2>
           <div className="dash-stats-grid">
             <div><span>PARTIDAS JOGADAS</span><b>{fmt(summary?.partidas)}</b></div>
             <div><span>TEMPO LUTADO</span><b>{fmtTime(summary?.tempo_s || 0)}</b></div>
@@ -222,7 +228,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
         {/* estilo de luta */}
         <section className="dash-card span2">
-          <h2>SEU ESTILO DE LUTA</h2>
+          <h2><Icon name="combo" size={15} weight="forte" className="h2-ico" /> SEU ESTILO DE LUTA</h2>
           <div className="style-grid">
             {STYLE_KEYS.map((k) => {
               const st = STYLES[k];
@@ -241,10 +247,10 @@ export default function Profile({ profile, onUpdate, onLogout }) {
                   }}
                 >
                   <b>{st.label} {k === 'ronin' && <span className="style-free">GRÁTIS</span>}</b>
-                  <span className="style-skill">⚡ {st.skill}</span>
+                  <span className="style-skill"><Icon name="ultimate" size={12} /> {st.skill}</span>
                   <small>{st.desc}</small>
                   {on && <span className="style-on">SELECIONADO ✓</span>}
-                  {!owned && <span className="style-lock">🔒 DESBLOQUEIE NA LOJA</span>}
+                  {!owned && <span className="style-lock"><Icon name="cadeado" size={12} /> DESBLOQUEIE NA LOJA</span>}
                 </button>
               );
             })}
@@ -254,9 +260,9 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
         {/* clã + status */}
         <section className="dash-card soon">
-          <h2>CLÃ</h2>
+          <h2><Icon name="cla" size={15} weight="forte" className="h2-ico" /> CLÃ</h2>
           <ClanCardResumo />
-          <h2 style={{ marginTop: 14 }}>STATUS ATUAL</h2>
+          <h2 style={{ marginTop: 14 }}><Icon name="aura" size={15} weight="forte" className="h2-ico" /> STATUS ATUAL</h2>
           <StatusMedal profile={profile} />
           <button className="btn btn-ghost" style={{ marginTop: 'auto' }} onClick={onLogout}>
             Sair da conta
@@ -291,7 +297,7 @@ function ClanCardResumo() {
         <b style={{ color: '#ffd76a' }}>{c.name}</b>{meu.isOwner ? ' 👑' : ''}
         {c.motto && <em className="cla-resumo-lema"> “{c.motto}”</em>}
         <small style={{ display: 'block', color: 'var(--muted)' }}>
-          👥 {c.membros.length} · ⚔️ {c.reputacao.vitorias} vitórias · 🛡️ {c.reputacao.duoWins}/{c.reputacao.duoBattles} batalhas
+          <Icon name="amigos" size={12} /> {c.membros.length} · <Icon name="espada" size={12} /> {c.reputacao.vitorias} vitórias · <Icon name="escudo" size={12} /> {c.reputacao.duoWins}/{c.reputacao.duoBattles} batalhas
         </small>
       </span>
     </div>

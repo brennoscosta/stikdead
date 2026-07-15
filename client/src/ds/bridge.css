@@ -289,3 +289,92 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .lobby-cta, .lobby-cta.is-busca, .lobby-cta.is-busca .sd-icon, .mission-bar::after, .lobby-bot-row button.hot { animation: none; }
 }
+
+/* ============================================================
+   FASE 5 — NOVO PERFIL: cartão de jogador, emblema de rank, medidores
+   ============================================================ */
+
+/* o herói vira cartão de jogador: chanfro AAA em vez de retângulo web */
+.dash-hero { clip-path: var(--sd-clip-panel); border-radius: 0 !important; }
+
+/* engrenagem na voz do sistema (SVG no lugar do emoji) */
+.cfg-gear { display: grid; place-items: center; color: var(--sd-bone); }
+.cfg-gear:hover { color: var(--sd-blood-hot); box-shadow: 0 0 14px rgba(217, 4, 41, 0.35); }
+.dash-sub .dash-sub-pts { display: inline-flex; align-items: center; gap: 5px; }
+.dash-sub .sd-icon { color: var(--sd-gold-hot); }
+
+/* ===== emblema de rank do herói: a medalha da conta ===== */
+.hero-emblema {
+  position: absolute; right: 100px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--rank-cor, var(--sd-gold)); z-index: 5; pointer-events: none;
+}
+.hero-emblema .emb-anel {
+  width: 106px; height: 106px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 2.5px solid var(--rank-cor, var(--sd-gold));
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.55));
+  box-shadow:
+    0 0 30px color-mix(in srgb, var(--rank-cor, #e0a10b) 40%, transparent),
+    inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+.hero-emblema > span:last-child {
+  font-family: var(--sd-font-impact); font-size: 17px; letter-spacing: 0.14em;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--rank-cor, #e0a10b) 55%, transparent);
+}
+@media (max-width: 900px) {
+  .hero-emblema { position: static; transform: none; flex-direction: row; margin-top: 10px; }
+  .hero-emblema .emb-anel { width: 54px; height: 54px; border-width: 2px; }
+  .hero-emblema .emb-anel .sd-icon { width: 30px; height: 30px; }
+}
+
+/* ===== emblema no cartão RANK ATUAL ===== */
+.dash-rank { text-align: center; }
+.rank-emblema {
+  width: 76px; height: 76px; border-radius: 50%;
+  display: grid; place-items: center; margin: 2px auto 6px;
+  color: var(--rank-cor, var(--sd-gold));
+  border: 2px solid var(--rank-cor, var(--sd-gold));
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.55));
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--rank-cor, #e0a10b) 38%, transparent),
+    inset 0 0 16px rgba(0, 0, 0, 0.55);
+}
+.dash-rank-tier { font: 400 32px var(--sd-font-impact) !important; letter-spacing: 0.1em !important; }
+
+/* ===== medidores: leitura imediata sob os números ===== */
+.dash-stat { position: relative; overflow: hidden; }
+.stat-medidor {
+  position: absolute; left: 12px; right: 12px; bottom: 7px; height: 3px;
+  background: rgba(255, 255, 255, 0.08); display: block;
+}
+.stat-medidor em {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--sd-gold), var(--sd-gold-hot));
+  box-shadow: 0 0 8px rgba(224, 161, 11, 0.55);
+}
+.dash-stats-grid b { font-family: var(--sd-font-impact); font-size: 22px; letter-spacing: 0.04em; }
+
+/* ===== últimas partidas: vitória em ouro, derrota em sangue ===== */
+.dash-match { border-left-width: 3px !important; transition: transform 0.15s var(--sd-ease-out); }
+.dash-match:hover { transform: translateX(3px); }
+.dash-match.win { border-color: var(--sd-gold) !important; }
+.dash-match.win b { color: var(--sd-gold-hot) !important; text-shadow: 0 0 10px rgba(224, 161, 11, 0.4); }
+.dash-match.loss b { color: var(--sd-blood-hot) !important; }
+
+/* ===== estilo de luta e conquistas: chanfro na moldura ===== */
+.style-card {
+  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  border-radius: 0 !important;
+}
+.style-skill .sd-icon, .style-lock .sd-icon { vertical-align: -2px; color: var(--sd-gold-hot); }
+.style-lock .sd-icon { color: var(--sd-muted); }
+.conq-mini {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  border-radius: 0 !important;
+}
+.conq-mini-lock .sd-icon { color: var(--sd-faint); }
+.conq-title-link .h2-ico { color: var(--sd-gold-hot); }
+
+/* clã: ícones do sistema na linha de reputação */
+.cla-resumo small .sd-icon { vertical-align: -2px; color: var(--sd-muted); }
