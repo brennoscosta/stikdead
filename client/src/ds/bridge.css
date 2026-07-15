@@ -1082,3 +1082,8 @@ body .dash-grid { align-items: start; }
 }
 .style-lock { font: 700 10px var(--sd-font-ui) !important; letter-spacing: 0.12em; color: var(--sd-faint) !important; margin-top: auto; }
 .style-card .style-lock .sd-icon { color: var(--sd-faint); }
+
+/* fix: fatores da forma sem estourar o cartão */
+.medal-info { min-width: 0; flex: 1; }
+.forma-linha { min-width: 0; }
+.forma-linha b { min-width: 0; overflow-wrap: break-word; font-size: 11px; line-height: 1.25; }
