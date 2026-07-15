@@ -467,10 +467,25 @@ export function TouchControls({ inputRef }) {
     document.addEventListener('visibilitychange', soltaTudo);
     window.addEventListener('pagehide', soltaTudo);
     window.addEventListener('blur', soltaTudo);
+
+    // MOBILE: o navegador tenta interpretar dois polegares como PINÇA e sequestra
+    // os toques (o jogador fica com o controle "travado" até completar um zoom).
+    // iOS ignora user-scalable=no — o bloqueio precisa ser nos eventos de gesto.
+    const mataGesto = (e) => e.preventDefault();
+    const mataPinca = (e) => { if (e.touches && e.touches.length > 1) e.preventDefault(); };
+    document.addEventListener('gesturestart', mataGesto, { passive: false });
+    document.addEventListener('gesturechange', mataGesto, { passive: false });
+    document.addEventListener('touchmove', mataPinca, { passive: false });
+    const tiraGestos = () => {
+      document.removeEventListener('gesturestart', mataGesto);
+      document.removeEventListener('gesturechange', mataGesto);
+      document.removeEventListener('touchmove', mataPinca);
+    };
     const zone = stickRef.current;
     const knob = knobRef.current;
-    if (!zone) { 
+    if (!zone) {
       return () => {
+        tiraGestos();
         document.removeEventListener('visibilitychange', soltaTudo);
         window.removeEventListener('pagehide', soltaTudo);
         window.removeEventListener('blur', soltaTudo);
@@ -505,6 +520,7 @@ export function TouchControls({ inputRef }) {
     zone.addEventListener('pointerup', upH);
     zone.addEventListener('pointercancel', upH);
     return () => {
+      tiraGestos();
       zone.removeEventListener('pointerdown', downH);
       zone.removeEventListener('pointermove', moveH);
       zone.removeEventListener('pointerup', upH);

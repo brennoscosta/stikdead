@@ -1187,3 +1187,29 @@ body .dash-grid { align-items: start; }
 
 /* blindagem: nenhuma camada decorativa da luta pode engolir toques */
 .bt-vs, .bt-center, .bt-announce, .bt-combo, .bt-hud, .bt-rotate ~ .bt-vs { pointer-events: none !important; }
+
+/* mobile: a raiz da luta não cede nenhum gesto ao navegador */
+.bt-root, .bt-touch { touch-action: none; -webkit-user-select: none; user-select: none; overscroll-behavior: none; }
+body.in-fight { overflow: hidden; overscroll-behavior: none; }
+
+/* ============================================================
+   FASE M2 — PERFIL: colunas empacotadas (sem buracos) e blocos organizados
+   ============================================================ */
+.dash-grid2 { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 10px !important; align-items: start; }
+.dash-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.dash-grid2 .dash-card.span2 { grid-column: auto; }
+@media (max-width: 980px) { .dash-grid2 { grid-template-columns: 1fr; } }
+
+/* header de card com link à direita (sem float hack) */
+.h2-linha { display: flex; align-items: center; gap: 6px; }
+.h2-link { margin-left: auto; font-size: 11px !important; letter-spacing: 0.08em; }
+
+/* build: grade justa dos itens */
+.dash-build-items { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 8px !important; }
+
+/* status atual: fatores empilhados e legíveis na coluna estreita */
+.medal-art { width: 64px !important; height: 64px !important; }
+.medal-art img { width: 100%; height: 100%; object-fit: cover; }
+.forma-nota b { font-size: 21px; }
+.forma-linha { flex-direction: column; align-items: flex-start; gap: 1px; }
+.forma-linha b { text-align: left; font-size: 12px; line-height: 1.3; text-transform: none; }

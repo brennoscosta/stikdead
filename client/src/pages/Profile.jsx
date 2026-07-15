@@ -166,7 +166,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         </div>
       </section>
 
-      <div className="dash-grid">
+      <div className="dash-grid dash-grid2">
+        <div className="dash-col">
         {/* resumo de carreira */}
         <section className="dash-card span2">
           <h2><Icon name="conquista" size={15} weight="forte" className="h2-ico" /> RESUMO DE CARREIRA</h2>
@@ -179,18 +180,6 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           </div>
         </section>
 
-        {/* rank atual */}
-        <section className="dash-card">
-          <h2><Icon name="liga" size={15} weight="forte" className="h2-ico" /> RANK ATUAL</h2>
-          <div className="dash-rank">
-            <span className="rank-emblema" aria-hidden="true"><img className="rank-img" src={rankArte(profile.tier)} alt="" /></span>
-            <span className="dash-rank-tier" style={{ color: rankCor(profile.tier) }}>{rankNome(profile.tier)}</span>
-            <span className="dash-rank-pts">{fmt(profile.rank_points)} pontos</span>
-            <div className="mission-bar"><div className="mission-fill" style={{ width: `${rankPct}%` }} /></div>
-            <span className="dash-rank-next">{100 - rankPct} pts para o próximo rank</span>
-            <button className="btn-link" onClick={() => nav('/rankings')}>ver ranking →</button>
-          </div>
-        </section>
 
         {/* build favorita */}
         <section className="dash-card span2">
@@ -213,33 +202,6 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           </button>
         </section>
 
-        {/* últimas partidas */}
-        <section className="dash-card">
-          <h2><Icon name="espada" size={15} weight="forte" className="h2-ico" /> ÚLTIMAS PARTIDAS</h2>
-          <button className="btn-link" style={{ float: 'right', marginTop: -34 }} onClick={() => nav('/partidas')}>Ver todas →</button>
-          <div className="dash-matches">
-            {history.length === 0 && <p className="dash-empty">Nenhuma partida ainda.</p>}
-            {history.map((m, i) => (
-              <div key={i} className={`dash-match ${m.won ? 'win' : 'loss'}`}>
-                <b>{m.won ? 'VITÓRIA' : 'DERROTA'}</b>
-                <span className="dm-opp">
-                  {m.opponent_type === 'bot' ? (
-                    <img className="dm-avatar" src="/arte/bot.png" alt="" />
-                  ) : (
-                    <img className="dm-avatar" src="/arte/avatar-padrao.webp" alt="" />
-                  )}
-                  <span className="dm-nome">{m.opponent_type === 'bot' ? `Bot · ${m.difficulty || ''}` : (m.opponent_name || 'Online 1v1')}</span>
-                  {m.opponent_type !== 'bot' && m.opponent_tier && (
-                    <img className="dm-emblema rank-img" src={rankArte(m.opponent_tier)} alt="" title={rankNome(m.opponent_tier)} />
-                  )}
-                </span>
-                <span className="dm-placar">{m.wins_a}x{m.wins_b}</span>
-                <span className="dm-tempo">{tempoAtras(m.created_at)}</span>
-                <span className="dash-match-xp">+{m.xp_gain} XP</span>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* estatísticas gerais */}
         <section className="dash-card span2">
@@ -288,6 +250,46 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           <p className="dash-empty" style={{ marginTop: 8 }}>A skill dispara com <b>E</b> (ou o botão redondo no celular) e tem cooldown próprio.</p>
         </section>
 
+        </div>
+        <div className="dash-col">
+        {/* rank atual */}
+        <section className="dash-card">
+          <h2><Icon name="liga" size={15} weight="forte" className="h2-ico" /> RANK ATUAL</h2>
+          <div className="dash-rank">
+            <span className="rank-emblema" aria-hidden="true"><img className="rank-img" src={rankArte(profile.tier)} alt="" /></span>
+            <span className="dash-rank-tier" style={{ color: rankCor(profile.tier) }}>{rankNome(profile.tier)}</span>
+            <span className="dash-rank-pts">{fmt(profile.rank_points)} pontos</span>
+            <div className="mission-bar"><div className="mission-fill" style={{ width: `${rankPct}%` }} /></div>
+            <span className="dash-rank-next">{100 - rankPct} pts para o próximo rank</span>
+            <button className="btn-link" onClick={() => nav('/rankings')}>ver ranking →</button>
+          </div>
+        </section>
+        {/* últimas partidas */}
+        <section className="dash-card">
+          <h2 className="h2-linha"><Icon name="espada" size={15} weight="forte" className="h2-ico" /> ÚLTIMAS PARTIDAS <button className="btn-link h2-link" onClick={() => nav('/partidas')}>ver todas →</button></h2>
+          <div className="dash-matches">
+            {history.length === 0 && <p className="dash-empty">Nenhuma partida ainda.</p>}
+            {history.map((m, i) => (
+              <div key={i} className={`dash-match ${m.won ? 'win' : 'loss'}`}>
+                <b>{m.won ? 'VITÓRIA' : 'DERROTA'}</b>
+                <span className="dm-opp">
+                  {m.opponent_type === 'bot' ? (
+                    <img className="dm-avatar" src="/arte/bot.png" alt="" />
+                  ) : (
+                    <img className="dm-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                  )}
+                  <span className="dm-nome">{m.opponent_type === 'bot' ? `Bot · ${m.difficulty || ''}` : (m.opponent_name || 'Online 1v1')}</span>
+                  {m.opponent_type !== 'bot' && m.opponent_tier && (
+                    <img className="dm-emblema rank-img" src={rankArte(m.opponent_tier)} alt="" title={rankNome(m.opponent_tier)} />
+                  )}
+                </span>
+                <span className="dm-placar">{m.wins_a}x{m.wins_b}</span>
+                <span className="dm-tempo">{tempoAtras(m.created_at)}</span>
+                <span className="dash-match-xp">+{m.xp_gain} XP</span>
+              </div>
+            ))}
+          </div>
+        </section>
         {/* clã + status */}
         <section className="dash-card soon">
           <h2><Icon name="cla" size={15} weight="forte" className="h2-ico" /> CLÃ</h2>
@@ -298,6 +300,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             Sair da conta
           </button>
         </section>
+        </div>
       </div>
     </div>
   );
