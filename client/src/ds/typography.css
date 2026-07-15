@@ -1,0 +1,48 @@
+/* ============================================================
+   STIKDEAD DS — typography.css
+   3 vozes, organizadas por FUNÇÃO (não por estética):
+   · UI Font      — Barlow Condensed  → menus, inventário, chat, textos
+   · Display Font — Rubik Wet Paint   → marca e títulos de tela (agressiva)
+   · Impact Font  — Bebas Neue        → SÓ números e feedback de impacto
+   Regra de ouro: a Impact Font é reservada. Usar demais mata o efeito.
+   ============================================================ */
+:root {
+  --sd-font-ui: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --sd-font-display: 'Rubik Wet Paint', cursive;
+  --sd-font-impact: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+}
+
+/* ---------- HIERARQUIA ---------- */
+/* H1 — título da tela (Display) */
+.sd-h1 { font: 400 clamp(30px, 4.4vw, 46px)/1.04 var(--sd-font-display); color: var(--sd-bone); letter-spacing: 0.02em; margin: 0; }
+.sd-h1 em { font-style: normal; color: var(--sd-blood-hot); text-shadow: var(--sd-glow-text); }
+/* H2 — seção maior (UI pesada) */
+.sd-h2 { font: 800 clamp(22px, 2.6vw, 30px)/1.1 var(--sd-font-ui); color: var(--sd-bone); letter-spacing: 0.05em; text-transform: uppercase; margin: 0; }
+/* H3 — cabeçalho de painel */
+.sd-h3 { font: 700 clamp(17px, 2vw, 21px)/1.15 var(--sd-font-ui); color: var(--sd-bone); letter-spacing: 0.09em; text-transform: uppercase; margin: 0; }
+/* H4 — subtítulo/moldura */
+.sd-h4 { font: 700 14px/1.2 var(--sd-font-ui); color: var(--sd-muted); letter-spacing: 0.14em; text-transform: uppercase; margin: 0; }
+
+/* ---------- CORPO ---------- */
+.sd-body-l { font: 500 18px/1.5 var(--sd-font-ui); color: var(--sd-bone); }
+.sd-body-m { font: 500 16px/1.5 var(--sd-font-ui); color: var(--sd-bone); }
+.sd-body-s { font: 500 14px/1.45 var(--sd-font-ui); color: var(--sd-muted); }
+.sd-caption { font: 500 12px/1.35 var(--sd-font-ui); color: var(--sd-muted); letter-spacing: 0.04em; }
+.sd-label { font: 700 12px/1 var(--sd-font-ui); color: var(--sd-muted); letter-spacing: 0.16em; text-transform: uppercase; }
+.sd-btn-text { font: 700 16px/1 var(--sd-font-ui); letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* ---------- NUMERIC IMPACT (exclusiva de números e feedback) ----------
+   Dano · Crítico · Combo ×12 · KO · +XP · Ouro · Diamantes · Cronômetro
+   · Nível · Ranking · Recompensas · Barras com número */
+.sd-impact     { font: 400 34px/0.95 var(--sd-font-impact); color: var(--sd-bone); letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
+.sd-impact-xl  { font: 400 clamp(44px, 7vw, 76px)/0.9 var(--sd-font-impact); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.sd-impact-sm  { font: 400 22px/1 var(--sd-font-impact); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+.sd-impact--blood { color: var(--sd-blood-hot); text-shadow: var(--sd-glow-text); }
+.sd-impact--gold  { color: var(--sd-gold-hot); text-shadow: var(--sd-glow-gold); }
+.sd-impact--ice   { color: var(--sd-ice); text-shadow: var(--sd-glow-ice); }
+
+/* ---------- PESOS DISPONÍVEIS (UI) ----------
+   Light 300 (não carregada — evitar) · Regular 400 · Medium 500
+   · SemiBold 600 · Bold 700 · ExtraBold 800 */
+.sd-w400 { font-weight: 400; } .sd-w500 { font-weight: 500; }
+.sd-w600 { font-weight: 600; } .sd-w700 { font-weight: 700; } .sd-w800 { font-weight: 800; }

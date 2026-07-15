@@ -1,0 +1,106 @@
+/* ============================================================
+   STIKDEAD DESIGN SYSTEM — "SANGUE & AÇO"
+   tokens.css — a única fonte de verdade de cor, espaço, luz e movimento.
+   Nenhum componente pode usar valor mágico: se não está aqui, não existe.
+   Regras completas em DESIGN_SYSTEM.md.
+   ============================================================ */
+:root {
+  /* ---------- 1. PALETA OFICIAL ---------- */
+  /* Dark — a base do universo */
+  --sd-ink:        #0b0709;  /* fundo absoluto */
+  --sd-coal:       #141114;  /* superfície 1 */
+  --sd-iron:       #1d181c;  /* superfície 2 (painéis) */
+  --sd-steel:      #2a242b;  /* superfície 3 (elevada) */
+  --sd-edge:       #3a333c;  /* filetes e bordas neutras */
+  /* Blood Red — a assinatura */
+  --sd-blood:      #d90429;
+  --sd-blood-hot:  #ff2244;
+  --sd-blood-deep: #7a0e1c;
+  /* Neon — energia/skills */
+  --sd-neon:       #ff3d5e;  /* neon sangue (primário vivo) */
+  --sd-ice:        #9fd8ff;  /* neon gelo (block, espectro) */
+  /* Ouro — recompensa */
+  --sd-gold:       #e0a10b;
+  --sd-gold-hot:   #ffd66b;
+  /* Texto */
+  --sd-bone:       #f2efe9;  /* texto primário */
+  --sd-muted:      #9a938a;  /* texto secundário */
+  --sd-faint:      #5f5a55;  /* texto terciário/disabled */
+
+  /* ---------- 2. RARIDADES ---------- */
+  --sd-r-comum:    #9a938a;
+  --sd-r-incomum:  #4dee98;
+  --sd-r-raro:     #4da3ff;
+  --sd-r-epico:    #8b5cf6;
+  --sd-r-lendario: #ff7a1a;
+  --sd-r-mitico:   #ff2244;
+  --sd-r-diamante: #7fd9ff;
+
+  /* ---------- 3. ESPAÇAMENTO (escala de 4) ---------- */
+  --sd-s1: 4px;  --sd-s2: 8px;  --sd-s3: 12px; --sd-s4: 16px;
+  --sd-s5: 24px; --sd-s6: 32px; --sd-s7: 48px; --sd-s8: 64px;
+
+  /* ---------- 4. RAIO & CHANFRO ---------- */
+  --sd-radius-s: 6px;      /* chips, badges */
+  --sd-radius-m: 10px;     /* cards, inputs */
+  --sd-radius-l: 16px;     /* painéis, modais */
+  /* chanfro canônico de painel (canto cortado estilo forja) */
+  --sd-chanfro: 14px;
+  --sd-clip-panel: polygon(var(--sd-chanfro) 0, 100% 0, 100% calc(100% - var(--sd-chanfro)), calc(100% - var(--sd-chanfro)) 100%, 0 100%, 0 var(--sd-chanfro));
+  --sd-clip-btn: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+
+  /* ---------- 5. Z-INDEX ---------- */
+  --sd-z-base: 0; --sd-z-atmo: 1; --sd-z-content: 2; --sd-z-nav: 40;
+  --sd-z-dropdown: 50; --sd-z-tooltip: 60; --sd-z-modal: 80; --sd-z-toast: 90; --sd-z-cerimonia: 100;
+
+  /* ---------- 6. SOMBRA & PROFUNDIDADE ---------- */
+  --sd-depth-1: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --sd-depth-2: 0 10px 34px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --sd-depth-3: 0 24px 70px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  /* ---------- 7. GLOW ---------- */
+  --sd-glow-blood: 0 0 18px rgba(217, 4, 41, 0.55), 0 0 42px rgba(217, 4, 41, 0.22);
+  --sd-glow-gold:  0 0 16px rgba(224, 161, 11, 0.5), 0 0 38px rgba(224, 161, 11, 0.2);
+  --sd-glow-void:  0 0 16px rgba(139, 92, 246, 0.5);
+  --sd-glow-ice:   0 0 16px rgba(159, 216, 255, 0.45);
+  --sd-glow-text:  0 0 14px rgba(255, 34, 68, 0.6), 0 2px 6px #000;
+
+  /* ---------- 8. MATÉRIA ---------- */
+  --sd-metal-edge: linear-gradient(160deg, #4a4a52 0%, #17171c 28%, #3a3a44 52%, #101014 78%, #2e2e36 100%);
+  --sd-panel-grad: linear-gradient(180deg, rgba(29, 24, 28, 0.96), rgba(11, 7, 9, 0.98));
+  --sd-panel-grad-red: linear-gradient(180deg, rgba(38, 12, 18, 0.95), rgba(11, 7, 9, 0.98));
+
+  /* ---------- 9. MOVIMENTO ---------- */
+  --sd-t-fast: 120ms;   /* hover, press */
+  --sd-t-base: 180ms;   /* transição padrão */
+  --sd-t-slow: 320ms;   /* modais, telas */
+  --sd-t-cine: 650ms;   /* cerimônias */
+  --sd-ease-out: cubic-bezier(0.16, 1, 0.3, 1);        /* saída expressiva */
+  --sd-ease-snap: cubic-bezier(0.34, 1.56, 0.64, 1);   /* overshoot de impacto */
+
+  /* ---------- 10. ÍCONES ---------- */
+  --sd-icon-xs: 16px; --sd-icon-sm: 20px; --sd-icon-md: 24px; --sd-icon-lg: 32px;
+  --sd-icon-xl: 48px; --sd-icon-hero: 64px; --sd-icon-banner: 96px;
+  --sd-stroke-fino: 1.5; --sd-stroke-medio: 2; --sd-stroke-forte: 2.6;
+
+  /* ---------- 11. GRID ---------- */
+  --sd-bp-desktop: 1280px; --sd-bp-tablet: 900px; --sd-bp-mobile: 640px;
+  --sd-gutter: var(--sd-s4);
+  --sd-page-max: 1240px;
+}
+
+/* ---------- ESTADOS GLOBAIS ---------- */
+.sd-disabled, [disabled].sd-btn { opacity: 0.42; filter: saturate(0.4); pointer-events: none; }
+.sd-focus:focus-visible, .sd-btn:focus-visible, .sd-input:focus-visible {
+  outline: 2px solid var(--sd-neon); outline-offset: 2px;
+}
+
+/* ---------- GRID RESPONSIVO ---------- */
+.sd-page { max-width: var(--sd-page-max); margin: 0 auto; padding: var(--sd-s5) var(--sd-s4); }
+.sd-grid { display: grid; gap: var(--sd-gutter); grid-template-columns: repeat(12, 1fr); }
+@media (max-width: 900px) { .sd-grid { grid-template-columns: repeat(6, 1fr); } }
+@media (max-width: 640px) { .sd-grid { grid-template-columns: repeat(4, 1fr); } .sd-page { padding: var(--sd-s4) var(--sd-s3); } }
+.sd-col-3 { grid-column: span 3; } .sd-col-4 { grid-column: span 4; }
+.sd-col-6 { grid-column: span 6; } .sd-col-8 { grid-column: span 8; } .sd-col-12 { grid-column: span 12; }
+@media (max-width: 900px) { .sd-col-3, .sd-col-4 { grid-column: span 3; } .sd-col-6, .sd-col-8 { grid-column: span 6; } }
+@media (max-width: 640px) { .sd-col-3, .sd-col-4, .sd-col-6, .sd-col-8 { grid-column: span 4; } }

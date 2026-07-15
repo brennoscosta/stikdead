@@ -1,0 +1,54 @@
+/* ============================================================
+   STIKDEAD DS — atmosphere.css
+   Camada atmosférica fixa atrás do conteúdo (z: --sd-z-atmo).
+   Sem canvas, sem JS por frame: só compositor (transform/opacity).
+   ============================================================ */
+.sd-atmo { position: fixed; inset: 0; z-index: var(--sd-z-atmo); pointer-events: none; overflow: hidden; }
+
+/* iluminação ambiente — presente em TODAS as intensidades */
+.sd-atmo-luz { position: absolute; inset: 0; background:
+  radial-gradient(90% 60% at 50% -10%, rgba(217, 4, 41, 0.09), transparent 60%),
+  radial-gradient(60% 45% at 85% 105%, rgba(139, 92, 246, 0.05), transparent 65%);
+}
+.sd-atmo--alta .sd-atmo-luz { background:
+  radial-gradient(90% 60% at 50% -10%, rgba(217, 4, 41, 0.16), transparent 62%),
+  radial-gradient(55% 42% at 12% 108%, rgba(255, 122, 26, 0.06), transparent 60%),
+  radial-gradient(60% 45% at 88% 106%, rgba(139, 92, 246, 0.07), transparent 65%);
+}
+
+/* lua de sangue (só em atmosfera alta) */
+.sd-atmo-lua { position: absolute; top: -14vh; left: 50%; width: 46vh; height: 46vh; transform: translateX(-50%);
+  border-radius: 50%; background: radial-gradient(circle, rgba(255, 60, 80, 0.14), rgba(217, 4, 41, 0.05) 55%, transparent 70%);
+  animation: sd-lua 9s ease-in-out infinite; }
+@keyframes sd-lua { 0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); } 50% { opacity: 1; transform: translateX(-50%) scale(1.05); } }
+
+/* névoa — faixas largas deslizando devagar */
+.sd-atmo-nevoa { position: absolute; left: -30%; width: 160%; height: 32vh; opacity: 0.5;
+  background: radial-gradient(60% 100% at 50% 50%, rgba(154, 147, 138, 0.06), transparent 70%);
+  animation: sd-nevoa linear infinite; }
+.sd-atmo-nevoa--0 { bottom: -6vh; animation-duration: 46s; }
+.sd-atmo-nevoa--1 { bottom: 12vh; animation-duration: 64s; animation-direction: reverse; opacity: 0.35; }
+.sd-atmo-nevoa--2 { top: 8vh; animation-duration: 80s; opacity: 0.25; }
+@keyframes sd-nevoa { from { transform: translateX(-8%); } to { transform: translateX(8%); } }
+.sd-atmo--baixa .sd-atmo-nevoa { opacity: 0.16; }
+
+/* brasas subindo */
+.sd-atmo-brasa { position: absolute; bottom: -3vh; border-radius: 50%;
+  background: radial-gradient(circle, #ff8a5a, #d90429 70%);
+  box-shadow: 0 0 8px rgba(255, 90, 60, 0.8);
+  animation: sd-brasa linear infinite; opacity: 0; }
+.sd-atmo-brasa.is-ouro { background: radial-gradient(circle, #ffd66b, #e0a10b 70%); box-shadow: 0 0 8px rgba(255, 214, 107, 0.8); }
+@keyframes sd-brasa {
+  0% { transform: translate(0, 0) scale(1); opacity: 0; }
+  8% { opacity: 0.85; }
+  70% { opacity: 0.5; }
+  100% { transform: translate(var(--drift, 0px), -108vh) scale(0.25); opacity: 0; }
+}
+
+/* vinheta de cinema */
+.sd-atmo-vinheta { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 45%, transparent 62%, rgba(5, 3, 4, 0.5)); }
+.sd-atmo--baixa .sd-atmo-vinheta { background: radial-gradient(130% 100% at 50% 45%, transparent 70%, rgba(5, 3, 4, 0.35)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-atmo-brasa, .sd-atmo-nevoa, .sd-atmo-lua { animation: none; opacity: 0.2; }
+}

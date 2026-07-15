@@ -1,5 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+// Design System (Fase 2): a /vitrine é a sala de aprovação — carrega sob demanda
+const Vitrine = lazy(() => import('./pages/Vitrine.jsx'));
 import { Bottombar } from './lib/Navbar.jsx';
 import Admin from './pages/Admin.jsx';
 import Calibrador from './pages/Calibrador.jsx';
@@ -119,6 +121,10 @@ export default function App() {
         <Route
           path="/treino"
           element={profile ? <Battle profile={profile} onProfile={setProfile} /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/vitrine"
+          element={profile ? <Suspense fallback={null}><Vitrine /></Suspense> : <Navigate to="/" replace />}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
