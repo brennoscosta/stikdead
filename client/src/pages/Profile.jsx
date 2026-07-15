@@ -12,6 +12,7 @@ import StatusMedal, { formaMetal } from '../lib/StatusMedal.jsx';
 import { RARITY_LABEL } from './Shop.jsx';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import Icon from '../ds/Icon.jsx';
+import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
 const TIER_COLOR = {
@@ -76,8 +77,18 @@ export default function Profile({ profile, onUpdate, onLogout }) {
       <PatentTip />
       <Navbar profile={profile} />
 
+      {/* menu lateral (desktop largo): navegação do jogador */}
+      <nav className="perfil-menu" aria-label="Seções do jogador">
+        {[['perfil', 'PERFIL', '/perfil'], ['conquista', 'CARREIRA', '/carreira'], ['espada', 'PARTIDAS', '/partidas'], ['xp', 'ATIVIDADES', '/atividades'], ['amigos', 'AMIGOS', '/social/amigos'], ['cla', 'CLÃ', '/social/cla'], ['grupo', 'SOCIAL', '/social']].map(([ic, l, to]) => (
+          <button key={to} className={to === '/perfil' ? 'on' : ''} onClick={() => { if (to !== '/perfil') nav(to); }}>
+            <Icon name={ic} size={15} weight="forte" /> {l}
+          </button>
+        ))}
+      </nav>
+
       {/* cabeçalho com arte pintada */}
       <section className="dash-hero">
+        <img className="dash-avatar" src="/arte/avatar-padrao.webp" alt="" />
         <div className="dash-hero-info">
           <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações"><Icon name="config" size="sm" weight="forte" /></button>
           {editing ? (
@@ -112,9 +123,9 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             <button className="btn btn-ghost" onClick={() => nav('/treino')}><Icon name="soco" size={14} /> Treino vs bot</button>
           </div>
         </div>
-        <div className="hero-emblema" style={{ '--rank-cor': formaMetal(profile).cor }} aria-hidden="true">
-          <span className="emb-anel"><Icon name="liga" size="xl" weight="forte" /></span>
-          <span>{formaMetal(profile).nome}</span>
+        <div className="hero-emblema" style={{ '--rank-cor': rankCor(profile.tier) }} aria-hidden="true">
+          <img className="rank-img" src={rankArte(profile.tier)} alt="" />
+          <span>{rankNome(profile.tier)}</span>
         </div>
       </section>
 
@@ -152,11 +163,11 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         <section className="dash-card span2">
           <h2><Icon name="conquista" size={15} weight="forte" className="h2-ico" /> RESUMO DE CARREIRA</h2>
           <div className="dash-stats-row">
-            <div className="dash-stat"><b>{fmt(profile.wins)}</b><span>VITÓRIAS</span></div>
-            <div className="dash-stat"><b>{fmt(profile.losses)}</b><span>DERROTAS</span></div>
-            <div className="dash-stat"><b style={{ color: '#e0a10b' }}>{fmt(profile.rank_points)}</b><span>PONTOS</span></div>
-            <div className="dash-stat"><b>{winRate}%</b><span>WIN RATE</span><i className="stat-medidor"><em style={{ width: `${winRate}%` }} /></i></div>
-            <div className="dash-stat"><b style={{ color: '#ff2244' }}>{profile.streak || 0}</b><span>SEQUÊNCIA</span></div>
+            <div className="dash-stat"><Icon name="espada" size={17} weight="forte" className="stat-ico i-osso" /><b>{fmt(profile.wins)}</b><span>VITÓRIAS</span></div>
+            <div className="dash-stat"><Icon name="perfil" size={17} weight="forte" className="stat-ico i-sangue" /><b>{fmt(profile.losses)}</b><span>DERROTAS</span></div>
+            <div className="dash-stat"><Icon name="trofeu" size={17} weight="forte" className="stat-ico" /><b style={{ color: '#e0a10b' }}>{fmt(profile.rank_points)}</b><span>PONTOS</span></div>
+            <div className="dash-stat"><Icon name="combo" size={17} weight="forte" className="stat-ico i-osso" /><b>{winRate}%</b><span>WIN RATE</span><i className="stat-medidor"><em style={{ width: `${winRate}%` }} /></i></div>
+            <div className="dash-stat"><Icon name="aura" size={17} weight="forte" className="stat-ico i-sangue" /><b style={{ color: '#ff2244' }}>{profile.streak || 0}</b><span>SEQUÊNCIA</span></div>
           </div>
         </section>
 
@@ -164,8 +175,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         <section className="dash-card">
           <h2><Icon name="liga" size={15} weight="forte" className="h2-ico" /> RANK ATUAL</h2>
           <div className="dash-rank">
-            <span className="rank-emblema" style={{ '--rank-cor': formaMetal(profile).cor }} aria-hidden="true"><Icon name="liga" size="lg" weight="forte" /></span>
-            <span className="dash-rank-tier" style={{ color: formaMetal(profile).cor }}>{formaMetal(profile).nome}</span>
+            <span className="rank-emblema" aria-hidden="true"><img className="rank-img" src={rankArte(profile.tier)} alt="" /></span>
+            <span className="dash-rank-tier" style={{ color: rankCor(profile.tier) }}>{rankNome(profile.tier)}</span>
             <span className="dash-rank-pts">{fmt(profile.rank_points)} pontos</span>
             <div className="mission-bar"><div className="mission-fill" style={{ width: `${rankPct}%` }} /></div>
             <span className="dash-rank-next">{100 - rankPct} pts para o próximo rank</span>

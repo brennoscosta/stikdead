@@ -8,6 +8,7 @@ import Navbar from '../lib/Navbar.jsx';
 import { api } from '../lib/api.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import Icon from '../ds/Icon.jsx';
+import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { STYLES } from '../game/sim.js';
 import { SkillButton } from './Battle.jsx';
@@ -190,6 +191,19 @@ export default function Lobby({ profile, onProfile }) {
       <div className="lobby-grid">
         {/* ===== coluna esquerda: jogadores + chat ===== */}
         <aside className="lobby-col">
+          <section className="dash-card player-cartao">
+            <img className="pc-avatar" src="/arte/avatar-padrao.webp" alt="" />
+            <div className="pc-meio">
+              <b className="pc-nome">{profile.fighter_name}</b>
+              <span className="pc-nivel">NÍVEL<b>{profile.level}</b></span>
+              <div className="mission-bar pc-xp"><div className="mission-fill" style={{ width: `${Math.min(100, Math.round((profile.xp / (profile.level * 500)) * 100))}%` }} /></div>
+              <span className="pc-rank" style={{ color: rankCor(profile.tier) }}>
+                {rankNome(profile.tier)} · <Icon name="trofeu" size={12} weight="forte" /> {Number(profile.rank_points || 0).toLocaleString('pt-BR')}
+              </span>
+            </div>
+            <img className="pc-emblema rank-img" src={rankArte(profile.tier)} alt="" />
+          </section>
+
           <section className="dash-card">
             <h2><Icon name="grupo" size="xs" weight="forte" className="h2-ico" /> JOGADORES ONLINE ({players.length})</h2>
             <ul className="lobby-list">
@@ -202,6 +216,7 @@ export default function Lobby({ profile, onProfile }) {
                     className={`lobby-dot ${p.away ? 'st-away' : p.inMatch ? 'st-busy' : 'st-free'}`}
                     title={p.away ? 'Ausente' : p.inMatch ? 'Em jogo' : 'Online e disponível'}
                   />
+                  <img className="rank-mini rank-img" src={rankArte(p.tier)} alt="" title={rankNome(p.tier)} />
                   <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
                   <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}{p.duo ? <b style={{ color: '#ffd76a' }}> · 🤝{p.duoWith ? ` c/ ${p.duoWith}` : ''}</b> : ''}</span>
                   {p.away ? (
