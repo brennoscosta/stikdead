@@ -6,6 +6,7 @@ import { getSocket } from '../lib/socket.js';
 import { createPreview } from '../game/preview.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import { SLOT_LABEL, RARITY_LABEL } from './Shop.jsx';
+import Icon from '../ds/Icon.jsx';
 
 const SLOTS = ['head', 'face', 'body', 'back', 'weapon', 'arms', 'legs', 'effect'];
 
@@ -14,6 +15,7 @@ export default function Inventory({ profile }) {
   const [chest, setChest] = useState([]);
   const [loadout, setLoadout] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [sel, setSel] = useState(null); // painel de detalhe (só UI)
   const [notice, setNotice] = useState('');
   const [dragOver, setDragOver] = useState('');
   const previewHost = useRef(null);
@@ -64,10 +66,10 @@ export default function Inventory({ profile }) {
   return (
     <div className="scene scene-nav">
       <Navbar profile={profile} />
-      <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
-        MEU <img className="h1-logo" src="/logo.webp" alt="STIKDEAD" />
-      </h1>
-      <div className="tagline">Arraste do baú para equipar (ou toque no item)</div>
+      <div className="inv-header">
+        <h1 className="inv-titulo"><Icon name="inventario" size={22} weight="forte" /> INVENTÁRIO</h1>
+        <span className="inv-dica">Arraste do baú para equipar — ou toque no item para ver os detalhes</span>
+      </div>
       {notice && <div className="shop-notice err" role="alert">{notice}</div>}
 
       <div className="inv-layout">
@@ -116,12 +118,33 @@ export default function Inventory({ profile }) {
 
         <div className="inv-right">
           <div className="inv-chest-head">
-            <h2 style={{ margin: 0 }}>BAÚ ({chest.length})</h2>
-            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="all">Todos os slots</option>
-              {SLOTS.map((s) => <option key={s} value={s}>{SLOT_LABEL[s]}</option>)}
-            </select>
+            <h2 style={{ margin: 0 }}><Icon name="inventario" size={16} weight="forte" className="h2-ico" /> BAÚ <b className="inv-total">{chest.length}</b></h2>
           </div>
+          <div className="inv-tabs" role="tablist" aria-label="Filtrar por slot">
+            <button role="tab" aria-selected={filter === 'all'} className={filter === 'all' ? 'on' : ''} onClick={() => setFilter('all')}>TODOS</button>
+            {SLOTS.map((s) => (
+              <button key={s} role="tab" aria-selected={filter === s} className={filter === s ? 'on' : ''} onClick={() => setFilter(s)}>{SLOT_LABEL[s]}</button>
+            ))}
+          </div>
+          {sel && (
+            <div className={`inv-detalhe r-${sel.rarity}`}>
+              <button className="inv-det-fechar" onClick={() => setSel(null)} aria-label="Fechar detalhes"><Icon name="fechar" size={14} /></button>
+              <div className="inv-det-icone"><ItemIcon item={sel} size={84} /></div>
+              <div className="inv-det-info">
+                <h3>{sel.name}</h3>
+                <div className="inv-det-tags">
+                  <span className="inv-det-slot">{SLOT_LABEL[sel.slot]}</span>
+                  <span className="inv-det-rar">{RARITY_LABEL[sel.rarity]}</span>
+                  {sel.source === 'gift' && <span className="inv-det-gift">🎁 presente</span>}
+                </div>
+                {equipped[sel.slot]?.id === sel.id ? (
+                  <button className="btn btn-ghost inv-det-acao" onClick={() => setSlot(sel.slot, null)}>REMOVER</button>
+                ) : (
+                  <button className="btn btn-blood inv-det-acao" onClick={() => equip(sel)}><Icon name="escudo" size={14} weight="forte" /> EQUIPAR</button>
+                )}
+              </div>
+            </div>
+          )}
           {chest.length === 0 && (
             <p className="switch-line" style={{ textAlign: 'left' }}>
               Seu baú está vazio. Lute para ganhar moedas e visite a loja!
@@ -133,11 +156,12 @@ export default function Inventory({ profile }) {
               return (
                 <button
                   key={item.id}
-                  className={`item-card mini r-${item.rarity} ${isOn ? 'equipped' : ''}`}
+                  className={`item-card mini r-${item.rarity} ${isOn ? 'equipped' : ''} ${sel?.id === item.id ? 'sel' : ''}`}
                   draggable
                   onDragStart={(e) => e.dataTransfer.setData('text/plain', `${item.id}|${item.slot}`)}
-                  onClick={() => (isOn ? setSlot(item.slot, null) : equip(item))}
-                  title={isOn ? 'Clique para remover' : 'Clique para equipar'}
+                  onClick={() => setSel(item)}
+                  onDoubleClick={() => (isOn ? setSlot(item.slot, null) : equip(item))}
+                  title={isOn ? 'Toque para detalhes · duplo toque remove' : 'Toque para detalhes · duplo toque equipa'}
                 >
                   {item.source === 'gift' && <span className="inv-gift-badge" title="Ganho de presente">🎁</span>}
                   <ItemIcon item={item} size={46} />

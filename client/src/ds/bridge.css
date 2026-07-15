@@ -378,3 +378,113 @@ body {
 
 /* clã: ícones do sistema na linha de reputação */
 .cla-resumo small .sd-icon { vertical-align: -2px; color: var(--sd-muted); }
+
+/* ============================================================
+   FASE 6 — INVENTÁRIO: detalhe do item, tabs, molduras de raridade
+   ============================================================ */
+
+/* cabeçalho da tela (substitui o logo gigante que brigava com a navbar) */
+.inv-header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 6px 0 16px; }
+.inv-titulo {
+  margin: 0; font: 800 26px var(--sd-font-ui); letter-spacing: 0.14em; color: var(--sd-bone);
+  display: inline-flex; align-items: center; gap: 9px; text-transform: uppercase;
+}
+.inv-titulo .sd-icon { color: var(--sd-blood-hot); filter: drop-shadow(0 0 8px rgba(217, 4, 41, 0.5)); }
+.inv-dica { color: var(--sd-muted); font-size: 13px; }
+.inv-total { font-family: var(--sd-font-impact); font-size: 19px; color: var(--sd-gold-hot); margin-left: 4px; }
+
+/* tabs de slot no lugar do <select> de site */
+.inv-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.inv-tabs button {
+  font: 700 11.5px var(--sd-font-ui); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--sd-muted); background: linear-gradient(180deg, #1b1216, #100a0d);
+  border: 1px solid #2c1f25; padding: 7px 12px; cursor: pointer;
+  clip-path: var(--sd-clip-btn); border-radius: 0;
+  transition: color var(--sd-t-fast), border-color var(--sd-t-fast), transform var(--sd-t-fast);
+}
+.inv-tabs button:hover { color: var(--sd-bone); transform: translateY(-1px); }
+.inv-tabs button.on {
+  color: #fff; border-color: transparent;
+  background: linear-gradient(180deg, var(--sd-blood-hot), var(--sd-blood) 60%, var(--sd-blood-deep));
+  box-shadow: var(--sd-glow-blood);
+}
+
+/* ===== painel de detalhe do item ===== */
+.inv-detalhe {
+  --rar-cor: var(--sd-muted);
+  position: relative; display: flex; gap: 16px; align-items: center;
+  padding: 14px 16px; margin: 0 0 14px;
+  background: linear-gradient(180deg, rgba(24, 14, 18, 0.96), rgba(11, 7, 9, 0.98));
+  border: 1px solid #2c1f25; border-top: 2px solid var(--rar-cor);
+  clip-path: var(--sd-clip-panel); border-radius: 0;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: sd-rise 0.22s var(--sd-ease-out);
+}
+.inv-detalhe.r-comum    { --rar-cor: var(--sd-r-comum); }
+.inv-detalhe.r-raro     { --rar-cor: var(--sd-r-raro); }
+.inv-detalhe.r-epico    { --rar-cor: var(--sd-r-epico); }
+.inv-detalhe.r-lendario { --rar-cor: var(--sd-r-lendario); }
+.inv-detalhe.r-diamante { --rar-cor: var(--sd-r-diamante); }
+.inv-det-icone {
+  flex: none; width: 104px; height: 104px; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--rar-cor) 18%, transparent), rgba(0, 0, 0, 0.55) 72%);
+  border: 1px solid color-mix(in srgb, var(--rar-cor) 45%, transparent);
+  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--rar-cor) 30%, transparent));
+}
+.inv-det-info { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.inv-det-info h3 { margin: 0; font: 800 20px var(--sd-font-ui); letter-spacing: 0.06em; color: var(--sd-bone); }
+.inv-det-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.inv-det-tags > span {
+  font: 700 10.5px var(--sd-font-ui); letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 9px; border: 1px solid #33242b; color: var(--sd-muted);
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+.inv-det-rar { color: var(--rar-cor) !important; border-color: color-mix(in srgb, var(--rar-cor) 55%, transparent) !important; text-shadow: 0 0 10px color-mix(in srgb, var(--rar-cor) 45%, transparent); }
+.inv-det-acao { width: auto !important; padding: 9px 22px !important; margin-top: 2px; align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; }
+.inv-det-fechar {
+  position: absolute; top: 8px; right: 10px; background: none; border: none; cursor: pointer;
+  color: var(--sd-muted); padding: 4px; transition: color var(--sd-t-fast), transform var(--sd-t-fast);
+}
+.inv-det-fechar:hover { color: var(--sd-blood-hot); transform: rotate(90deg); }
+
+/* ===== molduras de raridade nos cards do baú ===== */
+.item-card { --rar-cor: transparent; position: relative; }
+.item-card.r-comum    { --rar-cor: var(--sd-r-comum); }
+.item-card.r-raro     { --rar-cor: var(--sd-r-raro); }
+.item-card.r-epico    { --rar-cor: var(--sd-r-epico); }
+.item-card.r-lendario { --rar-cor: var(--sd-r-lendario); }
+.item-card.r-diamante { --rar-cor: var(--sd-r-diamante); }
+.item-card::after {
+  content: ''; position: absolute; left: 12px; right: 12px; top: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--rar-cor), transparent);
+  pointer-events: none;
+}
+.item-card.mini.sel {
+  border-color: color-mix(in srgb, var(--rar-cor) 80%, #fff 10%) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--rar-cor) 60%, transparent), 0 0 20px color-mix(in srgb, var(--rar-cor) 35%, transparent);
+  transform: translateY(-3px);
+}
+.item-card.mini.equipped { outline: none !important; }
+.item-card.mini.equipped::before {
+  content: 'EQUIPADO'; position: absolute; top: 6px; left: -1px; z-index: 2;
+  font: 800 8.5px var(--sd-font-ui); letter-spacing: 0.12em; color: #120d06;
+  background: linear-gradient(180deg, var(--sd-gold-hot), var(--sd-gold));
+  padding: 2px 7px 2px 6px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  box-shadow: 0 0 10px rgba(224, 161, 11, 0.55);
+}
+
+/* poses do boneco: botões fantasmas com chanfro */
+.inv-pose-row button {
+  clip-path: var(--sd-clip-btn); border-radius: 0 !important;
+  font: 700 11px var(--sd-font-ui) !important; letter-spacing: 0.1em; text-transform: uppercase;
+  transition: color var(--sd-t-fast), border-color var(--sd-t-fast), transform var(--sd-t-fast);
+}
+.inv-pose-row button:hover { transform: translateY(-1px); border-color: var(--sd-blood) !important; }
+
+@media (max-width: 640px) {
+  .inv-detalhe { flex-direction: column; text-align: center; }
+  .inv-det-info { align-items: center; }
+  .inv-det-acao { align-self: center; }
+}
