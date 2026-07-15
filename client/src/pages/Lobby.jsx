@@ -154,9 +154,18 @@ export default function Lobby({ profile, onProfile }) {
   useEffect(() => {
     if (session || !plazaHost.current) return;
     let alive = true;
-    createPlaza(plazaHost.current, { onNameClick: (n) => setCard(n) }).then((p) => {
+    createPlaza(plazaHost.current, {
+      onNameClick: (n) => setCard(n),
+      onNpc: (kind) => {
+        if (kind === 'loja') nav('/loja');
+        else if (kind === 'ferreiro') nav('/inventario');
+        else if (kind === 'eventos') nav('/missoes');
+        else plazaRef.current?.say('TORNEIO', 'Em breve: torneios semanais! 🏆');
+      },
+    }).then((p) => {
       if (!alive) return p.destroy();
       plazaRef.current = p;
+      p.setProtagonist({ name: profile.fighter_name, loadout: myLoadoutRef.current });
       p.setPlayers(playersRef.current);
     });
     return () => {
@@ -166,6 +175,14 @@ export default function Lobby({ profile, onProfile }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
+
+  // o protagonista veste os itens reais assim que o inventário chega (e a cada troca)
+  const myLoadoutRef = useRef([]);
+  useEffect(() => {
+    myLoadoutRef.current = myLoadout || [];
+    plazaRef.current?.setProtagonist({ name: profile.fighter_name, loadout: myLoadoutRef.current });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myLoadout]);
 
   if (session)
     return (

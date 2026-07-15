@@ -1213,3 +1213,19 @@ body .dash-grid.dash-grid2 { display: grid !important; grid-template-columns: mi
 .forma-nota b { font-size: 21px; }
 .forma-linha { flex-direction: column; align-items: flex-start; gap: 1px; }
 .forma-linha b { text-align: left; font-size: 12px; line-height: 1.3; text-transform: none; }
+
+/* ============================================================
+   LOBBY V2.1 — PRAÇA VIVA (social hub)
+   ============================================================ */
+/* palco maior: a praça é a protagonista do lobby */
+body .plaza-big { height: 400px; }
+@media (max-width: 980px) { body .plaza-big { height: 260px; } }
+/* vinheta mais cinematográfica + luz da lua no topo */
+.plaza-big::before {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  clip-path: var(--sd-clip-panel);
+  background: linear-gradient(180deg, rgba(143, 6, 32, 0.10), transparent 30%);
+}
