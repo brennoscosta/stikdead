@@ -1195,10 +1195,10 @@ body.in-fight { overflow: hidden; overscroll-behavior: none; }
 /* ============================================================
    FASE M2 — PERFIL: colunas empacotadas (sem buracos) e blocos organizados
    ============================================================ */
-.dash-grid2 { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 10px !important; align-items: start; }
+body .dash-grid.dash-grid2 { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px) !important; gap: 10px !important; align-items: start; max-width: 1220px; }
 .dash-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .dash-grid2 .dash-card.span2 { grid-column: auto; }
-@media (max-width: 980px) { .dash-grid2 { grid-template-columns: 1fr; } }
+@media (max-width: 980px) { body .dash-grid.dash-grid2 { grid-template-columns: 1fr !important; } }
 
 /* header de card com link à direita (sem float hack) */
 .h2-linha { display: flex; align-items: center; gap: 6px; }
