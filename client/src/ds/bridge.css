@@ -1,0 +1,134 @@
+/* ============================================================
+   STIKDEAD DS — bridge.css (FASE 3)
+   A PONTE: reveste as classes legadas de TODAS as telas com a
+   identidade "Sangue & Aço" sem tocar no JSX de cada página.
+   Carregada globalmente via ds/index.js. Migração definitiva
+   componente-a-componente acontece nas fases 4–7.
+   ============================================================ */
+
+/* ---------- fundo do universo ---------- */
+body {
+  background:
+    radial-gradient(90% 60% at 50% -10%, rgba(217, 4, 41, 0.07), transparent 60%),
+    var(--sd-ink) !important;
+}
+
+/* ---------- PAINÉIS E CARDS: chanfro + metal ---------- */
+.card, .dash-card, .card-metal {
+  background: var(--sd-panel-grad) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  clip-path: var(--sd-clip-panel);
+  box-shadow: var(--sd-depth-2) !important;
+  position: relative;
+}
+.card::before, .dash-card::before, .card-metal::before {
+  content: '';
+  position: absolute; inset: 0; padding: 1px;
+  background: var(--sd-metal-edge);
+  clip-path: var(--sd-clip-panel);
+  z-index: 0; pointer-events: none;
+  opacity: 0.8;
+}
+.card > *, .dash-card > *, .card-metal > * { position: relative; z-index: 1; }
+.dash-card { transition: transform var(--sd-t-base) var(--sd-ease-out), box-shadow var(--sd-t-base); }
+.dash-card:hover { transform: translateY(-2px); box-shadow: var(--sd-depth-2), 0 0 22px rgba(217, 4, 41, 0.14) !important; }
+
+/* títulos de card em voz de painel */
+.dash-card h2, .dash-card h3, .pc-section {
+  font-family: var(--sd-font-ui) !important;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+/* ---------- ITEM CARDS / BAÚ: chanfro leve + aura de raridade ---------- */
+.item-card, .inv-slot {
+  border-radius: 0 !important;
+  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+}
+
+/* ---------- BOTÕES: chanfro + luz na borda superior ---------- */
+.btn, .btn-blood, .bt-btn, button.btn-link ~ .btn {
+  border-radius: 0 !important;
+  clip-path: var(--sd-clip-btn);
+  position: relative;
+  transition: transform var(--sd-t-fast) var(--sd-ease-out), filter var(--sd-t-fast) !important;
+}
+.btn-blood {
+  background: linear-gradient(180deg, var(--sd-blood-hot), var(--sd-blood) 55%, var(--sd-blood-deep)) !important;
+  box-shadow: var(--sd-glow-blood), var(--sd-depth-1) !important;
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.btn-blood:hover { transform: translateY(-1px); filter: brightness(1.12); }
+.btn-blood:active { transform: translateY(1px) scale(0.985); filter: brightness(0.94); }
+
+/* ---------- NÚMEROS DE IMPACTO (Bebas Neue) ---------- */
+.topnav-coins, .topnav-diamonds,
+.stat b, .adm-stat-n,
+.bt-timer, .bt-levelup b,
+.rank-pts, .rank-pos,
+.dash-elo-n, .conq-progress b {
+  font-family: var(--sd-font-impact) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.topnav-coins { font-size: 17px !important; }
+.topnav-diamonds { font-size: 15px !important; }
+.stat b { font-size: 30px !important; line-height: 1 !important; }
+
+/* ---------- RANKING: linhas de aço ---------- */
+.rank-row {
+  border-radius: 0 !important;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  background: var(--sd-panel-grad) !important;
+  border: none !important;
+  box-shadow: var(--sd-depth-1);
+  transition: transform var(--sd-t-fast), box-shadow var(--sd-t-base);
+}
+.rank-row:hover { transform: translateX(3px); box-shadow: var(--sd-depth-1), inset 3px 0 0 var(--sd-blood); }
+/* pódio: os três primeiros ardem */
+.rank-row:nth-child(1) { box-shadow: var(--sd-depth-1), inset 3px 0 0 var(--sd-gold-hot), 0 0 18px rgba(224, 161, 11, 0.18); }
+.rank-row:nth-child(2) { box-shadow: var(--sd-depth-1), inset 3px 0 0 #c9ccd4; }
+.rank-row:nth-child(3) { box-shadow: var(--sd-depth-1), inset 3px 0 0 #b0703a; }
+
+/* ---------- NAVEGAÇÃO: aço no topo, brasa embaixo ---------- */
+.topnav {
+  background: linear-gradient(180deg, rgba(26, 12, 16, 0.97), rgba(10, 7, 9, 0.92)) !important;
+  border-bottom: 1px solid rgba(217, 4, 41, 0.45) !important;
+}
+.topnav-links a { clip-path: var(--sd-clip-btn); border-radius: 0 !important; }
+.topnav-links a.on {
+  background: linear-gradient(180deg, rgba(217, 4, 41, 0.4), rgba(122, 14, 28, 0.35)) !important;
+  box-shadow: 0 0 14px rgba(217, 4, 41, 0.3);
+}
+.topnav-links a .sd-icon, .bottombar .sd-icon { flex: none; }
+.bottombar a.on .sd-icon { filter: drop-shadow(0 0 9px rgba(255, 34, 68, 0.9)); }
+
+/* carteira com ícones do sistema */
+.topnav-wallet { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.topnav-coins, .topnav-diamonds { display: inline-flex; align-items: center; gap: 5px; }
+.topnav-coins .sd-icon { color: var(--sd-gold-hot); }
+.topnav-diamonds .sd-icon { color: var(--sd-r-diamante); }
+
+/* ---------- INPUTS legados ---------- */
+.field input, .field select, .field textarea {
+  background: rgba(11, 7, 9, 0.75) !important;
+  border: 1px solid var(--sd-edge) !important;
+  transition: border-color var(--sd-t-fast), box-shadow var(--sd-t-base);
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--sd-blood) !important;
+  box-shadow: 0 0 0 1px var(--sd-blood), var(--sd-glow-blood) !important;
+}
+
+/* ---------- transição de tela (todas as rotas) ---------- */
+.dash, .scene, .shop, .inv, .missions, .rankings {
+  animation: sd-tela-in var(--sd-t-base) var(--sd-ease-out);
+}
+
+/* ---------- HUD da luta: timer e contagem na voz de impacto ---------- */
+.bt-timer { text-shadow: 0 0 14px rgba(255, 34, 68, 0.35), 0 2px 6px #000; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dash, .scene, .shop, .inv, .missions, .rankings { animation: none; }
+}

@@ -1,7 +1,18 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Atmosphere, ATMO_POR_TELA } from './ds';
 // Design System (Fase 2): a /vitrine é a sala de aprovação — carrega sob demanda
 const Vitrine = lazy(() => import('./pages/Vitrine.jsx'));
+
+// FASE 3: atmosfera contextual em todas as telas do meta-game.
+// Fora: luta (o jogo É a atmosfera) e telas de auth (o hero pintado já é a arte).
+const SEM_ATMO = new Set(['/', '/criar-conta', '/esqueci', '/redefinir', '/treino', '/vitrine']);
+function AtmosferaGlobal() {
+  const { pathname } = useLocation();
+  if (SEM_ATMO.has(pathname)) return null;
+  const nivel = ATMO_POR_TELA[pathname] || 'media';
+  return <Atmosphere level={nivel} key={nivel + pathname} />;
+}
 import { Bottombar } from './lib/Navbar.jsx';
 import Admin from './pages/Admin.jsx';
 import Calibrador from './pages/Calibrador.jsx';
@@ -57,6 +68,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      {profile && <AtmosferaGlobal />}
       {profile && <Bottombar />}
       <Routes>
         <Route
