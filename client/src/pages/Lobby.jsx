@@ -216,6 +216,7 @@ export default function Lobby({ profile, onProfile }) {
                     className={`lobby-dot ${p.away ? 'st-away' : p.inMatch ? 'st-busy' : 'st-free'}`}
                     title={p.away ? 'Ausente' : p.inMatch ? 'Em jogo' : 'Online e disponível'}
                   />
+                  <img className="lp-avatar" src="/arte/avatar-padrao.webp" alt="" />
                   <img className="rank-mini rank-img" src={rankArte(p.tier)} alt="" title={rankNome(p.tier)} />
                   <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
                   <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}{p.duo ? <b style={{ color: '#ffd76a' }}> · 🤝{p.duoWith ? ` c/ ${p.duoWith}` : ''}</b> : ''}</span>

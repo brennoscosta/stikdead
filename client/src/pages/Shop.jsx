@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import ItemIcon from '../lib/ItemIcon.jsx';
+import Icon from '../ds/Icon.jsx';
+
+const ICONE_SLOT = {
+  weapon: 'espada', head: 'mascara', face: 'perfil', body: 'armadura', back: 'esquiva',
+  arms: 'soco', legs: 'chute', effect: 'aura', style: 'ultimate',
+};
+const ORDEM_RAR = ['diamante', 'lendario', 'epico', 'raro', 'comum'];
 
 export const SLOT_LABEL = {
   weapon: 'Armas', head: 'Cabeça', face: 'Rosto', body: 'Corpo', back: 'Costas',
@@ -87,74 +94,123 @@ export default function Shop({ profile, onProfile }) {
   };
 
   const shown = items.filter((i) => ((i.currency || 'coins') === payWith) && (filter === 'all' || i.slot === filter));
+  const porRaridade = [...shown].sort((a, b) => ORDEM_RAR.indexOf(a.rarity) - ORDEM_RAR.indexOf(b.rarity));
+  const destaque = porRaridade.find((i) => !i.owned) || porRaridade[0];
+  const emDestaque = porRaridade.find((i) => i !== destaque && !i.owned) || porRaridade.find((i) => i !== destaque);
+  const podePagar = (it) => (it.currency === 'diamonds' ? (profile.diamonds || 0) >= it.price : coins >= it.price);
 
   return (
     <div className="scene scene-nav">
       <Navbar profile={profile} />
-      <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
-        LOJA <img className="h1-logo" src="/logo.webp" alt="STIKDEAD" />
-      </h1>
-      <div className="coins-pill">🪙 {coins.toLocaleString('pt-BR')} moedas</div>
-      <div className="coins-pill diamonds-pill">💎 {Number(profile.diamonds || 0).toLocaleString('pt-BR')} diamantes</div>
-      <div className="pay-toggle">
-        <button className={`pay-mode ${payWith === 'coins' ? 'on' : ''}`} onClick={() => setPayWith('coins')}>🪙 Pagar Moedas</button>
-        <button className={`pay-mode pay-mode-dia ${payWith === 'diamonds' ? 'on' : ''}`} onClick={() => setPayWith('diamonds')}>💎 Pagar Diamantes</button>
-      </div>
-
-      <div className="shop-filters">
-        <button className={filter === 'all' ? 'on' : ''} onClick={() => setFilter('all')}>Tudo</button>
-        {Object.entries(SLOT_LABEL).map(([k, v]) => (
-          <button key={k} className={filter === k ? 'on' : ''} onClick={() => setFilter(k)}>{v}</button>
-        ))}
-      </div>
-
       {notice && (
         <div className={`shop-notice ${notice.ok ? 'ok' : 'err'}`} role="status">{notice.text}</div>
       )}
-
       {mpNotice && <div className="mp-notice">{mpNotice}</div>}
-      <section className="diamond-shop">
-        <h2 className="diamond-title">💎 DIAMANTES</h2>
-        <p className="dash-empty" style={{ marginTop: -6 }}>Moeda premium — compra segura via Mercado Pago (Pix ou cartão)</p>
-        <div className="diamond-packs">
-          {packs.map((p) => (
-            <button key={p.id} className="diamond-pack" onClick={() => buyPack(p.id)}>
-              <span className="dp-gems">💎 {p.diamonds.toLocaleString('pt-BR')}</span>
-              <span className="dp-label">{p.label.replace(' de Diamantes', '')}</span>
-              <span className="dp-price">R$ {(p.cents / 100).toFixed(2).replace('.', ',')}</span>
+
+      <div className="loja-layout">
+        {/* ===== categorias (mockup: sidebar esquerda) ===== */}
+        <aside className="loja-menu">
+          <h1 className="loja-titulo"><Icon name="loja" size={19} weight="forte" /> LOJA</h1>
+          <button className={filter === 'all' ? 'on' : ''} onClick={() => setFilter('all')}>
+            <Icon name="favorito" size={14} weight="forte" /> DESTAQUES
+          </button>
+          {Object.entries(SLOT_LABEL).map(([k, v]) => (
+            <button key={k} className={filter === k ? 'on' : ''} onClick={() => setFilter(k)}>
+              <Icon name={ICONE_SLOT[k] || 'inventario'} size={14} weight="forte" /> {v.replace(' ⚡', '').toUpperCase()}
             </button>
           ))}
-        </div>
-      </section>
-      <div className="shop-grid">
-        {shown.map((item) => (
-          <div key={item.id} className={`item-card r-${item.rarity}`}>
-            <span className="item-rarity">{RARITY_LABEL[item.rarity]}</span>
-            <ItemIcon item={item} size={64} />
-            <span className="item-name">{item.name}</span>
-            <span className="item-slot">{SLOT_LABEL[item.slot]}</span>
-            {item.owned ? (
-              <span className="item-owned">NO BAÚ ✓</span>
-            ) : (
-              <button
-                className="item-buy"
-                disabled={busy === item.id || (item.currency === 'diamonds' ? (profile.diamonds || 0) < item.price : coins < item.price)}
-                onClick={() => buy(item)}
-              >
-                {item.currency === 'diamonds' ? '💎' : '🪙'} {item.price.toLocaleString('pt-BR')}
-              </button>
-            )}
+          <div className="loja-pagar">
+            <small>PAGAR COM</small>
+            <button className={`lp-btn ${payWith === 'coins' ? 'on' : ''}`} onClick={() => setPayWith('coins')}>
+              <Icon name="moeda" size={14} weight="forte" /> {coins.toLocaleString('pt-BR')}
+            </button>
+            <button className={`lp-btn lp-dia ${payWith === 'diamonds' ? 'on' : ''}`} onClick={() => setPayWith('diamonds')}>
+              <Icon name="diamante" size={14} weight="forte" /> {Number(profile.diamonds || 0).toLocaleString('pt-BR')}
+            </button>
           </div>
-        ))}
-      </div>
+        </aside>
 
-      <div style={{ display: 'flex', gap: 12, marginTop: 26 }}>
-        <button className="btn btn-blood" style={{ width: 'auto', padding: '12px 26px' }} onClick={() => nav('/inventario')}>
-          Abrir baú e equipar
-        </button>
-        <button className="btn btn-ghost" style={{ width: 'auto', padding: '12px 26px' }} onClick={() => nav('/perfil')}>
-          Voltar
-        </button>
+        {/* ===== centro: destaque + catálogo ===== */}
+        <main className="loja-centro">
+          {destaque && (
+            <section className={`loja-destaque r-${destaque.rarity}`}>
+              <div className="ld-info">
+                <small>DESTAQUE {payWith === 'diamonds' ? 'PREMIUM' : ''}</small>
+                <h2>{destaque.name}</h2>
+                <span className="ld-tags">
+                  <em className="ld-rar">{RARITY_LABEL[destaque.rarity]}</em>
+                  <em>{SLOT_LABEL[destaque.slot]}</em>
+                </span>
+                {destaque.owned ? (
+                  <span className="item-owned">NO BAÚ ✓</span>
+                ) : (
+                  <button className="ld-comprar" disabled={busy === destaque.id || !podePagar(destaque)} onClick={() => buy(destaque)}>
+                    <Icon name={destaque.currency === 'diamonds' ? 'diamante' : 'moeda'} size={15} weight="forte" /> {destaque.price.toLocaleString('pt-BR')} · COMPRAR
+                  </button>
+                )}
+              </div>
+              <div className="ld-arte"><ItemIcon item={destaque} size={128} /></div>
+            </section>
+          )}
+
+          <div className="loja-sec-titulo"><Icon name="inventario" size={14} weight="forte" /> CATÁLOGO <b>{shown.length}</b></div>
+          <div className="shop-grid">
+            {shown.map((item) => (
+              <div key={item.id} className={`item-card r-${item.rarity}`}>
+                <span className="item-rarity">{RARITY_LABEL[item.rarity]}</span>
+                <ItemIcon item={item} size={64} />
+                <span className="item-name">{item.name}</span>
+                <span className="item-slot">{SLOT_LABEL[item.slot]}</span>
+                {item.owned ? (
+                  <span className="item-owned">NO BAÚ ✓</span>
+                ) : (
+                  <button
+                    className="item-buy"
+                    disabled={busy === item.id || !podePagar(item)}
+                    onClick={() => buy(item)}
+                  >
+                    <Icon name={item.currency === 'diamonds' ? 'diamante' : 'moeda'} size={12} weight="forte" /> {item.price.toLocaleString('pt-BR')}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </main>
+
+        {/* ===== direita: diamantes + vitrine (mockup: ofertas especiais) ===== */}
+        <aside className="loja-direita">
+          <section className="dash-card diamantes-painel">
+            <h2><Icon name="diamante" size={15} weight="forte" className="h2-ico" /> DIAMANTES</h2>
+            <p className="dash-empty" style={{ margin: '0 0 8px' }}>Compra segura via Mercado Pago — Pix ou cartão.</p>
+            {packs.map((p) => (
+              <button key={p.id} className="dp-linha" onClick={() => buyPack(p.id)} disabled={buying}>
+                <span className="dp-qtd"><Icon name="diamante" size={15} weight="forte" /> {p.diamonds.toLocaleString('pt-BR')}</span>
+                <span className="dp-nome">{p.label.replace(' de Diamantes', '')}</span>
+                <b className="dp-preco">R$ {(p.cents / 100).toFixed(2).replace('.', ',')}</b>
+              </button>
+            ))}
+          </section>
+
+          {emDestaque && (
+            <section className={`dash-card item-vitrine r-${emDestaque.rarity}`}>
+              <h2><Icon name="favorito" size={15} weight="forte" className="h2-ico" /> ITEM EM DESTAQUE</h2>
+              <div className="iv-arte"><ItemIcon item={emDestaque} size={92} /></div>
+              <b className="iv-nome">{emDestaque.name}</b>
+              <span className="iv-rar">{RARITY_LABEL[emDestaque.rarity]} · {SLOT_LABEL[emDestaque.slot]}</span>
+              {emDestaque.owned ? (
+                <span className="item-owned">NO BAÚ ✓</span>
+              ) : (
+                <button className="item-buy" disabled={busy === emDestaque.id || !podePagar(emDestaque)} onClick={() => buy(emDestaque)}>
+                  <Icon name={emDestaque.currency === 'diamonds' ? 'diamante' : 'moeda'} size={13} weight="forte" /> {emDestaque.price.toLocaleString('pt-BR')}
+                </button>
+              )}
+            </section>
+          )}
+
+          <button className="btn btn-ghost loja-bau" onClick={() => nav('/inventario')}>
+            <Icon name="inventario" size={14} weight="forte" /> ABRIR BAÚ E EQUIPAR
+          </button>
+        </aside>
       </div>
     </div>
   );
