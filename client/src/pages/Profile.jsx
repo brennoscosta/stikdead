@@ -23,6 +23,14 @@ const tierColor = (t) => TIER_COLOR[(t || 'BRONZE').split('_')[0]] || '#8a8377';
 const xpForNext = (level) => level * 500;
 const fmt = (n) => Number(n || 0).toLocaleString('pt-BR');
 const fmtTime = (s) => (s >= 3600 ? `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m` : `${Math.floor(s / 60)}m`);
+const tempoAtras = (iso) => {
+  if (!iso) return '';
+  const m = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (m < 60) return `${m} min atrás`;
+  const h = Math.round(m / 60);
+  if (h < 48) return `${h}h atrás`;
+  return `${Math.round(h / 24)}d atrás`;
+};
 
 export default function Profile({ profile, onUpdate, onLogout }) {
   const nav = useNavigate();
@@ -214,8 +222,19 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             {history.map((m, i) => (
               <div key={i} className={`dash-match ${m.won ? 'win' : 'loss'}`}>
                 <b>{m.won ? 'VITÓRIA' : 'DERROTA'}</b>
-                <span>{m.opponent_type === 'bot' ? `Bot · ${m.difficulty || ''}` : 'Online 1v1'}</span>
-                <span>{m.wins_a}x{m.wins_b}</span>
+                <span className="dm-opp">
+                  {m.opponent_type === 'bot' ? (
+                    <img className="dm-avatar" src="/arte/bot.png" alt="" />
+                  ) : (
+                    <img className="dm-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                  )}
+                  <span className="dm-nome">{m.opponent_type === 'bot' ? `Bot · ${m.difficulty || ''}` : (m.opponent_name || 'Online 1v1')}</span>
+                  {m.opponent_type !== 'bot' && m.opponent_tier && (
+                    <img className="dm-emblema rank-img" src={rankArte(m.opponent_tier)} alt="" title={rankNome(m.opponent_tier)} />
+                  )}
+                </span>
+                <span className="dm-placar">{m.wins_a}x{m.wins_b}</span>
+                <span className="dm-tempo">{tempoAtras(m.created_at)}</span>
                 <span className="dash-match-xp">+{m.xp_gain} XP</span>
               </div>
             ))}

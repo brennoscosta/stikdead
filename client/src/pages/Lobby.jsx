@@ -329,6 +329,15 @@ export default function Lobby({ profile, onProfile }) {
         {/* ===== centro: praça + ação principal ===== */}
         <main className="lobby-center">
           <div className="plaza plaza-big" ref={plazaHost} />
+          <div className="cta-premio">
+            <img src="/arte/bau.png" alt="" />
+            <span>SEQUÊNCIA <b>{profile.streak || 0}</b> · o baú abre a cada 3 vitórias online seguidas</span>
+            <i className="cp-dots">{[0, 1, 2].map((i) => {
+              const s = profile.streak || 0;
+              const cheias = s > 0 && s % 3 === 0 ? 3 : s % 3;
+              return <em key={i} className={i < cheias ? 'on' : ''} />;
+            })}</i>
+          </div>
           <button
             className={`lobby-cta ${inQueue ? 'is-busca' : ''}`}
             disabled={!!duo}
@@ -350,11 +359,44 @@ export default function Lobby({ profile, onProfile }) {
           </div>
         </main>
 
-        {/* ===== coluna direita: bot + missões ===== */}
+        {/* ===== coluna direita: evento + convites + bot + missões ===== */}
         <aside className="lobby-col">
-          <section className="dash-card">
+          <section className="dash-card evento-banner" aria-label="Evento">
+            <div className="ev-info">
+              <small>EVENTO</small>
+              <b>TORNEIO SEMANAL</b>
+              <span className="ev-breve">EM BREVE</span>
+            </div>
+            <img className="ev-arte" src="/arte/trofeu-roxo.png" alt="" />
+          </section>
+
+          {incoming && (
+            <section className="dash-card convite-painel">
+              <h2><Icon name="espada" size="xs" weight="forte" className="h2-ico" /> CONVITE DE CONFRONTO</h2>
+              <div className="cv-linha">
+                <img className="cv-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                <div className="cv-info">
+                  <b>{incoming.from.name}</b>
+                  <span style={{ color: rankCor(incoming.from.tier) }}>{rankNome(incoming.from.tier)} · Nv {incoming.from.level}</span>
+                  {incoming.bet && (
+                    <em className="cv-bet">valendo {incoming.bet.amount.toLocaleString('pt-BR')} {incoming.bet.kind === 'diamonds' ? '💎' : '🪙'}</em>
+                  )}
+                </div>
+                <span className="cv-timer">{Math.max(0, Math.ceil((incoming.expiresAt - Date.now()) / 1000))}s</span>
+              </div>
+              <div className="cv-acoes">
+                <button className="cv-aceitar" onClick={() => { goFullscreen(); getSocket().emit('challenge:answer', { id: incoming.id, accept: true }); }}>ACEITAR</button>
+                <button className="cv-recusar" onClick={() => { getSocket().emit('challenge:answer', { id: incoming.id, accept: false }); setIncoming(null); }}>RECUSAR</button>
+              </div>
+            </section>
+          )}
+
+          <section className="dash-card bot-painel">
             <h2><Icon name="soco" size="xs" weight="forte" className="h2-ico" /> JOGAR COM BOT</h2>
-            <p className="dash-empty" style={{ marginBottom: 10 }}>Treine suas habilidades contra a IA.</p>
+            <div className="bot-topo">
+              <img className="bot-arte" src="/arte/bot.png" alt="" />
+              <p className="dash-empty">Treine suas habilidades contra a IA.</p>
+            </div>
             <div className="lobby-bot-row">
               {[['facil', 'FÁCIL'], ['medio', 'MÉDIO'], ['dificil', 'DIFÍCIL'], ['insano', 'INSANO']].map(([d, l]) => (
                 <button key={d} className={d === 'insano' ? 'hot' : ''} onClick={() => nav(`/treino?d=${d}`)}>{l}</button>
@@ -475,40 +517,6 @@ export default function Lobby({ profile, onProfile }) {
                 <p style={{ fontSize: 20 }}><b style={{ color: '#ffd76a' }}>{clanPop.who}</b> entrou no clã <b>{clanPop.clan}</b>!</p>
               </>
             )}
-          </div>
-        </div>
-      )}
-      {incoming && (
-        <div className="bt-overlay">
-          <div className="bt-panel">
-            <h2>DESAFIO!</h2>
-            <p style={{ margin: '0 0 6px', fontSize: 22 }}>
-              <b style={{ color: '#d90429' }}>{incoming.from.name}</b> te desafiou
-            </p>
-            <p style={{ margin: '0 0 6px', color: '#9a938a' }}>
-              Nv {incoming.from.level} · {TIER_LABEL(incoming.from.tier)} ·{' '}
-              {Math.max(0, Math.ceil((incoming.expiresAt - Date.now()) / 1000))}s
-            </p>
-            {incoming.bet && (
-              <p className="bet-tag">
-                💰 VALENDO {incoming.bet.amount.toLocaleString('pt-BR')} {incoming.bet.kind === 'diamonds' ? '💎' : '🪙'} — quem perder transfere pro vencedor!
-              </p>
-            )}
-            <button
-              className="btn btn-blood"
-              onClick={() => { goFullscreen(); getSocket().emit('challenge:answer', { id: incoming.id, accept: true }); }}
-            >
-              Aceitar
-            </button>
-            <button
-              className="btn btn-ghost"
-              onClick={() => {
-                getSocket().emit('challenge:answer', { id: incoming.id, accept: false });
-                setIncoming(null);
-              }}
-            >
-              Recusar
-            </button>
           </div>
         </div>
       )}

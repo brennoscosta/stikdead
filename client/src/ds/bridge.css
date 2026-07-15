@@ -639,3 +639,105 @@ body {
   body .bottombar { display: none !important; }
 }
 .dash-card.player-cartao { flex-direction: row; }
+
+/* ============================================================
+   FASE P — PARIDADE FINA: densidade de painel de jogo,
+   convites laterais, evento, recompensa, linhas ricas
+   ============================================================ */
+
+/* ---------- P1: compactação global do meta-game ---------- */
+body .dash-card { padding: 11px 13px; border-radius: 0; }
+body .dash-card h2 { font-size: 11px; letter-spacing: 0.18em; margin: 0 0 8px; }
+body .lobby-grid, body .dash-grid { gap: 10px; }
+.lobby-col { gap: 10px !important; }
+.lobby-list li { font-size: 12.5px; padding: 4px 0 !important; }
+.lobby-meta { font-size: 11px !important; }
+.lobby-mission span { font-size: 12.5px; }
+.lm-meta { font-size: 11px !important; }
+.chat-msgs { font-size: 12.5px; }
+.chat-msg { padding: 2px 0; }
+.dash-empty { font-size: 12px !important; }
+.item-card.mini { padding: 8px 5px 7px !important; }
+.item-card.mini .item-name { font-size: 11.5px; }
+.item-card.mini .item-slot { font-size: 9.5px; }
+.dash-stat { padding: 10px 8px 14px !important; }
+.dash-stat b { font-size: 26px !important; }
+.dash-stat span { font-size: 10px !important; letter-spacing: 0.14em !important; }
+.dash-stats-grid div span { font-size: 10px; letter-spacing: 0.12em; }
+.dash-stats-grid b { font-size: 19px !important; }
+.perfil-menu button { padding: 9px 12px !important; font-size: 11px !important; }
+.lobby-quick button { padding: 12px 8px !important; font-size: 11px !important; }
+.lobby-cta { font-size: 21px !important; padding: 16px 14px !important; }
+.lobby-bot-row button { font-size: 11px !important; padding: 9px 6px !important; }
+.player-cartao { padding: 10px 12px !important; }
+.dash-hero { min-height: 188px; }
+.dash-hero .btn { padding: 10px 18px !important; font-size: 12.5px !important; width: auto !important; }
+
+/* ---------- P2: banner do evento (torneio em breve) ---------- */
+.evento-banner {
+  flex-direction: row !important; align-items: center; gap: 10px;
+  background:
+    linear-gradient(100deg, rgba(30, 12, 40, 0.92), rgba(12, 7, 14, 0.95)),
+    radial-gradient(120% 160% at 90% 20%, rgba(139, 92, 246, 0.35), transparent 60%) !important;
+  border-color: rgba(139, 92, 246, 0.35) !important;
+  box-shadow: 0 0 22px rgba(139, 92, 246, 0.18), var(--sd-depth-1);
+}
+.evento-banner .ev-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.evento-banner small { font: 700 9.5px var(--sd-font-ui); letter-spacing: 0.2em; color: #b39af5; }
+.evento-banner b { font: 800 16px var(--sd-font-ui); letter-spacing: 0.1em; color: var(--sd-bone); }
+.evento-banner .ev-breve {
+  align-self: flex-start; margin-top: 3px; padding: 2px 8px;
+  font: 800 9px var(--sd-font-ui); letter-spacing: 0.16em; color: #d9c8ff;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+}
+.evento-banner .ev-arte { width: 74px; height: 74px; object-fit: contain; filter: drop-shadow(0 0 14px rgba(139, 92, 246, 0.5)); }
+
+/* ---------- P3: convite de confronto como painel ---------- */
+.convite-painel { border-color: rgba(217, 4, 41, 0.45) !important; box-shadow: 0 0 20px rgba(217, 4, 41, 0.18), var(--sd-depth-1); animation: sd-rise 0.25s var(--sd-ease-out); }
+.cv-linha { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cv-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--sd-blood); box-shadow: 0 0 10px rgba(217, 4, 41, 0.4); }
+.cv-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.cv-info b { font: 800 14px var(--sd-font-ui); letter-spacing: 0.06em; color: var(--sd-bone); }
+.cv-info span { font: 700 10.5px var(--sd-font-ui); letter-spacing: 0.1em; }
+.cv-bet { font: 600 11px var(--sd-font-ui); color: var(--sd-gold-hot); font-style: normal; }
+.cv-timer { font-family: var(--sd-font-impact); font-size: 22px; color: var(--sd-blood-hot); text-shadow: 0 0 12px rgba(255, 34, 68, 0.5); }
+.cv-acoes { display: flex; gap: 8px; }
+.cv-acoes button {
+  flex: 1; padding: 9px 6px; cursor: pointer; border: none; border-radius: 0;
+  clip-path: var(--sd-clip-btn);
+  font: 800 12px var(--sd-font-ui); letter-spacing: 0.14em; color: #fff;
+  transition: transform var(--sd-t-fast), filter var(--sd-t-fast);
+}
+.cv-acoes button:hover { transform: translateY(-1px); filter: brightness(1.15); }
+.cv-aceitar { background: linear-gradient(180deg, #22c55e, #15803d 60%, #14532d); box-shadow: 0 0 14px rgba(34, 197, 94, 0.35); }
+.cv-recusar { background: linear-gradient(180deg, var(--sd-blood-hot), var(--sd-blood) 60%, var(--sd-blood-deep)); box-shadow: 0 0 14px rgba(217, 4, 41, 0.3); }
+
+/* ---------- P4: faixa de recompensa sobre o CTA ---------- */
+.cta-premio {
+  display: flex; align-items: center; gap: 9px;
+  margin: 8px auto 6px; padding: 6px 12px; max-width: 92%;
+  background: linear-gradient(180deg, rgba(26, 17, 8, 0.92), rgba(14, 9, 5, 0.95));
+  border: 1px solid rgba(224, 161, 11, 0.3);
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+}
+.cta-premio img { width: 30px; height: 30px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(224, 161, 11, 0.5)); }
+.cta-premio span { font: 600 11.5px var(--sd-font-ui); letter-spacing: 0.06em; color: var(--sd-muted); flex: 1; text-align: left; }
+.cta-premio span b { font-family: var(--sd-font-impact); font-size: 15px; color: var(--sd-gold-hot); }
+.cp-dots { display: inline-flex; gap: 4px; }
+.cp-dots em { width: 16px; height: 6px; background: rgba(255, 255, 255, 0.09); clip-path: polygon(2px 0, 100% 0, calc(100% - 2px) 100%, 0 100%); }
+.cp-dots em.on { background: linear-gradient(90deg, var(--sd-gold), var(--sd-gold-hot)); box-shadow: 0 0 8px rgba(224, 161, 11, 0.6); }
+
+/* ---------- P5: painel do bot com retrato ---------- */
+.bot-topo { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bot-arte { width: 52px; height: 52px; object-fit: contain; flex: none; filter: drop-shadow(0 0 10px rgba(255, 34, 68, 0.3)); }
+.bot-topo .dash-empty { margin: 0 !important; }
+
+/* ---------- P6: últimas partidas ricas ---------- */
+.dash-match { display: flex !important; align-items: center; gap: 8px; font-size: 12px; padding: 6px 8px !important; }
+.dm-opp { display: inline-flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+.dm-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1px solid #3a2a31; flex: none; }
+.dm-nome { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--sd-bone); font-weight: 600; }
+.dm-emblema { width: 22px; height: 22px; object-fit: contain; flex: none; }
+.dm-placar { font-family: var(--sd-font-impact); font-size: 14px; color: var(--sd-muted); }
+.dm-tempo { font-size: 10.5px; color: var(--sd-faint); white-space: nowrap; }
