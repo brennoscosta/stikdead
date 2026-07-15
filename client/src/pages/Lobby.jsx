@@ -154,15 +154,7 @@ export default function Lobby({ profile, onProfile }) {
   useEffect(() => {
     if (session || !plazaHost.current) return;
     let alive = true;
-    createPlaza(plazaHost.current, {
-      onNameClick: (n) => setCard(n),
-      onNpc: (kind) => {
-        if (kind === 'loja') nav('/loja');
-        else if (kind === 'ferreiro') nav('/inventario');
-        else if (kind === 'eventos') nav('/missoes');
-        else plazaRef.current?.say('TORNEIO', 'Em breve: torneios semanais! 🏆');
-      },
-    }).then((p) => {
+    createPlaza(plazaHost.current, { onNameClick: (n) => setCard(n) }).then((p) => {
       if (!alive) return p.destroy();
       plazaRef.current = p;
       p.setProtagonist({ name: profile.fighter_name, loadout: myLoadoutRef.current });

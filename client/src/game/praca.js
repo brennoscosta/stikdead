@@ -1,6 +1,6 @@
 // STIKDEAD :: LOBBY V2 — praça viva (LobbyManager)
 // Orquestra as camadas do hub social:
-//   pintura → céu dinâmico → lanternas → atores (reais + figurantes + NPCs + protagonista) → frente → partículas
+//   pintura → céu dinâmico → lanternas → atores (jogadores reais + protagonista) → frente → partículas
 // Cada camada tem parallax próprio. Tudo pausa quando a aba fica oculta.
 import { Application, Container, Graphics, Text, Sprite, Assets } from 'pixi.js';
 import { drawFighter } from './rig.js';
@@ -8,14 +8,12 @@ import { createWeaponSprite, filterForVector } from './itemSprites.js';
 import { MOVES } from './sim.js';
 import { createParticulas } from './lobby/particulas.js';
 import { createCenario } from './lobby/cenario.js';
-import { createDiretor, NPCS } from './lobby/elenco.js';
 
 const MAX_WALKERS = 16;
 
 export async function createPlaza(host, opts = {}) {
   const VARIANT = opts.variant || 'praca';
   const onNameClick = opts.onNameClick || null;
-  const onNpc = opts.onNpc || null;
   const TOUCH = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
   const app = new Application();
   await app.init({ background: '#120a0e', resizeTo: host, antialias: true });
@@ -94,7 +92,7 @@ export async function createPlaza(host, opts = {}) {
     wrap.addChild(g);
     const ws = createWeaponSprite(wrap, g);
     ws.setLoadout(p.loadout || []);
-    const dourado = p.npc || p.protagonista;
+    const dourado = p.protagonista;
     const tag = new Text({
       text: p.protagonista ? `★ ${p.name}` : p.name,
       style: {
@@ -103,17 +101,10 @@ export async function createPlaza(host, opts = {}) {
       },
     });
     tag.anchor.set(0.5, 1);
-    if (onNameClick && !p.npc && !p.figurante && !p.protagonista) {
+    if (onNameClick && !p.protagonista) {
       tag.eventMode = 'static';
       tag.cursor = 'pointer';
       tag.on('pointertap', () => onNameClick(p.name));
-    }
-    if (p.npc && onNpc) {
-      for (const alvo of [tag, wrap]) {
-        alvo.eventMode = 'static';
-        alvo.cursor = 'pointer';
-        alvo.on('pointertap', () => onNpc(p.kind));
-      }
     }
     layer.addChild(wrap, tag);
     // estandarte do clã: bandeirinha na cor + nome, acima do nome do lutador
@@ -150,13 +141,12 @@ export async function createPlaza(host, opts = {}) {
     }
     return {
       id: p.id, wrap, g, ws, tag, clanTag, name: p.name, away: !!p.away,
-      npc: !!p.npc, kind: p.kind, figurante: !!p.figurante, protagonista: !!p.protagonista,
-      emCena: false, saindo: 0, loadout: p.loadout || [], bubble: null, bubbleUntil: 0,
-      tNpc: 2 + Math.random() * 4,
+      protagonista: !!p.protagonista,
+      loadout: p.loadout || [], bubble: null, bubbleUntil: 0,
       f: {
         x: p.fx ?? (60 + Math.random() * Math.max(120, W - 120)), y: 0, vx: 0, vy: 0,
         face: Math.random() < 0.5 ? 1 : -1, hp: 100,
-        state: p.npc || p.protagonista ? 'idle' : 'walk',
+        state: p.protagonista ? 'idle' : 'walk',
         t: Math.random() * 3, hitstun: 0, combo: 0,
       },
       speed: 26 + Math.random() * 22,
@@ -165,7 +155,6 @@ export async function createPlaza(host, opts = {}) {
   };
 
   const remove = (a) => {
-    diretor.esquece(a.id);
     a.ws.destroy();
     a.wrap.destroy({ children: true });
     a.tag.destroy();
@@ -177,7 +166,7 @@ export async function createPlaza(host, opts = {}) {
   // ===== emotes flutuantes =====
   const emotes = [];
   const mostraEmote = (ator, emoji) => {
-    if (!ator || ator.saindo) return;
+    if (!ator) return;
     const t = new Text({ text: emoji, style: { fontSize: 20 } });
     t.anchor.set(0.5, 1);
     layer.addChild(t);
@@ -203,46 +192,6 @@ export async function createPlaza(host, opts = {}) {
     layer.addChild(holder);
     actor.bubble = holder;
     actor.bubbleUntil = performance.now() + 3000 + Math.min(3500, String(text).length * 45);
-  };
-
-  // ===== diretor do elenco ambiente =====
-  const diretor = createDiretor({
-    alvo: TOUCH ? 7 : 10,
-    digaBalao: (ator, texto) => showBubble(ator, texto),
-    emote: (ator, emoji) => mostraEmote(ator, emoji),
-    faiscas: (fx, fy, n, cor) => particulas.faiscas(fx * scale, H - 40 - fy * scale, n, cor),
-  });
-
-  let realCount = 0;
-  let tPovoa = 0;
-  const povoa = (dt) => {
-    tPovoa -= dt;
-    if (tPovoa > 0) return;
-    tPovoa = 1.6;
-    const figs = [...actors.values()].filter((a) => a.figurante && !a.saindo);
-    const alvoFig = diretor.precisa(realCount);
-    if (figs.length < alvoFig && actors.size < MAX_WALKERS) {
-      const dados = diretor.novoFigurante();
-      dados.fx = Math.random() < 0.5 ? 50 : Math.max(160, W / scale - 50);
-      const a = spawn(dados);
-      actors.set(a.id, a);
-      diretor.registra(a.id, a);
-    } else if (figs.length > alvoFig) {
-      const sai = figs.find((a) => !a.emCena);
-      if (sai) sai.saindo = 0.0001;
-    }
-  };
-
-  // ===== NPCs =====
-  let npcsProntos = false;
-  const montaNpcs = () => {
-    if (npcsProntos || !W) return;
-    npcsProntos = true;
-    for (const def of NPCS) {
-      const a = spawn({ ...def, npc: true, fx: (W / scale) * def.px });
-      a.postoPx = def.px;
-      actors.set(a.id, a);
-    }
   };
 
   // ===== parallax =====
@@ -273,10 +222,8 @@ export async function createPlaza(host, opts = {}) {
       drawBg();
       cenario.resize(W, H);
       particulas.resize(W, H);
-      for (const a of actors.values()) if (a.npc && a.postoPx) a.f.x = (W / scale) * a.postoPx;
       if (protagonista) protagonista.f.x = W / scale / 2;
     }
-    montaNpcs();
 
     // vento global: brisa com rajadas
     const vento = Math.sin(elapsed * 0.23) * 0.6 + Math.sin(elapsed * 0.11 + 2) * 0.4;
@@ -299,8 +246,6 @@ export async function createPlaza(host, opts = {}) {
 
     cenario.tick(elapsed, vento);
     particulas.tick(dt, vento);
-    diretor.tick(dt);
-    povoa(dt);
 
     halos.clear();
     for (const a of actors.values()) {
@@ -314,15 +259,6 @@ export async function createPlaza(host, opts = {}) {
     }
 
     for (const a of actors.values()) {
-      // saída suave de figurantes excedentes
-      if (a.saindo) {
-        a.saindo += dt;
-        const k = Math.min(1, a.saindo / 0.8);
-        a.wrap.alpha = 1 - k;
-        a.tag.alpha = 1 - k;
-        if (a.clanTag) a.clanTag.alpha = 1 - k;
-        if (k >= 1) { remove(a); continue; }
-      }
       if (a.bubble) {
         a.bubble.position.set(a.tag.x, a.tag.y - 18);
         if (nowB > a.bubbleUntil) {
@@ -331,20 +267,7 @@ export async function createPlaza(host, opts = {}) {
       }
       a.f.t += dt;
 
-      // comportamento: NPCs têm rotina própria; atores em cena são dirigidos pelo diretor
-      if (a.npc) {
-        a.tNpc -= dt;
-        if (a.tNpc <= 0) {
-          if (a.kind === 'ferreiro') {
-            a.f.state = 'heavy'; a.f.t = 0; a.tNpc = 3.5 + Math.random() * 3.5;
-            particulas.faiscas(a.f.x * scale + a.f.face * 20 * scale, H - 46, 10, 0xffb84d);
-          } else {
-            mostraEmote(a, a.kind === 'loja' ? '🪙' : a.kind === 'torneio' ? '🏆' : '🎉');
-            a.tNpc = 7 + Math.random() * 9;
-          }
-        }
-        if (a.f.state === 'heavy' && a.f.t > 0.55) { a.f.state = 'idle'; a.f.t = 0; }
-      } else if (!a.emCena && !a.protagonista) {
+      if (!a.protagonista) {
         a.timer -= dt;
         if (a.timer <= 0) {
           a.f.state = a.f.state === 'walk' ? 'idle' : 'walk';
@@ -405,7 +328,7 @@ export async function createPlaza(host, opts = {}) {
       }
       // se o próprio jogador já entrou como caminhante comum, sai de cena
       for (const a of [...actors.values()])
-        if (!a.npc && !a.figurante && !a.protagonista && a.name === p.name) remove(a);
+        if (!a.protagonista && a.name === p.name) remove(a);
       const a = spawn({
         id: 'protagonista', name: p.name, loadout: p.loadout || [],
         protagonista: true, fx: Math.max(120, (W / scale) / 2 || 220),
@@ -418,7 +341,7 @@ export async function createPlaza(host, opts = {}) {
       const lista = players.filter((p) => p.name !== meu);
       realCount = lista.length;
       const keep = new Set();
-      for (const p of lista.slice(0, MAX_WALKERS - 6)) {
+      for (const p of lista.slice(0, MAX_WALKERS)) {
         keep.add(p.id);
         const existing = actors.get(p.id);
         if (existing) {
@@ -427,13 +350,11 @@ export async function createPlaza(host, opts = {}) {
           existing.name = p.name;
           existing.away = !!p.away;
         } else {
-          const a = spawn(p);
-          actors.set(p.id, a);
-          diretor.registra(p.id, a);
+          actors.set(p.id, spawn(p));
         }
       }
       for (const [id, a] of actors) {
-        if (!a.npc && !a.figurante && !a.protagonista && !keep.has(id)) remove(a);
+        if (!a.protagonista && !keep.has(id)) remove(a);
       }
     },
     destroy() {
