@@ -7,6 +7,7 @@ import KeysHud from '../lib/KeysHud.jsx';
 import Navbar from '../lib/Navbar.jsx';
 import { api } from '../lib/api.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
+import Icon from '../ds/Icon.jsx';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { STYLES } from '../game/sim.js';
 import { SkillButton } from './Battle.jsx';
@@ -190,7 +191,7 @@ export default function Lobby({ profile, onProfile }) {
         {/* ===== coluna esquerda: jogadores + chat ===== */}
         <aside className="lobby-col">
           <section className="dash-card">
-            <h2>JOGADORES ONLINE ({players.length})</h2>
+            <h2><Icon name="grupo" size="xs" weight="forte" className="h2-ico" /> JOGADORES ONLINE ({players.length})</h2>
             <ul className="lobby-list">
               {others.length === 0 && (
                 <p className="dash-empty">Ninguém mais online agora. Chame os amigos!</p>
@@ -274,7 +275,7 @@ export default function Lobby({ profile, onProfile }) {
           </section>
 
           <section className="dash-card" style={{ flex: 1 }}>
-            <h2>CHAT DO LOBBY</h2>
+            <h2><Icon name="chat" size="xs" weight="forte" className="h2-ico" /> CHAT DO LOBBY</h2>
             <div className="chat-msgs" style={{ maxHeight: 220 }}>
               {chat.map((m, i) => (
                 <div key={i} className={`chat-msg ${m.private ? 'pv' : ''} ${m.system ? 'sys' : ''}`}>
@@ -305,7 +306,7 @@ export default function Lobby({ profile, onProfile }) {
                 maxLength={100}
                 placeholder="Digite sua mensagem…"
               />
-              <button type="submit">➤</button>
+              <button type="submit" aria-label="Enviar"><Icon name="voltar" size="xs" weight="forte" style={{ transform: 'rotate(180deg)' }} /></button>
             </form>
           </section>
         </aside>
@@ -314,27 +315,30 @@ export default function Lobby({ profile, onProfile }) {
         <main className="lobby-center">
           <div className="plaza plaza-big" ref={plazaHost} />
           <button
-            className="lobby-cta"
+            className={`lobby-cta ${inQueue ? 'is-busca' : ''}`}
             disabled={!!duo}
             title={duo ? 'Você está em dupla — desfaça-a para lutar sozinho' : undefined}
             onClick={() => { if (duo) return; if (!inQueue) goFullscreen(); socket.emit(inQueue ? 'queue:leave' : 'queue:join'); }}
           >
-            {inQueue ? '⏳ PROCURANDO OPONENTE… (cancelar)' : '⚔ BUSCAR PARTIDA'}
-            <small>{inQueue ? 'pareamento automático' : 'partida rápida 1v1'}</small>
+            <span className="cta-linha">
+              <Icon name={inQueue ? 'buscar' : 'espada'} size="sm" weight="forte" />
+              {inQueue ? 'PROCURANDO OPONENTE…' : 'BUSCAR PARTIDA'}
+            </span>
+            <small>{inQueue ? 'pareamento automático · clique para cancelar' : 'partida rápida 1v1'}</small>
           </button>
           <div className="lobby-quick">
             <button disabled={!!duo} title={duo ? 'Em dupla não se treina sozinho — desfaça-a primeiro' : undefined}
-              onClick={() => { if (!duo) nav('/treino'); }}>🤖 TREINO{duo ? <small>desfaça a dupla</small> : null}</button>
-            <button onClick={() => nav('/loja')}>🛒 LOJA</button>
-            <button onClick={() => nav('/missoes')}>📜 MISSÕES</button>
-            <button className="soon">🏆 TORNEIO<small>em breve</small></button>
+              onClick={() => { if (!duo) nav('/treino'); }}><Icon name="soco" size="sm" weight="forte" /> TREINO{duo ? <small>desfaça a dupla</small> : null}</button>
+            <button onClick={() => nav('/loja')}><Icon name="loja" size="sm" weight="forte" /> LOJA</button>
+            <button onClick={() => nav('/missoes')}><Icon name="missoes" size="sm" weight="forte" /> MISSÕES</button>
+            <button className="soon"><Icon name="trofeu" size="sm" weight="forte" /> TORNEIO<small>em breve</small></button>
           </div>
         </main>
 
         {/* ===== coluna direita: bot + missões ===== */}
         <aside className="lobby-col">
           <section className="dash-card">
-            <h2>JOGAR COM BOT</h2>
+            <h2><Icon name="soco" size="xs" weight="forte" className="h2-ico" /> JOGAR COM BOT</h2>
             <p className="dash-empty" style={{ marginBottom: 10 }}>Treine suas habilidades contra a IA.</p>
             <div className="lobby-bot-row">
               {[['facil', 'FÁCIL'], ['medio', 'MÉDIO'], ['dificil', 'DIFÍCIL'], ['insano', 'INSANO']].map(([d, l]) => (
@@ -344,12 +348,12 @@ export default function Lobby({ profile, onProfile }) {
           </section>
 
           <section className="dash-card">
-            <h2>MISSÕES DIÁRIAS</h2>
+            <h2><Icon name="missoes" size="xs" weight="forte" className="h2-ico" /> MISSÕES DIÁRIAS</h2>
             {missions.slice(0, 3).map((m) => (
               <div key={m.id} className="lobby-mission">
                 <span>{m.label}</span>
                 <div className="mission-bar"><div className="mission-fill" style={{ width: `${Math.min(100, (m.progress / m.goal) * 100)}%` }} /></div>
-                <small>{Math.min(m.progress, m.goal)}/{m.goal} · 🪙 {m.coins}</small>
+                <small className="lm-meta">{Math.min(m.progress, m.goal)}/{m.goal} · <Icon name="moeda" size={12} weight="forte" /> {m.coins}</small>
               </div>
             ))}
             <button className="btn btn-ghost" style={{ marginTop: 10 }} onClick={() => nav('/missoes')}>
@@ -361,7 +365,7 @@ export default function Lobby({ profile, onProfile }) {
 
       {/* ===== barra da build atual ===== */}
       <section className="lobby-build">
-        <h2>SUA BUILD ATUAL</h2>
+        <h2><Icon name="armadura" size="xs" weight="forte" className="h2-ico" /> SUA BUILD ATUAL</h2>
         <div className="lobby-build-row">
           {myLoadout.length === 0 && <p className="dash-empty">Nada equipado — visite a loja!</p>}
           {myLoadout.map((it) => (
