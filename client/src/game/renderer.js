@@ -29,11 +29,11 @@ export async function createRenderer(host, theme = 'dojo') {
   // regra simples: qualidade máxima = vídeo em alta em QUALQUER dispositivo; modo leve = foto
   const VIDEO_THEMES = ['dojo', 'temple', 'prison', 'neve', 'deserto', 'praia', 'cidade_rio', 'cemiterio'];
   const VIDEO_ARENAS = Object.fromEntries(VIDEO_THEMES.map((t) => [t, `/arenas/${t}.mp4`]));
-  const loadArenaVideo = (src) => new Promise((resolve, reject) => {
+  const loadArenaVideo = (src, ms = 8000) => new Promise((resolve, reject) => {
     const v = document.createElement('video');
     v.src = src; v.muted = true; v.loop = true; v.playsInline = true;
     v.autoplay = true; v.crossOrigin = 'anonymous'; v.preload = 'auto';
-    const to = setTimeout(() => reject(new Error('vídeo demorou')), 8000);
+    const to = setTimeout(() => reject(new Error('vídeo demorou')), ms);
     v.addEventListener('error', () => { clearTimeout(to); reject(new Error('vídeo indisponível')); }, { once: true });
     v.addEventListener('canplay', () => {
       clearTimeout(to);
@@ -49,7 +49,10 @@ export async function createRenderer(host, theme = 'dojo') {
     const LITE = (localStorage.getItem('stik_quality') || 'lite') === 'lite';
     if (!LITE && VIDEO_ARENAS[theme]) {
       try {
-        const vid = await loadArenaVideo(VIDEO_ARENAS[theme]);
+        // celular: vídeo SD (25-80KB) no lugar do full (0,7-2,6MB) — mata o congelamento
+        // do início de partida em conexão móvel; desktop segue em alta.
+        const src = IS_TOUCH ? VIDEO_ARENAS[theme].replace('.mp4', '_sd.mp4') : VIDEO_ARENAS[theme];
+        const vid = await loadArenaVideo(src, IS_TOUCH ? 5000 : 8000);
         tex = Texture.from(vid);
         // o jogo roda a 60fps, mas a textura do vídeo só sobe à GPU 24x/s
         try { if (tex.source && 'updateFPS' in tex.source) tex.source.updateFPS = IS_TOUCH ? 18 : 24; } catch { /* versão sem a alavanca */ }

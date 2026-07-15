@@ -73,20 +73,30 @@ export default function StatusMedal({ profile }) {
           ))}
         </div>
 
-        <p className="medal-explica">
-          O algoritmo da arena avaliou tudo que você viveu — ranking, aproveitamento, sequência, nível e rodagem —
-          e cravou <b>{f.score}/100</b>. O que mais pesa a seu favor: <b style={{ color: '#7de0a8' }}>{f.forte.nome}</b>
-          {f.streak >= 2 ? <> (🔥 {f.streak} seguidas)</> : null}.
-          O que te segura: <b style={{ color: '#ff8fa3' }}>{f.fraco.nome}</b> — {f.fraco.dica}.
-        </p>
+        <div className="forma-notas">
+          <div className="forma-nota">
+            <small>NOTA</small>
+            <b>{f.score}<i>/100</i></b>
+          </div>
+          <div className="forma-fatores">
+            <div className="forma-linha boa">
+              <span>PONTO FORTE</span>
+              <b>{f.forte.nome}{f.streak >= 2 ? ` · ${f.streak} seguidas` : ''}</b>
+            </div>
+            <div className="forma-linha ruim">
+              <span>A EVOLUIR</span>
+              <b>{f.fraco.nome}</b>
+            </div>
+          </div>
+        </div>
         <p className="medal-meta">
           {f.forma >= 7
-            ? '👑 Melhor momento possível. O jogo inteiro está olhando para você.'
+            ? 'Melhor momento possível. O topo é seu.'
             : f.forma >= 5
-              ? '⚔️ Momento forte. Mantenha o ritmo para alcançar o topo.'
+              ? 'Momento forte. Mantenha o ritmo.'
               : f.forma >= 3
-                ? '📈 Em construção. Cada vitória online empurra a régua para o sangue.'
-                : '🩸 Início de jornada. Lute online: é lá que a forma nasce.'}
+                ? 'Em evolução. Vitórias online sobem a régua.'
+                : 'Início de jornada. A forma nasce no online.'}
         </p>
       </div>
     </div>
