@@ -510,6 +510,11 @@ export async function createRenderer(host, theme = 'dojo') {
     }
   }
 
+  // sobe as texturas para a GPU AINDA na tela de loading — sem isso, o primeiro
+  // frame da luta congela os toques no celular enquanto a GPU digere arena+atlas.
+  try { await app.renderer?.prepare?.upload?.(app.stage); } catch { /* sem prepare, segue */ }
+  try { app.renderer?.render?.(app.stage); } catch { /* warm-up opcional */ }
+
   return {
     setMySide(side) { mySide = side; },
     app,

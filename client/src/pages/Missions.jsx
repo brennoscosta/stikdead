@@ -2,6 +2,20 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
+import Icon from '../ds/Icon.jsx';
+
+// ícone e cor de cada missão pelo texto — só apresentação
+const iconeDaMissao = (label) => {
+  const l = String(label).toLowerCase();
+  if (l.includes('venç') || l.includes('venc')) return ['espada', '#ff2244'];
+  if (l.includes('combo')) return ['combo', '#8b5cf6'];
+  if (l.includes('bloque')) return ['escudo', '#4da3ff'];
+  if (l.includes('dano')) return ['ultimate', '#ff7a1a'];
+  if (l.includes('skill') || l.includes('especia')) return ['aura', '#4dee98'];
+  if (l.includes('finaliz')) return ['favorito', '#ffd166'];
+  if (l.includes('partida') || l.includes('lute')) return ['soco', '#e0a10b'];
+  return ['missoes', '#9a938a'];
+};
 
 export default function Missions({ profile, onProfile }) {
   const nav = useNavigate();
@@ -46,59 +60,80 @@ export default function Missions({ profile, onProfile }) {
   const allClaimed = missions.length > 0 && missions.every((m) => m.claimed);
   const doneCount = missions.filter((m) => m.progress >= m.goal).length;
 
+  const total = missions.length || 3;
+
   return (
     <div className="scene scene-nav">
       <Navbar profile={profile} />
-      <h1 className="brand" style={{ fontSize: 'clamp(36px, 7vw, 54px)' }}>
-        MISSÕES <span className="red">DIÁRIAS</span>
-      </h1>
-      <div className="tagline">{doneCount}/3 concluídas · renovam à meia-noite</div>
       {notice && <div className={`shop-notice ${notice.ok ? 'ok' : 'err'}`} role="status">{notice.text}</div>}
 
-      <div className="missions-list">
-        {missions.map((m) => {
-          const done = m.progress >= m.goal;
-          return (
-            <div key={m.id} className={`mission-card ${done ? 'done' : ''}`}>
-              <div className="mission-info">
-                <span className="mission-label">{m.label}</span>
-                <div className="mission-bar">
-                  <div className="mission-fill" style={{ width: `${Math.min(100, (m.progress / m.goal) * 100)}%` }} />
-                </div>
-                <span className="mission-progress">{Math.min(m.progress, m.goal)}/{m.goal}</span>
-              </div>
-              {m.claimed ? (
-                <span className="mission-claimed">COLETADA ✓</span>
-              ) : done ? (
-                <button className="mission-claim" onClick={() => claim(m)}>🪙 {m.coins}</button>
-              ) : (
-                <span className="mission-reward">🪙 {m.coins}</span>
-              )}
+      <div className="mis-layout">
+        {/* ===== abas (mockup: sidebar esquerda) ===== */}
+        <aside className="loja-menu mis-menu">
+          <h1 className="loja-titulo"><Icon name="missoes" size={19} weight="forte" /> MISSÕES</h1>
+          <button className="on">
+            <Icon name="missoes" size={14} weight="forte" /> DIÁRIAS
+            {missions.some((m) => m.progress >= m.goal && !m.claimed) && <b className="mm-badge">{missions.filter((m) => m.progress >= m.goal && !m.claimed).length}</b>}
+          </button>
+          <button disabled><Icon name="conquista" size={14} weight="forte" /> SEMANAIS <span className="mm-breve">EM BREVE</span></button>
+          <button disabled><Icon name="passe" size={14} weight="forte" /> MENSAIS <span className="mm-breve">EM BREVE</span></button>
+          <button disabled><Icon name="aura" size={14} weight="forte" /> EVENTOS <span className="mm-breve">EM BREVE</span></button>
+        </aside>
+
+        {/* ===== centro: cabeçalho + linhas + baú ===== */}
+        <main className="mis-centro">
+          <header className="mis-topo">
+            <div className="mt-info">
+              <b>MISSÕES DIÁRIAS</b>
+              <span>{doneCount}/{total} concluídas · renovam à meia-noite</span>
+              <div className="mission-bar"><div className="mission-fill" style={{ width: `${(doneCount / total) * 100}%` }} /></div>
             </div>
-          );
-        })}
-      </div>
+            <img className="mt-bau" src="/arte/bau.png" alt="" />
+          </header>
 
-      <div className={`chest-card ${allClaimed && !chestClaimed ? 'ready' : ''}`}>
-        <span style={{ fontSize: 34 }}>🧰</span>
-        <div style={{ flex: 1, textAlign: 'left' }}>
-          <strong>BAÚ DIÁRIO</strong>
-          <div className="item-slot">Complete e colete as 3 missões para liberar</div>
-        </div>
-        {chestClaimed ? (
-          <span className="mission-claimed">ABERTO ✓</span>
-        ) : (
-          <button className="mission-claim" disabled={!allClaimed} onClick={openChest}>ABRIR</button>
-        )}
-      </div>
+          {missions.map((m) => {
+            const done = m.progress >= m.goal;
+            const [icone, cor] = iconeDaMissao(m.label);
+            return (
+              <div key={m.id} className={`mis-linha ${done ? 'done' : ''} ${m.claimed ? 'coletada' : ''}`}>
+                <span className="ml-ico" style={{ '--mi-cor': cor }}><Icon name={icone} size={19} weight="forte" /></span>
+                <div className="ml-info">
+                  <b>{m.label}</b>
+                  <div className="mission-bar"><div className="mission-fill" style={{ width: `${Math.min(100, (m.progress / m.goal) * 100)}%` }} /></div>
+                </div>
+                <span className="ml-prog">{Math.min(m.progress, m.goal)}<i>/{m.goal}</i></span>
+                <span className="ml-premio"><Icon name="moeda" size={14} weight="forte" /> {m.coins}</span>
+                {m.claimed ? (
+                  <span className="ml-feito">CONCLUÍDA ✓</span>
+                ) : done ? (
+                  <button className="ml-coletar" onClick={() => claim(m)}>COLETAR</button>
+                ) : (
+                  <button className="ml-ir" onClick={() => nav('/lobby')}>IR</button>
+                )}
+              </div>
+            );
+          })}
 
-      <div style={{ display: 'flex', gap: 12, marginTop: 26 }}>
-        <button className="btn btn-blood" style={{ width: 'auto', padding: '12px 26px' }} onClick={() => nav('/lobby')}>
-          Ir lutar
-        </button>
-        <button className="btn btn-ghost" style={{ width: 'auto', padding: '12px 26px' }} onClick={() => nav('/perfil')}>
-          Voltar
-        </button>
+          <section className={`mis-bau ${allClaimed && !chestClaimed ? 'pronto' : ''}`}>
+            <img src="/arte/bau.png" alt="" />
+            <div className="mb-info">
+              <b>BAÚ DE MISSÕES</b>
+              <span>Complete e colete as {total} missões do dia para liberar</span>
+              <div className="mission-bar"><div className="mission-fill" style={{ width: `${(missions.filter((m) => m.claimed).length / total) * 100}%` }} /></div>
+            </div>
+            {chestClaimed ? (
+              <span className="ml-feito">ABERTO ✓</span>
+            ) : (
+              <button className="mb-abrir" disabled={!allClaimed} onClick={openChest}>ABRIR</button>
+            )}
+          </section>
+
+          <div className="mis-acoes">
+            <button className="btn btn-blood" style={{ width: 'auto', padding: '11px 24px' }} onClick={() => nav('/lobby')}>
+              <Icon name="espada" size={13} weight="forte" /> IR LUTAR
+            </button>
+          </div>
+        </main>
       </div>
     </div>
   );

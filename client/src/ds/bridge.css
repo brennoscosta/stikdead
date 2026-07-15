@@ -1087,3 +1087,103 @@ body .dash-grid { align-items: start; }
 .medal-info { min-width: 0; flex: 1; }
 .forma-linha { min-width: 0; }
 .forma-linha b { min-width: 0; overflow-wrap: break-word; font-size: 11px; line-height: 1.25; }
+
+/* ============================================================
+   FASE 10a — MISSÕES: composição do mockup
+   ============================================================ */
+.mis-layout {
+  display: grid; grid-template-columns: 188px minmax(0, 1fr);
+  gap: 10px; width: 100%; max-width: 980px; margin: 6px auto 0; text-align: left;
+}
+.loja-menu > button:disabled { opacity: 0.55; cursor: default; }
+.loja-menu > button:disabled:hover { transform: none; color: var(--sd-muted); }
+.mm-badge {
+  margin-left: auto; min-width: 18px; text-align: center;
+  font-family: var(--sd-font-impact); font-size: 12px; color: #fff;
+  background: linear-gradient(180deg, var(--sd-blood-hot), var(--sd-blood));
+  padding: 1px 5px; clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+  box-shadow: 0 0 8px rgba(217, 4, 41, 0.5);
+}
+.mm-breve { margin-left: auto; font: 800 8px var(--sd-font-ui); letter-spacing: 0.14em; color: #b39af5; border: 1px solid rgba(139, 92, 246, 0.45); padding: 2px 6px; clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px); }
+.mis-centro { display: flex; flex-direction: column; gap: 8px; }
+
+.mis-topo {
+  display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+  background: var(--sd-panel-grad); clip-path: var(--sd-clip-panel);
+  box-shadow: var(--sd-depth-1);
+}
+.mis-topo .mt-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.mis-topo b { font: 800 16px var(--sd-font-ui); letter-spacing: 0.12em; color: var(--sd-bone); }
+.mis-topo span { font: 600 11.5px var(--sd-font-ui); letter-spacing: 0.06em; color: var(--sd-muted); }
+.mt-bau { width: 58px; height: 58px; object-fit: contain; filter: drop-shadow(0 0 12px rgba(224, 161, 11, 0.45)); }
+
+.mis-linha {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  background: linear-gradient(180deg, rgba(24, 14, 18, 0.9), rgba(11, 7, 9, 0.94));
+  border: 1px solid #241a1f;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: transform var(--sd-t-fast), border-color var(--sd-t-fast);
+}
+.mis-linha:hover { transform: translateX(3px); }
+.mis-linha.done { border-color: rgba(224, 161, 11, 0.35); }
+.mis-linha.coletada { opacity: 0.62; }
+.ml-ico {
+  flex: none; width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; color: var(--mi-cor, var(--sd-muted));
+  border: 1.5px solid color-mix(in srgb, var(--mi-cor, #9a938a) 55%, transparent);
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--mi-cor, #9a938a) 16%, transparent), rgba(0, 0, 0, 0.5) 75%);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--mi-cor, #9a938a) 25%, transparent);
+}
+.ml-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.ml-info b { font: 700 13.5px var(--sd-font-ui); letter-spacing: 0.05em; color: var(--sd-bone); }
+.ml-prog { font-family: var(--sd-font-impact); font-size: 17px; color: var(--sd-bone); white-space: nowrap; }
+.ml-prog i { font-style: normal; font-size: 12px; color: var(--sd-faint); }
+.ml-premio {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  font-family: var(--sd-font-impact); font-size: 15px; color: var(--sd-gold-hot);
+  padding: 4px 10px; border: 1px solid rgba(224, 161, 11, 0.3);
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+.ml-premio .sd-icon { color: var(--sd-gold-hot); }
+.ml-coletar, .ml-ir {
+  flex: none; min-width: 86px; padding: 9px 14px; cursor: pointer; border: none;
+  font: 800 11px var(--sd-font-ui); letter-spacing: 0.14em; border-radius: 0;
+  clip-path: var(--sd-clip-btn);
+  transition: transform var(--sd-t-fast), filter var(--sd-t-fast);
+}
+.ml-coletar { background: linear-gradient(180deg, #ffd66b, #e8a90f 55%, #8a6206); color: #191003; box-shadow: 0 0 16px rgba(224, 161, 11, 0.4); animation: sd-cta-ouro 2.4s ease-in-out infinite; }
+.ml-ir { background: linear-gradient(180deg, #241a1f, #120c0f); color: var(--sd-muted); border: 1px solid #33242b; }
+.ml-ir:hover { color: var(--sd-bone); transform: translateY(-1px); }
+.ml-coletar:hover { transform: translateY(-1px); filter: brightness(1.1); }
+.ml-feito { flex: none; font: 800 10.5px var(--sd-font-ui); letter-spacing: 0.12em; color: #4ade80; white-space: nowrap; }
+
+.mis-bau {
+  display: flex; align-items: center; gap: 14px; padding: 13px 16px; margin-top: 4px;
+  background: linear-gradient(100deg, rgba(34, 22, 8, 0.9), rgba(14, 9, 5, 0.95));
+  border: 1px solid rgba(224, 161, 11, 0.3);
+  clip-path: var(--sd-clip-panel);
+}
+.mis-bau img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 0 14px rgba(224, 161, 11, 0.5)); }
+.mis-bau.pronto { box-shadow: 0 0 26px rgba(224, 161, 11, 0.3); animation: sd-cta-ouro 2.4s ease-in-out infinite; }
+.mb-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.mb-info b { font: 800 14px var(--sd-font-ui); letter-spacing: 0.12em; color: var(--sd-gold-hot); }
+.mb-info span { font: 600 11.5px var(--sd-font-ui); color: var(--sd-muted); }
+.mb-abrir {
+  flex: none; padding: 11px 26px; cursor: pointer; border: none; border-radius: 0;
+  clip-path: var(--sd-clip-btn);
+  background: linear-gradient(180deg, #ffd66b, #e8a90f 55%, #8a6206); color: #191003;
+  font: 800 12px var(--sd-font-ui); letter-spacing: 0.16em;
+  box-shadow: 0 0 18px rgba(224, 161, 11, 0.4);
+}
+.mb-abrir:disabled { filter: grayscale(0.75) brightness(0.55); cursor: not-allowed; box-shadow: none; }
+.mis-acoes { display: flex; justify-content: center; margin-top: 6px; }
+.mis-acoes .btn { display: inline-flex; align-items: center; gap: 7px; }
+
+@media (max-width: 860px) {
+  .mis-layout { grid-template-columns: 1fr; }
+  .mis-menu { flex-direction: row; flex-wrap: wrap; }
+  .ml-premio { display: none; }
+}
+
+/* blindagem: nenhuma camada decorativa da luta pode engolir toques */
+.bt-vs, .bt-center, .bt-announce, .bt-combo, .bt-hud, .bt-rotate ~ .bt-vs { pointer-events: none !important; }
