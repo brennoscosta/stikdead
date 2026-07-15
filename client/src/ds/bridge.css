@@ -632,3 +632,10 @@ body {
   .dash-hero { flex-direction: column; text-align: center; min-height: 0; }
   .dash-avatar { width: 84px; height: 84px; }
 }
+
+/* correções FASE R: o theme.css carrega DEPOIS do ds — vence-se por especificidade */
+@media (min-width: 761px) {
+  header.topnav .topnav-links { display: flex !important; }
+  body .bottombar { display: none !important; }
+}
+.dash-card.player-cartao { flex-direction: row; }
