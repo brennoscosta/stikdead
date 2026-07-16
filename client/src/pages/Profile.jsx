@@ -13,6 +13,7 @@ import { RARITY_LABEL } from './Shop.jsx';
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import Icon from '../ds/Icon.jsx';
 import { rankArte, rankCor, rankNome } from '../ds/rank.js';
+import RankBadge from '../lib/RankBadge.jsx';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
 const TIER_COLOR = {
@@ -132,10 +133,6 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             <button className="btn btn-blood" onClick={() => nav('/lobby')}><Icon name="espada" size={14} weight="forte" /> Jogar online</button>
             <button className="btn btn-ghost" onClick={() => nav('/treino')}><Icon name="soco" size={14} /> Treino vs bot</button>
           </div>
-        </div>
-        <div className="hero-emblema" style={{ '--rank-cor': rankCor(profile.tier) }} aria-hidden="true">
-          <img className="rank-img" src={rankArte(profile.tier)} alt="" />
-          <span>{rankNome(profile.tier)}</span>
         </div>
       </section>
 
@@ -262,14 +259,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         {/* rank atual */}
         <section className="dash-card">
           <h2><Icon name="liga" size={15} weight="forte" className="h2-ico" /> RANK ATUAL</h2>
-          <div className="dash-rank">
-            <span className="rank-emblema" aria-hidden="true"><img className="rank-img" src={rankArte(profile.tier)} alt="" /></span>
-            <span className="dash-rank-tier" style={{ color: rankCor(profile.tier) }}>{rankNome(profile.tier)}</span>
-            <span className="dash-rank-pts">{fmt(profile.rank_points)} pontos</span>
-            <div className="mission-bar"><div className="mission-fill" style={{ width: `${rankPct}%` }} /></div>
-            <span className="dash-rank-next">{100 - rankPct} pts para o próximo rank</span>
-            <button className="btn-link" onClick={() => nav('/rankings')}>ver ranking →</button>
-          </div>
+          <RankBadge tier={profile.tier} points={profile.rank_points} onClick={() => nav('/rankings')} />
+          <button className="btn-link" style={{ marginTop: 12 }} onClick={() => nav('/rankings')}>ver ranking →</button>
         </section>
         {/* últimas partidas */}
         <section className="dash-card">

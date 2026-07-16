@@ -1341,3 +1341,41 @@ body .plaza-big { height: 400px; }
   .estilo-card.on { animation: none; }
   .estilo-card:hover .estilo-art { transform: none; }
 }
+
+/* ============================================================
+   RANKBADGE — o componente ÚNICO de elo (reutilizável)
+   ícone + nome + pontuação + barra + próximo elo
+   ============================================================ */
+.rankbadge { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; }
+.rankbadge.is-click { cursor: pointer; border-radius: 6px; transition: transform var(--sd-t-fast); outline: none; }
+.rankbadge.is-click:hover { transform: translateY(-2px); }
+.rankbadge.is-click:focus-visible { box-shadow: 0 0 0 2px color-mix(in srgb, var(--rank-cor, #e0a10b) 70%, transparent); }
+.rb-emblema img {
+  width: 96px; height: 96px; object-fit: contain; display: block;
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--rank-cor, #e0a10b) 40%, transparent)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+  transition: filter var(--sd-t-base);
+}
+.rankbadge.is-click:hover .rb-emblema img { filter: drop-shadow(0 0 20px color-mix(in srgb, var(--rank-cor, #e0a10b) 60%, transparent)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55)); }
+.rb-body { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; }
+.rb-tier { font: 400 30px var(--sd-font-impact); letter-spacing: 0.09em; line-height: 1; }
+.rb-pts { color: var(--sd-muted); font: 700 13px var(--sd-font-ui); letter-spacing: 0.04em; }
+.rb-bar {
+  width: 100%; max-width: 240px; height: 7px; margin-top: 2px;
+  background: rgba(255, 255, 255, 0.08); overflow: hidden;
+  clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+}
+.rb-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rank-cor, var(--sd-gold)), color-mix(in srgb, var(--rank-cor, #ffd166) 55%, #fff));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--rank-cor, #e0a10b) 60%, transparent);
+  transition: width var(--sd-t-slow) var(--sd-ease-out);
+}
+.rb-next { color: var(--sd-muted); font: 400 12px var(--sd-font-ui); }
+.rb-next b { color: var(--sd-bone); font-weight: 700; }
+
+/* variante compacta: uma linha (rankings, navbar, cards de jogador) */
+.rankbadge.is-compact { flex-direction: row; align-items: center; gap: 8px; text-align: left; }
+.rankbadge.is-compact .rb-emblema img { width: 40px; height: 40px; }
+.rankbadge.is-compact .rb-body { align-items: flex-start; gap: 1px; width: auto; }
+.rankbadge.is-compact .rb-tier { font-size: 18px; }
+.rankbadge.is-compact .rb-pts { font-size: 11.5px; }
