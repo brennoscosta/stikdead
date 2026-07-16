@@ -175,7 +175,7 @@ router.get('/me', requireAuth, async (req, res) => {
 });
 
 const VALID_STYLES = new Set(['ronin', 'shinobi', 'monge', 'berserker', 'espectro']);
-const VALID_AVATARS = new Set(['padrao', 'ninja', 'samurai', 'ceifador', 'oni', 'caveira', 'raposa']);
+const VALID_AVATARS = new Set(['shinobi', 'kitsune', 'espectro', 'predador', 'dourado', 'campeao', 'samurai', 'oni', 'ceifador', 'imperador']);
 
 router.patch('/me', requireAuth, async (req, res) => {
   // troca de avatar (Profile Icons) — só visual, valida contra a galeria oficial
