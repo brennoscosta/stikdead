@@ -551,7 +551,7 @@ body {
 .topnav-spacer { height: calc(58px + max(6px, env(safe-area-inset-top))); }
 .topnav-logo {
   background: none; border: none; cursor: pointer;
-  font-family: 'Rubik Wet Paint', cursive; font-size: 24px; color: #f2efe9;
+  font-family: var(--sd-font-display); font-size: 24px; color: #f2efe9;
 }
 .topnav-logo .red { color: var(--blood); }
 .topnav-links { display: flex; gap: 4px; flex: 1; overflow-x: auto; scrollbar-width: none; }

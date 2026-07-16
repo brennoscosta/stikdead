@@ -1225,7 +1225,7 @@ body.in-fight .topnav-spacer { display: none; }
 .conq-slot.won.no-img .conq-fallback { display: block; font-size: 30px; }
 
 /* faixa compacta no perfil */
-.conq-title-link { background: none; border: none; cursor: pointer; font-family: 'Rubik Wet Paint', 'Barlow Condensed', sans-serif; font-size: 19px; color: #f2efe9; letter-spacing: 0.04em; padding: 0; transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
+.conq-title-link { background: none; border: none; cursor: pointer; font-family: var(--sd-font-display); font-size: 19px; color: #f2efe9; letter-spacing: 0.04em; padding: 0; transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
 .conq-title-link:hover { color: #ffd76a; }
 .conq-arrow { color: #d90429; font-size: 24px; line-height: 0; }
 .conq-strip { display: flex; gap: 6px; overflow-x: auto; padding: 8px 2px 10px; scrollbar-width: thin; }

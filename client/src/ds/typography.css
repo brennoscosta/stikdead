@@ -2,19 +2,19 @@
    STIKDEAD DS — typography.css
    3 vozes, organizadas por FUNÇÃO (não por estética):
    · UI Font      — Barlow Condensed  → menus, inventário, chat, textos
-   · Display Font — Rubik Wet Paint   → marca e títulos de tela (agressiva)
+   · Display Font — Oswald            → marca e títulos de tela (força + modernidade)
    · Impact Font  — Bebas Neue        → SÓ números e feedback de impacto
    Regra de ouro: a Impact Font é reservada. Usar demais mata o efeito.
    ============================================================ */
 :root {
   --sd-font-ui: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  --sd-font-display: 'Rubik Wet Paint', cursive;
+  --sd-font-display: 'Oswald', 'Barlow Condensed', sans-serif;
   --sd-font-impact: 'Bebas Neue', 'Barlow Condensed', sans-serif;
 }
 
 /* ---------- HIERARQUIA ---------- */
 /* H1 — título da tela (Display) */
-.sd-h1 { font: 400 clamp(30px, 4.4vw, 46px)/1.04 var(--sd-font-display); color: var(--sd-bone); letter-spacing: 0.02em; margin: 0; }
+.sd-h1 { font: 600 clamp(30px, 4.4vw, 46px)/1.04 var(--sd-font-display); color: var(--sd-bone); letter-spacing: 0.02em; margin: 0; }
 .sd-h1 em { font-style: normal; color: var(--sd-blood-hot); text-shadow: var(--sd-glow-text); }
 /* H2 — seção maior (UI pesada) */
 .sd-h2 { font: 800 clamp(22px, 2.6vw, 30px)/1.1 var(--sd-font-ui); color: var(--sd-bone); letter-spacing: 0.05em; text-transform: uppercase; margin: 0; }

@@ -67,7 +67,7 @@
 .bt-timer {
   min-width: 78px;
   text-align: center;
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   font-size: clamp(34px, 6vw, 52px);
   color: #fff;
   text-shadow: 0 0 18px rgba(217, 4, 41, 0.6), 0 2px 4px #000;
@@ -81,7 +81,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   font-size: clamp(70px, 16vw, 150px);
   color: #f2efe9;
   text-shadow: 0 0 30px rgba(217, 4, 41, 0.8), 0 4px 10px #000;
@@ -97,7 +97,7 @@
   top: 20%;
   left: 0; right: 0;
   text-align: center;
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   font-size: clamp(26px, 6vw, 48px);
   color: #f2efe9;
   text-shadow: 0 3px 8px #000;
@@ -113,7 +113,7 @@
   position: absolute;
   top: 26%;
   left: 5%;
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   color: #ff2244;
   font-size: clamp(20px, 4vw, 32px);
   text-shadow: 0 2px 6px #000;
@@ -181,13 +181,13 @@
   max-height: none;
 }
 .bt-panel h2 {
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   font-weight: 400;
   margin: 0 0 18px;
   letter-spacing: 0.06em;
 }
 .bt-result {
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   font-weight: 400;
   font-size: clamp(44px, 9vw, 64px);
   margin: 0 0 6px;
@@ -277,7 +277,7 @@
     align-items: center;
     justify-content: center;
     gap: 26px;
-    font-family: 'Rubik Wet Paint', cursive;
+    font-family: var(--sd-font-display);
     font-size: clamp(22px, 7vw, 34px);
     color: #f2efe9;
     text-align: center;
@@ -312,7 +312,7 @@
 }
 .bt-vs.show { opacity: 1; }
 .bt-vs-name {
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   font-size: clamp(22px, 5vw, 44px);
   color: #f2efe9;
   text-shadow: 0 3px 10px #000;
@@ -322,7 +322,7 @@
 .bt-vs-name.right { transform: translateX(40px); }
 .bt-vs.show .bt-vs-name { transform: none; }
 .bt-vs-mark {
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   font-size: clamp(40px, 9vw, 80px);
   color: #d90429;
   text-shadow: 0 0 30px rgba(217, 4, 41, 0.9);
@@ -342,7 +342,7 @@
 .bt-bonus { color: #9a938a; font-size: 15px; margin: 2px 0; }
 .bt-bonus span { color: #b98cff; }
 .bt-levelup {
-  font-family: 'Rubik Wet Paint', cursive;
+  font-family: var(--sd-font-display);
   color: #e0a10b;
   font-size: 26px;
   margin: 10px 0 4px;

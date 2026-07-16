@@ -56,7 +56,7 @@ function Conteudo() {
 
       {/* ===== 2. TIPOGRAFIA ===== */}
       <Panel title="2 · Tipografia — 3 vozes por função" icon="missoes" style={{ marginBottom: 24 }}>
-        <p className="sd-h4">Display · Rubik Wet Paint — marca e títulos de tela</p>
+        <p className="sd-h4">Display · Oswald — marca e títulos de tela</p>
         <h1 className="sd-h1" style={{ margin: '2px 0 14px' }}>VITÓRIA <em>SANGRENTA</em></h1>
         <p className="sd-h4">UI · Barlow Condensed — menus, textos, inventário</p>
         <h2 className="sd-h2" style={{ margin: '2px 0 2px' }}>H2 — Seção do inventário</h2>

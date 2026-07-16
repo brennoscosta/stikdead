@@ -196,7 +196,7 @@ export async function createRenderer(host, theme = 'dojo') {
     const t = comboPool.pop() || new Text({
       text: '',
       style: {
-        fontFamily: 'Rubik Wet Paint, Barlow Condensed, sans-serif', fontWeight: '700', fontSize: 34,
+        fontFamily: 'Oswald, Barlow Condensed, sans-serif', fontWeight: '700', fontSize: 34,
         fill: 0xffffff, letterSpacing: 1,
         stroke: { color: 0x080808, width: 6, join: 'round' },
       },
