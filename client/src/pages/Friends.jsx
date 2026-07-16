@@ -95,7 +95,7 @@ export default function Friends({ profile }) {
     setText('');
   };
   const whisper = (name) => {
-    setText(`/${name} 😮‍💨 `);
+    setText(`/${name} `);
     inputRef.current?.focus();
   };
   const respond = async (id, accept) => {
@@ -158,7 +158,7 @@ export default function Friends({ profile }) {
 
           {error && (
             <div className="fr-error">
-              <p>⚠️ {error}</p>
+              <p><Icon name="alerta" size={14} weight="forte" /> {error}</p>
               <button className="btn btn-ghost" style={{ width: 'auto', padding: '8px 16px' }} onClick={() => { setLoading(true); load(); }}>Tentar de novo</button>
             </div>
           )}
@@ -170,7 +170,7 @@ export default function Friends({ profile }) {
           )}
 
           {!loading && !error && data.friends.length === 0 && (
-            <p className="dash-empty">Sem amigos ainda. Vai à Praça, puxa papo e clica nos nomes! 🥷</p>
+            <p className="dash-empty">Sem amigos ainda. Vai à Praça, puxa papo e clica nos nomes! <Icon name="mascara" size={14} /></p>
           )}
 
           {!loading && !error && data.friends.length > 0 && (
@@ -191,8 +191,8 @@ export default function Friends({ profile }) {
                     </div>
                     <div className="fr-card-actions">
                       <button className="fr-act" onClick={() => setCard({ name: f.fighter_name })}><Icon name="perfil" size={13} /> Perfil</button>
-                      <button className="fr-act" onClick={() => whisper(f.fighter_name)}>💬 Sussurrar</button>
-                      <button className="fr-act" onClick={() => setCard({ name: f.fighter_name, gift: true })}>🎁 Presente</button>
+                      <button className="fr-act" onClick={() => whisper(f.fighter_name)}><Icon name="chat" size={13} /> Sussurrar</button>
+                      <button className="fr-act" onClick={() => setCard({ name: f.fighter_name, gift: true })}><Icon name="presente" size={13} /> Presente</button>
                     </div>
                   </div>
                 );
@@ -202,14 +202,14 @@ export default function Friends({ profile }) {
         </div>
 
         <div className="fr-chat">
-          <div className="fr-chat-head">💬 SALÃO DOS AMIGOS <small style={{ color: 'var(--muted)', fontWeight: 400 }}>· /nome para sussurrar</small></div>
+          <div className="fr-chat-head"><Icon name="chat" size={15} weight="forte" /> SALÃO DOS AMIGOS <small style={{ color: 'var(--muted)', fontWeight: 400 }}>· /nome para sussurrar</small></div>
           <div className="fr-msgs" ref={boxRef}>
             {chat.map((m, i) => (
               <div key={i} className={`clan-line ${m.private ? 'pv' : ''} ${m.system ? 'sys' : ''}`}>
                 {m.system ? <em>{m.text}</em> : (
                   <>
                     <strong className="chat-name" onClick={() => setCard({ name: m.name })}>{m.name}</strong>
-                    {m.private && <span className="pv-tag">{Number(m.userId) === Number(profile.id) ? `😮‍💨 ➜ ${m.to}` : '😮‍💨 sussurro'}</span>}
+                    {m.private && <span className="pv-tag"><Icon name="chat" size={10} /> {Number(m.userId) === Number(profile.id) ? `➜ ${m.to}` : 'sussurro'}</span>}
                     : {m.text}
                   </>
                 )}
@@ -219,7 +219,7 @@ export default function Friends({ profile }) {
           </div>
           <form className="fr-input" onSubmit={send}>
             <input ref={inputRef} value={text} onChange={(e) => setText(e.target.value)} placeholder="Fala com o clã... (/nome sussurra)" maxLength={100} />
-            <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 18px' }}>➤</button>
+            <button className="btn btn-blood" style={{ width: 'auto', padding: '10px 18px' }} aria-label="Enviar"><Icon name="enviar" size={15} weight="forte" /></button>
           </form>
         </div>
       </div>
