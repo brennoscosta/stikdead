@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from './auth.js';
 import { q, pool } from './db.js';
-import { bumpMissions } from './missions.js';
+import { bumpMissions, bumpMetas } from './missions.js';
 
 // Recompensas calculadas SEMPRE no servidor (cliente nunca envia valores de XP/moeda).
 import { computeRewards as computeBase, applyXp, xpForLevel } from './rewards.js';
@@ -62,6 +62,7 @@ router.post('/training', requireAuth, async (req, res) => {
     await client.query('COMMIT');
 
     bumpMissions(req.userId, safeStats, !!won);
+    bumpMetas(req.userId, safeStats, !!won, dur);
 
   res.json({
       rewards: { ...rewards, levelsUp: lv.levelsUp },

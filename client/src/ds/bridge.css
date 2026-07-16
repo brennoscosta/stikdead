@@ -1611,3 +1611,12 @@ body .fr-layout { grid-template-columns: minmax(0, 1fr) 360px !important; max-wi
   .hero-glow, .ember { animation: none; }
   .ember { opacity: 0.5; }
 }
+
+/* SPRINT05 — METAS DIÁRIAS: bônus em diamantes */
+.mis-bonus .mb-diamante {
+  display: grid; place-items: center; width: 68px; height: 68px; flex: none;
+  color: var(--sd-r-diamante, #67e8f9);
+  filter: drop-shadow(0 0 10px rgba(103, 232, 249, 0.55));
+}
+.mis-bonus.pronto { box-shadow: 0 0 22px -6px var(--sd-r-diamante, #67e8f9); border-color: rgba(103, 232, 249, 0.5); }
+.mis-bonus .mb-abrir:not(:disabled) { background: linear-gradient(180deg, #3bc9e0, #1a91b0); color: #04222a; }

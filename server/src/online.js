@@ -4,7 +4,7 @@ import { createMatch, stepMatch, EMPTY_INPUT } from '../../shared/sim.js';
 import { q, pool } from './db.js';
 import { computeRewards, applyXp, rankDelta, tierFor, xpForLevel } from './rewards.js';
 import { getLoadout, grantStreakDrop } from './shop.js';
-import { bumpMissions } from './missions.js';
+import { bumpMissions, bumpMetas } from './missions.js';
 
 const TICK = 1 / 30;
 const CHALLENGE_TTL = 30_000;
@@ -304,6 +304,7 @@ export function attachOnline(io) {
         let itemDrop = null;
         if (won && streak > 0 && streak % 3 === 0) itemDrop = await grantStreakDrop(client, room.users[side]);
         bumpMissions(room.users[side], m.stats[side] || {}, won);
+        bumpMetas(room.users[side], m.stats[side] || {}, won, Math.round(m.elapsed));
 
         // moedas do sistema: na APOSTA não existem; na normal, o perdedor tem piso ZERO (perde só o que tem)
         let coinDelta;

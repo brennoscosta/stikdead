@@ -68,6 +68,54 @@ export async function bumpMissions(userId, stats, won) {
   }
 }
 
+// ===== METAS DIÁRIAS (engajamento) — conjunto fixo por dia, separado das missões =====
+// kind: 'time' guarda progresso em SEGUNDOS (exibido em minutos no front); 'count' é contagem.
+const METAS_POOL = [
+  { id: 'play_time',    label: 'Jogue por 30 minutos', goal: 1800, coins: 220, kind: 'time' },
+  { id: 'play_matches', label: 'Jogue 5 partidas',      goal: 5,    coins: 150, kind: 'count' },
+  { id: 'meta_combo',   label: 'Faça um combo de 12+',  goal: 1,    coins: 160, kind: 'count' },
+  { id: 'meta_wins',    label: 'Vença 3 partidas',      goal: 3,    coins: 180, kind: 'count' },
+];
+const METAS_BONUS_DIAMONDS = 5;
+
+const freshMetas = () => METAS_POOL.map((m) => ({ ...m, progress: 0, claimed: false }));
+
+async function loadMetasDay(userId) {
+  const day = today();
+  const { rows } = await q('SELECT metas, bonus_claimed FROM daily_metas WHERE user_id = $1 AND day = $2', [userId, day]);
+  if (rows[0]) return { day, metas: rows[0].metas, bonusClaimed: rows[0].bonus_claimed };
+  const metas = freshMetas();
+  await q(
+    `INSERT INTO daily_metas (user_id, day, metas) VALUES ($1, $2, $3)
+     ON CONFLICT (user_id, day) DO NOTHING`,
+    [userId, day, JSON.stringify(metas)]
+  );
+  return { day, metas, bonusClaimed: false };
+}
+
+// Chamado após cada partida (treino e online), junto com bumpMissions. durSec = duração da luta.
+export async function bumpMetas(userId, stats, won, durSec) {
+  try {
+    const { day, metas } = await loadMetasDay(userId);
+    const inc = {
+      play_time: Math.max(0, Math.round(Number(durSec) || 0)),
+      play_matches: 1,
+      meta_combo: (stats.maxCombo || 0) >= 12 ? 1 : 0,
+      meta_wins: won ? 1 : 0,
+    };
+    let changed = false;
+    for (const m of metas) {
+      if (m.claimed || m.progress >= m.goal) continue;
+      const add = inc[m.id] || 0;
+      if (add > 0) { m.progress = Math.min(m.goal, m.progress + add); changed = true; }
+    }
+    if (changed)
+      await q('UPDATE daily_metas SET metas = $1 WHERE user_id = $2 AND day = $3', [JSON.stringify(metas), userId, day]);
+  } catch (err) {
+    console.error('bumpMetas falhou:', err.message);
+  }
+}
+
 const router = Router();
 
 router.get('/missions', requireAuth, async (req, res) => {
@@ -129,6 +177,40 @@ router.post('/missions/chest', requireAuth, async (req, res) => {
   } finally {
     client.release();
   }
+});
+
+// ===== metas diárias =====
+router.get('/metas', requireAuth, async (req, res) => {
+  const { metas, bonusClaimed } = await loadMetasDay(req.userId);
+  res.json({ metas, bonusClaimed, bonusDiamonds: METAS_BONUS_DIAMONDS });
+});
+
+router.post('/metas/claim', requireAuth, async (req, res) => {
+  const metaId = String(req.body.metaId || '');
+  const { day, metas } = await loadMetasDay(req.userId);
+  const m = metas.find((x) => x.id === metaId);
+  if (!m) return res.status(404).json({ error: 'Meta não encontrada.' });
+  if (m.progress < m.goal) return res.status(400).json({ error: 'Meta ainda não concluída.' });
+  if (m.claimed) return res.status(409).json({ error: 'Recompensa já coletada.' });
+  m.claimed = true;
+  await q('UPDATE daily_metas SET metas = $1 WHERE user_id = $2 AND day = $3', [JSON.stringify(metas), req.userId, day]);
+  const { rows } = await q(
+    'UPDATE profiles SET coins = coins + $1, updated_at = now() WHERE user_id = $2 RETURNING coins',
+    [m.coins, req.userId]
+  );
+  res.json({ ok: true, coins: rows[0].coins, metas });
+});
+
+router.post('/metas/bonus', requireAuth, async (req, res) => {
+  const { day, metas, bonusClaimed } = await loadMetasDay(req.userId);
+  if (bonusClaimed) return res.status(409).json({ error: 'Bônus já coletado.' });
+  if (!metas.every((m) => m.claimed)) return res.status(400).json({ error: 'Colete todas as metas do dia primeiro.' });
+  await q('UPDATE daily_metas SET bonus_claimed = TRUE WHERE user_id = $1 AND day = $2', [req.userId, day]);
+  const { rows } = await q(
+    'UPDATE profiles SET diamonds = diamonds + $1, updated_at = now() WHERE user_id = $2 RETURNING diamonds',
+    [METAS_BONUS_DIAMONDS, req.userId]
+  );
+  res.json({ ok: true, diamonds: rows[0].diamonds, bonusClaimed: true });
 });
 
 // ===== ranking =====
