@@ -1549,3 +1549,29 @@ body .fr-layout { grid-template-columns: minmax(0, 1fr) 360px !important; max-wi
   .rk-podium { grid-template-columns: 1fr; }
   .rk-pod1, .rk-pod2, .rk-pod3 { order: 0; }
 }
+
+/* ============================================================
+   SPRINT05 — AVATAR (Profile Icons): botão no hero + seletor
+   ============================================================ */
+.dash-avatar-btn { position: relative; z-index: 1; display: inline-block; padding: 0; border: 0; background: none; cursor: pointer; line-height: 0; border-radius: 50%; flex: none; }
+.dash-avatar-btn .dash-avatar { display: block; transition: transform var(--sd-t-fast, .18s) ease, box-shadow var(--sd-t-fast, .18s) ease; }
+.dash-avatar-btn:hover .dash-avatar { transform: scale(1.04); box-shadow: 0 0 26px rgba(217, 4, 41, 0.7); }
+.dash-avatar-edit { position: absolute; right: 2px; bottom: 2px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--sd-blood, #d90429); color: #fff; border: 2px solid #0b0709; box-shadow: 0 2px 8px rgba(0, 0, 0, .6); transition: background var(--sd-t-fast, .18s) ease; }
+.dash-avatar-btn:hover .dash-avatar-edit { background: var(--sd-blood-hot, #ff2244); }
+
+.av-overlay { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 20px; background: rgba(6, 3, 5, 0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.av-modal { position: relative; width: min(560px, 96vw); max-height: 88vh; overflow: auto; padding: 26px 24px 28px; background: linear-gradient(160deg, #17090d, #0c0709); border: 1px solid #3a1a22; clip-path: var(--sd-clip-panel); box-shadow: 0 24px 60px rgba(0, 0, 0, .7), inset 0 1px 0 rgba(255, 255, 255, .05); }
+.av-close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; display: grid; place-items: center; background: rgba(255, 255, 255, .05); color: var(--sd-muted, #9a8f88); border: 1px solid #3a1a22; border-radius: 8px; cursor: pointer; }
+.av-close:hover { color: var(--sd-bone, #f4ece6); background: rgba(217, 4, 41, .2); }
+.av-title { margin: 0 0 2px; }
+.av-sub { margin: 0 0 18px; color: var(--sd-muted, #9a8f88); font: 500 13px/1.4 var(--sd-font-ui, sans-serif); }
+.av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 14px; }
+.av-cell { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 8px 10px; background: rgba(255, 255, 255, .02); border: 1px solid #2a161c; border-radius: 12px; cursor: pointer; transition: border-color var(--sd-t-fast, .18s) ease, background var(--sd-t-fast, .18s) ease, transform var(--sd-t-fast, .18s) ease; }
+.av-cell:hover { transform: translateY(-2px); border-color: var(--av-cor); background: rgba(255, 255, 255, .04); }
+.av-cell.on { border-color: var(--av-cor); background: rgba(255, 255, 255, .05); box-shadow: 0 0 18px -4px var(--av-cor); }
+.av-cell:disabled { opacity: .55; cursor: default; }
+.av-frame { width: 84px; height: 84px; border-radius: 50%; overflow: hidden; display: block; }
+.av-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.av-cell.on .av-frame { box-shadow: 0 0 0 2px var(--av-cor), 0 0 18px -2px var(--av-cor); }
+.av-name { font: 700 12px/1 var(--sd-font-ui, sans-serif); letter-spacing: .06em; text-transform: uppercase; color: var(--sd-bone, #f4ece6); }
+.av-sel { position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--av-cor); color: #0b0709; }

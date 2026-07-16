@@ -14,6 +14,8 @@ import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import Icon from '../ds/Icon.jsx';
 import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 import RankBadge from '../lib/RankBadge.jsx';
+import AvatarPicker from '../lib/AvatarPicker.jsx';
+import { avatarSrc } from '../ds/avatars.js';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
 const TIER_COLOR = {
@@ -37,6 +39,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
   const nav = useNavigate();
   const [editing, setEditing] = useState(false);
   const [showCfg, setShowCfg] = useState(false);
+  const [showAv, setShowAv] = useState(false);
+  const [avSaving, setAvSaving] = useState(false);
   const [name, setName] = useState(profile.fighter_name);
   const [err, setErr] = useState('');
   const [loadout, setLoadout] = useState([]);
@@ -82,9 +86,21 @@ export default function Profile({ profile, onUpdate, onLogout }) {
     }
   };
 
+  const pickAvatar = async (key) => {
+    if (key === (profile.avatar || 'padrao')) { setShowAv(false); return; }
+    setAvSaving(true);
+    try {
+      const data = await api('/api/auth/me', { method: 'PATCH', body: { avatar: key } });
+      onUpdate(data.profile);
+      setShowAv(false);
+    } catch (e) { /* mantém aberto em caso de erro */ }
+    setAvSaving(false);
+  };
+
   return (
     <div className="dash">
       {showCfg && <SettingsModal onClose={() => setShowCfg(false)} />}
+      {showAv && <AvatarPicker current={profile.avatar || 'padrao'} onPick={pickAvatar} onClose={() => setShowAv(false)} saving={avSaving} />}
       <PatentTip />
       <Navbar profile={profile} />
 
@@ -99,7 +115,10 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
       {/* cabeçalho com arte pintada */}
       <section className="dash-hero">
-        <img className="dash-avatar" src="/arte/avatar-padrao.webp" alt="" />
+        <button className="dash-avatar-btn" onClick={() => setShowAv(true)} title="Trocar avatar" aria-label="Trocar avatar">
+          <img className="dash-avatar" src={avatarSrc(profile.avatar)} alt="" />
+          <span className="dash-avatar-edit"><Icon name="editar" size={12} /></span>
+        </button>
         <div className="dash-hero-info">
           <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações"><Icon name="config" size="sm" weight="forte" /></button>
           {editing ? (
