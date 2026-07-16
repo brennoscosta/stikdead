@@ -339,7 +339,6 @@ export async function createPlaza(host, opts = {}) {
     setPlayers(players) {
       const meu = protagonista?.name;
       const lista = players.filter((p) => p.name !== meu);
-      realCount = lista.length;
       const keep = new Set();
       for (const p of lista.slice(0, MAX_WALKERS)) {
         keep.add(p.id);
