@@ -16,6 +16,7 @@ import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 import RankBadge from '../lib/RankBadge.jsx';
 import AvatarPicker from '../lib/AvatarPicker.jsx';
 import { avatarSrc } from '../ds/avatars.js';
+import HeroFx from '../lib/HeroFx.jsx';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
 const TIER_COLOR = {
@@ -115,6 +116,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
 
       {/* cabeçalho com arte pintada */}
       <section className="dash-hero">
+        <HeroFx />
         <button className="dash-avatar-btn" onClick={() => setShowAv(true)} title="Trocar avatar" aria-label="Trocar avatar">
           <img className="dash-avatar" src={avatarSrc(profile.avatar)} alt="" />
           <span className="dash-avatar-edit"><Icon name="editar" size={12} /></span>

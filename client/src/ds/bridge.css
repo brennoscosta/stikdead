@@ -1575,3 +1575,39 @@ body .fr-layout { grid-template-columns: minmax(0, 1fr) 360px !important; max-wi
 .av-cell.on .av-frame { box-shadow: 0 0 0 2px var(--av-cor), 0 0 18px -2px var(--av-cor); }
 .av-name { font: 700 12px/1 var(--sd-font-ui, sans-serif); letter-spacing: .06em; text-transform: uppercase; color: var(--sd-bone, #f4ece6); }
 .av-sel { position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--av-cor); color: #0b0709; }
+
+/* ============================================================
+   SPRINT05 — FX do banner do herói: brasas subindo + brilho na espada
+   ============================================================ */
+.hero-fx { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.hero-glow {
+  position: absolute; right: 12%; top: 50%; width: 320px; height: 320px; transform: translateY(-50%);
+  background: radial-gradient(circle, rgba(255, 110, 50, 0.5) 0%, rgba(217, 4, 41, 0.16) 42%, rgba(0, 0, 0, 0) 70%);
+  mix-blend-mode: screen; filter: blur(8px);
+  animation: heroGlowPulse 3.8s ease-in-out infinite;
+}
+.hero-glow--blade {
+  right: 21%; width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(255, 70, 45, 0.55) 0%, rgba(255, 40, 40, 0.2) 45%, rgba(0, 0, 0, 0) 72%);
+  filter: blur(5px); animation-duration: 2.6s; animation-delay: 0.4s;
+}
+@keyframes heroGlowPulse {
+  0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1); }
+  50%      { opacity: 0.92; transform: translateY(-50%) scale(1.09); }
+}
+.ember {
+  position: absolute; bottom: -10px; left: var(--x); width: var(--s); height: var(--s); border-radius: 50%;
+  background: radial-gradient(circle, #ffd6a0 0%, #ff5a28 55%, rgba(255, 90, 40, 0) 72%);
+  box-shadow: 0 0 6px 1px rgba(255, 120, 50, 0.85); opacity: 0;
+  animation: emberRise var(--d) linear var(--delay) infinite;
+}
+@keyframes emberRise {
+  0%   { transform: translateY(0) translateX(0) scale(0.5); opacity: 0; }
+  12%  { opacity: 0.95; }
+  70%  { opacity: 0.8; }
+  100% { transform: translateY(-190px) translateX(var(--drift)) scale(1.05); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow, .ember { animation: none; }
+  .ember { opacity: 0.5; }
+}
