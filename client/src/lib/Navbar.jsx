@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import Icon from '../ds/Icon.jsx';
 
 const LINKS = [
+  { to: '/perfil', label: 'Início', icon: 'perfil', end: true },
   { to: '/lobby', label: 'Lobby', icon: 'lobby' },
   { to: '/inventario', label: 'Inventário', icon: 'inventario' },
   { to: '/loja', label: 'Loja', icon: 'loja' },
@@ -16,7 +17,7 @@ export function Bottombar() {
   return (
     <nav className="bottombar" aria-label="Navegação">
       {LINKS.map((l) => (
-        <NavLink key={l.to} to={l.to} className={({ isActive }) => (isActive ? 'on' : '')}>
+        <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => (isActive ? 'on' : '')}>
           <span className="bb-ico"><Icon name={l.icon} size="sm" weight="forte" /></span>
           <span className="bb-label">{l.label}</span>
         </NavLink>
@@ -39,7 +40,7 @@ export default function Navbar({ profile }) {
       </button>
       <nav className="topnav-links">
         {LINKS.map((l) => (
-          <NavLink key={l.to} to={l.to} className={({ isActive }) => (isActive ? 'on' : '')}>
+          <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => (isActive ? 'on' : '')}>
             <span className="topnav-ico"><Icon name={l.icon} size="xs" weight="forte" /></span>
             <span className="topnav-label">{l.label}</span>
           </NavLink>

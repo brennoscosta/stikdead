@@ -563,6 +563,10 @@ body {
 }
 .topnav-links a:hover { color: var(--text); background: rgba(255, 255, 255, 0.04); }
 .topnav-links a.on { color: #fff; background: rgba(217, 4, 41, 0.18); }
+/* SPRINT05: identidade vermelha nos ícones do header — acendem no hover e no ativo */
+.topnav-links a .sd-icon { transition: color 0.15s ease, filter 0.15s ease; }
+.topnav-links a:hover .sd-icon { color: var(--sd-blood-hot); filter: drop-shadow(0 0 7px rgba(255, 34, 68, 0.6)); }
+.topnav-links a.on .sd-icon { color: var(--sd-blood-hot); filter: drop-shadow(0 0 8px rgba(255, 34, 68, 0.75)); }
 .topnav-soon { opacity: 0.35; cursor: default; }
 .topnav-right { display: flex; align-items: center; gap: 12px; }
 .topnav-coins { color: #e0a10b; font-weight: 700; font-size: 15px; white-space: nowrap; }
