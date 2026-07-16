@@ -1236,13 +1236,40 @@ body .plaza-big { height: 400px; }
    ============================================================ */
 .estilo-showcase { margin-top: 10px; }
 .estilo-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
   margin-top: 6px;
+  padding-bottom: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sd-blood) rgba(255, 255, 255, 0.06);
+  -webkit-overflow-scrolling: touch;
 }
-@media (max-width: 1000px) { .estilo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } }
-@media (max-width: 640px) { .estilo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.estilo-grid::-webkit-scrollbar { height: 8px; }
+.estilo-grid::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+.estilo-grid::-webkit-scrollbar-thumb { background: linear-gradient(90deg, var(--sd-blood), var(--sd-blood-hot)); border-radius: 4px; }
+.estilo-showcase .estilo-card { flex: 0 0 clamp(240px, 42%, 340px); scroll-snap-align: start; }
+@media (max-width: 560px) { .estilo-showcase .estilo-card { flex-basis: 82%; } }
+
+/* setas de navegação do carrossel (no header do card) */
+.estilo-showcase .h2-linha { display: flex; align-items: center; gap: 6px; }
+.est-nav { margin-left: auto; display: inline-flex; gap: 6px; }
+.est-arrow {
+  width: 28px; height: 26px;
+  border: none; cursor: pointer;
+  background: rgba(242, 239, 233, 0.06);
+  box-shadow: inset 0 0 0 1px var(--sd-edge);
+  color: var(--sd-bone);
+  font: 700 18px/1 var(--sd-font-ui);
+  clip-path: var(--sd-clip-btn);
+  transition: all var(--sd-t-fast);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.est-arrow:hover { background: rgba(255, 34, 68, 0.16); box-shadow: inset 0 0 0 1px rgba(255, 34, 68, 0.5); color: #fff; }
+.est-arrow:active { transform: scale(0.94); }
 
 .estilo-card {
   position: relative;
