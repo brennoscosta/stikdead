@@ -578,12 +578,28 @@ body {
   background: url('/banner.webp') center 30% / cover no-repeat;
   border-bottom: 1px solid #241318;
 }
+/* SPRINT05: banner do herói revelado com bordas suaves (gradient mask).
+   Camada = arte à direita + véu escuro à esquerda p/ legibilidade; a máscara
+   esfuma topo/base/direita p/ a arte derreter no painel em vez de ser cortada. */
 .dash-hero::before {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(11, 7, 9, 0.94) 0%, rgba(11, 7, 9, 0.72) 45%, rgba(11, 7, 9, 0.28) 100%);
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(11, 7, 9, 0.97) 0%, rgba(11, 7, 9, 0.86) 26%, rgba(11, 7, 9, 0.42) 56%, rgba(11, 7, 9, 0.08) 84%, rgba(11, 7, 9, 0) 100%),
+    url('/arte/perfil-banner.webp') right center / cover no-repeat;
+  -webkit-mask:
+    linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%),
+    linear-gradient(to right, #000 0%, #000 84%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask:
+    linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%),
+    linear-gradient(to right, #000 0%, #000 84%, transparent 100%);
+  mask-composite: intersect;
 }
-.dash-hero-info { position: relative; max-width: 1060px; margin: 0 auto; padding: 30px 22px 26px; }
+.dash-hero-info { position: relative; z-index: 1; max-width: 1060px; margin: 0 auto; padding: 30px 22px 26px; }
+.dash-avatar { position: relative; z-index: 1; }
 .dash-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(28px, 5vw, 42px); margin: 0; display: flex; align-items: center; gap: 10px; }
 .dash-sub { display: flex; align-items: center; gap: 12px; margin: 8px 0 12px; color: var(--muted); font-size: 16px; }
 .dash-sub .tier-badge { border: 1px solid; border-radius: 999px; padding: 3px 12px; font-size: 12.5px; letter-spacing: 0.08em; }
