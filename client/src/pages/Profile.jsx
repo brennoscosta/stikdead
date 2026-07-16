@@ -218,38 +218,6 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           </div>
         </section>
 
-        {/* estilo de luta */}
-        <section className="dash-card span2">
-          <h2><Icon name="combo" size={15} weight="forte" className="h2-ico" /> SEU ESTILO DE LUTA</h2>
-          <div className="style-grid">
-            {STYLE_KEYS.map((k) => {
-              const st = STYLES[k];
-              const on = (profile.style || 'ronin') === k;
-              const owned = k === 'ronin' || (profile.owned_styles || []).includes(`estilo_${k}`);
-              return (
-                <button
-                  key={k}
-                  className={`style-card ${on ? 'on' : ''} ${owned ? '' : 'locked'}`}
-                  onClick={async () => {
-                    if (!owned) { nav('/loja?slot=style'); return; }
-                    try {
-                      const d = await api('/api/auth/me', { method: 'PATCH', body: { style: k } });
-                      onUpdate(d.profile);
-                    } catch { /* mantém o atual */ }
-                  }}
-                >
-                  <b>{st.label} {k === 'ronin' && <span className="style-free">GRÁTIS</span>}</b>
-                  <span className="style-skill"><Icon name="ultimate" size={12} /> {st.skill}</span>
-                  <small>{st.desc}</small>
-                  {on && <span className="style-on">SELECIONADO ✓</span>}
-                  {!owned && <span className="style-lock"><Icon name="cadeado" size={12} /> DESBLOQUEIE NA LOJA</span>}
-                </button>
-              );
-            })}
-          </div>
-          <p className="dash-empty" style={{ marginTop: 8 }}>A skill dispara com <b>E</b> (ou o botão redondo no celular) e tem cooldown próprio.</p>
-        </section>
-
         </div>
         <div className="dash-col">
         {/* rank atual */}
@@ -302,6 +270,38 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         </section>
         </div>
       </div>
+
+      {/* SEU ESTILO DE LUTA — showcase cinematográfico (mockups oficiais) */}
+      <section className="dash-card estilo-showcase">
+        <h2><Icon name="combo" size={15} weight="forte" className="h2-ico" /> SEU ESTILO DE LUTA</h2>
+        <div className="estilo-grid">
+          {STYLE_KEYS.map((k) => {
+            const st = STYLES[k];
+            const on = (profile.style || 'ronin') === k;
+            const owned = k === 'ronin' || (profile.owned_styles || []).includes(`estilo_${k}`);
+            const art = k === 'berserker' ? 'carrasco' : k;
+            return (
+              <button
+                key={k}
+                className={`estilo-card ${on ? 'on' : ''} ${owned ? '' : 'locked'}`}
+                aria-label={`Estilo ${st.label}${on ? ' — selecionado' : ''}${owned ? '' : ' — bloqueado'}`}
+                onClick={async () => {
+                  if (!owned) { nav('/loja?slot=style'); return; }
+                  try {
+                    const d = await api('/api/auth/me', { method: 'PATCH', body: { style: k } });
+                    onUpdate(d.profile);
+                  } catch { /* mantém o atual */ }
+                }}
+              >
+                <img className="estilo-art" src={`/arte/estilo-${art}.webp`} alt={st.label} loading="lazy" />
+                {on && <span className="estilo-sel">SELECIONADO ✓</span>}
+                {!owned && <span className="estilo-lock"><Icon name="cadeado" size={16} /> DESBLOQUEIE NA LOJA</span>}
+              </button>
+            );
+          })}
+        </div>
+        <p className="dash-empty" style={{ marginTop: 10 }}>A skill dispara com <b>E</b> (ou o botão redondo no celular) e tem cooldown próprio. Clique num estilo para equipá-lo.</p>
+      </section>
     </div>
   );
 }

@@ -42,8 +42,8 @@ export const STYLES = {
     desc: 'Onda de choque radial com empurrão brutal. Passivo: bloqueio reflete 2 de dano.',
   },
   berserker: {
-    label: 'Berserker', skill: 'Fúria', cd: 14, dur: 0.3,
-    desc: '4s de +50% dano e armadura contra golpes leves. Passivo: +15% dano com vida baixa.',
+    label: 'Carrasco', skill: 'Fúria Terrestre', cd: 14, dur: 0.3,
+    desc: 'Um guerreiro movido a sangue, desencadeando um impacto devastador no solo. Passivo: acumula fúria a cada acerto (+15% dano com vida baixa).',
   },
   espectro: {
     label: 'Espectro', skill: 'Golpe Aéreo', cd: 11, dur: 0.9,

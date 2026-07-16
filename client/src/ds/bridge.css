@@ -1229,3 +1229,87 @@ body .plaza-big { height: 400px; }
   clip-path: var(--sd-clip-panel);
   background: linear-gradient(180deg, rgba(143, 6, 32, 0.10), transparent 30%);
 }
+
+/* ============================================================
+   ESTILO DE LUTA — showcase cinematográfico (mockups oficiais)
+   cada card é o mockup inteiro; estado e clique vivem por cima
+   ============================================================ */
+.estilo-showcase { margin-top: 10px; }
+.estilo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+  gap: 14px;
+  margin-top: 6px;
+}
+@media (max-width: 720px) { .estilo-grid { grid-template-columns: 1fr; gap: 12px; } }
+
+.estilo-card {
+  position: relative;
+  padding: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  background: #0b0709;
+  clip-path: var(--sd-clip-panel);
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  aspect-ratio: 4 / 3;
+  box-shadow: inset 0 0 0 1px var(--sd-edge), var(--sd-depth-1);
+  transition: transform var(--sd-t-base) var(--sd-ease-out),
+              box-shadow var(--sd-t-base), filter var(--sd-t-base);
+}
+.estilo-card .estilo-art {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform var(--sd-t-slow) var(--sd-ease-out), filter var(--sd-t-base);
+}
+.estilo-card:hover {
+  transform: translateY(-3px);
+  box-shadow: inset 0 0 0 1px rgba(255, 34, 68, 0.45), 0 0 24px rgba(217, 4, 41, 0.28), var(--sd-depth-2);
+}
+.estilo-card:hover .estilo-art { transform: scale(1.045); }
+.estilo-card:active { transform: translateY(-1px) scale(0.995); }
+.estilo-card:focus-visible { outline: 2px solid var(--sd-blood-hot); outline-offset: 2px; }
+
+/* selecionado: moldura de sangue acesa e pulsante + selo */
+.estilo-card.on {
+  box-shadow: inset 0 0 0 2px var(--sd-blood-hot), 0 0 26px rgba(217, 4, 41, 0.4), var(--sd-depth-2);
+  animation: estilo-sel-pulso 2.6s ease-in-out infinite;
+}
+@keyframes estilo-sel-pulso {
+  0%, 100% { box-shadow: inset 0 0 0 2px var(--sd-blood-hot), 0 0 20px rgba(217, 4, 41, 0.35), var(--sd-depth-2); }
+  50% { box-shadow: inset 0 0 0 2px #ff415f, 0 0 36px rgba(255, 34, 68, 0.55), var(--sd-depth-2); }
+}
+.estilo-sel {
+  position: absolute; top: 12px; right: 12px; z-index: 3;
+  font: 800 11px var(--sd-font-ui); letter-spacing: 0.14em;
+  color: #fff;
+  background: linear-gradient(180deg, var(--sd-blood-hot), var(--sd-blood));
+  padding: 6px 11px;
+  clip-path: var(--sd-clip-btn);
+  box-shadow: 0 0 14px rgba(217, 4, 41, 0.6);
+}
+
+/* bloqueado: esmaece a arte + cadeado dourado */
+.estilo-card.locked .estilo-art { filter: grayscale(0.5) brightness(0.5); }
+.estilo-card.locked::after {
+  content: ''; position: absolute; inset: 0; z-index: 2;
+  pointer-events: none;
+  background: rgba(5, 3, 4, 0.32);
+}
+.estilo-lock {
+  position: absolute; bottom: 14px; left: 14px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 800 11px var(--sd-font-ui); letter-spacing: 0.1em;
+  color: var(--sd-bone);
+  background: rgba(10, 7, 9, 0.82);
+  padding: 7px 12px;
+  clip-path: var(--sd-clip-btn);
+  box-shadow: inset 0 0 0 1px var(--sd-edge);
+}
+.estilo-lock .sd-icon { color: var(--sd-gold-hot); }
+@media (prefers-reduced-motion: reduce) {
+  .estilo-card.on { animation: none; }
+  .estilo-card:hover .estilo-art { transform: none; }
+}
