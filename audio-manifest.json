@@ -424,6 +424,78 @@
       "musicLengthMs": 120000,
       "output": "client/public/audio/music/lobby/music_lobby_v01.mp3",
       "candidates": 3
+    },
+    {
+      "id": "music_home_v01",
+      "type": "music",
+      "category": "music",
+      "prompt": "Dark oriental fantasy title screen theme for a stickman fighting game, entering a dangerous world: a deep low drone, sparse spaced shamisen notes, cold wind texture, one distant temple bell, slow heavy taiko heartbeats, ominous and atmospheric, instrumental only, no vocals or lyrics, loopable, mysterious and foreboding.",
+      "musicLengthMs": 120000,
+      "output": "client/public/audio/music/home/music_home_v01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "music_profile_v01",
+      "type": "music",
+      "category": "music",
+      "prompt": "Dark oriental fantasy profile and achievements theme for a fighting game, honor, progress and identity: warm string phrases, a metallic bell accent, light percussion, heroic yet somber texture, contemplative and proud, instrumental only, no vocals or lyrics, loopable, restrained and dignified.",
+      "musicLengthMs": 90000,
+      "output": "client/public/audio/music/profile/music_profile_v01.mp3",
+      "candidates": 2
+    },
+    {
+      "id": "music_inventory_v01",
+      "type": "music",
+      "category": "music",
+      "prompt": "Dark oriental fantasy inventory theme for a fighting game, a warrior preparing for battle: workshop atmosphere, soft metal touches, minimalist shamisen plucks, smooth low pulses, focused and calm, instrumental only, no vocals or lyrics, loopable, quiet purposeful energy.",
+      "musicLengthMs": 90000,
+      "output": "client/public/audio/music/inventory/music_inventory_v01.mp3",
+      "candidates": 2
+    },
+    {
+      "id": "music_shop_v01",
+      "type": "music",
+      "category": "music",
+      "prompt": "Dark oriental fantasy shop theme for a fighting game, rare relics and clandestine trade: metallic bells, subtle coin-like chimes, mysterious texture, plucked strings, intriguing and slightly shady, instrumental only, no vocals or lyrics, loopable, merchant den atmosphere.",
+      "musicLengthMs": 90000,
+      "output": "client/public/audio/music/shop/music_shop_v01.mp3",
+      "candidates": 2
+    },
+    {
+      "id": "music_ranking_v01",
+      "type": "music",
+      "category": "music",
+      "prompt": "Dark oriental fantasy ranking and leaderboard theme for a fighting game, competition, power and status: driving taiko drums, sharp metallic hits, a discreet low choir, rising tension, competitive and imposing, instrumental only, no vocals or lyrics, loopable, arena anticipation.",
+      "musicLengthMs": 90000,
+      "output": "client/public/audio/music/ranking/music_ranking_v01.mp3",
+      "candidates": 2
+    },
+    {
+      "id": "music_matchmaking_v01",
+      "type": "music",
+      "category": "music",
+      "prompt": "Dark oriental fantasy matchmaking search loop for a fighting game: a steady rhythmic pulse with taiko and low percussion, gradually layered tension, restrained and hypnotic, builds anticipation of an incoming duel without resolving, instrumental only, no vocals or lyrics, seamless loop.",
+      "musicLengthMs": 60000,
+      "output": "client/public/audio/music/matchmaking/music_matchmaking_v01.mp3",
+      "candidates": 2
+    },
+    {
+      "id": "music_victory_stinger_v01",
+      "type": "sound-effect",
+      "category": "music",
+      "prompt": "Victory fanfare stinger for a dark oriental fantasy fighting game, a clean sword slash, a heavy low impact, taiko drum hits, one temple bell and a short dark heroic chord swell, four to six seconds, triumphant but somber, purely instrumental sound design, no speech, clear at low volume.",
+      "durationSeconds": 5.5,
+      "output": "client/public/audio/music/results/music_victory_stinger_v01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "music_defeat_stinger_v01",
+      "type": "sound-effect",
+      "category": "music",
+      "prompt": "Defeat stinger for a dark oriental fantasy fighting game, a heavy low impact, metal falling and settling, cold wind, a short descending dark chord, three to four seconds, somber without melodrama, purely instrumental sound design, no speech, clear at low volume.",
+      "durationSeconds": 4,
+      "output": "client/public/audio/music/results/music_defeat_stinger_v01.mp3",
+      "candidates": 3
     }
   ]
 }
