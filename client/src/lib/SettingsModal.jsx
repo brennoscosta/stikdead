@@ -10,6 +10,7 @@ import {
   getAudioSettings, onAudioChange,
   setMasterEnabled, setMasterVolume, setMusicEnabled, setMusicVolume,
   setSfxEnabled, setSfxVolume, setAmbienceEnabled, setAmbienceVolume, setMuteOnBlur,
+  playUi,
 } from '../game/audioManager.js';
 import { previewAmbience } from '../game/ambience.js';
 
@@ -55,7 +56,10 @@ export default function SettingsModal({ onClose }) {
   // a tela só REFLETE o AudioManager — o estado mora lá (zero duplicação)
   useEffect(() => onAudioChange(setAudio), []);
 
-  const fechar = () => { setSaindo(true); setTimeout(onClose, 190); };
+  // FASE 7: tecido + whoosh reais ao abrir/fechar o painel (bíblia, seção 5)
+  useEffect(() => { playUi('ui_panel_open_01'); }, []);
+
+  const fechar = () => { playUi('ui_panel_close_01'); setSaindo(true); setTimeout(onClose, 190); };
 
   // ESC fecha (mas se estiver capturando tecla, só cancela a captura)
   useEffect(() => {

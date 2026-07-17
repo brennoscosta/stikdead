@@ -21,6 +21,7 @@ import { startMusic, stopMusic } from './game/music.js';
 import { startAmbience, stopAmbience } from './game/ambience.js';
 import { applyRemoteSettings, musicForPath, preload } from './game/audioManager.js';
 import { PRELOAD_UI } from './game/audioLibrary.js';
+import { initUiSounds } from './game/uiSounds.js';
 const SEM_TRILHA = new Set(['/', '/criar-conta', '/esqueci', '/redefinir', '/treino', '/vitrine', '/calibrador']);
 let uiPreloaded = false;
 function AudioMood() {
@@ -32,7 +33,7 @@ function AudioMood() {
     const tenta = () => {
       startMusic(musicForPath(pathname));
       startAmbience();
-      if (!uiPreloaded) { uiPreloaded = true; preload(PRELOAD_UI); } // aquece os SFX de UI
+      if (!uiPreloaded) { uiPreloaded = true; preload(PRELOAD_UI); initUiSounds(); } // aquece SFX + hover global (Fase 7)
     };
     tenta(); // se o áudio já está destravado, entra na hora
     window.addEventListener('pointerdown', tenta); // senão, no 1º gesto

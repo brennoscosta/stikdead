@@ -86,7 +86,7 @@ const MAX_POR_CANAL = 10;      // teto de vozes simultâneas por canal
 
 const buffers = new Map();     // id -> AudioBuffer | Promise | 'failed'
 const ultimaVez = new Map();   // id -> timestamp do último disparo
-const ativos = { ui: 0, gameplay: 0, voice: 0 };
+const ativos = { ui: 0, gameplay: 0, voice: 0, music: 0, ambience: 0 };
 const ativosPorId = new Map();
 
 function carregarBuffer(id) {
@@ -154,6 +154,12 @@ export function playGameplay(id, opts = {}) {
 /** Voz do narrador (Fase 10) — canal próprio, sem cooldown agressivo. */
 export function playVoice(id, opts = {}) {
   const ok = tocarBuffer(id, 'voice', { cooldownMs: 250, ...opts });
+  if (!ok && typeof opts.fallback === 'function') opts.fallback();
+  return ok;
+}
+/** Stinger musical curto (vitória/derrota/conquista grande) — sai pelo canal MUSIC. */
+export function playStinger(id, opts = {}) {
+  const ok = tocarBuffer(id, 'music', { cooldownMs: 800, ...opts });
   if (!ok && typeof opts.fallback === 'function') opts.fallback();
   return ok;
 }

@@ -8,6 +8,15 @@ import { ARENAS, ARENA_KEYS } from '../game/arena.js';
 import KeysHud from '../lib/KeysHud.jsx';
 import { getSocket } from '../lib/socket.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
+import { playUi } from '../game/audioManager.js';
+
+// FASE 7: assinatura sonora real de cada bot (mesma do Lobby) + fallback
+const BOT_SOM = {
+  facil: 'bot_easy_select_01',
+  medio: 'bot_medium_select_01',
+  dificil: 'bot_hard_select_01',
+  insano: 'bot_insane_select_01',
+};
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import Navbar from '../lib/Navbar.jsx';
 import { rankArte, rankNome } from '../ds/rank.js';
@@ -83,7 +92,7 @@ export default function Battle({ profile, onProfile }) {
     <DifficultySelect
       profile={profile}
       selected={difficulty}
-      onSelect={(d) => { unlockAudio(); sfx.click(); setDifficulty(d); }}
+      onSelect={(d) => { unlockAudio(); playUi(BOT_SOM[d], { fallback: sfx.click }); setDifficulty(d); }}
       onStart={() => enterGameMode(difficulty)}
       arena={arena} setArena={setArena}
     />

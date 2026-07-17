@@ -20,6 +20,16 @@ import HeroFx from '../lib/HeroFx.jsx';
 import StyleBadge, { StyleIcon, STYLE_COR, STYLE_INFO, splitDesc } from '../lib/StyleBadge.jsx';
 import Conquistas from '../lib/Conquistas.jsx';
 import { sfx, unlockAudio } from '../game/audio.js';
+import { playUi } from '../game/audioManager.js';
+
+// FASE 7: som exclusivo de cada estilo ao equipar (bíblia, seção 6) + fallback
+const ESTILO_SOM = {
+  ronin: 'style_ronin_select_01',
+  shinobi: 'style_shinobi_select_01',
+  monge: 'style_monk_select_01',
+  berserker: 'style_berserker_select_01',
+  espectro: 'style_reaper_select_01',
+};
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
 const TIER_COLOR = {
@@ -295,7 +305,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
                     if (on || equipando) return;
                     // UPDATE 2.9: primeiro a animação de equipar NO card clicado…
                     setEquipando(k);
-                    sfx.click();
+                    playUi(ESTILO_SOM[k], { fallback: sfx.click }); // FASE 7: som do estilo
                     try {
                       const [d] = await Promise.all([
                         api('/api/auth/me', { method: 'PATCH', body: { style: k } }),

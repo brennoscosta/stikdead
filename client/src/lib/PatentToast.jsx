@@ -3,6 +3,7 @@
 // Escuta o evento global 'stik:patente' (disparado pelo App ao subir de nível).
 import { useEffect, useRef, useState } from 'react';
 import { sfx, unlockAudio } from '../game/audio.js';
+import { playUi } from '../game/audioManager.js';
 
 export default function PatentToast() {
   const [fila, setFila] = useState([]); // conquistas aguardando exibição
@@ -21,7 +22,11 @@ export default function PatentToast() {
     const [prox, ...resto] = fila;
     setFila(resto);
     setAtual(prox);
-    try { unlockAudio(); sfx.drop(); setTimeout(() => sfx.victory(), 240); } catch { /* sem áudio */ }
+    // FASE 7: medalha + sino reais da conquista; se o arquivo não veio, o combo antigo assume
+    try {
+      unlockAudio();
+      playUi('reward_achievement_01', { fallback: () => { sfx.drop(); setTimeout(() => sfx.victory(), 240); } });
+    } catch { /* sem áudio */ }
     timer.current = setTimeout(() => setAtual(null), 4600);
     return () => clearTimeout(timer.current);
   }, [fila, atual]);

@@ -2,6 +2,7 @@
 // Estética seca: thumps graves, whooshes de ar, estalos de bloqueio, sino de KO.
 // Desde o sistema de áudio: tudo sai pelo canal SFX do AudioManager central.
 import { ensureCtx as amEnsure, getBus, toggleMute, isMuted } from './audioManager.js';
+import { playUi, playStinger } from './audioLibrary.js';
 
 let ctx = null;
 let master = null; // = canal SFX do AudioManager (nome mantido p/ o motor abaixo)
@@ -121,10 +122,12 @@ export const sfx = {
     noise({ dur: 2.4, from: 900, to: 180, vol: 0.14, q: 0.8 });
     tone(392, 1.4, 0.05, 'sine', 0.5, 388);
   },
-  victory() { [440, 554, 659, 880].forEach((f, i) => tone(f, 0.34, 0.22, 'triangle', i * 0.12)); },
-  defeat() { [330, 262, 196].forEach((f, i) => tone(f, 0.42, 0.2, 'triangle', i * 0.16)); },
-  drop() { [660, 880, 1108].forEach((f, i) => tone(f, 0.2, 0.18, 'sine', i * 0.08)); },
-  click() { noise({ dur: 0.04, from: 3000, to: 1500, vol: 0.15 }); },
+  // FASE 7: os quatro sons de interface mais usados tentam o arquivo real
+  // da biblioteca ElevenLabs primeiro; o sintetizado é o fallback automático.
+  victory() { playStinger('music_victory_stinger_v01', { fallback: () => [440, 554, 659, 880].forEach((f, i) => tone(f, 0.34, 0.22, 'triangle', i * 0.12)) }); },
+  defeat() { playStinger('music_defeat_stinger_v01', { fallback: () => [330, 262, 196].forEach((f, i) => tone(f, 0.42, 0.2, 'triangle', i * 0.16)) }); },
+  drop() { playUi('reward_item_common_01', { fallback: () => [660, 880, 1108].forEach((f, i) => tone(f, 0.2, 0.18, 'sine', i * 0.08)) }); },
+  click() { playUi('ui_click_secondary_01', { fallback: () => noise({ dur: 0.04, from: 3000, to: 1500, vol: 0.15 }) }); },
   skill() {
     noise({ dur: 0.22, from: 400, to: 4600, vol: 0.4, q: 3 });      // energia subindo
     tone(220, 0.3, 0.25, 'sawtooth', 0.02, 660);

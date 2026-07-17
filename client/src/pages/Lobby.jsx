@@ -10,7 +10,17 @@ import ItemIcon from '../lib/ItemIcon.jsx';
 import Icon from '../ds/Icon.jsx';
 import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
+import { playUi } from '../game/audioManager.js';
+import { startMusic } from '../game/music.js';
 import { STYLES } from '../game/sim.js';
+
+// FASE 7: assinatura sonora real de cada bot (bíblia, seção 7) + fallback
+const BOT_SOM = {
+  facil: 'bot_easy_select_01',
+  medio: 'bot_medium_select_01',
+  dificil: 'bot_hard_select_01',
+  insano: 'bot_insane_select_01',
+};
 import { avatarSrc } from '../ds/avatars.js';
 import StyleBadge from '../lib/StyleBadge.jsx';
 import DiffIcon, { DIFF_META, DIFF_KEYS } from '../lib/DiffIcon.jsx';
@@ -53,6 +63,12 @@ export default function Lobby({ profile, onProfile }) {
   const [notice, setNotice] = useState('');
   const [botDiff, setBotDiff] = useState(null); // UPDATE 2.8: dificuldade só seleciona
 
+  // FASE 7: na fila de matchmaking a trilha vira o loop de tensão (bíblia,
+  // seção 3 — camadas progressivas); ao sair/parear, volta ao tema do lobby.
+  useEffect(() => {
+    startMusic(inQueue ? 'music_matchmaking_v01' : 'music_lobby_v01');
+  }, [inQueue]);
+
   useEffect(() => {
     const socket = getSocket();
 
@@ -63,8 +79,10 @@ export default function Lobby({ profile, onProfile }) {
       plazaRef.current?.setPlayers(players);
     };
     const onQueue = ({ inQueue }) => setInQueue(inQueue);
-    const onChallenge = ({ id, from, ttl, bet }) =>
+    const onChallenge = ({ id, from, ttl, bet }) => {
+      playUi('ui_notification_01'); // FASE 7: sino de desafio recebido
       setIncoming({ id, from, bet, expiresAt: Date.now() + ttl });
+    };
     const onCancel = ({ reason }) => {
       setIncoming(null);
       setSent(null);
@@ -73,6 +91,7 @@ export default function Lobby({ profile, onProfile }) {
     };
     const onSent = ({ to }) => setSent(to);
     const onStart = ({ side, players, rejoin, arena }) => {
+      playUi('matchmaking_found_01'); // FASE 7: impacto de "partida encontrada"
       setIncoming(null);
       setSent(null);
       setInQueue(false);
@@ -86,7 +105,7 @@ export default function Lobby({ profile, onProfile }) {
     socket.on('challenge:cancel', onCancel);
     socket.on('challenge:sent', onSent);
     socket.on('match:start', onStart);
-    const onDuoInvited = ({ from }) => setDuoIn({ from });
+    const onDuoInvited = ({ from }) => { playUi('ui_notification_01'); setDuoIn({ from }); };
     const onDuoFormed = (d) => { setDuo(d); setDuoIn(null); setDuoBusca(false); };
     const onDuoBroken = ({ reason }) => { setDuo(null); setDuoBusca(false); setChat((c) => [...c.slice(-49), { name: 'STIKDEAD', system: true, text: `Dupla desfeita: ${reason}.`, ts: Date.now() }]); };
     const onDuoSearching = () => setDuoBusca(true);
@@ -104,6 +123,7 @@ export default function Lobby({ profile, onProfile }) {
     socket.on('duo:result', onDuoResult);
     const onChatHistory = ({ messages }) => setChat(messages);
     const onChatMsg = (msg) => {
+      if (!msg.system) playUi('ui_chat_message_01', { volume: 0.6, cooldownMs: 1500 }); // FASE 7: tick discreto, nunca metralha
       setChat((c) => [...c.slice(-49), msg]);
       plazaRef.current?.say?.(msg.name, msg.text);
     };
@@ -427,7 +447,7 @@ export default function Lobby({ profile, onProfile }) {
                   style={{ '--diff-cor': DIFF_META[d].cor }}
                   className={`diff-btn ${d === 'insano' ? 'insano' : ''} ${botDiff === d ? 'sel' : ''}`}
                   aria-pressed={botDiff === d}
-                  onClick={() => { setBotDiff(d); sfx.click(); }}
+                  onClick={() => { setBotDiff(d); playUi(BOT_SOM[d], { fallback: sfx.click }); }}
                 >
                   <DiffIcon d={d} size={14} /> {DIFF_META[d].label}
                 </button>
