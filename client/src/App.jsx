@@ -19,13 +19,21 @@ function AtmosferaGlobal() {
 // dos loops — o combate tem os próprios sons. Singleton nos motores = nunca duplica.
 import { startMusic, stopMusic } from './game/music.js';
 import { startAmbience, stopAmbience } from './game/ambience.js';
-import { applyRemoteSettings } from './game/audioManager.js';
+import { applyRemoteSettings, musicForPath, preload } from './game/audioManager.js';
+import { PRELOAD_UI } from './game/audioLibrary.js';
 const SEM_TRILHA = new Set(['/', '/criar-conta', '/esqueci', '/redefinir', '/treino', '/vitrine', '/calibrador']);
+let uiPreloaded = false;
 function AudioMood() {
   const { pathname } = useLocation();
   useEffect(() => {
     if (SEM_TRILHA.has(pathname)) { stopMusic(); stopAmbience(); return undefined; }
-    const tenta = () => { startMusic(); startAmbience(); };
+    // FASE 5: cada tela tem a própria trilha real (crossfade na troca);
+    // o ambiente do lobby (9 camadas ElevenLabs) toca junto nos menus.
+    const tenta = () => {
+      startMusic(musicForPath(pathname));
+      startAmbience();
+      if (!uiPreloaded) { uiPreloaded = true; preload(PRELOAD_UI); } // aquece os SFX de UI
+    };
     tenta(); // se o áudio já está destravado, entra na hora
     window.addEventListener('pointerdown', tenta); // senão, no 1º gesto
     window.addEventListener('keydown', tenta);

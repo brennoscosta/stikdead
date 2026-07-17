@@ -10,7 +10,9 @@ function ensure() {
   const c = amEnsure();
   if (!c) return null;
   ctx = c;
-  master = getBus('sfx');
+  // Fase 5: o motor procedural de luta sai pelo sub-canal GAMEPLAY
+  // (filho de Efeitos — as preferências antigas seguem valendo).
+  master = getBus('gameplay') || getBus('sfx');
   return ctx;
 }
 

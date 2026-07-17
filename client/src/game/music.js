@@ -1,8 +1,16 @@
-// STIKDEAD :: trilha sonora dos menus — gerada em tempo real (WebAudio, zero arquivos)
-// Um tema só, sombrio e paciente: drone grave, sinos esparsos em lá menor,
-// taiko distante. Toca contínuo entre Home/Lobby/Inventário/Loja/Ranking etc.
-// Singleton: navegar entre telas NUNCA reinicia nem duplica a faixa.
+// STIKDEAD :: trilha sonora dos menus.
+// Fase 5: as faixas REAIS da biblioteca ElevenLabs (uma por tela, com
+// crossfade na navegação) assumem a frente; o tema procedural antigo
+// (drone + sinos + taiko, zero arquivos) vira fallback automático se os
+// arquivos não estiverem disponíveis. Singleton: nunca duas trilhas juntas.
 import { ensureCtx, getBus } from './audioManager.js';
+import {
+  playMusic as playFileTrack,
+  stopMusic as stopFileTrack,
+  musicFileFailed,
+  currentMusicId,
+  DEFAULT_MUSIC,
+} from './audioLibrary.js';
 
 let playing = false;
 let nodes = [];   // nós contínuos (drone) p/ desligar no stop
@@ -68,14 +76,35 @@ function makeEcho(ctx, out) {
   return d;
 }
 
-export function startMusic() {
-  if (playing) return; // nunca duplica
+// ===== fachada pública (Fase 5) =====
+// Tenta a faixa real da tela; se a biblioteca falhar, cai no tema procedural.
+export function startMusic(trackId = null) {
   const ctx = ensureCtx();
   if (!ctx) return;
   if (ctx.state !== 'running') { // autoplay: tenta de novo assim que o navegador liberar
-    ctx.resume?.().then(() => { if (ctx.state === 'running') startMusic(); }).catch(() => {});
+    ctx.resume?.().then(() => { if (ctx.state === 'running') startMusic(trackId); }).catch(() => {});
     return;
   }
+  if (!musicFileFailed()) {
+    const alvo = trackId || currentMusicId() || DEFAULT_MUSIC;
+    const ok = playFileTrack(alvo, { onFail: () => startProceduralMusic() });
+    if (ok) { stopProceduralMusic(); return; } // arquivo assumiu: procedural cala
+  }
+  startProceduralMusic();
+}
+
+export function stopMusic() {
+  stopFileTrack();
+  stopProceduralMusic();
+}
+
+export const musicPlaying = () => playing || currentMusicId() != null;
+
+// ===== motor procedural (fallback, intacto) =====
+function startProceduralMusic() {
+  if (playing) return; // nunca duplica
+  const ctx = ensureCtx();
+  if (!ctx || ctx.state !== 'running') return;
   const out = getBus('music');
   playing = true;
   passo = 0;
@@ -102,12 +131,10 @@ export function startMusic() {
   }, 330);
 }
 
-export function stopMusic() {
+function stopProceduralMusic() {
   if (!playing) return;
   playing = false;
   clearInterval(timer); timer = null;
   for (const n of nodes) { try { n.stop(); } catch { /* ok */ } try { n.disconnect?.(); } catch { /* ok */ } }
   nodes = [];
 }
-
-export const musicPlaying = () => playing;

@@ -1,7 +1,15 @@
-// STIKDEAD :: som ambiente do mundo — vento, brasas, sinos distantes, corvos,
-// treino ao fundo e aço longe. Tudo sintetizado (zero arquivos), tudo no canal
-// AMBIENCE do AudioManager. Singleton: um mundo só, nunca dois ventos juntos.
+// STIKDEAD :: som ambiente do mundo — vento, brasas, lanternas, passos, treino,
+// gongo, corvos, multidão e bandeiras.
+// Fase 5: as 9 camadas REAIS da biblioteca ElevenLabs assumem a frente (loops
+// independentes + eventos raros com cooldown); o motor sintetizado antigo vira
+// fallback automático. Singleton: um mundo só, nunca dois ventos juntos.
 import { ensureCtx, getBus } from './audioManager.js';
+import {
+  playAmbience as playFileAmbience,
+  stopAmbience as stopFileAmbience,
+  ambienceFileFailed,
+  ambiencePlayingFile,
+} from './audioLibrary.js';
 
 let playing = false;
 let nodes = [];
@@ -107,14 +115,33 @@ function treino(ctx, out, vol = 0.12) {
 
 const EVENTOS = [sino, corvo, aco, treino];
 
+// ===== fachada pública (Fase 5) =====
 export function startAmbience() {
-  if (playing) return; // nunca dois loops
   const ctx = ensureCtx();
   if (!ctx) return;
   if (ctx.state !== 'running') {
     ctx.resume?.().then(() => { if (ctx.state === 'running') startAmbience(); }).catch(() => {});
     return;
   }
+  if (!ambienceFileFailed()) {
+    const ok = playFileAmbience({ onFail: () => startProceduralAmbience() });
+    if (ok) { stopProceduralAmbience(); return; } // camadas reais no ar: procedural cala
+  }
+  startProceduralAmbience();
+}
+
+export function stopAmbience() {
+  stopFileAmbience();
+  stopProceduralAmbience();
+}
+
+export const ambiencePlaying = () => playing || ambiencePlayingFile();
+
+// ===== motor procedural (fallback, intacto) =====
+function startProceduralAmbience() {
+  if (playing) return; // nunca dois loops
+  const ctx = ensureCtx();
+  if (!ctx || ctx.state !== 'running') return;
   const out = getBus('ambience');
   playing = true;
   vento(ctx, out);
@@ -127,7 +154,7 @@ export function startAmbience() {
   evtTimer = setTimeout(agenda, 4000 + Math.random() * 5000);
 }
 
-export function stopAmbience() {
+function stopProceduralAmbience() {
   if (!playing) return;
   playing = false;
   clearInterval(embTimer); embTimer = null;
@@ -144,5 +171,3 @@ export function previewAmbience() {
   sino(ctx, out, 0.12);
   setTimeout(() => corvo(ctx, out, 0.13), 700);
 }
-
-export const ambiencePlaying = () => playing;

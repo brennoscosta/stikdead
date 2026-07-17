@@ -1,7 +1,9 @@
-// STIKDEAD :: AudioManager — a mesa de som central do jogo.
-// Quatro canais (master → music/sfx/ambience), preferências persistentes
-// (backend por usuário + localStorage como fallback) e mudo em segundo plano.
-// NADA no jogo toca som fora desses barramentos.
+// STIKDEAD :: AudioManager — a mesa de som central do jogo (Fase 5: global).
+// Canais: master → music / sfx (→ ui / gameplay) / ambience / voice.
+// ui e gameplay são FILHOS de sfx: as preferências antigas (Efeitos) seguem
+// valendo pros dois; os volumes novos são multiplicadores aditivos por canal.
+// Preferências persistentes (backend por usuário + localStorage) e mudo em
+// segundo plano. NADA no jogo toca som fora desses barramentos.
 import { api, getToken } from '../lib/api.js';
 
 const LS_KEY = 'stikdead:audio';
@@ -15,10 +17,15 @@ const DEFAULTS = {
   ambienceEnabled: true,
   ambienceVolume: 0.45,
   muteOnBlur: true,
+  // Fase 5 (aditivos — perfis antigos sem estes campos caem nos defaults):
+  uiVolume: 1,        // multiplicador dentro do canal Efeitos
+  gameplayVolume: 1,  // multiplicador dentro do canal Efeitos
+  voiceEnabled: true,
+  voiceVolume: 0.75,  // volume inicial do narrador (bíblia: 75%)
 };
 
 // trims internos: equilibram os canais entre si (o jogador só vê 0–100%)
-const TRIM = { music: 0.4, sfx: 0.62, ambience: 0.55 };
+const TRIM = { music: 0.4, sfx: 0.62, ambience: 0.55, voice: 0.7 };
 
 const clamp01 = (v) => Math.min(1, Math.max(0, Number(v) || 0));
 const sane = (raw) => {
@@ -45,11 +52,15 @@ let settings = (() => {
 
 let ctx = null;
 let masterGain = null;
-const bus = { music: null, sfx: null, ambience: null };
+const bus = { music: null, sfx: null, ambience: null, voice: null, ui: null, gameplay: null };
 let blurDucked = false; // aba em segundo plano (não mexe nas preferências)
 
 const masterTarget = () => (settings.masterEnabled && !blurDucked ? settings.masterVolume : 0);
-const busTarget = (ch) => (settings[`${ch}Enabled`] ? settings[`${ch}Volume`] * TRIM[ch] : 0);
+const busTarget = (ch) => {
+  if (ch === 'ui') return clamp01(settings.uiVolume);             // relativo ao pai (sfx)
+  if (ch === 'gameplay') return clamp01(settings.gameplayVolume); // relativo ao pai (sfx)
+  return settings[`${ch}Enabled`] ? settings[`${ch}Volume`] * TRIM[ch] : 0;
+};
 
 function ramp(node, value, tc = 0.06) {
   if (!node || !ctx) return;
@@ -65,10 +76,15 @@ export function ensureCtx() {
     masterGain = ctx.createGain();
     masterGain.gain.value = masterTarget(); // preferências valem desde o 1º sample
     masterGain.connect(ctx.destination);
-    for (const ch of ['music', 'sfx', 'ambience']) {
+    for (const ch of ['music', 'sfx', 'ambience', 'voice']) {
       bus[ch] = ctx.createGain();
       bus[ch].gain.value = busTarget(ch);
       bus[ch].connect(masterGain);
+    }
+    for (const ch of ['ui', 'gameplay']) { // sub-canais dos Efeitos
+      bus[ch] = ctx.createGain();
+      bus[ch].gain.value = busTarget(ch);
+      bus[ch].connect(bus.sfx);
     }
   }
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
@@ -106,7 +122,7 @@ export const getAudioSettings = () => ({ ...settings });
 function refreshGains() {
   if (!ctx) return;
   ramp(masterGain, masterTarget());
-  for (const ch of ['music', 'sfx', 'ambience']) ramp(bus[ch], busTarget(ch));
+  for (const ch of ['music', 'sfx', 'ambience', 'voice', 'ui', 'gameplay']) ramp(bus[ch], busTarget(ch));
 }
 
 function set(patch) {
@@ -125,7 +141,20 @@ export const setSfxEnabled = (v) => set({ sfxEnabled: !!v });
 export const setSfxVolume = (v) => set({ sfxVolume: clamp01(v) });
 export const setAmbienceEnabled = (v) => set({ ambienceEnabled: !!v });
 export const setAmbienceVolume = (v) => set({ ambienceVolume: clamp01(v) });
+export const setVoiceEnabled = (v) => set({ voiceEnabled: !!v });
+export const setVoiceVolume = (v) => set({ voiceVolume: clamp01(v) });
 export const setMuteOnBlur = (v) => { set({ muteOnBlur: !!v }); if (!v && blurDucked) { blurDucked = false; refreshGains(); } };
+
+// canal → campo de settings (API genérica do prompt mestre)
+export function setChannelVolume(channel, value) {
+  const mapa = {
+    master: 'masterVolume', music: 'musicVolume', sfx: 'sfxVolume',
+    ambience: 'ambienceVolume', voice: 'voiceVolume',
+    ui: 'uiVolume', gameplay: 'gameplayVolume',
+  };
+  const campo = mapa[channel];
+  if (campo) set({ [campo]: clamp01(value) });
+}
 
 // compat: botão 🔊/🔇 da luta continua funcionando, agora como Som Geral
 export const isMuted = () => !settings.masterEnabled;
@@ -144,6 +173,11 @@ if (typeof document !== 'undefined') {
   window.addEventListener('focus', () => duck(document.hidden));
 }
 
+// ===== Fase 5: reprodução de arquivos reais (biblioteca ElevenLabs) =====
+// A implementação vive em audioLibrary.js (buffers, pooling, cooldown,
+// crossfade); aqui só re-exportamos pra API global do prompt mestre.
+export { playUi, playGameplay, playVoice, preload, AUDIO_FILES, musicForPath } from './audioLibrary.js';
+
 // espia de QA (somente leitura): estado dos canais p/ inspecionar no console
 if (typeof window !== 'undefined') {
   window.__sdAudio = {
@@ -154,6 +188,9 @@ if (typeof window !== 'undefined') {
       music: +bus.music.gain.value.toFixed(3),
       sfx: +bus.sfx.gain.value.toFixed(3),
       ambience: +bus.ambience.gain.value.toFixed(3),
+      voice: +bus.voice.gain.value.toFixed(3),
+      ui: +bus.ui.gain.value.toFixed(3),
+      gameplay: +bus.gameplay.gain.value.toFixed(3),
     } : null),
   };
 }

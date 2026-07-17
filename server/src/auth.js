@@ -193,6 +193,11 @@ router.patch('/me', requireAuth, async (req, res) => {
       ambienceEnabled: liga(a.ambienceEnabled, true),
       ambienceVolume: vol(a.ambienceVolume, 0.45),
       muteOnBlur: liga(a.muteOnBlur, true),
+      // Fase 5 (aditivos): sub-canais de Efeitos + canal do narrador
+      uiVolume: vol(a.uiVolume, 1),
+      gameplayVolume: vol(a.gameplayVolume, 1),
+      voiceEnabled: liga(a.voiceEnabled, true),
+      voiceVolume: vol(a.voiceVolume, 0.75),
     };
     await q('UPDATE profiles SET audio_settings = $1, updated_at = now() WHERE user_id = $2', [JSON.stringify(limpo), req.userId]);
     return res.json({ ok: true });
