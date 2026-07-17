@@ -496,6 +496,105 @@
       "durationSeconds": 4,
       "output": "client/public/audio/music/results/music_defeat_stinger_v01.mp3",
       "candidates": 3
+    },
+    {
+      "id": "voice_battle_start_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "A batalha começou.",
+      "output": "client/public/audio/voice/voice_battle_start_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_round_first_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Primeiro round.",
+      "output": "client/public/audio/voice/voice_round_first_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_round_final_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Round final.",
+      "output": "client/public/audio/voice/voice_round_final_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_sudden_death_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Morte súbita.",
+      "output": "client/public/audio/voice/voice_sudden_death_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_opponent_found_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Oponente encontrado.",
+      "output": "client/public/audio/voice/voice_opponent_found_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_victory_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Vitória.",
+      "output": "client/public/audio/voice/voice_victory_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_defeat_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Derrota.",
+      "output": "client/public/audio/voice/voice_defeat_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_item_unlocked_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Novo item desbloqueado.",
+      "output": "client/public/audio/voice/voice_item_unlocked_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_level_up_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Novo nível alcançado.",
+      "output": "client/public/audio/voice/voice_level_up_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_rank_up_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Você avançou no ranking.",
+      "output": "client/public/audio/voice/voice_rank_up_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "voice_tournament_01",
+      "type": "voice",
+      "category": "voice",
+      "voiceId": "GIuLCSVfgJaUuh7hYOY8",
+      "prompt": "Torneio disponível.",
+      "output": "client/public/audio/voice/voice_tournament_01.mp3",
+      "candidates": 1
     }
   ]
 }

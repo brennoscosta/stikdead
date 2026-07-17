@@ -64,6 +64,18 @@ export const AUDIO_FILES = {
   music_matchmaking_v01: { url: '/audio/music/matchmaking/music_matchmaking_v01.mp3', ch: 'music' },
   music_victory_stinger_v01: { url: '/audio/music/results/music_victory_stinger_v01.mp3', ch: 'music' },
   music_defeat_stinger_v01: { url: '/audio/music/results/music_defeat_stinger_v01.mp3', ch: 'music' },
+  // Fase 10 — narrador (voz "Lucas", grave, pt-BR)
+  voice_battle_start_01: { url: '/audio/voice/voice_battle_start_01.mp3', ch: 'voice' },
+  voice_round_first_01: { url: '/audio/voice/voice_round_first_01.mp3', ch: 'voice' },
+  voice_round_final_01: { url: '/audio/voice/voice_round_final_01.mp3', ch: 'voice' },
+  voice_sudden_death_01: { url: '/audio/voice/voice_sudden_death_01.mp3', ch: 'voice' },
+  voice_opponent_found_01: { url: '/audio/voice/voice_opponent_found_01.mp3', ch: 'voice' },
+  voice_victory_01: { url: '/audio/voice/voice_victory_01.mp3', ch: 'voice' },
+  voice_defeat_01: { url: '/audio/voice/voice_defeat_01.mp3', ch: 'voice' },
+  voice_item_unlocked_01: { url: '/audio/voice/voice_item_unlocked_01.mp3', ch: 'voice' },
+  voice_level_up_01: { url: '/audio/voice/voice_level_up_01.mp3', ch: 'voice' },
+  voice_rank_up_01: { url: '/audio/voice/voice_rank_up_01.mp3', ch: 'voice' },
+  voice_tournament_01: { url: '/audio/voice/voice_tournament_01.mp3', ch: 'voice' },
 };
 
 // trilha por rota (bíblia, seção 3). Rotas não mapeadas caem no tema Home.

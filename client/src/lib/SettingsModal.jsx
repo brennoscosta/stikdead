@@ -10,7 +10,8 @@ import {
   getAudioSettings, onAudioChange,
   setMasterEnabled, setMasterVolume, setMusicEnabled, setMusicVolume,
   setSfxEnabled, setSfxVolume, setAmbienceEnabled, setAmbienceVolume, setMuteOnBlur,
-  playUi,
+  setVoiceEnabled, setVoiceVolume,
+  playUi, playVoice,
 } from '../game/audioManager.js';
 import { previewAmbience } from '../game/ambience.js';
 
@@ -157,6 +158,17 @@ export default function SettingsModal({ onClose }) {
           </div>
           <Regua label="VOLUME DO AMBIENTE" value={audio.ambienceVolume}
             disabled={!audio.masterEnabled || !audio.ambienceEnabled} onChange={setAmbienceVolume} />
+
+          {/* FASE 6/10: canal do narrador (voz grave pt-BR do jogo) */}
+          <div className="cfg-au-row">
+            <div className="cfg-label">Narrador</div>
+            <span className="cfg-au-acoes">
+              <button className="cfg-teste" onClick={() => { unlockAudio(); playVoice('voice_victory_01'); }} disabled={!audio.masterEnabled || !audio.voiceEnabled}>testar</button>
+              <Chave on={audio.voiceEnabled} onToggle={setVoiceEnabled} label="Narrador" />
+            </span>
+          </div>
+          <Regua label="VOLUME DO NARRADOR" value={audio.voiceVolume}
+            disabled={!audio.masterEnabled || !audio.voiceEnabled} onChange={setVoiceVolume} />
 
           <div className="cfg-au-row">
             <div>

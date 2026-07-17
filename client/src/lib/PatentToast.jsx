@@ -3,7 +3,7 @@
 // Escuta o evento global 'stik:patente' (disparado pelo App ao subir de nível).
 import { useEffect, useRef, useState } from 'react';
 import { sfx, unlockAudio } from '../game/audio.js';
-import { playUi } from '../game/audioManager.js';
+import { playUi, playVoice } from '../game/audioManager.js';
 
 export default function PatentToast() {
   const [fila, setFila] = useState([]); // conquistas aguardando exibição
@@ -26,6 +26,7 @@ export default function PatentToast() {
     try {
       unlockAudio();
       playUi('reward_achievement_01', { fallback: () => { sfx.drop(); setTimeout(() => sfx.victory(), 240); } });
+      setTimeout(() => playVoice('voice_level_up_01'), 1000); // FASE 10: "Novo nível alcançado."
     } catch { /* sem áudio */ }
     timer.current = setTimeout(() => setAtual(null), 4600);
     return () => clearTimeout(timer.current);

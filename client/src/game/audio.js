@@ -2,7 +2,7 @@
 // Estética seca: thumps graves, whooshes de ar, estalos de bloqueio, sino de KO.
 // Desde o sistema de áudio: tudo sai pelo canal SFX do AudioManager central.
 import { ensureCtx as amEnsure, getBus, toggleMute, isMuted } from './audioManager.js';
-import { playUi, playStinger } from './audioLibrary.js';
+import { playUi, playStinger, playVoice } from './audioLibrary.js';
 
 let ctx = null;
 let master = null; // = canal SFX do AudioManager (nome mantido p/ o motor abaixo)
@@ -147,15 +147,24 @@ export function playEvent(e, mySide = null) {
     case 'ko': sfx.ko(); break;
     case 'firstblood': sfx.firstblood(); break;
     case 'roundstart': sfx.round(); break;
-    case 'fightstart': sfx.round(); break;
-    case 'suddendeath': sfx.firstblood(); break;
+    case 'fightstart':
+      sfx.round();
+      setTimeout(() => playVoice('voice_battle_start_01'), 350); // FASE 10: "A batalha começou."
+      break;
+    case 'suddendeath':
+      sfx.firstblood();
+      setTimeout(() => playVoice('voice_sudden_death_01'), 300); // FASE 10: "Morte súbita."
+      break;
     case 'skill': sfx.skill(); break;
     case 'skillwave': sfx.skillHeavy(); break;
     case 'skillslam': sfx.skillHeavy(); break;
-    case 'matchend':
-      if (mySide != null) (e.winner === mySide ? sfx.victory() : sfx.defeat());
-      else sfx.victory();
+    case 'matchend': {
+      const ganhou = mySide == null || e.winner === mySide;
+      (ganhou ? sfx.victory() : sfx.defeat());
+      // FASE 10: o narrador anuncia depois do impacto do stinger
+      setTimeout(() => playVoice(ganhou ? 'voice_victory_01' : 'voice_defeat_01'), 900);
       break;
+    }
     default: break;
   }
 }

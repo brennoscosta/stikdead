@@ -10,7 +10,7 @@ import ItemIcon from '../lib/ItemIcon.jsx';
 import Icon from '../ds/Icon.jsx';
 import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
-import { playUi } from '../game/audioManager.js';
+import { playUi, playVoice } from '../game/audioManager.js';
 import { startMusic } from '../game/music.js';
 import { STYLES } from '../game/sim.js';
 
@@ -92,6 +92,7 @@ export default function Lobby({ profile, onProfile }) {
     const onSent = ({ to }) => setSent(to);
     const onStart = ({ side, players, rejoin, arena }) => {
       playUi('matchmaking_found_01'); // FASE 7: impacto de "partida encontrada"
+      setTimeout(() => playVoice('voice_opponent_found_01'), 500); // FASE 10: "Oponente encontrado."
       setIncoming(null);
       setSent(null);
       setInQueue(false);
