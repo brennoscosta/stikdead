@@ -18,6 +18,7 @@ import AvatarPicker from '../lib/AvatarPicker.jsx';
 import { avatarSrc } from '../ds/avatars.js';
 import HeroFx from '../lib/HeroFx.jsx';
 import StyleBadge, { StyleIcon, STYLE_COR, STYLE_INFO, splitDesc } from '../lib/StyleBadge.jsx';
+import Conquistas from '../lib/Conquistas.jsx';
 import { sfx, unlockAudio } from '../game/audio.js';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
@@ -47,8 +48,6 @@ export default function Profile({ profile, onUpdate, onLogout }) {
   const [name, setName] = useState(profile.fighter_name);
   const [err, setErr] = useState('');
   const [equipando, setEquipando] = useState(null); // UPDATE 2.9: anima ANTES de mover pra 1ª posição
-  const [conqFiltro, setConqFiltro] = useState('todos'); // UPDATE 3.0: filtros das conquistas
-  const [conqSel, setConqSel] = useState(null);          // UPDATE 3.0: patente aberta no modal
 
   // UPDATE 3.0 — após reordenar, o card equipado fica TOTALMENTE visível:
   // scroll volta ao início instantaneamente (nunca anima para a direita)
@@ -191,120 +190,8 @@ export default function Profile({ profile, onUpdate, onLogout }) {
         </div>
       </section>
 
-      {/* ===== UPDATE 3.0 — CONQUISTAS: categorias, grid, progresso e modal ===== */}
-      {(() => {
-        const RAR_ATO = { 'A RUA': 'Comum', 'O DOJO': 'Incomum', 'A ARENA': 'Raro', 'A LENDA': 'Épico', 'A MORTE': 'Lendário' };
-        const RAR_COR = { Comum: '#9a8f88', Incomum: '#7de0a8', Raro: '#5bb8ff', 'Épico': '#b98cff', 'Lendário': '#ffd76a' };
-        const nv = profile.level;
-        const estado = (p) => {
-          const obtida = nv >= p.level;
-          const secreta = !obtida && p.level > nv + 20; // longe demais: ainda é mistério
-          return { obtida, secreta, rar: RAR_ATO[p.ato], pct: obtida ? 100 : Math.min(99, Math.floor((nv / p.level) * 100)) };
-        };
-        const FILTROS_CONQ = [['todos', 'TODOS'], ['obtidos', 'OBTIDOS'], ['progresso', 'EM PROGRESSO'], ['raros', 'RAROS'], ['secretos', 'SECRETOS']];
-        const passaFiltro = (p) => {
-          const e = estado(p);
-          if (conqFiltro === 'obtidos') return e.obtida;
-          if (conqFiltro === 'progresso') return !e.obtida && !e.secreta;
-          if (conqFiltro === 'raros') return ['Raro', 'Épico', 'Lendário'].includes(e.rar);
-          if (conqFiltro === 'secretos') return e.secreta;
-          return true;
-        };
-        const ATOS = [...new Set(PATENTS.map((p) => p.ato))];
-        const obtidas = PATENTS.filter((p) => nv >= p.level).length;
-        return (
-          <section className="conq-wrap">
-            <div className="conq-head">
-              <button className="conq-title-link" onClick={() => nav('/carreira')} title="Ver a carreira completa">
-                <Icon name="trofeu" size={16} weight="forte" className="h2-ico" /> CONQUISTAS <span className="conq-arrow">›</span>
-              </button>
-              <div className="conq-filtros" role="tablist" aria-label="Filtrar conquistas">
-                {FILTROS_CONQ.map(([id, l]) => (
-                  <button key={id} role="tab" aria-selected={conqFiltro === id}
-                    className={`conq-filtro ${conqFiltro === id ? 'on' : ''}`}
-                    onClick={() => setConqFiltro(id)}>{l}</button>
-                ))}
-              </div>
-              <span className="conq-progress"><b>{obtidas}</b>/{PATENTS.length} patentes</span>
-            </div>
-
-            <div className="conq-cats">
-              {ATOS.map((ato) => {
-                const doAto = PATENTS.filter((p) => p.ato === ato);
-                const visiveis = doAto.filter(passaFiltro);
-                if (visiveis.length === 0) return null;
-                const ganhas = doAto.filter((p) => nv >= p.level).length;
-                return (
-                  <article key={ato} className="conq-cat" style={{ '--cat-cor': RAR_COR[RAR_ATO[ato]] }}>
-                    <header className="conq-cat-head">
-                      <b>{ato}</b>
-                      <span className="conq-cat-rar">{RAR_ATO[ato]}</span>
-                      <em>{ganhas}/{doAto.length}</em>
-                      <i className="conq-cat-bar"><span style={{ width: `${(ganhas / doAto.length) * 100}%` }} /></i>
-                    </header>
-                    <div className="conq-grid">
-                      {visiveis.map((p) => {
-                        const e = estado(p);
-                        return (
-                          <button key={p.id} className={`conq-tile ${e.obtida ? 'won' : e.secreta ? 'secreta' : ''}`}
-                            onClick={() => setConqSel(p)}
-                            title={e.obtida ? `${p.name} — nível ${p.level}` : e.secreta ? '??? — conquista secreta' : `??? — nível ${p.level}`}>
-                            <span className="conq-tile-arte">
-                              {e.obtida ? (
-                                <>
-                                  <img src={p.icon} alt="" loading="lazy" onError={(ev) => { ev.currentTarget.style.display = 'none'; ev.currentTarget.nextSibling.style.display = 'grid'; }} />
-                                  <span className="conq-tile-fallback" style={{ display: 'none' }}>{p.emoji}</span>
-                                </>
-                              ) : (
-                                <span className="conq-tile-lock"><Icon name="cadeado" size={17} /></span>
-                              )}
-                            </span>
-                            <i className="conq-tile-bar"><span style={{ width: `${e.pct}%` }} /></i>
-                            <small className="conq-tile-pct">{e.obtida ? '✓ 100%' : e.secreta ? '???' : `${e.pct}%`}</small>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-
-            {/* modal da conquista */}
-            {conqSel && (() => {
-              const e = estado(conqSel);
-              return (
-                <div className="pc-overlay" style={{ zIndex: 470 }} onClick={() => setConqSel(null)}>
-                  <div className="conq-modal" style={{ '--cat-cor': RAR_COR[e.rar] }} onClick={(ev) => ev.stopPropagation()}>
-                    <button className="av-close" onClick={() => setConqSel(null)} aria-label="Fechar"><Icon name="fechar" size={16} /></button>
-                    <span className="conq-modal-arte">
-                      {e.obtida
-                        ? <img src={conqSel.icon} alt="" onError={(ev) => { ev.currentTarget.style.display = 'none'; }} />
-                        : <span className="conq-tile-lock"><Icon name="cadeado" size={30} /></span>}
-                    </span>
-                    <span className="conq-modal-rar">{e.rar}</span>
-                    <h3 className="conq-modal-nome">{e.obtida || !e.secreta ? conqSel.name : '???'}</h3>
-                    <p className="conq-modal-desc">
-                      {e.secreta && !e.obtida
-                        ? 'Conquista secreta — continue evoluindo para revelar seu segredo.'
-                        : conqSel.desc}
-                    </p>
-                    <div className="conq-modal-prog">
-                      <i className="conq-tile-bar"><span style={{ width: `${e.pct}%` }} /></i>
-                      <small>{e.obtida ? '✓ Obtida' : `${e.pct}% · Nível ${nv}/${conqSel.level}`}</small>
-                    </div>
-                    <div className="conq-modal-meta">
-                      <span><small>REQUISITO</small><b>Nível {conqSel.level}</b></span>
-                      <span><small>ATO</small><b>{conqSel.ato}</b></span>
-                      <span><small>RECOMPENSA</small><b>Título «{e.obtida || !e.secreta ? conqSel.name : '???'}»</b></span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-          </section>
-        );
-      })()}
+      {/* ===== CONQUISTAS compactas (lib/Conquistas.jsx) ===== */}
+      <Conquistas profile={profile} />
 
       <div className="dash-grid dash-grid2">
         <div className="dash-col">
