@@ -14,6 +14,7 @@ import { STYLES } from '../game/sim.js';
 import { avatarSrc } from '../ds/avatars.js';
 import StyleBadge from '../lib/StyleBadge.jsx';
 import DiffIcon, { DIFF_META, DIFF_KEYS } from '../lib/DiffIcon.jsx';
+import BotPortrait from '../lib/BotPortrait.jsx';
 import { SkillButton } from './Battle.jsx';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
@@ -411,8 +412,13 @@ export default function Lobby({ profile, onProfile }) {
           <section className="dash-card bot-painel">
             <h2><Icon name="soco" size="xs" weight="forte" className="h2-ico" /> JOGAR COM BOT</h2>
             <div className="bot-topo">
-              <img className="bot-arte" src="/arte/bot.png" alt="" />
-              <p className="dash-empty">Treine suas habilidades contra a IA.</p>
+              {/* UPDATE 3.0 — o retrato muda na hora conforme a dificuldade */}
+              <BotPortrait key={botDiff || 'facil'} d={botDiff || 'facil'} size={76} />
+              <p className="dash-empty">
+                {botDiff
+                  ? { facil: 'Um iniciante de olhos azuis. Ideal para aquecer.', medio: 'Bandana, katana e alguma malícia. Respeite.', dificil: 'Máscara oni e lâmina em chamas. Cuidado.', insano: 'O BOSS. Aura demoníaca. Boa sorte — vai precisar.' }[botDiff]
+                  : 'Treine suas habilidades contra a IA.'}
+              </p>
             </div>
             <div className="lobby-bot-row diff-grid">
               {DIFF_KEYS.map((d) => (

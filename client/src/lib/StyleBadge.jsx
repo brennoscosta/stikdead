@@ -11,6 +11,15 @@ export const STYLE_COR = {
   espectro: '#a78bfa',   // espectral
 };
 
+// UPDATE 3.0 — ficha informativa de cada estilo (painel lateral do carrossel)
+export const STYLE_INFO = {
+  ronin:     { espec: 'Ataques rápidos',        classe: 'Ofensiva' },
+  shinobi:   { espec: 'Mobilidade e surpresa',  classe: 'Ágil' },
+  monge:     { espec: 'Defesa e contra-ataque', classe: 'Equilibrada' },
+  berserker: { espec: 'Dano bruto',             classe: 'Ofensiva' },
+  espectro:  { espec: 'Controle aéreo',         classe: 'Técnica' },
+};
+
 // ícones vetoriais 16x16 (stroke = currentColor)
 const P = {
   // katana inclinada
@@ -61,7 +70,7 @@ export function StyleIcon({ styleKey, size = 16 }) {
 }
 
 // separa a descrição em golpe + passiva (o texto oficial usa "Passivo:")
-const splitDesc = (desc = '') => {
+export const splitDesc = (desc = '') => {
   const i = desc.indexOf('Passiv');
   if (i < 0) return { golpe: desc, passiva: null };
   return { golpe: desc.slice(0, i).trim(), passiva: desc.slice(i).replace(/^Passivo:\s*/, '').trim() };

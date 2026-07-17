@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
+import { useEffect, useRef, useState, useCallback, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Atmosphere, ATMO_POR_TELA } from './ds';
 // Design System (Fase 2): a /vitrine é a sala de aprovação — carrega sob demanda
@@ -27,6 +27,8 @@ import ClanPublic from './pages/ClanPublic.jsx';
 import GiftModal from './lib/GiftModal.jsx';
 import ExcellentTip from './lib/ExcellentTip.jsx';
 import FriendAskModal from './lib/FriendAskModal.jsx';
+import PatentToast from './lib/PatentToast.jsx';
+import { PATENTS } from '../../shared/patents.js';
 import { api, getToken, clearToken } from './lib/api.js';
 import { closeSocket } from './lib/socket.js';
 import Login from './pages/Login.jsx';
@@ -42,6 +44,22 @@ import Rankings from './pages/Rankings.jsx';
 export default function App() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(!!getToken());
+
+  // UPDATE 3.0 — conquistas nunca chegam em silêncio: ao cruzar o nível de
+  // uma patente, dispara o toast dourado (PatentToast escuta 'stik:patente')
+  const nivelAnterior = useRef(null);
+  useEffect(() => {
+    const nv = profile?.level;
+    if (nv == null) { nivelAnterior.current = null; return; }
+    const antes = nivelAnterior.current;
+    nivelAnterior.current = nv;
+    if (antes == null || nv <= antes) return;
+    for (const p of PATENTS) {
+      if (p.level > antes && p.level <= nv) {
+        window.dispatchEvent(new CustomEvent('stik:patente', { detail: { patent: p } }));
+      }
+    }
+  }, [profile?.level]);
 
   const refresh = useCallback(async () => {
     if (!getToken()) return setProfile(null);
@@ -141,6 +159,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {profile && <GiftModal />}
+      {profile && <PatentToast />}
       {profile && <FriendAskModal />}
       <ExcellentTip />
     </BrowserRouter>
