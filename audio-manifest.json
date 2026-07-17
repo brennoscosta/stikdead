@@ -181,6 +181,249 @@
       "durationSeconds": 1.0,
       "output": "client/public/audio/ui/notifications/matchmaking_found_01.mp3",
       "candidates": 3
+    },
+    {
+      "id": "ui_tab_switch_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "UI tab switch sound, a tiny short blade movement, thin steel sliding briefly with a soft stop, oriental dark fantasy RPG menu, very short attack and fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/ui/navigation/ui_tab_switch_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_pagination_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "UI pagination sound, a single light wooden tap like a go stone placed on a wooden board, oriental dark fantasy menu, short and dry, no reverb tail, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/ui/navigation/ui_pagination_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_modal_impact_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Important modal opening sound, a short cinematic low impact with a subtle taiko drum hit and faint metal shimmer, oriental dark fantasy RPG interface, strong attack with quick controlled decay, dramatic but brief, no speech, no music, clear at low volume.",
+      "durationSeconds": 1.2,
+      "output": "client/public/audio/ui/navigation/ui_modal_impact_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_nav_header_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Header navigation sound for a game menu, a very short soft air whoosh with a hint of paper sliding, oriental dark fantasy UI, subtle and quick, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/ui/navigation/ui_nav_header_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_notification_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Game notification chime, a single soft dark temple bell strike with a short warm tail, oriental dark fantasy RPG interface, gentle attack, medium-short decay, pleasant but mysterious, no speech, no music besides the single bell, clear at low volume.",
+      "durationSeconds": 1.0,
+      "output": "client/public/audio/ui/notifications/ui_notification_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_chat_message_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Chat message received sound, a tiny discreet bamboo tick with a faint airy accent, oriental dark fantasy game interface, extremely short and non-intrusive, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.6,
+      "output": "client/public/audio/ui/notifications/ui_chat_message_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "style_berserker_select_01",
+      "type": "sound-effect",
+      "category": "style",
+      "prompt": "Fighting style selection sound for a berserker, heavy blunt impact with rough metal clang and a discreet non-verbal guttural breath, raw physical power, oriental dark fantasy RPG, strong attack, short decay, intense but under one and a half seconds, no words or speech, no music, clear at low volume.",
+      "durationSeconds": 1.2,
+      "output": "client/public/audio/styles/berserker/style_berserker_select_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "style_reaper_select_01",
+      "type": "sound-effect",
+      "category": "style",
+      "prompt": "Fighting style selection sound for a spectral reaper, a chain rattling briefly then a long blade drawn with a ghostly airy energy whoosh, cold and otherworldly, oriental dark fantasy RPG, sharp attack, eerie short tail, no voice or speech, no music, clear at low volume.",
+      "durationSeconds": 1.2,
+      "output": "client/public/audio/styles/reaper/style_reaper_select_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "reward_xp_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Experience points gained sound, a very short rising energy sweep with a light metallic sparkle at the top, oriental dark fantasy RPG reward, quick attack, fast decay, satisfying but subtle, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.8,
+      "output": "client/public/audio/rewards/reward_xp_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "reward_coin_02",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Coin reward sound variation, two small metallic coins clinking together once, slightly different pitch than a single coin drop, oriental dark fantasy RPG, short and bright, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/rewards/reward_coin_02.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "reward_coin_03",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Coin reward sound variation, a tiny handful of coins settling briefly on wood, short metallic shimmer, oriental dark fantasy RPG, quick decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/rewards/reward_coin_03.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "reward_item_common_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Common item obtained sound, a discreet short click of wood and cloth, understated, oriental dark fantasy RPG inventory, minimal attack and decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/rewards/reward_item_common_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "reward_item_rare_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Rare item obtained sound, a short cold blue crystalline shimmer with a soft bell accent, oriental dark fantasy RPG reward, gentle attack, sparkling short tail, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.9,
+      "output": "client/public/audio/rewards/reward_item_rare_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "reward_item_epic_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Epic item obtained sound, a deep purple energy pulse with a resonant low tone and a metallic shimmer on top, oriental dark fantasy RPG reward, firm attack, medium-short decay, powerful but brief, no speech, no music, clear at low volume.",
+      "durationSeconds": 1.0,
+      "output": "client/public/audio/rewards/reward_item_epic_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "reward_item_legendary_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Legendary item obtained sound, fire igniting with a heavy metal strike and a deep dramatic impact, embers crackling briefly at the tail, oriental dark fantasy RPG ultimate reward, big attack, controlled two second decay, epic, no speech, no music, clear at low volume.",
+      "durationSeconds": 2.0,
+      "output": "client/public/audio/rewards/reward_item_legendary_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "reward_levelup_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Level up fanfare, a short dark heroic flourish with taiko drum hits, a temple bell and a rising metallic swell, oriental dark fantasy RPG, two to three seconds, triumphant but somber, purely instrumental sound design, no speech, clear at low volume.",
+      "durationSeconds": 3.0,
+      "output": "client/public/audio/rewards/reward_levelup_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "reward_rank_up_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "New rank achieved special fanfare, a grand short ceremony of deep taiko drums, a large gong strike, sword shing and a dark heroic swell, oriental dark fantasy RPG, four to five seconds, majestic and intimidating, purely instrumental sound design, no speech, clear at low volume.",
+      "durationSeconds": 5.0,
+      "output": "client/public/audio/rewards/reward_rank_up_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "amb_lobby_wind_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Seamless looping ambience layer of cold night wind blowing through an ancient oriental temple courtyard, steady and hollow, no melody, no speech, no music, smooth loop with no obvious start or end, calm background texture, clear at low volume.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_wind_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_lobby_embers_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Seamless looping ambience layer of embers and a small fire crackling gently in a stone brazier, occasional soft pops, no melody, no speech, no music, smooth loop, warm quiet background texture, clear at low volume.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_embers_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_lobby_lanterns_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Seamless looping ambience layer of paper lanterns swaying and old wood creaking softly in a night breeze, sparse and quiet, no melody, no speech, no music, smooth loop, subtle background texture, clear at low volume.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_lanterns_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_lobby_footsteps_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Ambience layer of distant sparse footsteps on stone and wood in a large temple hall, unhurried, far away and soft, no voices, no speech, no music, quiet background texture suitable for looping, clear at low volume.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_footsteps_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_lobby_training_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Ambience layer of distant practice sword strikes, occasional wooden bokken hits and faint steel clashes far away in a dojo, sparse with silence between hits, no voices, no speech, no music, quiet background texture suitable for looping, clear at low volume.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_training_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_lobby_gong_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "A single distant deep temple gong strike with a long dark natural tail fading into silence, far away, ceremonial and solemn, oriental dark fantasy, no speech, no music besides the gong itself, clear at low volume.",
+      "durationSeconds": 6,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_gong_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_lobby_crow_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "A single distant crow cawing twice then silence, echoing slightly over a night temple courtyard, dark and lonely, no other animals, no speech, no music, clear at low volume.",
+      "durationSeconds": 2.5,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_crow_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_lobby_crowd_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Seamless looping ambience layer of a very distant indistinct crowd murmur in a large hall, muffled and unintelligible, absolutely no discernible words, low and steady, no music, smooth loop, faint background texture, clear at low volume.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_crowd_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_lobby_flags_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Seamless looping ambience layer of heavy cloth banners and flags flapping slowly in a night wind, occasional fabric snaps, no melody, no speech, no music, smooth loop, subtle background texture, clear at low volume.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/lobby/amb_lobby_flags_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "music_lobby_v01",
+      "type": "music",
+      "category": "music",
+      "prompt": "Dark oriental fantasy lobby theme for a stickman fighting game, moderate oriental percussion with taiko drums, rhythmic shamisen, a distant shakuhachi flute, a very discreet low male choir texture, tension and anticipation without sounding like active combat, alive social hub energy, instrumental only, no vocals or lyrics, loopable, mysterious and powerful.",
+      "musicLengthMs": 120000,
+      "output": "client/public/audio/music/lobby/music_lobby_v01.mp3",
+      "candidates": 3
     }
   ]
 }
