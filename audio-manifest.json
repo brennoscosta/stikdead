@@ -62,7 +62,7 @@
       "category": "ui",
       "prompt": "UI error or invalid action sound, a dull cracked wood knock with a dissonant low buzz, oriental dark fantasy RPG, short, clearly negative but not jarring.",
       "durationSeconds": 0.5,
-      "output": "client/public/audio/ui/buttons/ui_error_01.mp3",
+      "output": "client/public/audio/ui/errors/ui_error_01.mp3",
       "candidates": 1
     },
     {
@@ -71,7 +71,7 @@
       "category": "ui",
       "prompt": "UI panel opening sound, sliding paper shoji screen with a soft whoosh and faint wood creak, oriental dark fantasy RPG, smooth, around half a second.",
       "durationSeconds": 0.55,
-      "output": "client/public/audio/ui/panels/ui_panel_open_01.mp3",
+      "output": "client/public/audio/ui/modal/ui_panel_open_01.mp3",
       "candidates": 1
     },
     {
@@ -80,7 +80,7 @@
       "category": "ui",
       "prompt": "UI panel closing sound, mirror of a paper shoji screen slide but reversed and slightly shorter, oriental dark fantasy RPG, soft thud at the end.",
       "durationSeconds": 0.45,
-      "output": "client/public/audio/ui/panels/ui_panel_close_01.mp3",
+      "output": "client/public/audio/ui/modal/ui_panel_close_01.mp3",
       "candidates": 1
     },
     {
@@ -89,7 +89,7 @@
       "category": "style",
       "prompt": "Fighting style selection sound for a Ronin swordsman, a single sharp katana unsheathing (iaido draw) with a metallic ring, oriental dark fantasy RPG, confident and sharp, around one second.",
       "durationSeconds": 1.0,
-      "output": "client/public/audio/styles/style_ronin_select_01.mp3",
+      "output": "client/public/audio/styles/ronin/style_ronin_select_01.mp3",
       "candidates": 3
     },
     {
@@ -98,7 +98,7 @@
       "category": "style",
       "prompt": "Fighting style selection sound for a Shinobi assassin, a quick fabric whip and soft metallic kunai chime, oriental dark fantasy RPG, fast and stealthy, around one second.",
       "durationSeconds": 1.0,
-      "output": "client/public/audio/styles/style_shinobi_select_01.mp3",
+      "output": "client/public/audio/styles/shinobi/style_shinobi_select_01.mp3",
       "candidates": 3
     },
     {
@@ -107,7 +107,7 @@
       "category": "style",
       "prompt": "Fighting style selection sound for a Monk fighter, a deep temple bell strike layered with a soft breath and wooden prayer beads clack, oriental dark fantasy RPG, calm and powerful, around one second.",
       "durationSeconds": 1.1,
-      "output": "client/public/audio/styles/style_monk_select_01.mp3",
+      "output": "client/public/audio/styles/monk/style_monk_select_01.mp3",
       "candidates": 3
     },
     {
@@ -116,7 +116,7 @@
       "category": "bot",
       "prompt": "Selection sound for an easy difficulty opponent, light and playful wooden xylophone-like tap, oriental dark fantasy RPG, friendly and short.",
       "durationSeconds": 0.6,
-      "output": "client/public/audio/bots/bot_easy_select_01.mp3",
+      "output": "client/public/audio/bots/easy/bot_easy_select_01.mp3",
       "candidates": 1
     },
     {
@@ -125,7 +125,7 @@
       "category": "bot",
       "prompt": "Selection sound for a medium difficulty opponent, a firmer taiko drum hit with a short metallic edge, oriental dark fantasy RPG, moderate weight.",
       "durationSeconds": 0.7,
-      "output": "client/public/audio/bots/bot_medium_select_01.mp3",
+      "output": "client/public/audio/bots/medium/bot_medium_select_01.mp3",
       "candidates": 1
     },
     {
@@ -134,7 +134,7 @@
       "category": "bot",
       "prompt": "Selection sound for a hard difficulty opponent, a low taiko drum hit layered with a subtle demonic growl undertone, oriental dark fantasy RPG, ominous and heavy.",
       "durationSeconds": 0.9,
-      "output": "client/public/audio/bots/bot_hard_select_01.mp3",
+      "output": "client/public/audio/bots/hard/bot_hard_select_01.mp3",
       "candidates": 1
     },
     {
@@ -143,7 +143,7 @@
       "category": "bot",
       "prompt": "Selection sound for the insane boss-tier opponent, a deep resonant gong strike layered with a menacing low growl and distant thunder rumble, oriental dark fantasy RPG, intense and threatening, around one and a half seconds.",
       "durationSeconds": 1.5,
-      "output": "client/public/audio/bots/bot_insane_select_01.mp3",
+      "output": "client/public/audio/bots/insane/bot_insane_select_01.mp3",
       "candidates": 3
     },
     {
@@ -179,7 +179,7 @@
       "category": "matchmaking",
       "prompt": "Match found notification sound, a rising tension riser resolving into a sharp bell hit, oriental dark fantasy RPG, alerting but not jarring, around one second.",
       "durationSeconds": 1.0,
-      "output": "client/public/audio/matchmaking/matchmaking_found_01.mp3",
+      "output": "client/public/audio/ui/notifications/matchmaking_found_01.mp3",
       "candidates": 3
     }
   ]
