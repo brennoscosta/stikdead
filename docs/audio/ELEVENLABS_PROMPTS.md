@@ -71,9 +71,13 @@ Fonte de verdade: `audio-manifest.json`. Copiados aqui só para leitura/aprovaç
 
 Critério usado: sons "críticos" — tocam com muita frequência (`ui_click_primary_01`, `ui_confirm_01`) ou definem identidade (os 3 estilos, o bot insano, a conquista, o matchmaking). Os outros 12 itens ficam com 1 candidata por serem efeitos menores/menos expostos. Isso soma **36 chamadas** para o lote inteiro — ajustável antes de rodar `npm run audio:generate` se o Brenno quiser mais ou menos candidatas em algum item.
 
-## Fluxo de aprovação (Fase 4, ainda pendente)
+## Fluxo de aprovação (Fase 4)
 
 1. Brenno revisa/ajusta prompts aqui ou direto no `audio-manifest.json`.
 2. Rodar `npm run audio:generate -- --dry-run` para confirmar o que vai ser chamado (zero custo).
-3. Aprovação explícita → `npm run audio:generate` (ou por `--id`/`--category` para ir aos poucos).
-4. Cada candidata gerada precisa passar por audição antes de ser considerada "aprovada" — a Fase 4 do prompt mestre pede uma ferramenta interna de audição (só em desenvolvimento) para comparar candidatos e marcar aprovado/rejeitado/regenerar; isso ainda não existe e entra no escopo de uma fase de implementação futura (ver `AUDIO_IMPLEMENTATION.md`).
+3. Aprovação explícita → `npm run audio:generate` (ou por `--id`/`--category` para ir aos poucos). Isso **nunca** escreve no catálogo final — só gera candidatas em `client/public/audio-review/<id>/`.
+4. Depois de `npm run build` no client e deploy, as candidatas ficam ouvíveis em `/audio-review/` (página interna, não linkada no jogo, `noindex`). Brenno ouve e decide, item por item: aprovado (e qual candidata) / rejeitado / regenerar.
+5. Pra cada decisão: `npm run audio:approve -- --id <id> --candidate <n>` promove a candidata escolhida pro caminho final do manifesto; `npm run audio:reject -- --id <id>` marca como rejeitado (regenerar depois com `generate -- --id <id> --force`).
+6. Depois que todo o lote estiver decidido, `npm run audio:review-clean` apaga `client/public/audio-review/` inteira antes do próximo build de produção, pra não carregar candidatas descartáveis pro jogo real.
+
+Detalhes de implementação da ferramenta em `AUDIO_IMPLEMENTATION.md`.

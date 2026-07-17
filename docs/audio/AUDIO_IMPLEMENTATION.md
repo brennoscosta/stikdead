@@ -1,6 +1,6 @@
 # STIKDEAD — Plano de implementação do sistema de áudio
 
-*Fase 3 · registra o que já está no ar, o que está pendente e as decisões de arquitetura que a Fase 5 (AudioManager global) e seguintes vão precisar tomar. Nenhum código deste documento foi implementado ainda além do que já está listado como "concluído".*
+*Fase 4 · registra o que já está no ar, o que está pendente e as decisões de arquitetura que a Fase 5 (AudioManager global) e seguintes vão precisar tomar.*
 
 ## Status por fase (prompt mestre)
 
@@ -9,8 +9,8 @@
 | 0 — Auditoria | `docs/audio/AUDIO_AUDIT.md` | ✅ concluída (commit `3c779a7`) |
 | 1 — Config. segura ElevenLabs | `server/src/services/elevenlabs/*`, `audio-doctor.js` | ✅ concluída e validada (commit `a8f92eb`) |
 | 2 — CLI administrativa | `server/scripts/audio/generate-audio.js`, `audio-manifest.json` | ✅ concluída e validada no VPS, zero créditos (commit `54c8ae1`) |
-| 3 — Documentação da bíblia sonora | este documento + `STIKDEAD_SOUND_BIBLE.md` + `AUDIO_ASSET_CATALOG.md` + `ELEVENLABS_PROMPTS.md` | ✅ em andamento (este commit) |
-| 4 — Primeiro lote de prova (geração real) | 20 áudios via API, **paga** | ⏳ aguardando aprovação explícita |
+| 3 — Documentação da bíblia sonora | `STIKDEAD_SOUND_BIBLE.md` + `AUDIO_ASSET_CATALOG.md` + `ELEVENLABS_PROMPTS.md` | ✅ concluída e validada no VPS, zero créditos (commit `eab8da0`) |
+| 4 — Primeiro lote de prova (geração real) | ferramenta de candidatas/audição/aprovação (zero custo) ✅ pronta e testada; geração real dos 20 áudios via API (**paga**, ~36 chamadas) | ⏳ ferramenta pronta, geração real ainda não disparada nesta sessão |
 | 5 — AudioManager global | 6 canais, preload/cache/pooling/crossfade | ⏳ pendente |
 | 6 — Configurações (canal Voice) | expandir seção Áudio já existente | ⏳ pendente |
 | 7 — Integração no Lobby | replicar qualidade de "Seu Estilo de Luta" | ⏳ pendente |
@@ -37,14 +37,16 @@ O update de Configurações + Áudio (entregue antes deste plano ElevenLabs, com
 
 Isso significa que a Fase 4 (gerar os 20 arquivos) pode acontecer **antes** da Fase 5 sem risco: os arquivos ficam parados em `client/public/audio/` até o AudioManager evoluído saber consumi-los.
 
-## Ferramenta de audição (pendência da Fase 4)
+## Ferramenta de audição (implementada na Fase 4)
 
-O prompt mestre exige "uma página ou ferramenta interna de audição, somente em desenvolvimento, para comparar candidatos e marcar: aprovado / rejeitado / regenerar" antes de qualquer candidata ser promovida a arquivo final oficial. Isso ainda não existe. Duas opções para quando a Fase 4 for aprovada:
+O prompt mestre exige "uma página ou ferramenta interna de audição, somente em desenvolvimento, para comparar candidatos e marcar: aprovado / rejeitado / regenerar" antes de qualquer candidata ser promovida a arquivo final oficial. Implementado assim:
 
-- **Opção simples (recomendada para o lote de 20 itens)**: o `generate-audio.js` já grava as candidatas com sufixo (ex.: `ui_confirm_01.candidate1.mp3`, `.candidate2.mp3`, `.candidate3.mp3`) em `tmp/audio/candidates/`; o Brenno ouve localmente (baixando ou tocando direto no VPS) e aprova por CLI (`npm run audio:approve -- --id ui_confirm_01 --candidate 2`), que promove o arquivo escolhido pro caminho final do manifesto.
-- **Opção completa**: uma rota/página `/admin/audio-review` (protegida, só em desenvolvimento) com player e botões aprovado/rejeitado/regenerar.
-
-Recomendação: começar pela opção simples (menos código, zero risco de expor rota admin em produção) e só evoluir pra página se o volume de candidatas crescer muito nas fases seguintes.
+- `npm run audio:generate` **nunca mais escreve direto no catálogo final** (`client/public/audio/...`). Ele gera `item.candidates` candidata(s) por item (até 3, pro teto do prompt mestre) e grava cada uma em `client/public/audio-review/<id>/<id>__cN.mp3`, fora do catálogo e fora do jogo.
+- Um estado de revisão (`tmp/audio/candidates-state.json`, no VPS, nunca commitado) guarda por item: candidatas geradas (bytes, caminho, data), status (`pendente` / `aprovado` / `rejeitado`) e qual candidata foi aprovada.
+- Uma página estática `client/public/audio-review/index.html` é (re)gerada a cada `generate`/`approve`/`reject`, com um `<audio controls>` por candidata, o status atual de cada item e o comando exato de aprovação pra copiar/colar. Não é linkada de nenhum lugar do jogo, tem `<meta name="robots" content="noindex,nofollow">`, e a pasta inteira está no `.gitignore` (nunca é commitada). Depois de `npm run build` no client, ela fica acessível em `/audio-review/` — é assim que o Brenno consegue ouvir os candidatos sem precisar baixar arquivo por arquivo ou abrir um túnel SSH.
+- `npm run audio:approve -- --id X --candidate N` copia a candidata escolhida pro caminho final do manifesto (só então o arquivo entra no catálogo real). `npm run audio:reject -- --id X` marca como rejeitado sem tocar em arquivo nenhum (aí basta rodar `generate -- --id X --force` depois pra gerar candidatas novas). `npm run audio:review-clean` apaga `client/public/audio-review/` inteira depois que todas as decisões de um lote foram tomadas, pra não carregar áudio descartável nos próximos builds/deploys.
+- Um item já aprovado (arquivo já existe no caminho final) é pulado automaticamente em execuções futuras de `generate`, a menos que `--force` seja passado — preserva o comportamento de cache das Fases 2/3, só que agora "existir" significa "aprovado por humano", não "gerado pela API".
+- Testado localmente nesta fase com a API da ElevenLabs mockada (sem gastar créditos): candidata gerada só na área de revisão, catálogo final intocado até `approve`; `approve` promove certo; item aprovado é pulado em execução seguinte sem nenhuma chamada de rede; `reject`/`review-clean` funcionam como esperado.
 
 ## Riscos e decisões em aberto
 

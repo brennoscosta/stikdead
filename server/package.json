@@ -9,6 +9,9 @@
     "migrate": "node scripts/migrate.js",
     "audio:validate": "node scripts/audio/generate-audio.js validate",
     "audio:generate": "node scripts/audio/generate-audio.js generate",
+    "audio:approve": "node scripts/audio/generate-audio.js approve",
+    "audio:reject": "node scripts/audio/generate-audio.js reject",
+    "audio:review-clean": "node scripts/audio/generate-audio.js review-clean",
     "audio:report": "node scripts/audio/generate-audio.js report"
   },
   "dependencies": {
