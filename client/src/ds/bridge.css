@@ -2164,9 +2164,10 @@ body .fr-layout { grid-template-columns: minmax(0, 1fr) 360px !important; max-wi
 /* ---------- 3.0-4: menu lateral sempre visível (glass) ---------- */
 @media (min-width: 1180px) {
   .perfil-menu {
-    position: fixed;                        /* nunca desaparece ao rolar */
+    position: fixed;                        /* acompanha o scroll, sempre visível */
     top: calc(84px + env(safe-area-inset-top));
-    left: 12px;
+    /* alinhado ao conteúdo (container centralizado de 1520px), não à borda da tela */
+    left: calc(max(0px, (100vw - 1520px) / 2) + 12px);
     z-index: 40;
     padding: 10px;
     background: rgba(14, 8, 11, 0.55);
