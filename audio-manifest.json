@@ -7,7 +7,7 @@
       "type": "sound-effect",
       "category": "ui",
       "prompt": "Extremely soft and short UI hover tick, delicate wood block tap with faint paper rustle, subtle oriental dark fantasy menu sound, no reverb tail, very low volume, under half a second.",
-      "durationSeconds": 0.35,
+      "durationSeconds": 0.5,
       "output": "client/public/audio/ui/buttons/ui_hover_soft_01.mp3",
       "candidates": 1
     },
@@ -16,7 +16,7 @@
       "type": "sound-effect",
       "category": "ui",
       "prompt": "Alternate soft UI hover tick, gentle bamboo click with a hint of temple bell shimmer, oriental dark fantasy menu, minimal and short, under half a second.",
-      "durationSeconds": 0.35,
+      "durationSeconds": 0.5,
       "output": "client/public/audio/ui/buttons/ui_hover_soft_02.mp3",
       "candidates": 1
     },
@@ -25,7 +25,7 @@
       "type": "sound-effect",
       "category": "ui",
       "prompt": "Confident primary UI button click, wooden hanko stamp hitting paper with a light metallic accent, oriental dark fantasy RPG menu, short and punchy, no long reverb.",
-      "durationSeconds": 0.35,
+      "durationSeconds": 0.5,
       "output": "client/public/audio/ui/buttons/ui_click_primary_01.mp3",
       "candidates": 3
     },
@@ -34,7 +34,7 @@
       "type": "sound-effect",
       "category": "ui",
       "prompt": "Secondary UI button click, softer wooden tap than the primary click, oriental dark fantasy menu, short, subtle, low volume.",
-      "durationSeconds": 0.3,
+      "durationSeconds": 0.5,
       "output": "client/public/audio/ui/buttons/ui_click_secondary_01.mp3",
       "candidates": 1
     },
@@ -52,7 +52,7 @@
       "type": "sound-effect",
       "category": "ui",
       "prompt": "UI cancel or back sound, a short low wooden thud with a soft downward tone, oriental dark fantasy menu, brief and neutral, not harsh.",
-      "durationSeconds": 0.45,
+      "durationSeconds": 0.5,
       "output": "client/public/audio/ui/buttons/ui_cancel_01.mp3",
       "candidates": 1
     },
@@ -79,7 +79,7 @@
       "type": "sound-effect",
       "category": "ui",
       "prompt": "UI panel closing sound, mirror of a paper shoji screen slide but reversed and slightly shorter, oriental dark fantasy RPG, soft thud at the end.",
-      "durationSeconds": 0.45,
+      "durationSeconds": 0.5,
       "output": "client/public/audio/ui/modal/ui_panel_close_01.mp3",
       "candidates": 1
     },
