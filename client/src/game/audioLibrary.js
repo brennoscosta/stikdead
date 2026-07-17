@@ -76,6 +76,21 @@ export const AUDIO_FILES = {
   voice_level_up_01: { url: '/audio/voice/voice_level_up_01.mp3', ch: 'voice' },
   voice_rank_up_01: { url: '/audio/voice/voice_rank_up_01.mp3', ch: 'voice' },
   voice_tournament_01: { url: '/audio/voice/voice_tournament_01.mp3', ch: 'voice' },
+  // Lote 4 — combate (canal gameplay; variações pra nunca soar metralhadora)
+  combat_punch_01: { url: '/audio/combat/combat_punch_01.mp3', ch: 'gameplay' },
+  combat_punch_02: { url: '/audio/combat/combat_punch_02.mp3', ch: 'gameplay' },
+  combat_punch_03: { url: '/audio/combat/combat_punch_03.mp3', ch: 'gameplay' },
+  combat_heavy_01: { url: '/audio/combat/combat_heavy_01.mp3', ch: 'gameplay' },
+  combat_heavy_02: { url: '/audio/combat/combat_heavy_02.mp3', ch: 'gameplay' },
+  combat_block_01: { url: '/audio/combat/combat_block_01.mp3', ch: 'gameplay' },
+  combat_block_02: { url: '/audio/combat/combat_block_02.mp3', ch: 'gameplay' },
+  combat_hurt_01: { url: '/audio/combat/combat_hurt_01.mp3', ch: 'gameplay' },
+  combat_hurt_02: { url: '/audio/combat/combat_hurt_02.mp3', ch: 'gameplay' },
+  combat_dash_01: { url: '/audio/combat/combat_dash_01.mp3', ch: 'gameplay' },
+  combat_ko_01: { url: '/audio/combat/combat_ko_01.mp3', ch: 'gameplay' },
+  combat_skill_01: { url: '/audio/combat/combat_skill_01.mp3', ch: 'gameplay' },
+  combat_skill_02: { url: '/audio/combat/combat_skill_02.mp3', ch: 'gameplay' },
+  combat_skill_heavy_01: { url: '/audio/combat/combat_skill_heavy_01.mp3', ch: 'gameplay' },
 };
 
 // trilha por rota (bíblia, seção 3). Rotas não mapeadas caem no tema Home.
@@ -338,4 +353,12 @@ export const PRELOAD_UI = [
   'ui_confirm_01', 'ui_cancel_01', 'ui_error_01',
   'ui_panel_open_01', 'ui_panel_close_01', 'ui_tab_switch_01',
   'reward_coin_01', 'reward_item_common_01',
+];
+
+// combate: aquecer junto (14 arquivos curtos, ~250KB) — a luta não espera fetch
+export const PRELOAD_COMBAT = [
+  'combat_punch_01', 'combat_punch_02', 'combat_punch_03',
+  'combat_heavy_01', 'combat_heavy_02', 'combat_block_01', 'combat_block_02',
+  'combat_hurt_01', 'combat_hurt_02', 'combat_dash_01', 'combat_ko_01',
+  'combat_skill_01', 'combat_skill_02', 'combat_skill_heavy_01',
 ];

@@ -1,21 +1,26 @@
 # STIKDEAD — Plano de implementação do sistema de áudio
 
-*Fase 4 · registra o que já está no ar, o que está pendente e as decisões de arquitetura que a Fase 5 (AudioManager global) e seguintes vão precisar tomar.*
+*Registro vivo do sistema de áudio. Todas as fases do prompt mestre estão CONCLUÍDAS e no ar — este documento vira referência de manutenção.*
 
-## Status por fase (prompt mestre)
+## Status por fase (prompt mestre) — PROJETO COMPLETO
 
 | Fase | Escopo | Status |
 |---|---|---|
-| 0 — Auditoria | `docs/audio/AUDIO_AUDIT.md` | ✅ concluída (commit `3c779a7`) |
-| 1 — Config. segura ElevenLabs | `server/src/services/elevenlabs/*`, `audio-doctor.js` | ✅ concluída e validada (commit `a8f92eb`) |
-| 2 — CLI administrativa | `server/scripts/audio/generate-audio.js`, `audio-manifest.json` | ✅ concluída e validada no VPS, zero créditos (commit `54c8ae1`) |
-| 3 — Documentação da bíblia sonora | `STIKDEAD_SOUND_BIBLE.md` + `AUDIO_ASSET_CATALOG.md` + `ELEVENLABS_PROMPTS.md` | ✅ concluída e validada no VPS, zero créditos (commit `eab8da0`) |
-| 4 — Primeiro lote de prova (geração real) | ferramenta de candidatas/audição/aprovação (zero custo) ✅ pronta e testada; geração real dos 20 áudios via API (**paga**, ~36 chamadas) | ⏳ ferramenta pronta, geração real ainda não disparada nesta sessão |
-| 5 — AudioManager global | 6 canais, preload/cache/pooling/crossfade | ⏳ pendente |
-| 6 — Configurações (canal Voice) | expandir seção Áudio já existente | ⏳ pendente |
-| 7 — Integração no Lobby | replicar qualidade de "Seu Estilo de Luta" | ⏳ pendente |
-| 8 — Música do lobby (Eleven Music) | 3 candidatas instrumentais | ⏳ pendente (confirmar acesso do plano `pro`) |
-| 9+ | ambiente, narrador, demais telas | ⏳ pendente |
+| 0 — Auditoria | `docs/audio/AUDIO_AUDIT.md` | ✅ (`3c779a7`) |
+| 1 — Config. segura ElevenLabs | `server/src/services/elevenlabs/*`, `audio-doctor.js` | ✅ (`a8f92eb`) |
+| 2 — CLI administrativa | `generate-audio.js`, `audio-manifest.json` | ✅ (`54c8ae1`) |
+| 3 — Documentação da bíblia sonora | SOUND_BIBLE + ASSET_CATALOG + PROMPTS | ✅ (`eab8da0`) |
+| 4 — Lote de prova + ferramenta de audição | 20 sons gerados/aprovados; candidatas + `/audio-review/` + approve/reject | ✅ (`e1adb6a`, `fdcc668`) |
+| 5 — AudioManager global | 6 canais (master/music/ambience/ui/gameplay/voice), `audioLibrary.js`, música por tela com crossfade, ambiente em camadas, fallback procedural | ✅ (`f5ee508`) |
+| 6 — Configurações (canal Voice) | linha Narrador (toggle + testar + volume) na tela de Configurações | ✅ (`6cc4969`) |
+| 7 — Integração fina da UI | hover global, bots, estilos, notificações, chat, matchmaking (música de fila + impacto), stingers, conquista, painel | ✅ (`b1893b0`) |
+| 8 — Música do lobby (Eleven Music) | `music_lobby_v01` (3 candidatas, plano pro confirmado) — absorvida no Lote 2 | ✅ (`d64e279`) |
+| 9 — Ambiente do lobby | 9 camadas independentes (loops + gongo/corvo raros) — absorvida no Lote 2 | ✅ (`d64e279`) |
+| 10 — Narrador | voz "Lucas — Deep & Profound Narrator" (pt-BR, grave, `GIuLCSVfgJaUuh7hYOY8`), 11 falas geradas e ligadas aos eventos | ✅ (`6cc4969`, `392b24b`) |
+| 11 — Músicas das demais telas | home/profile/inventory/shop/ranking/matchmaking + stingers de resultado — absorvida no Lote 3 | ✅ (`2132b07`) |
+| 12 (extra) — Combate por arquivo | Lote 4: 14 golpes/impactos/habilidades com variações, motor `sfx` file-first com fallback procedural golpe a golpe | ✅ (este commit) |
+
+**Catálogo final: 80 itens** (`audio-manifest.json`). Custo total do projeto: ~46 mil de 1,37 milhão de caracteres (~3,4%).
 
 ## O que já existe no jogo (não descartar)
 

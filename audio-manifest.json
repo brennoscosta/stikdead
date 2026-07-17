@@ -595,6 +595,132 @@
       "prompt": "Torneio disponível.",
       "output": "client/public/audio/voice/voice_tournament_01.mp3",
       "candidates": 1
+    },
+    {
+      "id": "combat_punch_01",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Quick martial arts punch impact, sharp knuckle crack with a short air slap, light body thud, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/combat/combat_punch_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_punch_02",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Quick martial arts punch impact variation, slightly deeper fist hit with a snappy transient and tiny air whoosh, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/combat/combat_punch_02.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_punch_03",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Quick martial arts punch impact variation, brighter crack with a compact chest thump, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/combat/combat_punch_03.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_heavy_01",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Heavy martial arts strike, anticipation whoosh then a deep powerful body impact with a sub bass punch and debris crack, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.9,
+      "output": "client/public/audio/combat/combat_heavy_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_heavy_02",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Heavy martial arts strike variation, wide swing whoosh into a crushing low impact with a short rumble tail, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.9,
+      "output": "client/public/audio/combat/combat_heavy_02.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_block_01",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Combat block sound, short metallic clang of a strike stopped by a guard, steel ping with a muffled thump, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/combat/combat_block_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_block_02",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Combat block sound variation, wooden staff parry with a metal accent and firm stop, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/combat/combat_block_02.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_hurt_01",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Fighter taking damage, short dull body hit with a small grunt of air leaving the lungs, non verbal, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/combat/combat_hurt_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_hurt_02",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Fighter taking damage variation, sharp slap impact with a quick recoil thud, non verbal, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/combat/combat_hurt_02.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_dash_01",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Fast ninja dash, a swift air whoosh with a faint cloth flutter, quick rising sweep, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/combat/combat_dash_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_ko_01",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Knockout finish, massive deep impact like an earthquake hit, body collapsing to the ground, dust settling, then a single distant dark temple bell marking the end, oriental dark fantasy stickman fighting game, huge attack, two second controlled decay, no speech, no music besides the single bell, clear at low volume.",
+      "durationSeconds": 2.2,
+      "output": "client/public/audio/combat/combat_ko_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "combat_skill_01",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Special skill activation, rising energy charge with a bright ki release burst, oriental spiritual power, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.9,
+      "output": "client/public/audio/combat/combat_skill_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_skill_02",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Special skill activation variation, whirling energy gathering into a sharp elemental snap, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 0.9,
+      "output": "client/public/audio/combat/combat_skill_02.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "combat_skill_heavy_01",
+      "type": "sound-effect",
+      "category": "combat",
+      "prompt": "Ultimate heavy skill impact, deep shockwave slam with energy distortion and a grave sub hit, oriental dark fantasy stickman fighting game, punchy and dry, strong attack, fast decay, no speech, no music, clear at low volume.",
+      "durationSeconds": 1.2,
+      "output": "client/public/audio/combat/combat_skill_heavy_01.mp3",
+      "candidates": 3
     }
   ]
 }
