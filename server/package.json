@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "migrate": "node scripts/migrate.js"
+    "migrate": "node scripts/migrate.js",
+    "audio:validate": "node scripts/audio/generate-audio.js validate",
+    "audio:generate": "node scripts/audio/generate-audio.js generate",
+    "audio:report": "node scripts/audio/generate-audio.js report"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

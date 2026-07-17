@@ -1,0 +1,186 @@
+{
+  "$comment": "STIKDEAD :: manifesto de áudio (Fase 2). Cada item vira 1 chamada à ElevenLabs quando 'npm run audio:generate' rodar — NADA é gerado ao criar/editar este arquivo. Ver server/src/services/elevenlabs/types.js (AudioManifestItem) para o formato.",
+  "version": 1,
+  "items": [
+    {
+      "id": "ui_hover_soft_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Extremely soft and short UI hover tick, delicate wood block tap with faint paper rustle, subtle oriental dark fantasy menu sound, no reverb tail, very low volume, under half a second.",
+      "durationSeconds": 0.35,
+      "output": "client/public/audio/ui/buttons/ui_hover_soft_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_hover_soft_02",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Alternate soft UI hover tick, gentle bamboo click with a hint of temple bell shimmer, oriental dark fantasy menu, minimal and short, under half a second.",
+      "durationSeconds": 0.35,
+      "output": "client/public/audio/ui/buttons/ui_hover_soft_02.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_click_primary_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Confident primary UI button click, wooden hanko stamp hitting paper with a light metallic accent, oriental dark fantasy RPG menu, short and punchy, no long reverb.",
+      "durationSeconds": 0.35,
+      "output": "client/public/audio/ui/buttons/ui_click_primary_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "ui_click_secondary_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Secondary UI button click, softer wooden tap than the primary click, oriental dark fantasy menu, short, subtle, low volume.",
+      "durationSeconds": 0.3,
+      "output": "client/public/audio/ui/buttons/ui_click_secondary_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_confirm_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "Positive UI confirmation sound, a small temple bell chime rising in pitch with light shimmer, oriental dark fantasy RPG, warm and short, under one second.",
+      "durationSeconds": 0.6,
+      "output": "client/public/audio/ui/buttons/ui_confirm_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "ui_cancel_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "UI cancel or back sound, a short low wooden thud with a soft downward tone, oriental dark fantasy menu, brief and neutral, not harsh.",
+      "durationSeconds": 0.45,
+      "output": "client/public/audio/ui/buttons/ui_cancel_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_error_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "UI error or invalid action sound, a dull cracked wood knock with a dissonant low buzz, oriental dark fantasy RPG, short, clearly negative but not jarring.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/ui/buttons/ui_error_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_panel_open_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "UI panel opening sound, sliding paper shoji screen with a soft whoosh and faint wood creak, oriental dark fantasy RPG, smooth, around half a second.",
+      "durationSeconds": 0.55,
+      "output": "client/public/audio/ui/panels/ui_panel_open_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "ui_panel_close_01",
+      "type": "sound-effect",
+      "category": "ui",
+      "prompt": "UI panel closing sound, mirror of a paper shoji screen slide but reversed and slightly shorter, oriental dark fantasy RPG, soft thud at the end.",
+      "durationSeconds": 0.45,
+      "output": "client/public/audio/ui/panels/ui_panel_close_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "style_ronin_select_01",
+      "type": "sound-effect",
+      "category": "style",
+      "prompt": "Fighting style selection sound for a Ronin swordsman, a single sharp katana unsheathing (iaido draw) with a metallic ring, oriental dark fantasy RPG, confident and sharp, around one second.",
+      "durationSeconds": 1.0,
+      "output": "client/public/audio/styles/style_ronin_select_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "style_shinobi_select_01",
+      "type": "sound-effect",
+      "category": "style",
+      "prompt": "Fighting style selection sound for a Shinobi assassin, a quick fabric whip and soft metallic kunai chime, oriental dark fantasy RPG, fast and stealthy, around one second.",
+      "durationSeconds": 1.0,
+      "output": "client/public/audio/styles/style_shinobi_select_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "style_monk_select_01",
+      "type": "sound-effect",
+      "category": "style",
+      "prompt": "Fighting style selection sound for a Monk fighter, a deep temple bell strike layered with a soft breath and wooden prayer beads clack, oriental dark fantasy RPG, calm and powerful, around one second.",
+      "durationSeconds": 1.1,
+      "output": "client/public/audio/styles/style_monk_select_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "bot_easy_select_01",
+      "type": "sound-effect",
+      "category": "bot",
+      "prompt": "Selection sound for an easy difficulty opponent, light and playful wooden xylophone-like tap, oriental dark fantasy RPG, friendly and short.",
+      "durationSeconds": 0.6,
+      "output": "client/public/audio/bots/bot_easy_select_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "bot_medium_select_01",
+      "type": "sound-effect",
+      "category": "bot",
+      "prompt": "Selection sound for a medium difficulty opponent, a firmer taiko drum hit with a short metallic edge, oriental dark fantasy RPG, moderate weight.",
+      "durationSeconds": 0.7,
+      "output": "client/public/audio/bots/bot_medium_select_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "bot_hard_select_01",
+      "type": "sound-effect",
+      "category": "bot",
+      "prompt": "Selection sound for a hard difficulty opponent, a low taiko drum hit layered with a subtle demonic growl undertone, oriental dark fantasy RPG, ominous and heavy.",
+      "durationSeconds": 0.9,
+      "output": "client/public/audio/bots/bot_hard_select_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "bot_insane_select_01",
+      "type": "sound-effect",
+      "category": "bot",
+      "prompt": "Selection sound for the insane boss-tier opponent, a deep resonant gong strike layered with a menacing low growl and distant thunder rumble, oriental dark fantasy RPG, intense and threatening, around one and a half seconds.",
+      "durationSeconds": 1.5,
+      "output": "client/public/audio/bots/bot_insane_select_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "reward_coin_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Reward pickup sound for a coin, a bright short metallic clink with a light chime, oriental dark fantasy RPG, crisp and satisfying, under one second.",
+      "durationSeconds": 0.5,
+      "output": "client/public/audio/rewards/reward_coin_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "reward_diamond_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Reward pickup sound for a diamond gem, a sharp crystalline sparkle with a higher pitched shimmer than a coin sound, oriental dark fantasy RPG, premium feel, under one second.",
+      "durationSeconds": 0.6,
+      "output": "client/public/audio/rewards/reward_diamond_01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "reward_achievement_01",
+      "type": "sound-effect",
+      "category": "reward",
+      "prompt": "Achievement unlocked fanfare, a short triumphant sequence of temple bells and a soft gong swell, oriental dark fantasy RPG, grand but brief, around one and a half seconds.",
+      "durationSeconds": 1.5,
+      "output": "client/public/audio/rewards/reward_achievement_01.mp3",
+      "candidates": 3
+    },
+    {
+      "id": "matchmaking_found_01",
+      "type": "sound-effect",
+      "category": "matchmaking",
+      "prompt": "Match found notification sound, a rising tension riser resolving into a sharp bell hit, oriental dark fantasy RPG, alerting but not jarring, around one second.",
+      "durationSeconds": 1.0,
+      "output": "client/public/audio/matchmaking/matchmaking_found_01.mp3",
+      "candidates": 3
+    }
+  ]
+}
