@@ -1804,3 +1804,7 @@ body .fr-layout { grid-template-columns: minmax(0, 1fr) 360px !important; max-wi
   color: #fff;
   transform: translateY(-1px);
 }
+
+/* o tooltip do estilo precisa escapar do chanfro do cartao do lobby */
+.player-cartao:has(.pc-estilo:hover),
+.player-cartao:has(.pc-estilo:focus-visible) { clip-path: none; }
