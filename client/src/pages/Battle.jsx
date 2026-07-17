@@ -9,6 +9,7 @@ import KeysHud from '../lib/KeysHud.jsx';
 import { getSocket } from '../lib/socket.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { playUi } from '../game/audioManager.js';
+import { playArenaAmbience, stopArenaAmbience } from '../game/audioLibrary.js';
 
 // FASE 7: assinatura sonora real de cada bot (mesma do Lobby) + fallback
 const BOT_SOM = {
@@ -177,6 +178,13 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
     pausedRef.current = v;
     setPaused(v);
   }, []);
+
+  // LOTE 5: cada arena tem o próprio som — entra com a luta, morre com ela.
+  useEffect(() => {
+    if (!result) playArenaAmbience(arena);
+    else stopArenaAmbience(); // fim da luta = fim do som da arena
+    return () => stopArenaAmbience();
+  }, [arena, result]);
 
   useEffect(() => {
     try { getSocket().emit('status:battle', { on: true }); } catch { /* sem socket, sem drama */ }

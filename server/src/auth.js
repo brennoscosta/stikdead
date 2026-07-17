@@ -185,7 +185,7 @@ router.patch('/me', requireAuth, async (req, res) => {
     const vol = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : d);
     const limpo = {
       masterEnabled: liga(a.masterEnabled, true),
-      masterVolume: vol(a.masterVolume, 0.8),
+      masterVolume: vol(a.masterVolume, 0.4), // padrão 40%: presença sem ensurdecer
       musicEnabled: liga(a.musicEnabled, true),
       musicVolume: vol(a.musicVolume, 0.65),
       sfxEnabled: liga(a.sfxEnabled, true),

@@ -721,6 +721,78 @@
       "durationSeconds": 1.2,
       "output": "client/public/audio/combat/combat_skill_heavy_01.mp3",
       "candidates": 3
+    },
+    {
+      "id": "amb_arena_dojo_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Traditional japanese dojo interior at dusk: old wood creaking softly, paper shoji walls breathing with a light draft, very distant bokken training taps, calm and disciplined, seamless looping ambience layer, no melody, no speech, no music, smooth loop with no obvious start or end, background texture for a fight arena, clear at low volume, oriental dark fantasy.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/arenas/amb_arena_dojo_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_arena_temple_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Ancient sacred temple hall: deep stone resonance, a faint low choir-like hum with no words, occasional soft incense crackle, one very distant bell, spiritual and heavy, seamless looping ambience layer, no melody, no speech, no music, smooth loop with no obvious start or end, background texture for a fight arena, clear at low volume, oriental dark fantasy.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/arenas/amb_arena_temple_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_arena_prison_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Grim underground prison: slow chain sways and clinks, water dripping on stone, a far heavy metal door groan, low ominous hum, oppressive, seamless looping ambience layer, no melody, no speech, no music, smooth loop with no obvious start or end, background texture for a fight arena, clear at low volume, oriental dark fantasy.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/arenas/amb_arena_prison_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_arena_neve_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Frozen mountain arena at night: biting cold blizzard wind, fine snow hiss, distant ice cracking softly, desolate and sharp, seamless looping ambience layer, no melody, no speech, no music, smooth loop with no obvious start or end, background texture for a fight arena, clear at low volume, oriental dark fantasy.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/arenas/amb_arena_neve_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_arena_deserto_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Scorching desert arena: dry hot wind gusts, sand hissing and shifting, a distant heat shimmer drone, vast emptiness, seamless looping ambience layer, no melody, no speech, no music, smooth loop with no obvious start or end, background texture for a fight arena, clear at low volume, oriental dark fantasy.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/arenas/amb_arena_deserto_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_arena_praia_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Moonlit beach arena at night: slow ocean waves rolling and retreating over sand, soft foam, gentle night breeze, vast and calm but tense, seamless looping ambience layer, no melody, no speech, no music, smooth loop with no obvious start or end, background texture for a fight arena, clear at low volume, oriental dark fantasy.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/arenas/amb_arena_praia_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_arena_cidade_rio_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Night riverside city arena: distant city hum across the water, gentle river flow, faint far traffic and neon electric buzz, urban night, seamless looping ambience layer, no melody, no speech, no music, smooth loop with no obvious start or end, background texture for a fight arena, clear at low volume, oriental dark fantasy.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/arenas/amb_arena_cidade_rio_v01.mp3",
+      "candidates": 1
+    },
+    {
+      "id": "amb_arena_cemiterio_v01",
+      "type": "sound-effect",
+      "category": "ambience",
+      "prompt": "Haunted graveyard at night: cold wind moving through old tombstones, dead leaves rustling, a distant lone crow, faint ghostly airy tone, eerie, seamless looping ambience layer, no melody, no speech, no music, smooth loop with no obvious start or end, background texture for a fight arena, clear at low volume, oriental dark fantasy.",
+      "durationSeconds": 22,
+      "output": "client/public/audio/ambience/arenas/amb_arena_cemiterio_v01.mp3",
+      "candidates": 1
     }
   ]
 }

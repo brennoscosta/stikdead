@@ -577,6 +577,9 @@ body {
 
 /* ===== perfil 2.0 (dashboard) ===== */
 .dash { min-height: 100vh; width: 100%; padding-top: calc(66px + env(safe-area-inset-top)); box-sizing: border-box; }
+/* iOS standalone (PWA na tela inicial): 100vh vaza sob as barras nos iPhones
+   mais novos (17 Pro Max) — dvh mede a viewport dinâmica real */
+@supports (min-height: 100dvh) { .dash { min-height: 100dvh; } }
 .dash-hero {
   position: relative;
   background: url('/banner.webp') center 30% / cover no-repeat;
@@ -693,6 +696,7 @@ body {
 
 /* ===== lobby 2.0 (dashboard) ===== */
 .lobby2 { min-height: 100vh; width: 100%; padding-bottom: 30px; padding-top: calc(66px + env(safe-area-inset-top)); }
+@supports (min-height: 100dvh) { .lobby2 { min-height: 100dvh; } }
 .lobby-grid {
   display: grid; grid-template-columns: 290px 1fr 290px; gap: 14px;
   max-width: 1180px; margin: 16px auto 0; padding: 0 18px;

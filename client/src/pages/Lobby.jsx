@@ -12,6 +12,8 @@ import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { playUi, playVoice } from '../game/audioManager.js';
 import { startMusic } from '../game/music.js';
+import { startAmbience, stopAmbience } from '../game/ambience.js';
+import { playArenaAmbience, stopArenaAmbience } from '../game/audioLibrary.js';
 import { STYLES } from '../game/sim.js';
 
 // FASE 7: assinatura sonora real de cada bot (bíblia, seção 7) + fallback
@@ -381,7 +383,7 @@ export default function Lobby({ profile, onProfile }) {
             className={`lobby-cta ${inQueue ? 'is-busca' : ''}`}
             disabled={!!duo}
             title={duo ? 'Você está em dupla — desfaça-a para lutar sozinho' : undefined}
-            onClick={() => { if (duo) return; if (!inQueue) goFullscreen(); socket.emit(inQueue ? 'queue:leave' : 'queue:join'); }}
+            onClick={() => { if (duo) return; playUi(inQueue ? 'ui_cancel_01' : 'ui_confirm_01'); if (!inQueue) goFullscreen(); socket.emit(inQueue ? 'queue:leave' : 'queue:join'); }}
           >
             <span className="cta-linha">
               <Icon name={inQueue ? 'buscar' : 'espada'} size="sm" weight="forte" />
@@ -613,6 +615,15 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     document.body.classList.add('in-fight');
     return () => document.body.classList.remove('in-fight');
   }, []);
+
+  // LOTE 5: som próprio da arena na luta PvP — o ambiente do lobby dá lugar
+  // ao da arena e volta quando a luta termina ("cada arena tem um som").
+  useEffect(() => {
+    stopAmbience();
+    if (!result) playArenaAmbience(session.arena || 'dojo');
+    else stopArenaAmbience(); // resultado na tela = fim do som da arena
+    return () => { stopArenaAmbience(); startAmbience(); };
+  }, [session.arena, result]);
   const quatro = session.players.length === 4;
   const teams = session.teams || (quatro ? [0, 0, 1, 1] : [0, 1]);
   const opp = quatro ? (me + 2) % 4 : 1 - me;       // rival espelho

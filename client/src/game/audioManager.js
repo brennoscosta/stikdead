@@ -9,7 +9,9 @@ import { api, getToken } from '../lib/api.js';
 const LS_KEY = 'stikdead:audio';
 const DEFAULTS = {
   masterEnabled: true,
-  masterVolume: 0.8,
+  // 40% por padrão: o som marca presença sem ensurdecer — clima samurai
+  // tenso porém leve (usuários com preferência salva mantêm o valor deles).
+  masterVolume: 0.4,
   musicEnabled: true,
   musicVolume: 0.65,
   sfxEnabled: true,

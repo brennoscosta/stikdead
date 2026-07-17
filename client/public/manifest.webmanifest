@@ -3,7 +3,7 @@
   "short_name": "STIKDEAD",
   "description": "Lute. Morra. Evolua.",
   "start_url": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "landscape",
   "background_color": "#0b0709",
   "theme_color": "#d90429",

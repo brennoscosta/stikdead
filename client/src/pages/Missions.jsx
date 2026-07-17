@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import Icon from '../ds/Icon.jsx';
+import { playUi } from '../game/audioLibrary.js';
 
 // ícone e cor de cada objetivo pelo texto — só apresentação
 const iconeDaMissao = (label) => {
@@ -47,7 +48,8 @@ export default function Missions({ profile, onProfile }) {
       setMissions(d.missions);
       onProfile?.((p) => ({ ...p, coins: d.coins }));
       setNotice({ ok: true, text: `+${m.coins} moedas!` });
-    } catch (err) { setNotice({ ok: false, text: err.message }); }
+      playUi('reward_coin_01'); // LOTE 5: moedas caindo na bolsa
+    } catch (err) { setNotice({ ok: false, text: err.message }); playUi('ui_error_01'); }
   };
 
   const openChest = async () => {
@@ -57,7 +59,8 @@ export default function Missions({ profile, onProfile }) {
       setChestClaimed(true);
       if (d.item) setNotice({ ok: true, text: `Baú aberto: ${d.item.name}!` });
       else { setNotice({ ok: true, text: 'Baú aberto: +300 moedas!' }); onProfile?.((p) => ({ ...p, coins: d.coins })); }
-    } catch (err) { setNotice({ ok: false, text: err.message }); }
+      playUi(d.item ? 'reward_item_rare_01' : 'reward_coin_03'); // LOTE 5: baú do dia
+    } catch (err) { setNotice({ ok: false, text: err.message }); playUi('ui_error_01'); }
   };
 
   const claimMeta = async (m) => {
@@ -67,7 +70,8 @@ export default function Missions({ profile, onProfile }) {
       setMetas(d.metas);
       onProfile?.((p) => ({ ...p, coins: d.coins }));
       setNotice({ ok: true, text: `+${m.coins} moedas!` });
-    } catch (err) { setNotice({ ok: false, text: err.message }); }
+      playUi('reward_xp_01'); // LOTE 5: meta semanal cumprida
+    } catch (err) { setNotice({ ok: false, text: err.message }); playUi('ui_error_01'); }
   };
 
   const claimBonus = async () => {
@@ -77,7 +81,8 @@ export default function Missions({ profile, onProfile }) {
       setBonusClaimed(true);
       onProfile?.((p) => ({ ...p, diamonds: d.diamonds }));
       setNotice({ ok: true, text: `Bônus de metas: +${bonusDiamonds} diamantes!` });
-    } catch (err) { setNotice({ ok: false, text: err.message }); }
+      playUi('reward_diamond_01'); // LOTE 5: diamantes têm brilho sonoro próprio
+    } catch (err) { setNotice({ ok: false, text: err.message }); playUi('ui_error_01'); }
   };
 
   const isMetas = tab === 'metas';
@@ -96,11 +101,11 @@ export default function Missions({ profile, onProfile }) {
       <div className="mis-layout">
         <aside className="loja-menu mis-menu">
           <h1 className="loja-titulo"><Icon name="missoes" size={19} weight="forte" /> MISSÕES</h1>
-          <button className={isMetas ? '' : 'on'} onClick={() => setTab('diarias')}>
+          <button className={isMetas ? '' : 'on'} onClick={() => { playUi('ui_tab_switch_01'); setTab('diarias'); }}>
             <Icon name="missoes" size={14} weight="forte" /> DIÁRIAS
             {misPend > 0 && <b className="mm-badge">{misPend}</b>}
           </button>
-          <button className={isMetas ? 'on' : ''} onClick={() => setTab('metas')}>
+          <button className={isMetas ? 'on' : ''} onClick={() => { playUi('ui_tab_switch_01'); setTab('metas'); }}>
             <Icon name="favorito" size={14} weight="forte" /> METAS
             {metasPend > 0 && <b className="mm-badge">{metasPend}</b>}
           </button>

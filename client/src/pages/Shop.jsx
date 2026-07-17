@@ -4,6 +4,16 @@ import { api } from '../lib/api.js';
 import Navbar from '../lib/Navbar.jsx';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import Icon from '../ds/Icon.jsx';
+import { playUi } from '../game/audioLibrary.js';
+
+// LOTE 5: cada raridade celebra a compra com o próprio timbre
+const SOM_COMPRA = {
+  comum: 'reward_item_common_01',
+  raro: 'reward_item_rare_01',
+  epico: 'reward_item_epic_01',
+  lendario: 'reward_item_legendary_01',
+  diamante: 'reward_diamond_01',
+};
 
 const ICONE_SLOT = {
   weapon: 'espada', head: 'mascara', face: 'perfil', body: 'armadura', back: 'esquiva',
@@ -41,6 +51,7 @@ export default function Shop({ profile, onProfile }) {
   const [buying, setBuying] = useState(false);
   const buyPack = async (id) => {
     if (buying) return;
+    playUi('ui_confirm_01'); // LOTE 5: abrir checkout de diamantes
     setBuying(true);
     try {
       const d = await api('/api/diamonds/checkout', { method: 'POST', body: { pack: id } });
@@ -86,8 +97,10 @@ export default function Shop({ profile, onProfile }) {
       }
       setItems((list) => list.map((i) => (i.id === item.id ? { ...i, owned: true } : i)));
       setNotice({ ok: true, text: `${item.name} comprado! Foi para o seu baú.` });
+      playUi(SOM_COMPRA[item.rarity] || 'reward_item_common_01'); // LOTE 5
     } catch (err) {
       setNotice({ ok: false, text: err.message });
+      playUi('ui_error_01'); // LOTE 5: erro tem voz própria
     } finally {
       setBusy('');
     }
@@ -111,11 +124,11 @@ export default function Shop({ profile, onProfile }) {
         {/* ===== categorias (mockup: sidebar esquerda) ===== */}
         <aside className="loja-menu">
           <h1 className="loja-titulo"><Icon name="loja" size={19} weight="forte" /> LOJA</h1>
-          <button className={filter === 'all' ? 'on' : ''} onClick={() => setFilter('all')}>
+          <button className={filter === 'all' ? 'on' : ''} onClick={() => { playUi('ui_tab_switch_01'); setFilter('all'); }}>
             <Icon name="favorito" size={14} weight="forte" /> DESTAQUES
           </button>
           {Object.entries(SLOT_LABEL).map(([k, v]) => (
-            <button key={k} className={filter === k ? 'on' : ''} onClick={() => setFilter(k)}>
+            <button key={k} className={filter === k ? 'on' : ''} onClick={() => { playUi('ui_tab_switch_01'); setFilter(k); }}>
               <Icon name={ICONE_SLOT[k] || 'inventario'} size={14} weight="forte" /> {v.replace(' ⚡', '').toUpperCase()}
             </button>
           ))}

@@ -5,6 +5,10 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Icon from '../ds/Icon.jsx';
 import SettingsModal from './SettingsModal.jsx';
+import { playUi } from '../game/audioLibrary.js';
+
+// LOTE 5: toque de navegação — todo salto de seção soa igual (aço leve do templo)
+const somNav = () => playUi('ui_nav_header_01');
 
 const LINKS = [
   { to: '/perfil', label: 'Início', icon: 'perfil', end: true },
@@ -20,12 +24,12 @@ export function Bottombar() {
   return (
     <nav className="bottombar" aria-label="Navegação">
       {LINKS.map((l) => (
-        <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => (isActive ? 'on' : '')}>
+        <NavLink key={l.to} to={l.to} end={l.end} onClick={somNav} className={({ isActive }) => (isActive ? 'on' : '')}>
           <span className="bb-ico"><Icon name={l.icon} size="sm" weight="forte" /></span>
           <span className="bb-label">{l.label}</span>
         </NavLink>
       ))}
-      <button className="bb-item" onClick={() => nav('/social')}>
+      <button className="bb-item" onClick={() => { somNav(); nav('/social'); }}>
         <span className="bb-ico"><Icon name="amigos" size="sm" weight="forte" /></span>
         <span className="bb-label">Social</span>
       </button>
@@ -39,17 +43,17 @@ export default function Navbar({ profile }) {
   return (
     <>
     <header className="topnav">
-      <button className="topnav-logo" onClick={() => nav('/perfil')}>
+      <button className="topnav-logo" onClick={() => { somNav(); nav('/perfil'); }}>
         <img src="/logo.webp" alt="STIKDEAD" />
       </button>
       <nav className="topnav-links">
         {LINKS.map((l) => (
-          <NavLink key={l.to} to={l.to} end={l.end} className={({ isActive }) => (isActive ? 'on' : '')}>
+          <NavLink key={l.to} to={l.to} end={l.end} onClick={somNav} className={({ isActive }) => (isActive ? 'on' : '')}>
             <span className="topnav-ico"><Icon name={l.icon} size="xs" weight="forte" /></span>
             <span className="topnav-label">{l.label}</span>
           </NavLink>
         ))}
-        <button className="topnav-link" onClick={() => nav('/social')}>
+        <button className="topnav-link" onClick={() => { somNav(); nav('/social'); }}>
           <Icon name="amigos" size="xs" weight="forte" /> Social
         </button>
       </nav>
@@ -58,7 +62,7 @@ export default function Navbar({ profile }) {
           <span className="topnav-coins"><Icon name="moeda" size="xs" weight="forte" /> {Number(profile.coins).toLocaleString('pt-BR')}</span>
           <span className="topnav-diamonds"><Icon name="diamante" size="xs" weight="forte" /> {Number(profile.diamonds || 0).toLocaleString('pt-BR')}</span>
         </span>
-        <button className="topnav-chip" onClick={() => nav('/atividades')} title="Suas atividades">
+        <button className="topnav-chip" onClick={() => { somNav(); nav('/atividades'); }} title="Suas atividades">
           <span className="topnav-chip-name">{profile.fighter_name}</span>
           <span className="topnav-chip-lv">Nv {profile.level}</span>
         </button>

@@ -91,6 +91,27 @@ export const AUDIO_FILES = {
   combat_skill_01: { url: '/audio/combat/combat_skill_01.mp3', ch: 'gameplay' },
   combat_skill_02: { url: '/audio/combat/combat_skill_02.mp3', ch: 'gameplay' },
   combat_skill_heavy_01: { url: '/audio/combat/combat_skill_heavy_01.mp3', ch: 'gameplay' },
+  // Lote 5 — ambiente próprio de cada arena (toca SÓ durante a luta)
+  amb_arena_dojo_v01: { url: '/audio/ambience/arenas/amb_arena_dojo_v01.mp3', ch: 'ambience' },
+  amb_arena_temple_v01: { url: '/audio/ambience/arenas/amb_arena_temple_v01.mp3', ch: 'ambience' },
+  amb_arena_prison_v01: { url: '/audio/ambience/arenas/amb_arena_prison_v01.mp3', ch: 'ambience' },
+  amb_arena_neve_v01: { url: '/audio/ambience/arenas/amb_arena_neve_v01.mp3', ch: 'ambience' },
+  amb_arena_deserto_v01: { url: '/audio/ambience/arenas/amb_arena_deserto_v01.mp3', ch: 'ambience' },
+  amb_arena_praia_v01: { url: '/audio/ambience/arenas/amb_arena_praia_v01.mp3', ch: 'ambience' },
+  amb_arena_cidade_rio_v01: { url: '/audio/ambience/arenas/amb_arena_cidade_rio_v01.mp3', ch: 'ambience' },
+  amb_arena_cemiterio_v01: { url: '/audio/ambience/arenas/amb_arena_cemiterio_v01.mp3', ch: 'ambience' },
+};
+
+// arena do jogo → id do loop de ambiente correspondente
+export const ARENA_AMBIENCE = {
+  dojo: 'amb_arena_dojo_v01',
+  temple: 'amb_arena_temple_v01',
+  prison: 'amb_arena_prison_v01',
+  neve: 'amb_arena_neve_v01',
+  deserto: 'amb_arena_deserto_v01',
+  praia: 'amb_arena_praia_v01',
+  cidade_rio: 'amb_arena_cidade_rio_v01',
+  cemiterio: 'amb_arena_cemiterio_v01',
 };
 
 // trilha por rota (bíblia, seção 3). Rotas não mapeadas caem no tema Home.
@@ -345,6 +366,30 @@ export function stopAmbience({ fadeSeg = 0.8 } = {}) {
   clearTimeout(ambTimer); ambTimer = null;
   for (const f of ambCamadas) matarFaixa(f, fadeSeg);
   ambCamadas = [];
+}
+
+// ===== ambiente de ARENA (Lote 5) — um loop por luta, independente do lobby =====
+// "Cada arena tem um som; quando termina a luta, termina o som."
+let arenaFaixa = null;
+
+export function playArenaAmbience(arenaKey, { fadeSeg = 1.2, volume = 0.45 } = {}) {
+  const id = ARENA_AMBIENCE[arenaKey] || ARENA_AMBIENCE.dojo;
+  const ctx = ensureCtx();
+  if (!ctx || !AUDIO_FILES[id]) return false;
+  if (arenaFaixa?.id === id) return true; // mesma arena: não reinicia
+  stopArenaAmbience({ fadeSeg: 0.4 });
+  const f = criarFaixa(id, 'ambience', { loop: true });
+  if (!f) return false;
+  f.el.addEventListener('error', () => { if (arenaFaixa === f) arenaFaixa = null; matarFaixa(f, 0.1); }, { once: true });
+  arenaFaixa = f;
+  f.el.play().then(() => fade(f.gain, volume, fadeSeg)).catch(() => {});
+  return true;
+}
+
+export function stopArenaAmbience({ fadeSeg = 1.0 } = {}) {
+  if (!arenaFaixa) return;
+  matarFaixa(arenaFaixa, fadeSeg);
+  arenaFaixa = null;
 }
 
 // sons de interface mais comuns: aquecer assim que o áudio destravar
