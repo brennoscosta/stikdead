@@ -13,6 +13,7 @@ import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.
 import { STYLES } from '../game/sim.js';
 import { avatarSrc } from '../ds/avatars.js';
 import StyleBadge from '../lib/StyleBadge.jsx';
+import DiffIcon, { DIFF_META, DIFF_KEYS } from '../lib/DiffIcon.jsx';
 import { SkillButton } from './Battle.jsx';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
@@ -205,7 +206,7 @@ export default function Lobby({ profile, onProfile }) {
         <aside className="lobby-col">
           <section className="dash-card player-cartao">
             <span className="avatar-vivo">
-              <img className="pc-avatar" src={avatarSrc(profile.avatar)} alt="" />
+              <img key={profile.avatar} className="pc-avatar" src={avatarSrc(profile.avatar)} alt="" />
             </span>
             <div className="pc-meio">
               <b className="pc-nome">{profile.fighter_name}</b>
@@ -413,24 +414,28 @@ export default function Lobby({ profile, onProfile }) {
               <img className="bot-arte" src="/arte/bot.png" alt="" />
               <p className="dash-empty">Treine suas habilidades contra a IA.</p>
             </div>
-            <div className="lobby-bot-row">
-              {[['facil', 'FÁCIL'], ['medio', 'MÉDIO'], ['dificil', 'DIFÍCIL'], ['insano', 'INSANO']].map(([d, l]) => (
+            <div className="lobby-bot-row diff-grid">
+              {DIFF_KEYS.map((d) => (
                 <button
                   key={d}
-                  className={`${d === 'insano' ? 'hot' : ''} ${botDiff === d ? 'sel' : ''}`}
+                  style={{ '--diff-cor': DIFF_META[d].cor }}
+                  className={`diff-btn ${d === 'insano' ? 'insano' : ''} ${botDiff === d ? 'sel' : ''}`}
                   aria-pressed={botDiff === d}
                   onClick={() => { setBotDiff(d); sfx.click(); }}
-                >{l}</button>
+                >
+                  <DiffIcon d={d} size={14} /> {DIFF_META[d].label}
+                </button>
               ))}
             </div>
             {botDiff && (
               <button
                 key={botDiff}
                 className="bot-iniciar"
-                onClick={() => { sfx.dash(); goFullscreen(); nav(`/treino?d=${botDiff}`); }}
+                style={{ '--diff-cor': DIFF_META[botDiff].cor }}
+                onClick={() => { sfx.dash(); goFullscreen(); nav(`/treino?d=${botDiff}&go=1`); }}
               >
                 <Icon name="espada" size="sm" weight="forte" /> INICIAR PARTIDA
-                <small>{{ facil: 'FÁCIL', medio: 'MÉDIO', dificil: 'DIFÍCIL', insano: 'INSANO' }[botDiff]}</small>
+                <small>{DIFF_META[botDiff].label}</small>
               </button>
             )}
           </section>

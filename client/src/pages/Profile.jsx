@@ -17,6 +17,7 @@ import RankBadge from '../lib/RankBadge.jsx';
 import AvatarPicker from '../lib/AvatarPicker.jsx';
 import { avatarSrc } from '../ds/avatars.js';
 import HeroFx from '../lib/HeroFx.jsx';
+import StyleBadge from '../lib/StyleBadge.jsx';
 import { sfx, unlockAudio } from '../game/audio.js';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
@@ -45,6 +46,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
   const [avSaving, setAvSaving] = useState(false);
   const [name, setName] = useState(profile.fighter_name);
   const [err, setErr] = useState('');
+  const [equipando, setEquipando] = useState(null); // UPDATE 2.9: anima ANTES de mover pra 1ª posição
   const [loadout, setLoadout] = useState([]);
   const [history, setHistory] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -119,7 +121,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
       <section className="dash-hero">
         <HeroFx />
         <button className="dash-avatar-btn avatar-vivo" onClick={() => { unlockAudio(); sfx.click(); setShowAv(true); }} title="Trocar avatar" aria-label="Trocar avatar">
-          <img className="dash-avatar" src={avatarSrc(profile.avatar)} alt="" />
+          <img key={profile.avatar} className="dash-avatar" src={avatarSrc(profile.avatar)} alt="" />
           <span className="dash-avatar-edit"><Icon name="editar" size={13} /></span>
         </button>
         <div className="dash-hero-info">
@@ -142,7 +144,23 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             <span className="tier-badge" style={{ borderColor: formaMetal(profile).cor, color: formaMetal(profile).cor }}>
               {formaMetal(profile).nome}
             </span>
-            <span className="dash-sub-pts"><Icon name="trofeu" size={14} weight="forte" /> {fmt(profile.rank_points)}</span>
+            {/* UPDATE 2.9 — progressão de rank visível: Prata III · 339/400 ▓▓░ */}
+            {(() => {
+              const pts = Number(profile.rank_points || 0);
+              const prox = (Math.floor(pts / 100) + 1) * 100;
+              return (
+                <span className="rank-prog" title={`${tierName(profile.tier)} — faltam ${prox - pts} pts para subir`}>
+                  <b style={{ color: tierColor(profile.tier) }}>{tierName(profile.tier)}</b>
+                  <em>{fmt(pts)} / {fmt(prox)}</em>
+                  <i className="rank-prog-bar"><span style={{ width: `${pts % 100}%` }} /></i>
+                </span>
+              );
+            })()}
+          </div>
+          {/* UPDATE 2.9 — estilo equipado direto no header (badge + ícone + tooltip) */}
+          <div className="dash-estilo-linha">
+            <small className="dash-estilo-rotulo">ESTILO</small>
+            <StyleBadge styleKey={profile.style || 'ronin'} />
           </div>
           <div className="dash-xp">
             <div className="mission-bar"><div className="mission-fill" style={{ width: `${pct}%` }} /></div>
@@ -152,8 +170,15 @@ export default function Profile({ profile, onUpdate, onLogout }) {
           {profile.email === 'souzacostabrenno@gmail.com' && (
             <button className="btn btn-ghost" style={{ width: 'auto' }} onClick={() => nav('/admin')}><Icon name="config" size={14} /> Admin</button>
           )}
-            <button className="btn btn-blood" onClick={() => nav('/lobby')}><Icon name="espada" size={14} weight="forte" /> Jogar online</button>
-            <button className="btn btn-ghost" onClick={() => nav('/treino')}><Icon name="soco" size={14} /> Treino vs bot</button>
+            {/* UPDATE 2.9 — CTAs premium com subtítulo, reflexo metálico e elevação */}
+            <button className="cta-hero cta-online" onClick={() => nav('/lobby')}>
+              <Icon name="espada" size={22} weight="forte" />
+              <span className="cta-hero-txt"><b>JOGAR ONLINE</b><small>PvP em tempo real</small></span>
+            </button>
+            <button className="cta-hero cta-treino" onClick={() => nav('/treino')}>
+              <Icon name="robo" size={22} weight="forte" />
+              <span className="cta-hero-txt"><b>TREINO VS BOT</b><small>Pratique habilidades</small></span>
+            </button>
           </div>
         </div>
       </section>
@@ -260,18 +285,26 @@ export default function Profile({ profile, onUpdate, onLogout }) {
               return (
                 <button
                   key={k}
-                  className={`estilo-card ${on ? 'on' : ''} ${owned ? '' : 'locked'}`}
+                  className={`estilo-card ${on ? 'on' : ''} ${owned ? '' : 'locked'} ${equipando === k ? 'equipando' : ''}`}
                   aria-label={`Estilo ${st.label}${on ? ' — equipado' : ''}${owned ? '' : ' — bloqueado'}`}
                   onClick={async () => {
                     unlockAudio();
                     if (!owned) { nav('/loja?slot=style'); return; }
-                    if (on) return;
+                    if (on || equipando) return;
+                    // UPDATE 2.9: primeiro a animação de equipar NO card clicado…
+                    setEquipando(k);
+                    sfx.click();
                     try {
-                      const d = await api('/api/auth/me', { method: 'PATCH', body: { style: k } });
+                      const [d] = await Promise.all([
+                        api('/api/auth/me', { method: 'PATCH', body: { style: k } }),
+                        new Promise((r) => setTimeout(r, 480)), // deixa a animação respirar
+                      ]);
+                      // …e SÓ ENTÃO ele sobe para a 1ª posição
                       onUpdate(d.profile);
-                      sfx.drop(); // feedback sonoro de equipar
-                      estRef.current?.scrollTo({ left: 0, behavior: 'smooth' }); // card sobe pra 1ª posição
+                      sfx.drop();
+                      estRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
                     } catch { /* mantém o atual */ }
+                    setEquipando(null);
                   }}
                 >
                   <img className="estilo-art" src={`/arte/estilo-${art}.webp`} alt={st.label} loading="lazy" />

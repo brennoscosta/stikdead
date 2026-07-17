@@ -13,10 +13,44 @@ import Navbar from '../lib/Navbar.jsx';
 import { rankArte, rankNome } from '../ds/rank.js';
 import { avatarSrc } from '../ds/avatars.js';
 import Icon from '../ds/Icon.jsx';
+import DiffIcon, { DIFF_META } from '../lib/DiffIcon.jsx';
 import { api } from '../lib/api.js';
 import '../battle.css';
 
 const DIFF_LABEL = { facil: 'Fácil', medio: 'Médio', dificil: 'Difícil', insano: 'Insano' };
+
+// UPDATE 2.9 — cada bot tem identidade visual própria: o jogador reconhece a
+// dificuldade só de olhar. Tudo com os templates paramétricos já existentes.
+export const BOT_LOADOUTS = {
+  facil: [
+    // boneco simples, olhos azuis de iniciante
+    { slot: 'face', id: 'bot_eyes_azul', template: 'eyes_glow', params: { color: '#57a8ff' } },
+  ],
+  medio: [
+    // bandana + katana comum, olhos amarelos
+    { slot: 'head', id: 'bot_bandana', template: 'bandana', params: { color: '#4a4f57' } },
+    { slot: 'weapon', id: 'bot_katana', template: 'katana', params: {} },
+    { slot: 'face', id: 'bot_eyes_amarelo', template: 'eyes_glow', params: { color: '#ffd76a' } },
+  ],
+  dificil: [
+    // máscara oni + katana flamejante + aura vermelha
+    { slot: 'face', id: 'bot_mask_oni', template: 'mask_oni', params: { color: '#b0031f' } },
+    { slot: 'weapon', id: 'katana_infernal', rarity: 'lendario', template: 'katana', params: { blade: '#2b2b31', glow: '#ff5a3c' } },
+    { slot: 'back', id: 'bot_aura_rubra', template: 'aura', params: { color: '#d90429' } },
+  ],
+  insano: [
+    // visual de BOSS: máscara negra, olhos vermelhos, armadura lendária,
+    // aura demoníaca, capa + faixas balançando, katana do vazio e fumaça
+    { slot: 'face', id: 'bot_mask_oni_negra', template: 'mask_oni', params: { color: '#20060c' } },
+    { slot: 'face2', id: 'bot_eyes_sangue', template: 'eyes_red', params: {} },
+    { slot: 'torso', id: 'bot_armadura', rarity: 'lendario', template: 'crystal_armor', params: { color: '#d40028', glow: '#ff2244' } },
+    { slot: 'back', id: 'bot_aura_demonio', template: 'aura', params: { color: '#d40028' } },
+    { slot: 'cape', id: 'bot_capa', template: 'cape', params: { color: '#160309' } },
+    { slot: 'body', id: 'bot_faixas', template: 'scarf', params: { color: '#5a0512' } },
+    { slot: 'weapon', id: 'katana_void', rarity: 'lendario', template: 'katana', params: { blade: '#1a1420', glow: '#a92aff' } },
+    { slot: 'fx', id: 'bot_fumaca', template: 'dust', params: { color: '#3a2430' } },
+  ],
+};
 
 export default function Battle({ profile, onProfile }) {
   const [params] = useSearchParams();
@@ -85,17 +119,20 @@ function DifficultySelect({ selected, onSelect, onStart, arena, setArena, profil
             </button>
           ))}
         </div>
-        {/* UPDATE 2.8: a dificuldade apenas SELECIONA — a partida começa no botão abaixo */}
-        {Object.keys(DIFFICULTIES).map((d) => (
-          <button
-            key={d}
-            className={`btn ${d === 'insano' ? 'btn-blood' : 'btn-ghost'} ${selected === d ? 'diff-sel' : ''}`}
-            aria-pressed={selected === d}
-            onClick={() => onSelect(d)}
-          >
-            {DIFF_LABEL[d]} {selected === d ? '✓' : ''}
-          </button>
-        ))}
+        {/* UPDATE 2.9: cada dificuldade tem identidade própria (cor + ícone) */}
+        <div className="diff-grid">
+          {Object.keys(DIFFICULTIES).map((d) => (
+            <button
+              key={d}
+              style={{ '--diff-cor': DIFF_META[d].cor }}
+              className={`diff-btn ${d === 'insano' ? 'insano' : ''} ${selected === d ? 'sel' : ''}`}
+              aria-pressed={selected === d}
+              onClick={() => onSelect(d)}
+            >
+              <DiffIcon d={d} size={16} /> {DIFF_META[d].label}
+            </button>
+          ))}
+        </div>
         {selected && (
           <button key={`go-${selected}`} className="bot-iniciar" style={{ marginTop: 14 }} onClick={onStart}>
             <Icon name="espada" size="sm" weight="forte" /> INICIAR PARTIDA
@@ -186,7 +223,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
         return;
       }
       if (!alive) return renderer.destroy();
-      renderer.setLoadouts(myLoadout, [{ slot: 'body', template: 'scarf', params: { color: '#777777' } }]);
+      renderer.setLoadouts(myLoadout, BOT_LOADOUTS[difficulty] || BOT_LOADOUTS.facil);
       renderer.setNames(profile.fighter_name, `BOT · ${DIFF_LABEL[difficulty]}`);
       renderer.setMySide(0);
       clearTimeout(watchdog);

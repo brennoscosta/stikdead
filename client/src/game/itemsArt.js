@@ -11,7 +11,7 @@ const LAYER = {
   band: 'front', hat: 'front', hood: 'front', crown: 'front', ice_crown: 'front',
   prisma_armor: 'torso', prisma_pants: 'torso', prisma_blades: 'front', crystal_armor: 'torso',
   crystal_katana: 'front', crystal_scythe: 'front', crystal_spear: 'front', crystal_axe: 'front', crystal_bow: 'front',
-  bandana: 'front', mask_skull: 'front', mask_oni: 'front', mask_hockey: 'front', eyes_red: 'front',
+  bandana: 'front', mask_skull: 'front', mask_oni: 'front', mask_hockey: 'front', eyes_red: 'front', eyes_glow: 'front',
   katana: 'front', bo: 'front', nunchaku: 'front', axe: 'front', spear: 'front',
   scythe: 'front', dual: 'front', bow: 'front',
   dust: 'front',
@@ -881,6 +881,19 @@ const TEMPLATES = {
     const angry = (cx, w) => {
       g.moveTo(cx - w, ey + 2).lineTo(cx + w * 0.5, ey - 3.4).lineTo(cx + w, ey + 2.4).closePath().fill(0xff2244);
       g.circle(cx, ey, w * 1.4).fill({ color: 0xd90429, alpha: 0.12 });
+    };
+    angry(hx + face * 6, 6);
+    angry(hx - face * 3, 5);
+  },
+  // UPDATE 2.9 — olhos brilhantes em qualquer cor (identidade dos bots)
+  eyes_glow({ g, T, sk, face, ko }, p) {
+    if (ko) return;
+    const col = C(p.color ?? '#3e8cff');
+    const [hx, hy] = T(sk.head);
+    const ey = hy + 2;
+    const angry = (cx, w) => {
+      g.moveTo(cx - w, ey + 2).lineTo(cx + w * 0.5, ey - 3.4).lineTo(cx + w, ey + 2.4).closePath().fill(col);
+      g.circle(cx, ey, w * 1.4).fill({ color: col, alpha: 0.14 });
     };
     angry(hx + face * 6, 6);
     angry(hx - face * 3, 5);
