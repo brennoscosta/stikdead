@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from './api.js';
 import ItemIcon from './ItemIcon.jsx';
+import { avatarSrc } from '../ds/avatars.js';
 import { SLOT_LABEL, RARITY_LABEL } from '../pages/Shop.jsx';
 
 export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGift }) {
@@ -150,6 +151,7 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
             )}
             {!picking && (<>
             <div className="pc-head">
+              <img className="pc-head-avatar" src={avatarSrc(p.avatar)} alt="" />
               <div>
                 <h2 className="pc-name">
                   {p.name} {p.online && !p.away && <span className="pc-online" title="Online agora">●</span>}{p.online && p.away && <span className="pc-away" title="Ausente — aba em segundo plano">💤</span>}

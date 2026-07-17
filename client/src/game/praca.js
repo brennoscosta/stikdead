@@ -163,6 +163,73 @@ export async function createPlaza(host, opts = {}) {
     actors.delete(a.id);
   };
 
+  // ===== UPDATE 2.8: Idle Random State Machine do protagonista =====
+  // enquanto aguarda partida o boneco vive: respira (pose idle), olha para os
+  // lados, dá pequenos passos, gira a katana (flourish), ajeita a postura…
+  // A cada 5~10s executa uma ação aleatória — nunca a mesma duas vezes seguidas.
+  const IDLE_ACTS = [
+    { id: 'espiar',   state: 'idle',    dur: [1.6, 2.6] }, // vira o rosto para um lado
+    { id: 'lua',      state: 'idle',    dur: [1.8, 3.0] }, // olha para cima (a lua)
+    { id: 'passos',   state: 'walk',    dur: [0.9, 1.5] }, // pequenos passos laterais
+    { id: 'flourish', state: 'victory', dur: [1.2, 1.7] }, // ergue/gira a katana
+    { id: 'postura',  state: 'crouch',  dur: [0.8, 1.2] }, // agacha e ajeita a postura
+    { id: 'guarda',   state: 'block',   dur: [0.7, 1.0] }, // reajusta a guarda
+    { id: 'ombro',    state: 'idle',    dur: [1.2, 1.8] }, // solta o braço (coça o ombro)
+  ];
+  const idle = {
+    wait: 4 + Math.random() * 4, // próximo ato em 5~10s (primeiro mais cedo)
+    act: null, actT: 0, actDur: 0, lastId: null,
+    lookAlvo: 0, homeX: 0, stepDir: 1,
+  };
+  const idleTick = (a, dt) => {
+    const f = a.f;
+    if (!idle.act) {
+      idle.wait -= dt;
+      if (idle.wait <= 0) {
+        // sorteia um ato diferente do anterior
+        let pick;
+        do { pick = IDLE_ACTS[Math.floor(Math.random() * IDLE_ACTS.length)]; }
+        while (pick.id === idle.lastId && IDLE_ACTS.length > 1);
+        idle.act = pick; idle.lastId = pick.id;
+        idle.actT = 0;
+        idle.actDur = pick.dur[0] + Math.random() * (pick.dur[1] - pick.dur[0]);
+        idle.homeX = f.x;
+        idle.stepDir = Math.random() < 0.5 ? -1 : 1;
+        f.state = pick.state; f.t = 0;
+        if (pick.id === 'espiar') { idle.lookAlvo = (Math.random() < 0.5 ? -1 : 1) * (0.16 + Math.random() * 0.14); if (Math.random() < 0.4) f.face *= -1; }
+        else if (pick.id === 'lua') idle.lookAlvo = -(0.24 + Math.random() * 0.12);
+        else idle.lookAlvo = 0;
+      }
+    } else {
+      idle.actT += dt;
+      if (idle.act.id === 'passos') {
+        // vai e volta em torno do centro (movimenta pés + katana naturalmente)
+        const meio = idle.actDur / 2;
+        f.face = idle.actT < meio ? idle.stepDir : -idle.stepDir;
+        f.x += f.face * 34 * dt;
+      }
+      if (idle.act.id === 'ombro') f.armFx = Math.sin(idle.actT * 5) * 0.22; // solta o braço
+      if (idle.actT >= idle.actDur) {
+        // fim do ato: volta ao idle respirando e agenda o próximo (5~10s)
+        if (idle.act.id === 'passos') f.face = f.x >= idle.homeX ? -1 : 1;
+        f.state = 'idle'; f.t = Math.random() * 2;
+        f.armFx = 0; idle.lookAlvo = 0;
+        idle.act = null;
+        idle.wait = 5 + Math.random() * 5;
+      }
+    }
+    // olhar com suavização (60fps, só matemática — nada de re-render)
+    f.look = (f.look || 0) + ((idle.lookAlvo || 0) - (f.look || 0)) * Math.min(1, 4 * dt);
+    // micro giro do corpo, bem sutil, contínuo
+    f.leanFx = Math.sin(elapsed * 0.55) * 0.018;
+  };
+
+  // partículas vermelhas do destaque do protagonista (canvas, custo mínimo)
+  const motes = Array.from({ length: 9 }, () => ({
+    a: Math.random() * Math.PI * 2, r: 26 + Math.random() * 26,
+    v: 0.35 + Math.random() * 0.5, up: 8 + Math.random() * 26, s: 1 + Math.random() * 1.6,
+  }));
+
   // ===== emotes flutuantes =====
   const emotes = [];
   const mostraEmote = (ator, emoji) => {
@@ -254,7 +321,20 @@ export async function createPlaza(host, opts = {}) {
       halos.ellipse(a.f.x * scale, H - 42, 30 * s, 6).fill({ color: 0xd90429, alpha: a.protagonista ? 0.2 : 0.12 });
       if (a.protagonista) {
         const pulso = 0.5 + 0.5 * Math.sin(elapsed * 2.2);
-        halos.ellipse(a.f.x * scale, H - 40, 46 * s + pulso * 6, 9).stroke({ width: 2, color: 0xffd166, alpha: 0.28 + pulso * 0.2 });
+        const px = a.f.x * scale, py = H - 40;
+        // UPDATE 2.8 — destaque do jogador: círculo luminoso discreto atrás
+        halos.circle(px, py - 62 * s, 74 * s).fill({ color: 0xd90429, alpha: 0.05 + pulso * 0.03 });
+        halos.circle(px, py - 62 * s, 46 * s).fill({ color: 0xff2244, alpha: 0.04 + pulso * 0.025 });
+        // sombra dinâmica: acompanha a "respiração" do destaque
+        halos.ellipse(px, py - 2, (34 + pulso * 4) * s, 7).fill({ color: 0x000000, alpha: 0.22 + pulso * 0.08 });
+        halos.ellipse(px, py, 46 * s + pulso * 6, 9).stroke({ width: 2, color: 0xffd166, alpha: 0.28 + pulso * 0.2 });
+        // partículas vermelhas subindo ao redor do personagem
+        for (const m of motes) {
+          const t = (elapsed * m.v + m.a) % 1;
+          const mx = px + Math.cos(m.a * 7 + elapsed * m.v) * m.r * s;
+          const my = py - (t * (90 + m.up)) * s;
+          halos.circle(mx, my, m.s * s).fill({ color: t < 0.5 ? 0xff4a5e : 0xd90429, alpha: (1 - t) * 0.5 });
+        }
       }
     }
 
@@ -266,6 +346,14 @@ export async function createPlaza(host, opts = {}) {
         }
       }
       a.f.t += dt;
+
+      if (a.protagonista) {
+        idleTick(a, dt);
+        // mantém o herói perto do centro do palco
+        const cx = (W / scale) / 2;
+        if (a.f.x < cx - 70) { a.f.x = cx - 70; }
+        if (a.f.x > cx + 70) { a.f.x = cx + 70; }
+      }
 
       if (!a.protagonista) {
         a.timer -= dt;

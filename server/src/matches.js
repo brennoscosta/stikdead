@@ -84,7 +84,7 @@ router.post('/training', requireAuth, async (req, res) => {
 router.get('/history', requireAuth, async (req, res) => {
   const { rows } = await q(
     `SELECT m.opponent_type, m.difficulty, m.won, m.wins_a, m.wins_b, m.duration_s, m.xp_gain, m.coin_gain, m.created_at,
-            p.fighter_name AS opponent_name, p.tier AS opponent_tier, p.level AS opponent_level
+            p.fighter_name AS opponent_name, p.tier AS opponent_tier, p.level AS opponent_level, p.avatar AS opponent_avatar
        FROM matches m
        LEFT JOIN profiles p ON p.user_id = m.opponent_id
       WHERE m.user_id = $1 ORDER BY m.created_at DESC LIMIT 20`,

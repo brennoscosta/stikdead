@@ -9,6 +9,7 @@ import Navbar from '../lib/Navbar.jsx';
 import PlayerCard from '../lib/PlayerCard.jsx';
 import Icon from '../ds/Icon.jsx';
 import { rankArte, rankCor, rankNome } from '../ds/rank.js';
+import { avatarSrc } from '../ds/avatars.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('pt-BR');
 const tempoAtras = (iso) => {
@@ -180,7 +181,7 @@ export default function Friends({ profile }) {
                 return (
                   <div key={f.user_id} className={`fr-card st-${st.dot}`}>
                     <div className="fr-card-top">
-                      <img className="fr-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                      <img className="fr-avatar" src={avatarSrc(f.avatar)} alt="" />
                       <img className="fr-rank rank-img" src={rankArte(f.tier)} alt="" title={rankNome(f.tier)} />
                       <div className="fr-card-info">
                         <button className="fr-name" onClick={() => setCard({ name: f.fighter_name })}>{f.fighter_name}</button>

@@ -8,6 +8,7 @@ import PatentTip from '../lib/PatentTip.jsx';
 import PlayerCard from '../lib/PlayerCard.jsx';
 import Icon from '../ds/Icon.jsx';
 import { rankArte, rankCor, rankNome } from '../ds/rank.js';
+import { avatarSrc } from '../ds/avatars.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('pt-BR');
 const winRate = (r) => { const t = (r.wins || 0) + (r.losses || 0); return t ? Math.round((r.wins / t) * 100) : 0; };
@@ -27,7 +28,7 @@ function RankRow({ r, board, onName, onPatent, featured }) {
     <div className={`rk-row ${r.me ? 'me' : ''} ${featured ? `rk-top rk-top${r.position}` : ''}`} onClick={() => onName(r.name)} role="button" tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter') onName(r.name); }}>
       <span className="rk-pos">{r.position <= 3 ? ['🥇', '🥈', '🥉'][r.position - 1] : `#${r.position}`}</span>
-      <img className="rk-avatar" src="/arte/avatar-padrao.webp" alt="" />
+      <img className="rk-avatar" src={avatarSrc(r.avatar)} alt="" />
       <img className="rk-liga rank-img" src={rankArte(r.tier)} alt="" title={rankNome(r.tier)} />
       <div className="rk-idcol">
         <b className="rk-name">{r.name}{r.me ? ' (você)' : ''}</b>
@@ -126,7 +127,7 @@ export default function Rankings({ profile }) {
                     onClick={() => setCard(r.name)} role="button" tabIndex={0}>
                     <span className="rk-pod-medal">{['🥇', '🥈', '🥉'][r.position - 1]}</span>
                     <div className="rk-pod-avatar-wrap">
-                      <img className="rk-pod-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                      <img className="rk-pod-avatar" src={avatarSrc(r.avatar)} alt="" />
                       <img className="rk-pod-liga rank-img" src={rankArte(r.tier)} alt="" title={rankNome(r.tier)} />
                     </div>
                     <b className="rk-pod-name">{r.name}{r.me ? ' (você)' : ''}</b>

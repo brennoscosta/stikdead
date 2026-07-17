@@ -10,7 +10,7 @@ const router = Router();
 // ===== cartão público (a vitrine do ego) =====
 router.get('/players/by-name/:name', requireAuth, async (req, res) => {
   const { rows } = await q(
-    `SELECT u.id, p.fighter_name, p.style, p.level, p.tier, p.rank_points,
+    `SELECT u.id, p.fighter_name, p.style, p.avatar, p.level, p.tier, p.rank_points,
             p.wins, p.losses, p.win_streak, p.title, p.last_seen, p.clan_id,
             c.name AS clan_name
        FROM profiles p JOIN users u ON u.id = p.user_id
@@ -183,7 +183,7 @@ router.get('/friends', requireAuth, async (req, res) => {
   const onlineIds = getOnlineIds();
   const clanIds = getClanIds();
   const friends = await q(
-    `SELECT f.id AS friendship_id, u.id AS user_id, p.fighter_name, p.level, p.tier, p.rank_points, p.last_seen,
+    `SELECT f.id AS friendship_id, u.id AS user_id, p.fighter_name, p.avatar, p.level, p.tier, p.rank_points, p.last_seen,
             c.name AS clan_name, c.flag_color AS clan_color
        FROM friendships f
        JOIN users u ON u.id = CASE WHEN f.requester_id = $1 THEN f.addressee_id ELSE f.requester_id END

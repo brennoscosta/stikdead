@@ -1620,3 +1620,187 @@ body .fr-layout { grid-template-columns: minmax(0, 1fr) 360px !important; max-wi
 }
 .mis-bonus.pronto { box-shadow: 0 0 22px -6px var(--sd-r-diamante, #67e8f9); border-color: rgba(103, 232, 249, 0.5); }
 .mis-bonus .mb-abrir:not(:disabled) { background: linear-gradient(180deg, #3bc9e0, #1a91b0); color: #04222a; }
+
+/* ============================================================
+   UPDATE 2.8 — POLIMENTO DO LOBBY (microanimações + feedback)
+   Todas as animações usam apenas transform/opacity (60 FPS).
+   ============================================================ */
+
+/* ---------- 2.8-1: botão de editar avatar sempre visível ---------- */
+/* canto inferior direito com offset EXTERNO, acima do círculo (z-index),
+   hover com glow vermelho e scale 1.0 → 1.08 (padrão LoL/Valorant) */
+.dash-avatar-btn { overflow: visible; }
+.dash-avatar-edit {
+  position: absolute;
+  right: -7px; bottom: -5px;           /* offset externo: nunca escondido */
+  width: 30px; height: 30px;
+  z-index: 6;                           /* sempre acima do avatar */
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: linear-gradient(180deg, var(--sd-blood-hot, #ff2244), var(--sd-blood, #d90429));
+  color: #fff;
+  border: 2px solid #0b0709;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .65), 0 0 0 rgba(255, 34, 68, 0);
+  transition: transform .18s var(--sd-ease-out, ease), box-shadow .18s ease;
+  transform: scale(1);
+  will-change: transform;
+}
+.dash-avatar-btn:hover .dash-avatar-edit,
+.dash-avatar-btn:focus-visible .dash-avatar-edit {
+  transform: scale(1.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .65), 0 0 16px rgba(255, 34, 68, .85);
+}
+.dash-avatar-btn:active .dash-avatar-edit { transform: scale(1.02); }
+
+/* ---------- 2.8-8: avatar com vida (só CSS, sem tocar na imagem) ---------- */
+.avatar-vivo { position: relative; display: inline-block; border-radius: 50%; flex: none; line-height: 0; }
+.avatar-vivo > img, .avatar-vivo .dash-avatar {
+  animation: av-respira 4.2s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes av-respira {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
+}
+/* glow pulsante por trás (opacity apenas) */
+.avatar-vivo::before {
+  content: ''; position: absolute; inset: -6px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 34, 68, .38) 30%, rgba(217, 4, 41, .12) 62%, transparent 75%);
+  z-index: -1; pointer-events: none;
+  animation: av-brilho 3.4s ease-in-out infinite;
+}
+@keyframes av-brilho {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: 1; }
+}
+/* partículas: 3 brasas sobem em loop (box-shadow desenha os pontos) */
+.avatar-vivo::after {
+  content: ''; position: absolute; left: 50%; bottom: 8%;
+  width: 3px; height: 3px; border-radius: 50%;
+  background: transparent; pointer-events: none;
+  box-shadow: -18px 0 0 0 rgba(255, 120, 60, .9), 2px -6px 0 -0.5px rgba(255, 60, 70, .8), 16px -2px 0 -1px rgba(255, 200, 120, .8);
+  animation: av-particulas 2.8s linear infinite;
+  will-change: transform, opacity;
+}
+@keyframes av-particulas {
+  0%   { transform: translateY(0) scale(.6); opacity: 0; }
+  18%  { opacity: .95; }
+  70%  { opacity: .55; }
+  100% { transform: translateY(-46px) scale(1.05); opacity: 0; }
+}
+
+/* ---------- 2.8-6: badge do ESTILO ATUAL no cartão do lobby ---------- */
+.pc-estilo { position: relative; display: inline-flex; margin-top: 4px; outline: none; }
+.pc-estilo-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px 3px 7px;
+  font: 800 10.5px var(--sd-font-ui); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--est-cor, #ff5a4e);
+  background: rgba(255, 255, 255, .03);
+  clip-path: var(--sd-clip-btn);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--est-cor, #ff5a4e) 55%, transparent);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--est-cor, #ff5a4e) 40%, transparent));
+  transition: filter .18s ease, transform .18s ease;
+  cursor: default;
+}
+.pc-estilo:hover .pc-estilo-badge, .pc-estilo:focus-visible .pc-estilo-badge {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--est-cor, #ff5a4e) 70%, transparent));
+  transform: translateY(-1px);
+}
+.pc-estilo-badge svg { flex: none; }
+.pc-estilo-badge b { font-weight: 800; }
+
+/* ---------- 2.8-7: mini card do estilo (tooltip estilo Diablo IV) ---------- */
+.est-tip {
+  position: absolute; left: 0; bottom: calc(100% + 10px); z-index: 60;
+  width: 240px; padding: 13px 14px 12px;
+  display: flex; flex-direction: column; gap: 6px;
+  background: linear-gradient(165deg, #191016 0%, #0c0709 58%);
+  border: 1px solid #3a1a22;
+  border-top: 2px solid var(--est-cor, #ff5a4e);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .75), 0 0 24px -8px var(--est-cor, #ff5a4e);
+  opacity: 0; transform: translateY(6px); pointer-events: none;
+  transition: opacity .18s ease, transform .18s var(--sd-ease-out, ease);
+  will-change: transform, opacity;
+}
+.pc-estilo:hover .est-tip, .pc-estilo:focus-visible .est-tip { opacity: 1; transform: translateY(0); }
+.est-tip-nome { font: 800 15px var(--sd-font-impact, var(--sd-font-ui)); letter-spacing: .1em; color: var(--sd-bone, #f4ece6); }
+.est-tip-skill {
+  display: inline-flex; align-items: center; gap: 5px; font: 700 12px var(--sd-font-ui);
+  letter-spacing: .06em; font-style: normal; color: var(--est-cor, #ff5a4e);
+}
+.est-tip-desc { font: 500 11.5px/1.45 var(--sd-font-ui); color: #c9beb6; }
+.est-tip-passiva {
+  display: block; margin-top: 2px; padding-top: 7px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  font: 500 11.5px/1.45 var(--sd-font-ui); color: #9fd8ff;
+}
+.est-tip-passiva small {
+  display: block; font: 800 9px var(--sd-font-ui); letter-spacing: .18em;
+  color: var(--sd-gold-hot, #e0a10b); margin-bottom: 2px;
+}
+
+/* ---------- 2.8-4: estilo equipado — pop de entrada na 1ª posição ---------- */
+.estilo-card.on {
+  animation: estilo-equip-pop .5s var(--sd-ease-out, ease) 1, estilo-sel-pulso 2.6s ease-in-out .5s infinite;
+}
+@keyframes estilo-equip-pop {
+  0%   { transform: scale(.96); opacity: .4; }
+  55%  { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* ---------- 2.8-5: fluxo do bot — selecionar e SÓ ENTÃO iniciar ---------- */
+.lobby-bot-row button { will-change: transform; }
+.lobby-bot-row button.sel {
+  box-shadow: inset 0 0 0 2px var(--sd-blood-hot, #ff2244), 0 0 16px rgba(255, 34, 68, .35);
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+.lobby-bot-row button.hot.sel {
+  box-shadow: inset 0 0 0 2px var(--sd-r-lendario), 0 0 20px rgba(255, 122, 26, .5);
+}
+.bot-iniciar {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; margin-top: 10px; padding: 13px 12px;
+  border: none; cursor: pointer;
+  font: 800 15px var(--sd-font-ui); letter-spacing: .14em; color: #fff;
+  background: linear-gradient(180deg, var(--sd-blood-hot, #ff2244), var(--sd-blood, #d90429) 60%, #7c0217);
+  clip-path: var(--sd-clip-btn);
+  box-shadow: 0 0 22px rgba(217, 4, 41, .4), var(--sd-depth-1);
+  animation: bot-iniciar-entra .38s var(--sd-ease-out, ease);
+  transition: transform .16s var(--sd-ease-out, ease), box-shadow .16s ease, filter .16s ease;
+  will-change: transform, opacity;
+}
+.bot-iniciar small { font: 700 10px var(--sd-font-ui); letter-spacing: .18em; color: rgba(255, 255, 255, .75); }
+.bot-iniciar .sd-icon { color: #fff; }
+.bot-iniciar:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(255, 34, 68, .6), var(--sd-depth-2); filter: brightness(1.08); }
+.bot-iniciar:active { transform: translateY(0) scale(.985); }
+@keyframes bot-iniciar-entra {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- PlayerCard: avatar no cabeçalho ---------- */
+.pc-head { display: flex; align-items: center; gap: 12px; }
+.pc-head-avatar {
+  width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex: none;
+  border: 2px solid var(--sd-blood, #d90429);
+  box-shadow: 0 0 14px rgba(217, 4, 41, .4);
+}
+.pc-head > .pc-trophies { margin-left: auto; }
+
+/* ---------- acessibilidade: reduz movimento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .avatar-vivo > img, .avatar-vivo .dash-avatar, .avatar-vivo::before, .avatar-vivo::after,
+  .estilo-card.on, .bot-iniciar { animation: none; }
+  .est-tip { transition: opacity .18s ease; transform: none; }
+}
+
+/* treino: dificuldade selecionada (aguardando INICIAR) */
+.btn.diff-sel {
+  box-shadow: inset 0 0 0 2px var(--sd-blood-hot, #ff2244), 0 0 18px rgba(255, 34, 68, .35);
+  color: #fff;
+  transform: translateY(-1px);
+}

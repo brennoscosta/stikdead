@@ -71,7 +71,7 @@ export function attachOnline(io) {
     try {
       const { sub } = jwt.verify(socket.handshake.auth?.token, process.env.JWT_SECRET);
       const { rows } = await q(
-        `SELECT u.id, p.fighter_name AS name, p.level, p.tier, p.rank_points
+        `SELECT u.id, p.fighter_name AS name, p.level, p.tier, p.rank_points, p.avatar
            FROM users u JOIN profiles p ON p.user_id = u.id WHERE u.id = $1`,
         [Number(sub)]
       );
@@ -86,7 +86,7 @@ export function attachOnline(io) {
   const presencePayload = () =>
     [...online.values()].map(({ user, loadout }) => ({
       away: AWAY_IDS.has(user.id),
-      id: user.id, name: user.name, level: user.level, tier: user.tier,
+      id: user.id, name: user.name, level: user.level, tier: user.tier, avatar: user.avatar,
       inMatch: userRoom.has(user.id) || BOT_FIGHT.has(user.id), loadout: loadout || [],
       clan: user.clan || null,
       duo: DUO_OF.has(user.id), duoLeader: DUOS.has(user.id), duoLeaderId: DUO_OF.get(user.id) || null,
@@ -207,7 +207,7 @@ export function attachOnline(io) {
           teams: room.match.teams || null,
           players: room.users.map((uid, s) => {
             const u = online.get(uid).user;
-            return { name: u.name, level: u.level, tier: u.tier, loadout: louts[s], style: online.get(uid)?.style || 'ronin' };
+            return { name: u.name, level: u.level, tier: u.tier, avatar: u.avatar, loadout: louts[s], style: online.get(uid)?.style || 'ronin' };
           }),
         });
       });
@@ -590,7 +590,7 @@ export function attachOnline(io) {
           const u = online.get(uid)?.user;
           return {
             name: u?.name || room.names[s], level: u?.level || 1,
-            tier: u?.tier || 'BRONZE_III', loadout: room.loadouts?.[s] || [],
+            tier: u?.tier || 'BRONZE_III', avatar: u?.avatar, loadout: room.loadouts?.[s] || [],
             style: online.get(uid)?.style || 'ronin',
           };
         }),
@@ -665,7 +665,7 @@ export function attachOnline(io) {
       challenges.set(id, ch);
       target.socket.emit('challenge:received', {
         id, ttl: CHALLENGE_TTL, bet: aposta,
-        from: { id: user.id, name: user.name, level: user.level, tier: user.tier },
+        from: { id: user.id, name: user.name, level: user.level, tier: user.tier, avatar: user.avatar },
       });
       socket.emit('challenge:sent', { id, to: target.user.name, bet: aposta });
     });

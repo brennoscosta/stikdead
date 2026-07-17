@@ -7,6 +7,7 @@ import { createPreview } from '../game/preview.js';
 import ItemIcon from '../lib/ItemIcon.jsx';
 import { SLOT_LABEL, RARITY_LABEL } from './Shop.jsx';
 import Icon from '../ds/Icon.jsx';
+import { sfx, unlockAudio } from '../game/audio.js';
 
 const SLOTS = ['head', 'face', 'body', 'back', 'weapon', 'arms', 'legs', 'effect'];
 
@@ -52,6 +53,7 @@ export default function Inventory({ profile }) {
     try {
       const d = await api('/api/loadout', { method: 'PUT', body: { slot, itemId } });
       setLoadout(d.loadout);
+      unlockAudio(); (itemId ? sfx.drop() : sfx.click()); // UPDATE 2.8: feedback de equipar
       console.log('[stikdead] loadout salvo:', d.loadout.map((l) => `${l.slot}=${l.id}`).join(' '));
       try { getSocket().emit('loadout:refresh'); } catch { /* offline, sem problema */ }
     } catch (err) {

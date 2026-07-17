@@ -1,6 +1,7 @@
 // STIKDEAD :: seletor de avatar — galeria de Profile Icons na identidade da marca
 import { AVATARS, avatarSrc } from '../ds/avatars.js';
 import Icon from '../ds/Icon.jsx';
+import { sfx, unlockAudio } from '../game/audio.js';
 
 export default function AvatarPicker({ current = 'padrao', onPick, onClose, saving = false }) {
   return (
@@ -15,7 +16,7 @@ export default function AvatarPicker({ current = 'padrao', onPick, onClose, savi
               key={a.key}
               className={`av-cell ${current === a.key ? 'on' : ''}`}
               style={{ '--av-cor': a.cor }}
-              onClick={() => onPick(a.key)}
+              onClick={() => { unlockAudio(); if (current !== a.key) sfx.drop(); onPick(a.key); }}
               disabled={saving}
             >
               <span className="av-frame"><img src={avatarSrc(a.key)} alt={a.label} loading="lazy" /></span>

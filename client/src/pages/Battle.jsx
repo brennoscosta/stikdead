@@ -11,6 +11,8 @@ import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.
 import { STYLES, STYLE_KEYS } from '../game/sim.js';
 import Navbar from '../lib/Navbar.jsx';
 import { rankArte, rankNome } from '../ds/rank.js';
+import { avatarSrc } from '../ds/avatars.js';
+import Icon from '../ds/Icon.jsx';
 import { api } from '../lib/api.js';
 import '../battle.css';
 
@@ -18,8 +20,9 @@ const DIFF_LABEL = { facil: 'Fácil', medio: 'Médio', dificil: 'Difícil', insa
 
 export default function Battle({ profile, onProfile }) {
   const [params] = useSearchParams();
-  const initialD = ['facil', 'medio', 'dificil', 'insano'].includes(params.get('d')) ? params.get('d') : 'medio';
-  const [screen, setScreen] = useState('select'); // select | fight
+  const initialD = ['facil', 'medio', 'dificil', 'insano'].includes(params.get('d')) ? params.get('d') : null;
+  // UPDATE 2.8: vindo do lobby com dificuldade já confirmada (go=1), entra direto
+  const [screen, setScreen] = useState(initialD && params.get('go') === '1' ? 'fight' : 'select'); // select | fight
   const [difficulty, setDifficulty] = useState(initialD);
   const [arena, setArena] = useState('random');
   const resolvedArena = useMemo(
@@ -43,7 +46,13 @@ export default function Battle({ profile, onProfile }) {
   };
 
   return screen === 'select' ? (
-    <DifficultySelect profile={profile} onPick={enterGameMode} arena={arena} setArena={setArena} />
+    <DifficultySelect
+      profile={profile}
+      selected={difficulty}
+      onSelect={(d) => { unlockAudio(); sfx.click(); setDifficulty(d); }}
+      onStart={() => enterGameMode(difficulty)}
+      arena={arena} setArena={setArena}
+    />
   ) : (
     <Fight
       profile={profile}
@@ -55,7 +64,7 @@ export default function Battle({ profile, onProfile }) {
   );
 }
 
-function DifficultySelect({ onPick, arena, setArena, profile }) {
+function DifficultySelect({ selected, onSelect, onStart, arena, setArena, profile }) {
   const nav = useNavigate();
   return (
     <div className="scene">
@@ -76,15 +85,23 @@ function DifficultySelect({ onPick, arena, setArena, profile }) {
             </button>
           ))}
         </div>
+        {/* UPDATE 2.8: a dificuldade apenas SELECIONA — a partida começa no botão abaixo */}
         {Object.keys(DIFFICULTIES).map((d) => (
           <button
             key={d}
-            className={`btn ${d === 'insano' ? 'btn-blood' : 'btn-ghost'}`}
-            onClick={() => onPick(d)}
+            className={`btn ${d === 'insano' ? 'btn-blood' : 'btn-ghost'} ${selected === d ? 'diff-sel' : ''}`}
+            aria-pressed={selected === d}
+            onClick={() => onSelect(d)}
           >
-            {DIFF_LABEL[d]}
+            {DIFF_LABEL[d]} {selected === d ? '✓' : ''}
           </button>
         ))}
+        {selected && (
+          <button key={`go-${selected}`} className="bot-iniciar" style={{ marginTop: 14 }} onClick={onStart}>
+            <Icon name="espada" size="sm" weight="forte" /> INICIAR PARTIDA
+            <small>{DIFF_LABEL[selected].toUpperCase()}</small>
+          </button>
+        )}
         <button className="btn btn-ghost" style={{ marginTop: 24 }} onClick={() => nav('/perfil')}>
           Voltar ao perfil
         </button>
@@ -322,7 +339,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
         <div className="bt-plate left">
           <div className="bt-linha">
             <div className="bt-retrato eu">
-              <img src="/arte/avatar-padrao.webp" alt="" />
+              <img src={avatarSrc(profile.avatar)} alt="" />
               <b className="bt-nivel">{profile.level}</b>
             </div>
             <div className="bt-plate-info">

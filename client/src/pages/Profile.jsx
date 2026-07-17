@@ -17,6 +17,7 @@ import RankBadge from '../lib/RankBadge.jsx';
 import AvatarPicker from '../lib/AvatarPicker.jsx';
 import { avatarSrc } from '../ds/avatars.js';
 import HeroFx from '../lib/HeroFx.jsx';
+import { sfx, unlockAudio } from '../game/audio.js';
 
 const tierName = (t) => (t || 'BRONZE_III').replace('_', ' ');
 const TIER_COLOR = {
@@ -117,9 +118,9 @@ export default function Profile({ profile, onUpdate, onLogout }) {
       {/* cabeçalho com arte pintada */}
       <section className="dash-hero">
         <HeroFx />
-        <button className="dash-avatar-btn" onClick={() => setShowAv(true)} title="Trocar avatar" aria-label="Trocar avatar">
+        <button className="dash-avatar-btn avatar-vivo" onClick={() => { unlockAudio(); sfx.click(); setShowAv(true); }} title="Trocar avatar" aria-label="Trocar avatar">
           <img className="dash-avatar" src={avatarSrc(profile.avatar)} alt="" />
-          <span className="dash-avatar-edit"><Icon name="editar" size={12} /></span>
+          <span className="dash-avatar-edit"><Icon name="editar" size={13} /></span>
         </button>
         <div className="dash-hero-info">
           <button className="cfg-gear" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações"><Icon name="config" size="sm" weight="forte" /></button>
@@ -247,7 +248,11 @@ export default function Profile({ profile, onUpdate, onLogout }) {
             </span>
           </h2>
           <div className="estilo-grid" ref={estRef}>
-            {STYLE_KEYS.map((k) => {
+            {/* UPDATE 2.8 — o estilo equipado SEMPRE ocupa a primeira posição */}
+            {(() => {
+              const atual = profile.style || 'ronin';
+              return [atual, ...STYLE_KEYS.filter((k) => k !== atual)];
+            })().map((k) => {
               const st = STYLES[k];
               const on = (profile.style || 'ronin') === k;
               const owned = k === 'ronin' || (profile.owned_styles || []).includes(`estilo_${k}`);
@@ -256,17 +261,21 @@ export default function Profile({ profile, onUpdate, onLogout }) {
                 <button
                   key={k}
                   className={`estilo-card ${on ? 'on' : ''} ${owned ? '' : 'locked'}`}
-                  aria-label={`Estilo ${st.label}${on ? ' — selecionado' : ''}${owned ? '' : ' — bloqueado'}`}
+                  aria-label={`Estilo ${st.label}${on ? ' — equipado' : ''}${owned ? '' : ' — bloqueado'}`}
                   onClick={async () => {
+                    unlockAudio();
                     if (!owned) { nav('/loja?slot=style'); return; }
+                    if (on) return;
                     try {
                       const d = await api('/api/auth/me', { method: 'PATCH', body: { style: k } });
                       onUpdate(d.profile);
+                      sfx.drop(); // feedback sonoro de equipar
+                      estRef.current?.scrollTo({ left: 0, behavior: 'smooth' }); // card sobe pra 1ª posição
                     } catch { /* mantém o atual */ }
                   }}
                 >
                   <img className="estilo-art" src={`/arte/estilo-${art}.webp`} alt={st.label} loading="lazy" />
-                  {on && <span className="estilo-sel">SELECIONADO ✓</span>}
+                  {on && <span className="estilo-sel">✓ EQUIPADO</span>}
                   {!owned && <span className="estilo-lock"><Icon name="cadeado" size={16} /> DESBLOQUEIE NA LOJA</span>}
                 </button>
               );
@@ -295,7 +304,7 @@ export default function Profile({ profile, onUpdate, onLogout }) {
                   {m.opponent_type === 'bot' ? (
                     <img className="dm-avatar" src="/arte/bot.png" alt="" />
                   ) : (
-                    <img className="dm-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                    <img className="dm-avatar" src={avatarSrc(m.opponent_avatar)} alt="" />
                   )}
                   <span className="dm-nome">{m.opponent_type === 'bot' ? `Bot · ${m.difficulty || ''}` : (m.opponent_name || 'Online 1v1')}</span>
                   {m.opponent_type !== 'bot' && m.opponent_tier && (

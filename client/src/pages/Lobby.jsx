@@ -11,6 +11,8 @@ import Icon from '../ds/Icon.jsx';
 import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { STYLES } from '../game/sim.js';
+import { avatarSrc } from '../ds/avatars.js';
+import StyleBadge from '../lib/StyleBadge.jsx';
 import { SkillButton } from './Battle.jsx';
 import { createInput } from '../game/input.js';
 import { createRenderer } from '../game/renderer.js';
@@ -47,6 +49,7 @@ export default function Lobby({ profile, onProfile }) {
   const [missions, setMissions] = useState([]);
   const [myLoadout, setMyLoadout] = useState([]);
   const [notice, setNotice] = useState('');
+  const [botDiff, setBotDiff] = useState(null); // UPDATE 2.8: dificuldade só seleciona
 
   useEffect(() => {
     const socket = getSocket();
@@ -201,7 +204,9 @@ export default function Lobby({ profile, onProfile }) {
         {/* ===== coluna esquerda: jogadores + chat ===== */}
         <aside className="lobby-col">
           <section className="dash-card player-cartao">
-            <img className="pc-avatar" src="/arte/avatar-padrao.webp" alt="" />
+            <span className="avatar-vivo">
+              <img className="pc-avatar" src={avatarSrc(profile.avatar)} alt="" />
+            </span>
             <div className="pc-meio">
               <b className="pc-nome">{profile.fighter_name}</b>
               <span className="pc-nivel">NÍVEL<b>{profile.level}</b></span>
@@ -209,6 +214,7 @@ export default function Lobby({ profile, onProfile }) {
               <span className="pc-rank" style={{ color: rankCor(profile.tier) }}>
                 {rankNome(profile.tier)} · <Icon name="trofeu" size={12} weight="forte" /> {Number(profile.rank_points || 0).toLocaleString('pt-BR')}
               </span>
+              <StyleBadge styleKey={profile.style || 'ronin'} />
             </div>
             <img className="pc-emblema rank-img" src={rankArte(profile.tier)} alt="" />
           </section>
@@ -225,7 +231,7 @@ export default function Lobby({ profile, onProfile }) {
                     className={`lobby-dot ${p.away ? 'st-away' : p.inMatch ? 'st-busy' : 'st-free'}`}
                     title={p.away ? 'Ausente' : p.inMatch ? 'Em jogo' : 'Online e disponível'}
                   />
-                  <img className="lp-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                  <img className="lp-avatar" src={avatarSrc(p.avatar)} alt="" />
                   <img className="rank-mini rank-img" src={rankArte(p.tier)} alt="" title={rankNome(p.tier)} />
                   <button className="lobby-name fr-name" onClick={() => setCard(p.name)}>{p.name}</button>
                   <span className="lobby-meta">Nv {p.level} · {TIER_LABEL(p.tier)}{p.duo ? <b style={{ color: '#ffd76a' }}> · 🤝{p.duoWith ? ` c/ ${p.duoWith}` : ''}</b> : ''}</span>
@@ -384,7 +390,7 @@ export default function Lobby({ profile, onProfile }) {
             <section className="dash-card convite-painel">
               <h2><Icon name="espada" size="xs" weight="forte" className="h2-ico" /> CONVITE DE CONFRONTO</h2>
               <div className="cv-linha">
-                <img className="cv-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                <img className="cv-avatar" src={avatarSrc(incoming.from.avatar)} alt="" />
                 <div className="cv-info">
                   <b>{incoming.from.name}</b>
                   <span style={{ color: rankCor(incoming.from.tier) }}>{rankNome(incoming.from.tier)} · Nv {incoming.from.level}</span>
@@ -409,9 +415,24 @@ export default function Lobby({ profile, onProfile }) {
             </div>
             <div className="lobby-bot-row">
               {[['facil', 'FÁCIL'], ['medio', 'MÉDIO'], ['dificil', 'DIFÍCIL'], ['insano', 'INSANO']].map(([d, l]) => (
-                <button key={d} className={d === 'insano' ? 'hot' : ''} onClick={() => nav(`/treino?d=${d}`)}>{l}</button>
+                <button
+                  key={d}
+                  className={`${d === 'insano' ? 'hot' : ''} ${botDiff === d ? 'sel' : ''}`}
+                  aria-pressed={botDiff === d}
+                  onClick={() => { setBotDiff(d); sfx.click(); }}
+                >{l}</button>
               ))}
             </div>
+            {botDiff && (
+              <button
+                key={botDiff}
+                className="bot-iniciar"
+                onClick={() => { sfx.dash(); goFullscreen(); nav(`/treino?d=${botDiff}`); }}
+              >
+                <Icon name="espada" size="sm" weight="forte" /> INICIAR PARTIDA
+                <small>{{ facil: 'FÁCIL', medio: 'MÉDIO', dificil: 'DIFÍCIL', insano: 'INSANO' }[botDiff]}</small>
+              </button>
+            )}
           </section>
 
           <section className="dash-card">
@@ -847,7 +868,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           ) : (
             <div className="bt-linha">
               <div className="bt-retrato eu">
-                <img src="/arte/avatar-padrao.webp" alt="" />
+                <img src={avatarSrc(session.players[me]?.avatar ?? profile.avatar)} alt="" />
                 <b className="bt-nivel">{session.players[me]?.level ?? profile.level}</b>
               </div>
               <div className="bt-plate-info">
@@ -885,7 +906,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
                 <div className="bt-dots" ref={hud.dotsB} data-wins="0"><i /><i /></div>
               </div>
               <div className="bt-retrato ele">
-                <img src="/arte/avatar-padrao.webp" alt="" />
+                <img src={avatarSrc(session.players[opp]?.avatar)} alt="" />
                 <b className="bt-nivel">{session.players[opp]?.level ?? '?'}</b>
               </div>
             </div>
@@ -960,7 +981,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           <div className="res-tela">
             <header className="res-topo">
               <div className="res-lutador eu">
-                <img className="res-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                <img className="res-avatar" src={avatarSrc(session.players[me]?.avatar ?? profile.avatar)} alt="" />
                 <div className="res-lut-info">
                   <b>{names[me]}</b>
                   <span style={{ color: rankCor(session.players[me]?.tier) }}>{rankNome(session.players[me]?.tier)}</span>
@@ -972,7 +993,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
                 <div className="res-placar"><b className="p-eu">{result.wins?.[me]}</b><span>VS</span><b className="p-ele">{result.wins?.[opp]}</b></div>
               </div>
               <div className="res-lutador ele">
-                <img className="res-avatar" src="/arte/avatar-padrao.webp" alt="" />
+                <img className="res-avatar" src={avatarSrc(session.players[opp]?.avatar)} alt="" />
                 <div className="res-lut-info">
                   <b>{names[opp]}</b>
                   <span style={{ color: rankCor(session.players[opp]?.tier) }}>{rankNome(session.players[opp]?.tier)}</span>

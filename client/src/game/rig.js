@@ -105,6 +105,11 @@ export function poseFor(f, moves) {
       const p = basePose();
       p.hipY = Math.sin(t * 2.4) * 1.6;
       p.armF[0] += Math.sin(t * 2.4) * 0.04;
+      // UPDATE 2.8 — idle procedural do lobby: cabeça/torso respondem a
+      // campos opcionais (f.look / f.leanFx), sem afetar a simulação da luta
+      if (f.look) p.head += f.look;
+      if (f.leanFx) p.lean += f.leanFx;
+      if (f.armFx) { p.armF[0] += f.armFx; p.armF[1] -= f.armFx * 0.5; }
       return p;
     }
   }

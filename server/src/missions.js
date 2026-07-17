@@ -220,26 +220,26 @@ router.get('/rankings', requireAuth, async (req, res) => {
 
   // cada placa: SELECT com métrica própria (name, level, tier, wins, losses, metric)
   const BOARDS = {
-    geral: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak, p.rank_points AS metric, p.user_id
+    geral: `SELECT p.fighter_name AS name, p.avatar, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak, p.rank_points AS metric, p.user_id
               FROM profiles p ORDER BY p.rank_points DESC, p.wins DESC LIMIT ${limit}`,
-    insano: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak, COUNT(*) AS metric, p.user_id
+    insano: `SELECT p.fighter_name AS name, p.avatar, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak, COUNT(*) AS metric, p.user_id
                FROM matches m JOIN profiles p ON p.user_id = m.user_id
               WHERE m.opponent_type = 'bot' AND m.difficulty = 'insano' AND m.won
-              GROUP BY p.user_id, p.fighter_name, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak
+              GROUP BY p.user_id, p.fighter_name, p.avatar, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak
               ORDER BY metric DESC LIMIT ${limit}`,
-    apostas: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak,
+    apostas: `SELECT p.fighter_name AS name, p.avatar, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak,
                      COALESCE(SUM(CASE WHEN a.kind = 'bet_win' THEN (a.data->>'amount')::bigint
                                        ELSE -(a.data->>'amount')::bigint END), 0) AS metric, p.user_id
                 FROM activities a JOIN profiles p ON p.user_id = a.user_id
                WHERE a.kind IN ('bet_win','bet_loss')
-               GROUP BY p.user_id, p.fighter_name, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak
+               GROUP BY p.user_id, p.fighter_name, p.avatar, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak
                ORDER BY metric DESC LIMIT ${limit}`,
-    bots: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak, COUNT(*) AS metric, p.user_id
+    bots: `SELECT p.fighter_name AS name, p.avatar, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak, COUNT(*) AS metric, p.user_id
              FROM matches m JOIN profiles p ON p.user_id = m.user_id
             WHERE m.opponent_type = 'bot' AND m.won
-            GROUP BY p.user_id, p.fighter_name, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak
+            GROUP BY p.user_id, p.fighter_name, p.avatar, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak
             ORDER BY metric DESC LIMIT ${limit}`,
-    pvp: `SELECT p.fighter_name AS name, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak, p.wins AS metric, p.user_id
+    pvp: `SELECT p.fighter_name AS name, p.avatar, p.level, p.tier, p.wins, p.losses, p.rank_points, p.win_streak, p.wins AS metric, p.user_id
             FROM profiles p WHERE p.wins > 0 ORDER BY p.wins DESC, p.rank_points DESC LIMIT ${limit}`,
   };
   const sql = BOARDS[board] || BOARDS.geral;
