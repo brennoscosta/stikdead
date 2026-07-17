@@ -1,7 +1,10 @@
 // STIKDEAD :: navbar do jogo — seções, moedas e identidade do jogador
 // FASE 3: emojis aposentados — iconografia oficial do StikDead Icon System.
+// SISTEMA DE ÁUDIO: engrenagem ao lado do nome abre as Configurações em qualquer tela.
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Icon from '../ds/Icon.jsx';
+import SettingsModal from './SettingsModal.jsx';
 
 const LINKS = [
   { to: '/perfil', label: 'Início', icon: 'perfil', end: true },
@@ -32,6 +35,7 @@ export function Bottombar() {
 
 export default function Navbar({ profile }) {
   const nav = useNavigate();
+  const [showCfg, setShowCfg] = useState(false);
   return (
     <>
     <header className="topnav">
@@ -58,9 +62,13 @@ export default function Navbar({ profile }) {
           <span className="topnav-chip-name">{profile.fighter_name}</span>
           <span className="topnav-chip-lv">Nv {profile.level}</span>
         </button>
+        <button className="topnav-cfg" onClick={() => setShowCfg(true)} title="Configurações do jogo" aria-label="Configurações do jogo">
+          <Icon name="config" size="xs" weight="forte" />
+        </button>
       </div>
     </header>
     <div className="topnav-spacer" aria-hidden="true" />
+    {showCfg && <SettingsModal onClose={() => setShowCfg(false)} />}
     </>
   );
 }

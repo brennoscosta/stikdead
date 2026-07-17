@@ -13,6 +13,26 @@ function AtmosferaGlobal() {
   const nivel = ATMO_POR_TELA[pathname] || 'media';
   return <Atmosphere level={nivel} key={nivel + pathname} />;
 }
+
+// SISTEMA DE ÁUDIO: trilha + ambiente seguem a navegação.
+// Nos menus tocam contínuos (sem reiniciar entre telas); na luta e no auth, silêncio
+// dos loops — o combate tem os próprios sons. Singleton nos motores = nunca duplica.
+import { startMusic, stopMusic } from './game/music.js';
+import { startAmbience, stopAmbience } from './game/ambience.js';
+import { applyRemoteSettings } from './game/audioManager.js';
+const SEM_TRILHA = new Set(['/', '/criar-conta', '/esqueci', '/redefinir', '/treino', '/vitrine', '/calibrador']);
+function AudioMood() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (SEM_TRILHA.has(pathname)) { stopMusic(); stopAmbience(); return undefined; }
+    const tenta = () => { startMusic(); startAmbience(); };
+    tenta(); // se o áudio já está destravado, entra na hora
+    window.addEventListener('pointerdown', tenta); // senão, no 1º gesto
+    window.addEventListener('keydown', tenta);
+    return () => { window.removeEventListener('pointerdown', tenta); window.removeEventListener('keydown', tenta); };
+  }, [pathname]);
+  return null;
+}
 import { Bottombar } from './lib/Navbar.jsx';
 import Admin from './pages/Admin.jsx';
 import Calibrador from './pages/Calibrador.jsx';
@@ -61,10 +81,17 @@ export default function App() {
     }
   }, [profile?.level]);
 
+  // preferências de áudio do usuário: backend vence, localStorage é fallback.
+  // Aplicadas UMA vez por sessão, antes de qualquer som dos menus.
+  const audioAplicado = useRef(false);
   const refresh = useCallback(async () => {
     if (!getToken()) return setProfile(null);
     try {
       const { profile } = await api('/api/auth/me');
+      if (!audioAplicado.current && profile?.audio_settings) {
+        audioAplicado.current = true;
+        applyRemoteSettings(profile.audio_settings);
+      }
       setProfile(profile);
     } catch {
       clearToken();
@@ -87,6 +114,7 @@ export default function App() {
   return (
     <BrowserRouter>
       {profile && <AtmosferaGlobal />}
+      {profile && <AudioMood />}
       {profile && <Bottombar />}
       <Routes>
         <Route

@@ -31,7 +31,7 @@ async function fetchProfile(userId) {
   const { rows } = await q(
     `SELECT u.id, u.email, p.fighter_name, p.style, p.avatar, p.level, p.xp, p.coins, p.diamonds,
             (SELECT array_agg(item_id) FROM user_items ui WHERE ui.user_id = u.id AND ui.item_id LIKE 'estilo_%') AS owned_styles,
-            p.rank_points, p.tier, p.wins, p.losses, p.win_streak, p.title, p.clan_id
+            p.rank_points, p.tier, p.wins, p.losses, p.win_streak, p.title, p.clan_id, p.audio_settings
        FROM users u JOIN profiles p ON p.user_id = u.id
       WHERE u.id = $1`,
     [userId]
@@ -178,6 +178,25 @@ const VALID_STYLES = new Set(['ronin', 'shinobi', 'monge', 'berserker', 'espectr
 const VALID_AVATARS = new Set(['shinobi', 'kitsune', 'espectro', 'predador', 'dourado', 'campeao', 'samurai', 'oni', 'ceifador', 'imperador']);
 
 router.patch('/me', requireAuth, async (req, res) => {
+  // preferências de áudio (Configurações) — sanitizadas campo a campo
+  if (req.body.audioSettings !== undefined) {
+    const a = req.body.audioSettings || {};
+    const liga = (v, d) => (typeof v === 'boolean' ? v : d);
+    const vol = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : d);
+    const limpo = {
+      masterEnabled: liga(a.masterEnabled, true),
+      masterVolume: vol(a.masterVolume, 0.8),
+      musicEnabled: liga(a.musicEnabled, true),
+      musicVolume: vol(a.musicVolume, 0.65),
+      sfxEnabled: liga(a.sfxEnabled, true),
+      sfxVolume: vol(a.sfxVolume, 0.8),
+      ambienceEnabled: liga(a.ambienceEnabled, true),
+      ambienceVolume: vol(a.ambienceVolume, 0.45),
+      muteOnBlur: liga(a.muteOnBlur, true),
+    };
+    await q('UPDATE profiles SET audio_settings = $1, updated_at = now() WHERE user_id = $2', [JSON.stringify(limpo), req.userId]);
+    return res.json({ ok: true });
+  }
   // troca de avatar (Profile Icons) — só visual, valida contra a galeria oficial
   if (req.body.avatar !== undefined && req.body.fighterName === undefined) {
     const avatar = String(req.body.avatar || '');

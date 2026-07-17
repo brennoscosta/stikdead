@@ -2419,3 +2419,77 @@ body .fr-layout { grid-template-columns: minmax(0, 1fr) 360px !important; max-wi
 .ach-ico.sel { outline: 2px solid var(--rar-cor); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) { .cq-pagina { animation: none; } }
+
+/* ============================================================
+   CONFIGURAÇÕES v2 + SISTEMA DE ÁUDIO
+   Gráficos · Áudio · Controles — painel compacto, nativo de jogo.
+   ============================================================ */
+/* engrenagem na barra superior, ao lado do nome */
+.topnav-cfg { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 999px; background: var(--sd-coal, #141114); border: 1px solid var(--sd-edge, #3a333c); color: var(--sd-muted, #9a938a); cursor: pointer; transition: transform .35s, color .2s, border-color .2s; }
+.topnav-cfg:hover, .topnav-cfg:focus-visible { color: var(--sd-blood-hot, #ff2244); border-color: rgba(217, 4, 41, .55); transform: rotate(90deg); }
+.topnav-cfg:focus-visible { outline: 2px solid var(--sd-blood, #d90429); outline-offset: 2px; }
+
+/* entrada/saída suaves do painel */
+.cfg-overlay { animation: cfg-fade .2s ease both; }
+.cfg-overlay.saindo { animation: cfg-fade .18s ease reverse both; pointer-events: none; }
+.cfg-card { animation: cfg-pop .22s cubic-bezier(.2, .9, .3, 1.15) both; }
+.cfg-overlay.saindo .cfg-card { animation: cfg-pop .18s ease reverse both; }
+@keyframes cfg-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cfg-pop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+
+.fa-card.cfg-card { position: relative; text-align: left; max-width: 470px; width: 100%; padding: 22px 22px 18px; }
+.cfg-corpo { max-height: min(62vh, 560px); overflow-y: auto; overscroll-behavior: contain; padding-right: 8px; margin: 4px -6px 8px 0; scrollbar-width: thin; scrollbar-color: rgba(217, 4, 41, .5) transparent; }
+.cfg-corpo::-webkit-scrollbar { width: 5px; }
+.cfg-corpo::-webkit-scrollbar-thumb { background: rgba(217, 4, 41, .45); border-radius: 4px; }
+
+.cfg-secao { font-family: 'Barlow Condensed', sans-serif; font-size: 12.5px; font-weight: 800; letter-spacing: .22em; color: var(--sd-blood-hot, #ff2244); margin: 16px 0 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(217, 4, 41, .22); display: flex; align-items: center; gap: 8px; }
+.cfg-secao:first-child { margin-top: 2px; }
+
+/* linhas da seção de áudio */
+.cfg-au-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 2px 2px; }
+.cfg-au-row.master { background: linear-gradient(180deg, rgba(217, 4, 41, .08), transparent); border: 1px solid rgba(217, 4, 41, .2); border-radius: 10px; padding: 10px 12px; margin-top: 4px; }
+.cfg-au-acoes { display: inline-flex; align-items: center; gap: 8px; }
+.cfg-teste { background: var(--sd-iron, #1d181c); border: 1px solid var(--sd-edge, #3a333c); color: var(--sd-muted, #9a938a); font: 700 10.5px 'Barlow Condensed', sans-serif; letter-spacing: .12em; text-transform: uppercase; border-radius: 7px; padding: 5px 9px; cursor: pointer; transition: color .15s, border-color .15s; }
+.cfg-teste:hover:not(:disabled), .cfg-teste:focus-visible { color: var(--sd-bone, #f2efe9); border-color: rgba(217, 4, 41, .5); }
+.cfg-teste:disabled { opacity: .35; cursor: default; }
+.cfg-teste:focus-visible { outline: 2px solid var(--sd-blood, #d90429); outline-offset: 2px; }
+
+/* switch v2: vermelho StikDead ligado, escuro desligado, texto além da cor */
+.cfg-switch2 { flex: none; position: relative; width: 58px; height: 27px; border-radius: 999px; border: 1px solid var(--sd-edge, #3a333c); background: #241c21; cursor: pointer; transition: background .25s, border-color .25s, box-shadow .25s; padding: 0; }
+.cfg-switch2 i { position: absolute; top: 3px; left: 3px; width: 19px; height: 19px; border-radius: 50%; background: #7d737a; transition: left .25s cubic-bezier(.3, 1.4, .5, 1), background .25s; }
+.cfg-switch2-txt { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); font: 800 8.5px 'Barlow Condensed', sans-serif; letter-spacing: .12em; color: var(--sd-faint, #5f5a55); transition: color .25s; }
+.cfg-switch2.on { background: linear-gradient(90deg, var(--sd-blood-deep, #7a0e1c), var(--sd-blood, #d90429)); border-color: var(--sd-blood-hot, #ff2244); box-shadow: 0 0 12px -3px var(--sd-blood, #d90429); }
+.cfg-switch2.on i { left: 35px; background: #fff; }
+.cfg-switch2.on .cfg-switch2-txt { right: auto; left: 8px; color: #ffd9de; }
+.cfg-switch2:focus-visible { outline: 2px solid var(--sd-blood, #d90429); outline-offset: 2px; }
+
+/* régua v2: trilho escuro + preenchimento vermelho + valor numérico */
+.cfg-regua { display: grid; grid-template-columns: 128px 1fr 44px; align-items: center; gap: 10px; padding: 4px 2px 8px; }
+.cfg-regua-nome { font: 700 10.5px 'Barlow Condensed', sans-serif; letter-spacing: .14em; color: var(--sd-muted, #9a938a); }
+.cfg-regua-val { font: 800 12px 'Barlow Condensed', sans-serif; color: var(--sd-bone, #f2efe9); text-align: right; font-variant-numeric: tabular-nums; }
+.cfg-regua.off { opacity: .38; }
+.cfg-regua input[type='range'] { -webkit-appearance: none; appearance: none; width: 100%; height: 20px; background: transparent; cursor: pointer; }
+.cfg-regua input[type='range']:disabled { cursor: default; }
+.cfg-regua input[type='range']::-webkit-slider-runnable-track { height: 6px; border-radius: 4px; background: linear-gradient(90deg, var(--sd-blood, #d90429) 0 var(--pct, 50%), #241c21 var(--pct, 50%) 100%); border: 1px solid #372c32; }
+.cfg-regua input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--sd-bone, #f2efe9); border: 2px solid var(--sd-blood, #d90429); margin-top: -6px; box-shadow: 0 0 8px -2px var(--sd-blood, #d90429); transition: transform .15s; }
+.cfg-regua input[type='range']:hover::-webkit-slider-thumb { transform: scale(1.15); }
+.cfg-regua input[type='range']::-moz-range-track { height: 6px; border-radius: 4px; background: #241c21; border: 1px solid #372c32; }
+.cfg-regua input[type='range']::-moz-range-progress { height: 6px; border-radius: 4px; background: var(--sd-blood, #d90429); }
+.cfg-regua input[type='range']::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--sd-bone, #f2efe9); border: 2px solid var(--sd-blood, #d90429); }
+.cfg-regua input[type='range']:focus-visible { outline: 2px solid var(--sd-blood, #d90429); outline-offset: 2px; border-radius: 6px; }
+
+/* mobile: quase tela cheia, alvos grandes, fechar sempre à mão */
+@media (max-width: 560px) {
+  .fa-card.cfg-card { max-width: calc(100vw - 20px); padding: 18px 14px 14px; }
+  .cfg-corpo { max-height: 66vh; }
+  .cfg-regua { grid-template-columns: 96px 1fr 40px; }
+  .cfg-regua input[type='range']::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -8px; }
+  .cfg-switch2 { width: 62px; height: 30px; }
+  .cfg-switch2 i { width: 22px; height: 22px; }
+  .cfg-switch2.on i { left: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cfg-overlay, .cfg-card, .cfg-overlay.saindo, .cfg-overlay.saindo .cfg-card { animation: none; }
+  .topnav-cfg:hover { transform: none; }
+}

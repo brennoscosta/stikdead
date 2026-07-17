@@ -47,6 +47,10 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: 'Erro interno. Tente novamente.' });
 });
 
+// migração idempotente: preferências de áudio por usuário
+try { await q('ALTER TABLE profiles ADD COLUMN IF NOT EXISTS audio_settings JSONB'); }
+catch (e) { console.error('migração audio_settings:', e.message); }
+
 const port = Number(process.env.PORT) || 3001;
 const http = createServer(app);
 const io = new SocketServer(http, {

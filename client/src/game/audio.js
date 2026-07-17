@@ -1,20 +1,16 @@
-// STIKDEAD :: motor de som — 100% sintetizado (WebAudio), zero arquivos
+// STIKDEAD :: motor de SFX — 100% sintetizado (WebAudio), zero arquivos
 // Estética seca: thumps graves, whooshes de ar, estalos de bloqueio, sino de KO.
+// Desde o sistema de áudio: tudo sai pelo canal SFX do AudioManager central.
+import { ensureCtx as amEnsure, getBus, toggleMute, isMuted } from './audioManager.js';
+
 let ctx = null;
-let master = null;
-let muted = false;
-try { muted = localStorage.getItem('stikdead:muted') === '1'; } catch { /* ok */ }
+let master = null; // = canal SFX do AudioManager (nome mantido p/ o motor abaixo)
 
 function ensure() {
-  if (!ctx) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
-    ctx = new AC();
-    master = ctx.createGain();
-    master.gain.value = muted ? 0 : 0.5;
-    master.connect(ctx.destination);
-  }
-  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  const c = amEnsure();
+  if (!c) return null;
+  ctx = c;
+  master = getBus('sfx');
   return ctx;
 }
 
@@ -23,13 +19,8 @@ export function unlockAudio() { ensure(); }
 export const ensureCtx = () => ensure();
 export const getMaster = () => master;
 
-export function toggleMute() {
-  muted = !muted;
-  try { localStorage.setItem('stikdead:muted', muted ? '1' : '0'); } catch { /* ok */ }
-  if (master) master.gain.value = muted ? 0 : 0.5;
-  return muted;
-}
-export const isMuted = () => muted;
+// compat: mudo geral agora vive no AudioManager (Som Geral)
+export { toggleMute, isMuted };
 
 // ===== blocos de construção =====
 function noiseBuffer(dur = 0.3) {
