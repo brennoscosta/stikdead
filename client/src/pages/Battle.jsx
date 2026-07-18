@@ -83,7 +83,9 @@ export default function Battle({ profile, onProfile }) {
     // ainda dentro do gesto de clique: fullscreen é permitido aqui
     document.body.classList.add('in-fight');
     document.documentElement.requestFullscreen?.().catch(() => {});
-    try { screen.orientation?.lock?.('landscape').catch(() => {}); } catch { /* iOS não deixa */ }
+    // UPDATE 3.3: window.screen explícito — o estado `screen` sombreava o global
+    // e o lock de paisagem nunca rodava no treino.
+    try { window.screen.orientation?.lock?.('landscape').catch(() => {}); } catch { /* iOS não deixa */ }
   };
   const exitGameMode = () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});

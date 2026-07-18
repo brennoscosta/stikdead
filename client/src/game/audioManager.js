@@ -94,6 +94,16 @@ export function ensureCtx() {
 }
 export const getBus = (ch) => { ensureCtx(); return bus[ch]; };
 
+// UPDATE 3.3: duck da música sob a voz do narrador (sidechain simples).
+// Desce rápido pro narrador reinar, volta suave ao nível salvo do jogador.
+let duckTimer = null;
+export function duckMusic(seg = 1.2, fator = 0.3) {
+  if (!ctx || !bus.music) return;
+  ramp(bus.music, busTarget('music') * fator, 0.07);
+  clearTimeout(duckTimer);
+  duckTimer = setTimeout(() => ramp(bus.music, busTarget('music'), 0.35), Math.max(300, seg * 1000));
+}
+
 // ===== persistência =====
 let saveTimer = null;
 function persist() {

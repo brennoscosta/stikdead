@@ -3,7 +3,7 @@
 // Convive com os motores procedurais: se um arquivo não carregar (offline,
 // deploy incompleto), quem chamou recebe `false`/callback e usa o fallback
 // sintetizado. NADA aqui toca fora dos barramentos do AudioManager.
-import { ensureCtx, getBus } from './audioManager.js';
+import { ensureCtx, getBus, duckMusic } from './audioManager.js';
 
 // ---------------------------------------------------------------- catálogo ----
 // Espelho 1:1 do audio-manifest.json (55 itens aprovados). url é relativa ao
@@ -203,6 +203,12 @@ export function playGameplay(id, opts = {}) {
 /** Voz do narrador (Fase 10) — canal próprio, sem cooldown agressivo. */
 export function playVoice(id, opts = {}) {
   const ok = tocarBuffer(id, 'voice', { cooldownMs: 250, ...opts });
+  if (ok) {
+    // UPDATE 3.3: a música abre espaço enquanto o narrador fala (sidechain)
+    const buf = buffers.get(id);
+    const seg = typeof buf?.duration === 'number' ? buf.duration + 0.25 : 1.6;
+    duckMusic(seg);
+  }
   if (!ok && typeof opts.fallback === 'function') opts.fallback();
   return ok;
 }
