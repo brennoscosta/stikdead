@@ -34,6 +34,15 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         provador: resolve(__dirname, 'provador.html'), // provador offline do boneco (dev)
       },
+      output: {
+        // UPDATE 3.1: vendors pesados em chunks próprios — o 1º load do jogo
+        // baixa menos JS e o navegador cacheia PixiJS/React entre deploys.
+        manualChunks(id) {
+          if (id.includes('node_modules/pixi.js') || id.includes('node_modules/@pixi')) return 'vendor-pixi';
+          if (id.includes('node_modules/react') || id.includes('node_modules/scheduler')) return 'vendor-react';
+          if (id.includes('node_modules/socket.io')) return 'vendor-socket';
+        },
+      },
     },
   },
   server: {

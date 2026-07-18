@@ -206,11 +206,12 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       announceT = 1.2;
     };
 
-    const centerText = (text) => {
+    // UPDATE 3.1: modo opcional ('round' | 'fight') liga a animação cinematográfica
+    const centerText = (text, modo = '') => {
       const el = hud.center.current;
       if (!el) return;
       el.textContent = text;
-      el.classList.toggle('show', !!text);
+      el.className = `bt-center${text ? ' show' : ''}${modo ? ` ${modo}` : ''}`;
     };
 
     const watchdog = setTimeout(() => {
@@ -250,6 +251,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       let last = performance.now();
       let lastCount = null;
       let lastCombo = 0;
+      let vsTocado = false; // UPDATE 3.1: whoosh da tela VS toca uma única vez
 
       const loop = (now) => {
         if (!alive) return;
@@ -266,12 +268,12 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
 
         for (const e of events) {
           playEvent(e, 0);
-          if (e.type === 'fightstart') { centerText('LUTE!'); setTimeout(() => centerText(''), 650); }
+          if (e.type === 'fightstart') { centerText('LUTE!', 'fight'); setTimeout(() => centerText(''), 750); }
           if (e.type === 'firstblood') announce('PRIMEIRO SANGUE!');
           if (e.type === 'skill') announce(e.name.toUpperCase(), e.idx === 0 ? '' : 'red');
           if (e.type === 'suddendeath') announce('MORTE SÚBITA!', 'red');
           if (e.type === 'ko') announce(e.finisher ? 'FINALIZAÇÃO!' : 'K.O.!', 'red');
-          if (e.type === 'roundstart') { centerText(`ROUND ${e.round}`); setTimeout(() => centerText(''), 900); }
+          if (e.type === 'roundstart') { centerText(`ROUND ${e.round}`, 'round'); setTimeout(() => centerText(''), 1000); }
           if (e.type === 'roundend' && match.phase !== 'matchend' && e.winner >= 0)
             setTimeout(() => announce(e.winner === 0 ? 'ROUND SEU!' : 'ROUND DO BOT!'), 700);
           if (e.type === 'matchend') {
@@ -321,8 +323,11 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
           lastCombo = combo;
         }
 
-        if (hud.vs.current)
-          hud.vs.current.classList.toggle('show', match.phase === 'countdown' && match.round === 1 && match.phaseT < 2.2);
+        if (hud.vs.current) {
+          const vsOn = match.phase === 'countdown' && match.round === 1 && match.phaseT < 2.2;
+          hud.vs.current.classList.toggle('show', vsOn);
+          if (vsOn && !vsTocado) { vsTocado = true; playUi('stinger_vs_screen_01', { volume: 0.9 }); } // UPDATE 3.1
+        }
           if (hud.skill?.current) {
             const cd = match.fighters[0].skillCd;
             const max = (STYLES[match.fighters[0].style] || STYLES.ronin).cd;
@@ -424,10 +429,11 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
         </div>
       </div>
 
-      <div className="bt-vs" ref={hud.vs}>
+      <div className="bt-vs" ref={hud.vs} style={{ '--vs-art': `url('/arenas/vs_${arena || 'dojo'}.webp')` }}>
         <div className="bt-vs-name left">{profile.fighter_name}</div>
         <div className="bt-vs-mark">VS</div>
         <div className="bt-vs-name right">BOT · {DIFF_LABEL[difficulty]}</div>
+        <div className="bt-vs-arena">{ARENAS[arena]?.label || 'Dojo'}</div>
       </div>
       <div className="bt-combo" ref={hud.combo} />
       <div className="bt-announce" ref={hud.announce} />

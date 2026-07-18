@@ -64,7 +64,9 @@ export default function Shop({ profile, onProfile }) {
         window.location.href = d.init_point; // fallback: página do MP
       }
     } catch (e) {
-      alert(e.message || 'Pagamentos indisponíveis no momento.');
+      // UPDATE 3.1: sem alert() bloqueante — aviso padrão da loja + som de erro
+      setMpNotice(`❌ ${e.message || 'Pagamentos indisponíveis no momento.'}`);
+      playUi('ui_error_01');
       setBuying(false);
     }
   };

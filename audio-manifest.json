@@ -183,6 +183,15 @@
       "candidates": 3
     },
     {
+      "id": "stinger_vs_screen_01",
+      "type": "sound-effect",
+      "category": "matchmaking",
+      "prompt": "Cinematic versus-screen stinger for a dark oriental fighting game: fast dramatic whoosh sweeping in, ending on a deep taiko drum impact with a shimmering metallic katana ring tail, tense and epic, around two seconds.",
+      "durationSeconds": 2.0,
+      "output": "client/public/audio/ui/notifications/stinger_vs_screen_01.mp3",
+      "candidates": 1
+    },
+    {
       "id": "ui_tab_switch_01",
       "type": "sound-effect",
       "category": "ui",

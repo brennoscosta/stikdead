@@ -25,6 +25,7 @@ export const AUDIO_FILES = {
   ui_notification_01: { url: '/audio/ui/notifications/ui_notification_01.mp3', ch: 'ui' },
   ui_chat_message_01: { url: '/audio/ui/notifications/ui_chat_message_01.mp3', ch: 'ui' },
   matchmaking_found_01: { url: '/audio/ui/notifications/matchmaking_found_01.mp3', ch: 'ui' },
+  stinger_vs_screen_01: { url: '/audio/ui/notifications/stinger_vs_screen_01.mp3', ch: 'ui' }, // UPDATE 3.1
   style_ronin_select_01: { url: '/audio/styles/ronin/style_ronin_select_01.mp3', ch: 'ui' },
   style_shinobi_select_01: { url: '/audio/styles/shinobi/style_shinobi_select_01.mp3', ch: 'ui' },
   style_monk_select_01: { url: '/audio/styles/monk/style_monk_select_01.mp3', ch: 'ui' },
@@ -382,8 +383,25 @@ export function playArenaAmbience(arenaKey, { fadeSeg = 1.2, volume = 0.45 } = {
   if (!f) return false;
   f.el.addEventListener('error', () => { if (arenaFaixa === f) arenaFaixa = null; matarFaixa(f, 0.1); }, { once: true });
   arenaFaixa = f;
+  // UPDATE 3.1: entra num ponto aleatório do loop — o ouvido nunca decora a "virada"
+  const entrarAleatorio = () => {
+    try {
+      const d = f.el.duration;
+      if (Number.isFinite(d) && d > 4) f.el.currentTime = Math.random() * (d - 2);
+    } catch { /* streaming ainda sem metadata: segue do zero */ }
+  };
+  if (f.el.readyState >= 1) entrarAleatorio();
+  else f.el.addEventListener('loadedmetadata', entrarAleatorio, { once: true });
   f.el.play().then(() => fade(f.gain, volume, fadeSeg)).catch(() => {});
   return true;
+}
+
+// UPDATE 3.1: aquece o cache HTTP da ambiência da arena assim que ela é conhecida
+// (partida encontrada) — o som entra sem atraso quando a luta abre.
+export function preloadArenaAmbience(arenaKey) {
+  const id = ARENA_AMBIENCE[arenaKey] || ARENA_AMBIENCE.dojo;
+  const url = AUDIO_FILES[id]?.url;
+  if (url) fetch(url, { cache: 'force-cache' }).catch(() => {});
 }
 
 export function stopArenaAmbience({ fadeSeg = 1.0 } = {}) {

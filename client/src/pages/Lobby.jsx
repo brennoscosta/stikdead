@@ -13,7 +13,8 @@ import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.
 import { playUi, playVoice } from '../game/audioManager.js';
 import { startMusic } from '../game/music.js';
 import { startAmbience, stopAmbience } from '../game/ambience.js';
-import { playArenaAmbience, stopArenaAmbience } from '../game/audioLibrary.js';
+import { playArenaAmbience, stopArenaAmbience, preloadArenaAmbience } from '../game/audioLibrary.js';
+import { ARENAS } from '../game/arena.js';
 import { STYLES } from '../game/sim.js';
 
 // FASE 7: assinatura sonora real de cada bot (bíblia, seção 7) + fallback
@@ -93,6 +94,7 @@ export default function Lobby({ profile, onProfile }) {
     };
     const onSent = ({ to }) => setSent(to);
     const onStart = ({ side, players, rejoin, arena }) => {
+      preloadArenaAmbience(arena || 'dojo'); // UPDATE 3.1: som da arena já baixando
       playUi('matchmaking_found_01'); // FASE 7: impacto de "partida encontrada"
       setTimeout(() => playVoice('voice_opponent_found_01'), 500); // FASE 10: "Oponente encontrado."
       setIncoming(null);
@@ -694,13 +696,15 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
       el.className = `bt-announce show ${cls}`;
       announceT = 1.2;
     };
-    const centerText = (text) => {
+    // UPDATE 3.1: modo opcional ('round' | 'fight') liga a animação cinematográfica
+    const centerText = (text, modo = '') => {
       const el = hud.center.current;
       if (el) {
         el.textContent = text;
-        el.classList.toggle('show', !!text);
+        el.className = `bt-center${text ? ' show' : ''}${modo ? ` ${modo}` : ''}`;
       }
     };
+    let vsTocado = false; // UPDATE 3.1: whoosh da tela VS toca uma única vez
 
     let lastSentJson = '';
     let lastHeartbeat = 0;
@@ -782,8 +786,8 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         pendingEv = [];
         for (const e of events) {
           if (e.type !== 'matchend') playEvent(e, me);
-          if (e.type === 'fightstart') { centerText('LUTE!'); setTimeout(() => centerText(''), 650); }
-          if (e.type === 'roundstart') { centerText(`ROUND ${e.round}`); setTimeout(() => centerText(''), 900); }
+          if (e.type === 'fightstart') { centerText('LUTE!', 'fight'); setTimeout(() => centerText(''), 750); }
+          if (e.type === 'roundstart') { centerText(`ROUND ${e.round}`, 'round'); setTimeout(() => centerText(''), 1000); }
           if (e.type === 'firstblood') announce('PRIMEIRO SANGUE!');
           if (e.type === 'skill') announce(e.name.toUpperCase(), e.idx === me ? '' : 'red');
           if (e.type === 'suddendeath') announce('MORTE SÚBITA!', 'red');
@@ -819,11 +823,11 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
           lastCombo = combo;
         }
 
-        if (hud.vs.current)
-          hud.vs.current.classList.toggle(
-            'show',
-            clientMatch.phase === 'countdown' && clientMatch.round === 1 && clientMatch.phaseT < 2.2
-          );
+        if (hud.vs.current) {
+          const vsOn = clientMatch.phase === 'countdown' && clientMatch.round === 1 && clientMatch.phaseT < 2.2;
+          hud.vs.current.classList.toggle('show', vsOn);
+          if (vsOn && !vsTocado) { vsTocado = true; playUi('stinger_vs_screen_01', { volume: 0.9 }); } // UPDATE 3.1
+        }
 
         if (clientMatch.phase === 'countdown') {
           const n = Math.ceil(3.4 - clientMatch.phaseT - 0.3);
@@ -957,10 +961,11 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
         </div>
       </div>
 
-      <div className="bt-vs" ref={hud.vs}>
+      <div className="bt-vs" ref={hud.vs} style={{ '--vs-art': `url('/arenas/vs_${session.arena || 'dojo'}.webp')` }}>
         <div className="bt-vs-name left">{names[me]}</div>
         <div className="bt-vs-mark">VS</div>
         <div className="bt-vs-name right">{names[opp]}</div>
+        <div className="bt-vs-arena">{ARENAS[session.arena]?.label || 'Dojo'}</div>
       </div>
 
       <div className="bt-combo" ref={hud.combo} />

@@ -92,6 +92,49 @@
 }
 .bt-center.show { opacity: 1; transform: scale(1); }
 
+/* UPDATE 3.1 — início de round cinematográfico: corte de lâmina + pop com blur */
+.bt-center.round.show {
+  animation: roundPop 1s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #f2efe9;
+}
+.bt-center.round.show::before, .bt-center.round.show::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #d90429 30%, #ff5468 50%, #d90429 70%, transparent);
+  animation: roundSlash 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.bt-center.round.show::before { top: calc(50% - clamp(46px, 9vw, 88px)); }
+.bt-center.round.show::after { top: calc(50% + clamp(46px, 9vw, 88px)); animation-delay: 0.06s; }
+@keyframes roundPop {
+  0% { opacity: 0; transform: scale(2.2); filter: blur(14px); letter-spacing: 0.4em; }
+  35% { opacity: 1; transform: scale(0.96); filter: blur(0); letter-spacing: 0.06em; }
+  45% { transform: scale(1.02); }
+  80% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+@keyframes roundSlash {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+/* "LUTE!" — impacto: flash vermelho + shake curtíssimo */
+.bt-center.fight.show {
+  animation: fightSmash 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #ff2244;
+  text-shadow: 0 0 40px rgba(217, 4, 41, 0.95), 0 0 90px rgba(217, 4, 41, 0.5), 0 4px 10px #000;
+}
+@keyframes fightSmash {
+  0% { opacity: 0; transform: scale(3); filter: blur(10px); }
+  30% { opacity: 1; transform: scale(0.94) rotate(-1deg); filter: blur(0); }
+  38% { transform: scale(1.06) rotate(0.6deg); }
+  46% { transform: scale(0.99) rotate(-0.3deg); }
+  55% { transform: scale(1); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.04); }
+}
+
 .bt-announce {
   position: absolute;
   top: 20%;
@@ -296,7 +339,7 @@
   }
 }
 
-/* ===== entrada cinematográfica: VS ===== */
+/* ===== entrada cinematográfica: VS (UPDATE 3.1: arte da arena de fundo) ===== */
 .bt-vs {
   position: absolute;
   inset: 0;
@@ -307,10 +350,41 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s;
-  background: radial-gradient(ellipse at center, transparent 30%, rgba(5,5,5,0.55));
+  background:
+    radial-gradient(ellipse at center, rgba(5,5,5,0.25) 30%, rgba(5,5,5,0.82)),
+    var(--vs-art, none) center / cover no-repeat #0b0709;
   z-index: 5;
 }
 .bt-vs.show { opacity: 1; }
+/* ken burns sutil na arte enquanto o VS está na tela */
+.bt-vs.show { animation: vsKenBurns 2.4s ease-out; }
+@keyframes vsKenBurns {
+  from { background-size: 100% 100%, auto 116%; }
+  to { background-size: 100% 100%, auto 102%; }
+}
+.bt-vs-arena {
+  position: absolute;
+  bottom: 9%;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: var(--sd-font-display);
+  font-size: clamp(15px, 2.6vw, 24px);
+  letter-spacing: 0.55em;
+  text-indent: 0.55em;
+  color: #d9d2c7;
+  text-shadow: 0 2px 8px #000;
+  text-transform: uppercase;
+}
+.bt-vs-arena::before, .bt-vs-arena::after {
+  content: '';
+  display: inline-block;
+  width: clamp(30px, 6vw, 70px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d90429);
+  vertical-align: middle;
+  margin: 0 14px 3px 0;
+}
+.bt-vs-arena::after { background: linear-gradient(270deg, transparent, #d90429); margin: 0 0 3px 14px; }
 .bt-vs-name {
   font-family: var(--sd-font-display);
   font-size: clamp(22px, 5vw, 44px);
