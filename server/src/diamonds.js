@@ -13,6 +13,10 @@ export const PACKS = {
   bolsa:    { id: 'bolsa',    diamonds: 550,  cents: 1990, label: 'Bolsa de Diamantes' },
   bau:      { id: 'bau',      diamonds: 1200, cents: 3990, label: 'Baú de Diamantes' },
   tesouro:  { id: 'tesouro',  diamonds: 2600, cents: 7490, label: 'Tesouro de Diamantes' },
+  // UPDATE 3.4: tiers altos — quanto maior o pacote, melhor o preço por diamante
+  relicario: { id: 'relicario', diamonds: 4200,  cents: 10990, label: 'Relicário de Diamantes' },
+  dinastia:  { id: 'dinastia',  diamonds: 7000,  cents: 16990, label: 'Dinastia de Diamantes' },
+  fortuna:   { id: 'fortuna',   diamonds: 15000, cents: 32990, label: 'Fortuna Lendária' },
 };
 
 const router = Router();

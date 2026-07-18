@@ -95,6 +95,7 @@ export default function Lobby({ profile, onProfile }) {
     const onSent = ({ to }) => setSent(to);
     const onStart = ({ side, players, rejoin, arena }) => {
       preloadArenaAmbience(arena || 'dojo'); // UPDATE 3.1: som da arena já baixando
+      new Image().src = `/arenas/vs_${arena || 'dojo'}.webp`; // UPDATE 3.4: arte do VS aquecida
       playUi('matchmaking_found_01'); // FASE 7: impacto de "partida encontrada"
       setTimeout(() => playVoice('voice_opponent_found_01'), 500); // FASE 10: "Oponente encontrado."
       setIncoming(null);

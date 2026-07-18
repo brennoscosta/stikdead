@@ -9,7 +9,7 @@ import KeysHud from '../lib/KeysHud.jsx';
 import { getSocket } from '../lib/socket.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { playUi } from '../game/audioManager.js';
-import { playArenaAmbience, stopArenaAmbience } from '../game/audioLibrary.js';
+import { playArenaAmbience, stopArenaAmbience, preload, PRELOAD_COMBAT } from '../game/audioLibrary.js';
 
 // FASE 7: assinatura sonora real de cada bot (mesma do Lobby) + fallback
 const BOT_SOM = {
@@ -74,6 +74,10 @@ export default function Battle({ profile, onProfile }) {
   const [resolvedArena, setResolvedArena] = useState(
     () => ARENA_KEYS[Math.floor(Math.random() * ARENA_KEYS.length)]
   );
+
+  // UPDATE 3.4: /treino é SEM_TRILHA — o AudioMood não aquece os buffers aqui.
+  // Sem isso, os primeiros golpes caíam no fallback sintetizado ("som anos 80").
+  useEffect(() => { preload(PRELOAD_COMBAT); }, []);
 
   const enterGameMode = (d) => {
     unlockAudio();

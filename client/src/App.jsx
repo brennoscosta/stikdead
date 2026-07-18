@@ -20,13 +20,16 @@ function AtmosferaGlobal() {
 import { startMusic, stopMusic } from './game/music.js';
 import { startAmbience, stopAmbience } from './game/ambience.js';
 import { applyRemoteSettings, musicForPath, preload } from './game/audioManager.js';
-import { PRELOAD_UI, PRELOAD_COMBAT, arenaAtiva } from './game/audioLibrary.js';
+import { PRELOAD_UI, PRELOAD_COMBAT, arenaAtiva, stopArenaAmbience } from './game/audioLibrary.js';
 import { initUiSounds } from './game/uiSounds.js';
 const SEM_TRILHA = new Set(['/', '/criar-conta', '/esqueci', '/redefinir', '/treino', '/vitrine', '/calibrador']);
 let uiPreloaded = false;
 function AudioMood() {
   const { pathname } = useLocation();
   useEffect(() => {
+    // UPDATE 3.4: rede de segurança — chegou numa página de menu (fora /lobby,
+    // onde a luta PvP vive) com som de arena ainda vivo? Mata na hora.
+    if (pathname !== '/lobby' && arenaAtiva()) stopArenaAmbience({ fadeSeg: 0.3 });
     if (SEM_TRILHA.has(pathname)) { stopMusic(); stopAmbience(); return undefined; }
     // FASE 5: cada tela tem a própria trilha real (crossfade na troca);
     // o ambiente do lobby (9 camadas ElevenLabs) toca junto nos menus.
