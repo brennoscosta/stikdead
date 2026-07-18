@@ -20,7 +20,7 @@ function AtmosferaGlobal() {
 import { startMusic, stopMusic } from './game/music.js';
 import { startAmbience, stopAmbience } from './game/ambience.js';
 import { applyRemoteSettings, musicForPath, preload } from './game/audioManager.js';
-import { PRELOAD_UI, PRELOAD_COMBAT } from './game/audioLibrary.js';
+import { PRELOAD_UI, PRELOAD_COMBAT, arenaAtiva } from './game/audioLibrary.js';
 import { initUiSounds } from './game/uiSounds.js';
 const SEM_TRILHA = new Set(['/', '/criar-conta', '/esqueci', '/redefinir', '/treino', '/vitrine', '/calibrador']);
 let uiPreloaded = false;
@@ -31,6 +31,9 @@ function AudioMood() {
     // FASE 5: cada tela tem a própria trilha real (crossfade na troca);
     // o ambiente do lobby (9 camadas ElevenLabs) toca junto nos menus.
     const tenta = () => {
+      // UPDATE 3.2: luta em andamento (PvP no /lobby) = a arena manda no som.
+      // Sem isso, cada tecla apertada na luta religava o vento do lobby ("mar" no fundo).
+      if (arenaAtiva()) return;
       startMusic(musicForPath(pathname));
       startAmbience();
       if (!uiPreloaded) { uiPreloaded = true; preload(PRELOAD_UI); preload(PRELOAD_COMBAT); initUiSounds(); } // aquece SFX + combate + hover global

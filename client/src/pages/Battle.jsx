@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createMatch, stepMatch } from '../game/sim.js';
 import { createBot, botDecide, DIFFICULTIES } from '../game/bot.js';
@@ -69,14 +69,16 @@ export default function Battle({ profile, onProfile }) {
   const [screen, setScreen] = useState(initialD && params.get('go') === '1' ? 'fight' : 'select'); // select | fight
   const [difficulty, setDifficulty] = useState(initialD);
   const [arena, setArena] = useState('random');
-  const resolvedArena = useMemo(
-    () => (arena === 'random' ? ARENA_KEYS[Math.floor(Math.random() * ARENA_KEYS.length)] : arena),
-    [arena, screen]   // re-sorteia apenas ao entrar em nova partida
+  // UPDATE 3.2: o sorteio da Aleatória vira ESTADO rolado uma única vez por partida.
+  // (useMemo com Math.random podia recomputar em re-render e trocar o som no meio da luta.)
+  const [resolvedArena, setResolvedArena] = useState(
+    () => ARENA_KEYS[Math.floor(Math.random() * ARENA_KEYS.length)]
   );
 
   const enterGameMode = (d) => {
     unlockAudio();
     setDifficulty(d);
+    setResolvedArena(arena === 'random' ? ARENA_KEYS[Math.floor(Math.random() * ARENA_KEYS.length)] : arena);
     setScreen('fight');
     // ainda dentro do gesto de clique: fullscreen é permitido aqui
     document.body.classList.add('in-fight');

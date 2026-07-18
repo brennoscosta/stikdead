@@ -299,7 +299,7 @@ export function stopMusic({ fadeSeg = 0.7 } = {}) {
 // ===== ambiente (camadas contínuas + eventos raros com cooldown) =====
 // Volumes relativos por camada (bíblia: nada distrai; eventos são raros).
 const AMB_LOOPS = [
-  { id: 'amb_lobby_wind_v01', vol: 0.75 },
+  { id: 'amb_lobby_wind_v01', vol: 0.45 }, // UPDATE 3.2: vento soava como "mar" alto demais — presença, não maré
   { id: 'amb_lobby_embers_v01', vol: 0.55 },
   { id: 'amb_lobby_lanterns_v01', vol: 0.45 },
   { id: 'amb_lobby_crowd_v01', vol: 0.30 },
@@ -371,7 +371,13 @@ export function stopAmbience({ fadeSeg = 0.8 } = {}) {
 
 // ===== ambiente de ARENA (Lote 5) — um loop por luta, independente do lobby =====
 // "Cada arena tem um som; quando termina a luta, termina o som."
+// UPDATE 3.2: à prova de órfãos — TODA faixa criada entra em `faixasArena`;
+// stopArenaAmbience varre o conjunto inteiro, então nenhum loop sobrevive perdido.
 let arenaFaixa = null;
+const faixasArena = new Set();
+
+/** true enquanto uma luta está com ambiência de arena ativa (AudioMood usa). */
+export const arenaAtiva = () => arenaFaixa !== null;
 
 export function playArenaAmbience(arenaKey, { fadeSeg = 1.2, volume = 0.45 } = {}) {
   const id = ARENA_AMBIENCE[arenaKey] || ARENA_AMBIENCE.dojo;
@@ -381,7 +387,8 @@ export function playArenaAmbience(arenaKey, { fadeSeg = 1.2, volume = 0.45 } = {
   stopArenaAmbience({ fadeSeg: 0.4 });
   const f = criarFaixa(id, 'ambience', { loop: true });
   if (!f) return false;
-  f.el.addEventListener('error', () => { if (arenaFaixa === f) arenaFaixa = null; matarFaixa(f, 0.1); }, { once: true });
+  faixasArena.add(f);
+  f.el.addEventListener('error', () => { if (arenaFaixa === f) arenaFaixa = null; faixasArena.delete(f); matarFaixa(f, 0.1); }, { once: true });
   arenaFaixa = f;
   // UPDATE 3.1: entra num ponto aleatório do loop — o ouvido nunca decora a "virada"
   const entrarAleatorio = () => {
@@ -392,7 +399,11 @@ export function playArenaAmbience(arenaKey, { fadeSeg = 1.2, volume = 0.45 } = {
   };
   if (f.el.readyState >= 1) entrarAleatorio();
   else f.el.addEventListener('loadedmetadata', entrarAleatorio, { once: true });
-  f.el.play().then(() => fade(f.gain, volume, fadeSeg)).catch(() => {});
+  f.el.play().then(() => {
+    // UPDATE 3.2: se a faixa foi morta enquanto o play() carregava, não ressuscita
+    if (arenaFaixa === f) fade(f.gain, volume, fadeSeg);
+    else { faixasArena.delete(f); matarFaixa(f, 0.05); }
+  }).catch(() => {});
   return true;
 }
 
@@ -405,8 +416,8 @@ export function preloadArenaAmbience(arenaKey) {
 }
 
 export function stopArenaAmbience({ fadeSeg = 1.0 } = {}) {
-  if (!arenaFaixa) return;
-  matarFaixa(arenaFaixa, fadeSeg);
+  for (const f of faixasArena) matarFaixa(f, f === arenaFaixa ? fadeSeg : 0.1);
+  faixasArena.clear();
   arenaFaixa = null;
 }
 
