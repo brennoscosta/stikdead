@@ -126,12 +126,12 @@ const CFG = {
   f3_face_mumia: { attach: 'face', len: 117, maxW: 99 },
   f3_mascara_geisha: { attach: 'face', len: 94, maxW: 77 },
   f3_elmo_rinoceronte: { attach: 'face', len: 99, maxW: 86 },
-  // ----- rostos diamante 4 (arte IA Higgsfield) -----
-  f4_menpo_jade: { attach: 'face', len: 92, maxW: 80 },
-  f4_hannya_gelo: { attach: 'face', len: 96, maxW: 82 },
-  f4_kitsune_nove: { attach: 'face', len: 90, maxW: 77 },
-  f4_tigre_sangue: { attach: 'face', len: 96, maxW: 86 },
-  f4_tengu_corvo: { attach: 'face', len: 88, maxW: 72 },
+  // ----- rostos diamante 4 (arte IA no estilo do boneco, vestem a bola da cabeça) -----
+  f4_menpo_jade: { attach: 'face', len: 42, maxW: 52, dy: -9 },
+  f4_hannya_gelo: { attach: 'face', len: 66, maxW: 58, dy: 3 },
+  f4_kitsune_nove: { attach: 'face', len: 64, maxW: 56, dy: 2 },
+  f4_tigre_sangue: { attach: 'face', len: 62, maxW: 56, dy: -2 },
+  f4_tengu_corvo: { attach: 'face', len: 56, maxW: 68 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -271,9 +271,9 @@ export function createWeaponSprite(container, behindOf = null) {
           spr.rotation = Math.atan2(hT[0] - nT[0], hT[1] - nT[1]) * -1;
           spr.scale.x = Math.abs(spr.scale.y) * face;
         } else if (slot === 'face') {
-          // centro exato da cabeça, levemente à frente
+          // centro exato da cabeça (dx/dy opcionais: ex. máscara de mandíbula desce um pouco)
           spr.anchor.set(0.5, 0.5);
-          const c = T(sk.head);
+          const c = T([sk.head[0] + (cfg.dx ?? 0), sk.head[1] + (cfg.dy ?? 0)]);
           spr.position.set(c[0], c[1]);
           spr.rotation = -sk.lean * 0.35 * face;
           spr.scale.x = Math.abs(spr.scale.y) * face;
