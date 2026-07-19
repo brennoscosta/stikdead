@@ -126,12 +126,19 @@ const CFG = {
   f3_face_mumia: { attach: 'face', len: 117, maxW: 99 },
   f3_mascara_geisha: { attach: 'face', len: 94, maxW: 77 },
   f3_elmo_rinoceronte: { attach: 'face', len: 99, maxW: 86 },
-  // ----- rostos diamante 4 (arte IA no estilo do boneco, vestem a bola da cabeça) -----
-  f4_menpo_jade: { attach: 'face', len: 42, maxW: 52, dy: -9 },
-  f4_hannya_gelo: { attach: 'face', len: 66, maxW: 58, dy: 3 },
-  f4_kitsune_nove: { attach: 'face', len: 64, maxW: 56, dy: 2 },
-  f4_tigre_sangue: { attach: 'face', len: 62, maxW: 56, dy: -2 },
-  f4_tengu_corvo: { attach: 'face', len: 56, maxW: 68 },
+  // ----- rostos diamante 4 (arte IA no estilo do boneco; calibrados por medição
+  // de alpha para a bola do sprite casar com a borda da cabeça, diâmetro 48) -----
+  f4_menpo_jade: { attach: 'face', len: 54, dy: -9 },
+  f4_hannya_gelo: { attach: 'face', len: 53, dy: 2 },
+  f4_kitsune_nove: { attach: 'face', len: 63, dy: 4, dx: 3 },
+  f4_tigre_sangue: { attach: 'face', len: 55, dy: -1 },
+  f4_tengu_corvo: { attach: 'face', len: 52, dx: 1 },
+  // ----- corpos diamante das coleções (arte IA no estilo do boneco, tronco 39×25) -----
+  b4_peitoral_jade: { attach: 'body', len: 50 },
+  b4_couraca_hannya: { attach: 'body', len: 50 },
+  b4_kimono_nove: { attach: 'body', len: 56, dy: -4 },
+  b4_peitoral_tigre: { attach: 'body', len: 50 },
+  b4_manto_tengu: { attach: 'body', len: 60, dy: -6 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -154,6 +161,7 @@ const SPRITE_WHITELIST = new Set([
   'esm_arms_gloves',
   'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_farao', 'f3_caveira_fogo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte',
   'f4_menpo_jade', 'f4_hannya_gelo', 'f4_kitsune_nove', 'f4_tigre_sangue', 'f4_tengu_corvo',
+  'b4_peitoral_jade', 'b4_couraca_hannya', 'b4_kimono_nove', 'b4_peitoral_tigre', 'b4_manto_tengu',
 ]);
 
 // ============================================================
@@ -265,7 +273,7 @@ export function createWeaponSprite(container, behindOf = null) {
           // torso: centrado entre pescoço e quadril, girando com a inclinação do tronco
           spr.anchor.set(0.5, 0.5);
           const n = sk.neck, hp = sk.hip;
-          const c = T([(n[0] + hp[0]) / 2, (n[1] + hp[1]) / 2 - 1]);
+          const c = T([(n[0] + hp[0]) / 2 + (cfg.dx ?? 0), (n[1] + hp[1]) / 2 - 1 + (cfg.dy ?? 0)]);
           spr.position.set(c[0], c[1]);
           const nT = T(n), hT = T(hp);
           spr.rotation = Math.atan2(hT[0] - nT[0], hT[1] - nT[1]) * -1;
