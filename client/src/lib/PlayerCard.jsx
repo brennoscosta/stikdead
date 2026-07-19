@@ -206,14 +206,23 @@ export default function PlayerCard({ name, onClose, onWhisper, onGifted, autoGif
             )}
             <div className="pc-actions">
               {p.friendship === 'none' && <button className="btn btn-blood" disabled={busy} onClick={request}>➕ Pedir amizade</button>}
+              {/* UPDATE 3.7: com clã → o botão vira o NOME do clã e abre a página dele;
+                  sem clã → vira "Convidar para clã" (comportamento antigo do convite) */}
               {p.friendship !== 'self' && (
-                <button className="btn btn-ghost" style={{ width: 'auto' }} disabled={busy} title="Convidar para o seu clã (só o dono)"
-                  onClick={async () => {
-                    setBusy(true);
-                    try { await api('/api/clans/invite', { method: 'POST', body: { name } }); setErr('✅ Convite de clã enviado!'); }
-                    catch (e) { setErr(e.message || 'Não foi possível convidar.'); }
-                    setBusy(false);
-                  }}>🛡️ Clã</button>
+                p.clan ? (
+                  <button className="btn btn-ghost" style={{ width: 'auto' }} title={`Ver informações do clã ${p.clan.name}`}
+                    onClick={() => { onClose?.(); window.location.href = `/cla/${p.clan.id}`; }}>
+                    🛡️ {p.clan.name}
+                  </button>
+                ) : (
+                  <button className="btn btn-ghost" style={{ width: 'auto' }} disabled={busy} title="Convidar para o seu clã (só o dono)"
+                    onClick={async () => {
+                      setBusy(true);
+                      try { await api('/api/clans/invite', { method: 'POST', body: { name } }); setErr('✅ Convite de clã enviado!'); }
+                      catch (e) { setErr(e.message || 'Não foi possível convidar.'); }
+                      setBusy(false);
+                    }}>🛡️ Convidar para clã</button>
+                )
               )}
               
               {p.friendship === 'pending_in' && (
