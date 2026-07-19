@@ -406,12 +406,38 @@ body {
 }
 @media (max-width: 720px) { .inv-layout { grid-template-columns: 1fr; } }
 .inv-left { display: flex; flex-direction: column; gap: 10px; }
+/* UPDATE 3.6: desktop — o painel do boneco acompanha a rolagem do baú */
+@media (min-width: 721px) {
+  .inv-left { position: sticky; top: calc(80px + env(safe-area-inset-top, 0px)); align-self: start; }
+}
+.inv-preview-wrap { height: 240px; }
 .inv-preview {
   height: 240px;
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
   background: #141414;
+}
+/* UPDATE 3.6: celular — rolou o baú, o boneco vira mini-card flutuante no canto
+   (o Pixi se redimensiona sozinho; tocar no card volta ao topo) */
+@media (max-width: 720px) {
+  .inv-preview-wrap.flutua .inv-preview {
+    position: fixed;
+    right: 10px;
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px)); /* acima da bottombar */
+    width: 124px;
+    height: 124px;
+    z-index: 60;
+    border-color: rgba(217, 4, 41, 0.55);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 18px rgba(217, 4, 41, 0.25);
+    animation: invFlutuaIn 0.25s ease-out;
+    cursor: pointer;
+  }
+}
+@keyframes invFlutuaIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.9); }
+  to { opacity: 1; transform: none; }
 }
 .inv-pose-row { display: flex; gap: 6px; }
 .inv-pose-row button {

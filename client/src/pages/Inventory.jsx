@@ -65,6 +65,18 @@ export default function Inventory({ profile }) {
   const equipped = Object.fromEntries(loadout.map((l) => [l.slot, l]));
   const shown = chest.filter((i) => filter === 'all' || i.slot === filter);
 
+  // UPDATE 3.6: no celular, ao rolar o baú o boneco vira um mini-card flutuante
+  // no canto — o jogador vê o resultado de cada equip sem voltar ao topo.
+  const [flutua, setFlutua] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 720px)');
+    const onScroll = () => setFlutua(mq.matches && window.scrollY > 300);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
+  }, []);
+
   return (
     <div className="scene scene-nav">
       <Navbar profile={profile} />
@@ -76,7 +88,13 @@ export default function Inventory({ profile }) {
 
       <div className="inv-layout">
         <div className="inv-left">
-          <div className="inv-preview" ref={previewHost} />
+          <div
+            className={`inv-preview-wrap ${flutua ? 'flutua' : ''}`}
+            onClick={() => { if (flutua) window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            title={flutua ? 'Voltar ao topo' : undefined}
+          >
+            <div className="inv-preview" ref={previewHost} />
+          </div>
           <div className="inv-pose-row">
             {['idle', 'light', 'heavy', 'victory'].map((s) => (
               <button key={s} onClick={() => previewRef.current?.setPose(s)}>
