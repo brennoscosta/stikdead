@@ -10,12 +10,17 @@ const TRAINING_FACTOR = 0.25; // treino vs bot rende 25% (cortado pela metade em
 const DIFFS = new Set(['facil', 'medio', 'dificil', 'insano']);
 const DIFF_BONUS = { facil: 0, medio: 0.1, dificil: 0.25, insano: 0.5 };
 
-const computeRewards = ({ won, difficulty, stats, winsB }) =>
-  computeBase({
+const computeRewards = ({ won, difficulty, stats, winsB }) => {
+  const r = computeBase({
     won, stats, winsB,
     diffMult: 1 + (won ? DIFF_BONUS[difficulty] || 0 : 0),
     factor: TRAINING_FACTOR,
   });
+  // UPDATE 3.8 (pedido do Brenno): treino contra bot NÃO rende XP — exceto
+  // contra o INSANO, o único que ainda paga experiência. Moedas seguem normais.
+  if (difficulty !== 'insano') return { ...r, xp: 0, bonuses: [] };
+  return r;
+};
 
 const router = Router();
 
