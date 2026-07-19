@@ -63,7 +63,7 @@ export default function Social({ profile }) {
 
       {/* ===== modal: convidar amigo ===== */}
       {modal === 'convite' && (
-        <div className="pc-overlay" onClick={fechar}>
+        <div className="pc-overlay soc2-overlay" onClick={fechar}>
           <div className="soc2-modal" onClick={(e) => e.stopPropagation()}>
             <span className="soc2-modal-ico"><Icon name="favorito" size={34} weight="forte" /></span>
             <h2>CHAMA PRA LUTA</h2>
@@ -79,7 +79,7 @@ export default function Social({ profile }) {
 
       {/* ===== modal: regras de clã ===== */}
       {modal === 'cla' && (
-        <div className="pc-overlay" onClick={fechar}>
+        <div className="pc-overlay soc2-overlay" onClick={fechar}>
           <div className="soc2-modal" onClick={(e) => e.stopPropagation()}>
             <span className="soc2-modal-ico"><Icon name="escudo" size={34} weight="forte" /></span>
             <h2>CÓDIGO DOS CLÃS</h2>
