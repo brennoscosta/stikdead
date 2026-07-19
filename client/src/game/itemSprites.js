@@ -126,6 +126,12 @@ const CFG = {
   f3_face_mumia: { attach: 'face', len: 117, maxW: 99 },
   f3_mascara_geisha: { attach: 'face', len: 94, maxW: 77 },
   f3_elmo_rinoceronte: { attach: 'face', len: 99, maxW: 86 },
+  // ----- rostos diamante 4 (arte IA Higgsfield) -----
+  f4_menpo_jade: { attach: 'face', len: 92, maxW: 80 },
+  f4_hannya_gelo: { attach: 'face', len: 96, maxW: 82 },
+  f4_kitsune_nove: { attach: 'face', len: 90, maxW: 77 },
+  f4_tigre_sangue: { attach: 'face', len: 96, maxW: 86 },
+  f4_tengu_corvo: { attach: 'face', len: 88, maxW: 72 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -147,6 +153,7 @@ const SPRITE_WHITELIST = new Set([
   'saf_arms_gloves',
   'esm_arms_gloves',
   'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_farao', 'f3_caveira_fogo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte',
+  'f4_menpo_jade', 'f4_hannya_gelo', 'f4_kitsune_nove', 'f4_tigre_sangue', 'f4_tengu_corvo',
 ]);
 
 // ============================================================
