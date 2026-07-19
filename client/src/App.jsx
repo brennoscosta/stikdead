@@ -17,28 +17,23 @@ function AtmosferaGlobal() {
 // SISTEMA DE ÁUDIO: trilha + ambiente seguem a navegação.
 // Nos menus tocam contínuos (sem reiniciar entre telas); na luta e no auth, silêncio
 // dos loops — o combate tem os próprios sons. Singleton nos motores = nunca duplica.
-import { startMusic, stopMusic } from './game/music.js';
-import { startAmbience, stopAmbience } from './game/ambience.js';
-import { applyRemoteSettings, musicForPath, preload } from './game/audioManager.js';
+// UPDATE 3.5 (pedido do Brenno): menus SEM som de fundo — nada de trilha nem
+// ambiente contínuo. Só efeitos de UI/recompensa. Os únicos loops vivos são os
+// da ARENA, durante a luta (Battle/Lobby cuidam deles).
+import { stopMusic } from './game/music.js';
+import { stopAmbience } from './game/ambience.js';
+import { applyRemoteSettings, preload } from './game/audioManager.js';
 import { PRELOAD_UI, PRELOAD_COMBAT, arenaAtiva, stopArenaAmbience } from './game/audioLibrary.js';
 import { initUiSounds } from './game/uiSounds.js';
-const SEM_TRILHA = new Set(['/', '/criar-conta', '/esqueci', '/redefinir', '/treino', '/vitrine', '/calibrador']);
 let uiPreloaded = false;
 function AudioMood() {
   const { pathname } = useLocation();
   useEffect(() => {
-    // UPDATE 3.4: rede de segurança — chegou numa página de menu (fora /lobby,
-    // onde a luta PvP vive) com som de arena ainda vivo? Mata na hora.
-    if (pathname !== '/lobby' && arenaAtiva()) stopArenaAmbience({ fadeSeg: 0.3 });
-    if (SEM_TRILHA.has(pathname)) { stopMusic(); stopAmbience(); return undefined; }
-    // FASE 5: cada tela tem a própria trilha real (crossfade na troca);
-    // o ambiente do lobby (9 camadas ElevenLabs) toca junto nos menus.
+    // rede de segurança: som de arena só pode viver no /lobby (PvP) e /treino (PvE)
+    if (pathname !== '/lobby' && pathname !== '/treino' && arenaAtiva()) stopArenaAmbience({ fadeSeg: 0.3 });
+    stopMusic();
+    stopAmbience();
     const tenta = () => {
-      // UPDATE 3.2: luta em andamento (PvP no /lobby) = a arena manda no som.
-      // Sem isso, cada tecla apertada na luta religava o vento do lobby ("mar" no fundo).
-      if (arenaAtiva()) return;
-      startMusic(musicForPath(pathname));
-      startAmbience();
       if (!uiPreloaded) { uiPreloaded = true; preload(PRELOAD_UI); preload(PRELOAD_COMBAT); initUiSounds(); } // aquece SFX + combate + hover global
     };
     tenta(); // se o áudio já está destravado, entra na hora

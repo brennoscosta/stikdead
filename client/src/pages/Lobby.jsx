@@ -11,8 +11,7 @@ import Icon from '../ds/Icon.jsx';
 import { rankArte, rankCor, rankNome } from '../ds/rank.js';
 import { playEvent, unlockAudio, toggleMute, isMuted, sfx } from '../game/audio.js';
 import { playUi, playVoice } from '../game/audioManager.js';
-import { startMusic } from '../game/music.js';
-import { startAmbience, stopAmbience } from '../game/ambience.js';
+import { stopAmbience } from '../game/ambience.js';
 import { playArenaAmbience, stopArenaAmbience, preloadArenaAmbience } from '../game/audioLibrary.js';
 import { ARENAS } from '../game/arena.js';
 import { STYLES } from '../game/sim.js';
@@ -66,11 +65,8 @@ export default function Lobby({ profile, onProfile }) {
   const [notice, setNotice] = useState('');
   const [botDiff, setBotDiff] = useState(null); // UPDATE 2.8: dificuldade só seleciona
 
-  // FASE 7: na fila de matchmaking a trilha vira o loop de tensão (bíblia,
-  // seção 3 — camadas progressivas); ao sair/parear, volta ao tema do lobby.
-  useEffect(() => {
-    startMusic(inQueue ? 'music_matchmaking_v01' : 'music_lobby_v01');
-  }, [inQueue]);
+  // UPDATE 3.5: menus sem trilha de fundo (pedido do Brenno) — a música de
+  // lobby/matchmaking saiu de cena; ficam só os efeitos e os sons da arena.
 
   useEffect(() => {
     const socket = getSocket();
@@ -619,13 +615,13 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     return () => document.body.classList.remove('in-fight');
   }, []);
 
-  // LOTE 5: som próprio da arena na luta PvP — o ambiente do lobby dá lugar
-  // ao da arena e volta quando a luta termina ("cada arena tem um som").
+  // LOTE 5 / UPDATE 3.5: som próprio da arena na luta PvP — entra com a luta,
+  // morre com ela. (O lobby agora é silencioso por padrão: nada pra "voltar".)
   useEffect(() => {
     stopAmbience();
     if (!result) playArenaAmbience(session.arena || 'dojo');
     else stopArenaAmbience(); // resultado na tela = fim do som da arena
-    return () => { stopArenaAmbience(); startAmbience(); };
+    return () => stopArenaAmbience();
   }, [session.arena, result]);
   const quatro = session.players.length === 4;
   const teams = session.teams || (quatro ? [0, 0, 1, 1] : [0, 1]);
@@ -886,7 +882,7 @@ function OnlineFight({ profile, session, onProfile, onDone }) {
     <div className="bt-root">
       <div className="bt-canvas" ref={hostRef} />
       {loading && (
-        <div className="bt-loading">
+        <div className="bt-loading" style={{ '--vs-art': `url('/arenas/vs_${session.arena || 'dojo'}.webp')` }}>
           <img className="bt-loading-logo" src="/logo.webp" alt="STIKDEAD" />
           <div className="ink-spinner" />
           <div className="bt-loading-title">PREPARANDO A ARENA…</div>

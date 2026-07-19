@@ -1322,6 +1322,36 @@ body.in-fight .topnav-spacer { display: none; }
 .soc-title { font: 800 20px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.12em; }
 .soc-desc { color: var(--muted); font-size: 13px; line-height: 1.5; }
 
+/* ===== SOCIAL v2 (UPDATE 3.5): hub organizado — heróis, atalhos e modais ===== */
+.soc2-topo { text-align: center; margin-top: 10px; }
+.soc2-topo h1 { font: 800 30px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.1em; display: inline-flex; align-items: center; gap: 10px; margin: 0 0 4px; }
+.soc2-topo p { color: var(--muted); font-size: 13.5px; margin: 0; }
+.soc2-hero { position: relative; overflow: hidden; }
+.soc2-hero::before { content: ''; position: absolute; inset: -40% -20% auto; height: 130%; background: radial-gradient(ellipse at top, rgba(217,4,41,0.14), transparent 65%); pointer-events: none; }
+.soc2-hero-ico { display: grid; place-items: center; width: 74px; height: 74px; border-radius: 50%; background: linear-gradient(160deg, rgba(217,4,41,0.22), rgba(217,4,41,0.05)); border: 1px solid rgba(217,4,41,0.4); box-shadow: 0 0 24px rgba(217,4,41,0.18); }
+.soc2-cta { margin-top: 6px; font: 700 12px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.16em; color: #ff5468; }
+.soc2-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 720px; margin: 18px auto 0; padding: 0 14px; }
+.soc2-links button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #14090c; border: 1px solid var(--line); color: var(--text); font: 600 13px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.08em; cursor: pointer; transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s; }
+.soc2-links button:hover { border-color: rgba(217,4,41,0.6); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(217,4,41,0.15); }
+.soc2-links .soc2-destaque { background: linear-gradient(160deg, rgba(217,4,41,0.25), rgba(217,4,41,0.08)); border-color: rgba(217,4,41,0.55); }
+.soc2-modal { background: linear-gradient(165deg, #1b1013, #0c0709); border: 1px solid rgba(217,4,41,0.45); border-radius: 20px; padding: 28px 26px 20px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 24px 70px rgba(0,0,0,0.7), 0 0 40px rgba(217,4,41,0.12); animation: soc2Pop 0.22s cubic-bezier(0.2, 1.2, 0.4, 1); }
+@keyframes soc2Pop { from { opacity: 0; transform: scale(0.92) translateY(10px); } to { opacity: 1; transform: none; } }
+.soc2-modal-ico { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 10px; border-radius: 50%; background: rgba(217,4,41,0.14); border: 1px solid rgba(217,4,41,0.45); }
+.soc2-modal h2 { font: 800 22px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.14em; margin: 0 0 6px; }
+.soc2-modal p { color: var(--muted); font-size: 13.5px; margin: 0 0 14px; line-height: 1.5; }
+.soc2-convite { background: #0a0507; border: 1px dashed rgba(217,4,41,0.5); border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+.soc2-modal-btn { width: 100%; }
+.soc2-modal-fechar { margin-top: 10px; background: none; border: none; color: var(--muted); font: 600 12px/1 'Barlow Condensed', sans-serif; letter-spacing: 0.14em; cursor: pointer; }
+.soc2-modal-fechar:hover { color: var(--text); }
+.soc2-regras { text-align: left; margin: 0 0 16px; padding-left: 18px; color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+.soc2-regras b { color: var(--text); }
+@media (max-width: 760px) {
+  .soc2-topo h1 { font-size: 24px; }
+  .soc2-links { gap: 8px; }
+  .soc2-links button { padding: 9px 13px; font-size: 12.5px; }
+  .soc2-modal { padding: 22px 18px 16px; border-radius: 16px; }
+}
+
 /* ===== bandeira do clã ===== */
 .flag { position: relative; display: flex; align-items: flex-start; flex: none; }
 .flag-mastro { width: 5px; background: linear-gradient(#7a6a58, #40342a); border-radius: 3px; }

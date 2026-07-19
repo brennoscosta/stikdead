@@ -389,7 +389,7 @@ function Fight({ profile, difficulty, arena, onExit, onProfile }) {
       <div className="bt-canvas" ref={hostRef} />
       <KeysHud ref={hud.skillCd} skillName={STYLES[profile?.style]?.skill} />
       {loading && (
-        <div className="bt-loading">
+        <div className="bt-loading" style={{ '--vs-art': `url('/arenas/vs_${arena || 'dojo'}.webp')` }}>
           <img className="bt-loading-logo" src="/logo.webp" alt="STIKDEAD" />
           <div className="ink-spinner" />
           <div className="bt-loading-title">PREPARANDO A ARENA…</div>

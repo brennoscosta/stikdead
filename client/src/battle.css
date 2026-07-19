@@ -307,6 +307,17 @@
 .bt-btn.blue { border-color: #3d7bd9; color: #9cc0ff; }
 .bt-btn.green { border-color: #3dbd6e; color: #9df0bc; }
 
+/* UPDATE 3.5: celular baixo na horizontal — tudo compacto, com folga garantida
+   entre analógico, cluster de golpes e o botão de skill (nada se sobrepõe) */
+@media (pointer: coarse) and (max-height: 440px) {
+  .bt-stick { width: 104px; height: 104px; left: 3vw; }
+  .bt-knob { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+  .bt-actions { width: 158px; gap: 8px; right: 2.5vw; }
+  .bt-btn { width: 56px; height: 56px; font-size: 10px; }
+  .bt-btn.sm { width: 48px; height: 48px; }
+  .bt-btn.red { width: 64px; height: 64px; }
+}
+
 /* ===== aviso de orientação (mobile vertical) ===== */
 .bt-rotate { display: none; }
 @media (pointer: coarse) and (orientation: portrait) {
@@ -339,7 +350,9 @@
   }
 }
 
-/* ===== entrada cinematográfica: VS (UPDATE 3.1: arte da arena de fundo) ===== */
+/* ===== entrada cinematográfica: VS (UPDATE 3.5: arte SEMPRE em cover — sem
+   corte estranho nem faixa em nenhuma proporção de tela; ken burns via
+   transform, que é barato pra GPU e não mexe no enquadramento) ===== */
 .bt-vs {
   position: absolute;
   inset: 0;
@@ -350,17 +363,29 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s;
-  background:
-    radial-gradient(ellipse at center, rgba(5,5,5,0.25) 30%, rgba(5,5,5,0.82)),
-    var(--vs-art, none) center / cover no-repeat #0b0709;
+  background: #0b0709;
+  overflow: hidden;
   z-index: 5;
 }
+.bt-vs::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--vs-art, none) center / cover no-repeat;
+  transform: scale(1.06);
+}
+.bt-vs::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(5,5,5,0.25) 30%, rgba(5,5,5,0.82));
+}
+.bt-vs > * { position: relative; z-index: 1; }
 .bt-vs.show { opacity: 1; }
-/* ken burns sutil na arte enquanto o VS está na tela */
-.bt-vs.show { animation: vsKenBurns 2.4s ease-out; }
+.bt-vs.show::before { animation: vsKenBurns 2.4s ease-out forwards; }
 @keyframes vsKenBurns {
-  from { background-size: 100% 100%, auto 116%; }
-  to { background-size: 100% 100%, auto 102%; }
+  from { transform: scale(1.12); }
+  to { transform: scale(1.02); }
 }
 .bt-vs-arena {
   position: absolute;

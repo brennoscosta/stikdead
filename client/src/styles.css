@@ -680,7 +680,18 @@ body {
   position: absolute; inset: 0; z-index: 25;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
   background: #0b0709;
+  overflow: hidden;
 }
+/* UPDATE 3.5: a arte da arena já aparece (borrada) na tela de carregamento —
+   a entrada na luta vira uma sequência contínua: loading → VS → FIGHT */
+.bt-loading::before {
+  content: '';
+  position: absolute; inset: -12px;
+  background: var(--vs-art, none) center / cover no-repeat;
+  opacity: 0.22;
+  filter: blur(7px) saturate(0.85);
+}
+.bt-loading > * { position: relative; z-index: 1; }
 .ink-spinner {
   width: 58px; height: 58px; border-radius: 50%;
   /* cauda de cometa: arco em degradê, sem as quinas do truque de bordas */
@@ -790,10 +801,12 @@ h1.brand { display: flex; align-items: center; justify-content: center; flex-wra
 
 /* ===== botão/indicador de skill ===== */
 .bt-skill {
-  /* ancorado ACIMA do botão JUMP (3ª coluna do cluster .bt-actions) */
+  /* UPDATE 3.5: MESMA base de âncora do cluster .bt-actions (svh + safe-area) —
+     antes usava 5vh puro e, em telas baixas, invadia a fileira de cima dos botões */
   position: absolute;
-  right: calc(3vw + 6px);
-  bottom: calc(5vh + 148px);
+  right: calc(3vw + 8px);
+  bottom: calc(5vh + 158px); /* fallback */
+  bottom: calc(3.5svh + env(safe-area-inset-bottom, 0px) + 176px);
   z-index: 22;
   width: 66px; height: 66px; border-radius: 50%;
   background: conic-gradient(#d90429 var(--cd, 0%), #2a1218 0);
@@ -811,6 +824,12 @@ h1.brand { display: flex; align-items: center; justify-content: center; flex-wra
 .bt-skill[data-ready="1"]:active { transform: scale(0.93); }
 .bt-skill-name { font: 700 9px "Barlow Condensed", sans-serif; letter-spacing: 0.05em; text-align: center; line-height: 1.05; max-width: 56px; }
 .bt-skill-cd { font: 800 19px "Barlow Condensed", sans-serif; color: #ff8fa3; min-height: 19px; }
+/* UPDATE 3.5: celular baixo na horizontal — skill compacta, sempre afastada do cluster */
+@media (pointer: coarse) and (max-height: 440px) {
+  .bt-skill { width: 56px; height: 56px; right: calc(2.5vw + 8px); bottom: calc(3.5svh + env(safe-area-inset-bottom, 0px) + 150px); }
+  .bt-skill-name { font-size: 8px; max-width: 46px; }
+  .bt-skill-cd { font-size: 15px; min-height: 15px; }
+}
 
 /* ===== seletor de estilo ===== */
 .style-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
