@@ -1,35 +1,24 @@
-# STIKDEAD :: ESTADO DA SESSÃO (2026-07-07, dia épico)
+# STIKDEAD :: ESTADO DA SESSÃO (2026-07-20) — MIGRAÇÃO CAPROVER
 
-## EM PRODUÇÃO (game.stikdead.com) — tudo estável
-- Sistema de Skills (5 estilos, tecla **H** no desktop, botão só no toque)
-- Economia de risco (-200 derrota), estilos pagos x4 (8k/10k/14k/20k)
-- 136 itens, loja com aba Estilos (?slot=style)
-- UI premium completa (Etapas 1-3), login com arte-pôster (login-bg.webp)
-- Bottombar app-style global (recolhe em luta via body.in-fight), topo = logo+moedas+chip nome/Nv
-- Painel admin /admin (souzacostabrenno@gmail.com) — dashboard/usuários/itens editáveis
-- Carimbo de build no canto: div#bb (atual b:0707J+) + detector M/D — REMOVER no lançamento
-- **Personagem: VETORIAL ORIGINAL** (decisão do Brenno após saga das peças)
+## DEPLOY AGORA É CAPROVER (container único)
+- Dockerfile multi-stage na raiz: builda client (Vite) → server Node serve client/dist + API + Socket.io na porta 80
+- captain-definition + .dockerignore (preserva os 148 sprites de client/public/sprites; barra só /*.webp lixo da raiz)
+- Migrações AUTOMÁTICAS no boot (migrate.js exporta runMigrations, reusa o pool do server; RUN_MIGRATIONS=false desliga)
+- Ritual NOVO: assistente faz git push → webhook → CapRover builda e sobe. FIM dos scripts de sprite no VPS (filesystem efêmero: sprites entram pelo git).
 
-## EXPERIMENTO CORPO PINTADO — DESLIGADO, preservado
-- PARTS_ENABLED=false (bodyParts.js), HEAD_SPRITE_ENABLED=false (headSprite.js)
-- Soul treinado: 5e7592af-d66c-4d32-8141-bfb5d6a6c8cb (stikdead-hero)
-- Peças fatiadas no repo: torso/thigh/shin/forearm (kit preto, flood-fill)
-- REGRA PARA RELIGAR: só após provador offline (script que monta peças em poses
-  e gera PNGs que o assistente INSPECIONA antes de produção). Nunca mais iterar
-  visual em produção com os olhos do Brenno de bancada.
+## CHECKLIST DO PAINEL CAPROVER (o que o assistente NÃO alcança)
+1. Env vars: DATABASE_URL, JWT_SECRET (openssl rand -hex 32), GOOGLE_CLIENT_ID (se usa), CORS_ORIGIN opcional (mesmo domínio)
+2. HTTP Settings → **Websocket Support: ON** (crítico p/ Socket.io — sem isso praça/luta caem)
+3. Container HTTP Port = 80
+4. Deployment → webhook do GitHub ligado (senão push não builda)
 
-## PENDÊNCIAS DO BRENNO
-- Rotacionar chaves (token GitHub + key Higgsfield antiga) + history -c — CRÍTICO
-- Cache nginx (index.html no-store, /assets immutable) — evita builds presos
-- Assets: --group=arenas e --group=lote5 na fábrica (94 ícones)
-- Playtest com 3-5 amigos
+## SEGURANÇA
+- Token GitHub rotacionado 2026-07-20 (o antigo foi revogado). Higgsfield key antiga: AINDA revogar.
 
-## PRÓXIMAS FRENTES (ordem sugerida)
-1. Etapa 4 premium: movimentos dos lutadores (rig+sim, sessão isolada com testes)
-2. Conquistas / Clãs / Fase 8 beta
-3. (se quiser retomar) Provador offline → corpo pintado
+## PERSONAGEM
+- VETORIAL (decisão do Brenno). Corpos diamante voltaram como sprite via rig em camadas (gFront). Braços corrigidos (bend positivo, sem hiperextensão).
 
-## OPERACIONAL
-- VPS: cd /opt/stikdead && git pull && cd client && npm run build (+ migrações com source .env)
-- Push do assistente: sync /home/claude/stikdead → repo-stikdead, token no chat
-- Patches SEMPRE com helper validado que grita ✗
+## PENDÊNCIAS
+- Revogar key Higgsfield antiga
+- Redesign AAA da UI (/perfil) — briefing recebido, aguarda as 2 imagens de referência
+- Empunhadura da arma (punho segurar o cabo) — se ainda fizer sentido no rig atual
