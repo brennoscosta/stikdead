@@ -134,11 +134,11 @@ const CFG = {
   f4_tigre_sangue: { attach: 'face', len: 55, dy: -1 },
   f4_tengu_corvo: { attach: 'face', len: 52, dx: 1 },
   // ----- corpos diamante das coleções (arte IA no estilo do boneco, tronco 39×25) -----
-  b4_peitoral_jade: { attach: 'body', len: 57, dy: 0 },
-  b4_couraca_hannya: { attach: 'body', len: 55, dy: 3 },
-  b4_kimono_nove: { attach: 'body', len: 57, dy: 6 },
-  b4_peitoral_tigre: { attach: 'body', len: 56, dy: 2 },
-  b4_manto_tengu: { attach: 'body', len: 66, dy: 3 },
+  b4_peitoral_jade: { attach: 'body', len: 50, maxW: 34, dy: -1 },
+  b4_couraca_hannya: { attach: 'body', len: 50, maxW: 43, dy: -1 },
+  b4_kimono_nove: { attach: 'body', len: 54, maxW: 36, dy: 2 },
+  b4_peitoral_tigre: { attach: 'body', len: 50, maxW: 42, dy: -1 },
+  b4_manto_tengu: { attach: 'body', len: 58, maxW: 31, dy: 1 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
