@@ -139,12 +139,6 @@ const CFG = {
   b4_kimono_nove: { attach: 'body', len: 54, maxW: 36, dy: 2 },
   b4_peitoral_tigre: { attach: 'body', len: 50, maxW: 42, dy: -1 },
   b4_manto_tengu: { attach: 'body', len: 58, maxW: 31, dy: 1 },
-  // ----- pernas da coleção (perna inteira: par, um sprite por perna) -----
-  l4_perna_jade: { attach: 'legs', len: 62, maxW: 26, grip: 0.5 },
-  l4_perna_hannya: { attach: 'legs', len: 62, maxW: 26, grip: 0.5 },
-  l4_perna_nove: { attach: 'legs', len: 62, maxW: 28, grip: 0.5 },
-  l4_perna_tigre: { attach: 'legs', len: 62, maxW: 26, grip: 0.5 },
-  l4_perna_tengu: { attach: 'legs', len: 62, maxW: 26, grip: 0.5 },
 };
 
 // itens que usam sprite MESMO com o interruptor mestre desligado
@@ -168,7 +162,7 @@ const SPRITE_WHITELIST = new Set([
   'f3_elmo_aguia', 'f3_mascara_urso', 'f3_mascara_naja', 'f3_elmo_leao', 'f3_mascara_farao', 'f3_caveira_fogo', 'f3_mascara_diabo', 'f3_elmo_coruja', 'f3_face_mumia', 'f3_mascara_geisha', 'f3_elmo_rinoceronte',
   'f4_menpo_jade', 'f4_hannya_gelo', 'f4_kitsune_nove', 'f4_tigre_sangue', 'f4_tengu_corvo',
   'b4_peitoral_jade', 'b4_couraca_hannya', 'b4_kimono_nove', 'b4_peitoral_tigre', 'b4_manto_tengu',
-  'l4_perna_jade', 'l4_perna_hannya', 'l4_perna_nove', 'l4_perna_tigre', 'l4_perna_tengu',
+  
 ]);
 
 // ============================================================
@@ -178,7 +172,7 @@ const SPRITE_WHITELIST = new Set([
 // ============================================================
 const SPRITES_ENABLED = false;
 
-const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms', 'legs']);
+const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms']);
 
 export function createWeaponSprite(container, behindOf = null, frontOf = null) {
   const active = new Map(); // slot -> { spr, cfg, id }

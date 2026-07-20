@@ -8,6 +8,7 @@ const LAYER = {
   cape: 'back', aura: 'back', sheath: 'back',
   vest: 'body', scarf: 'body', gloves: 'body', gauntlets: 'body', bands: 'body',
   shorts: 'body', pants: 'body', kneepads: 'body', shoes: 'body', boots: 'body',
+  perna_jade: 'body', perna_hannya: 'body', perna_nove: 'body', perna_tigre: 'body', perna_tengu: 'body',
   band: 'front', hat: 'front', hood: 'front', crown: 'front', ice_crown: 'front',
   prisma_armor: 'torso', prisma_pants: 'torso', prisma_blades: 'front', crystal_armor: 'torso',
   crystal_katana: 'front', crystal_scythe: 'front', crystal_spear: 'front', crystal_axe: 'front', crystal_bow: 'front',
@@ -528,6 +529,72 @@ const TEMPLATES = {
   },
 
   // ===== EXCELENTES: Armadura Prismática — vetor puro, o motor que funciona =====
+  // ===== pernas das coleções (2 peças que dobram no joelho, motivo por coleção) =====
+  _pernaBase(g, T, sk, corE, corC, motivo) {
+    for (const [hip, kne, foot] of [[sk.hip, sk.kneB, sk.footB], [sk.hip, sk.kneF, sk.footF]]) {
+      const a = T(hip), k = T(kne), ft = T(foot);
+      const end = [k[0] + (ft[0] - k[0]) * 0.86, k[1] + (ft[1] - k[1]) * 0.86];
+      seg(g, a, k, 15, corE, true, true);   // coxa segue quadril→joelho
+      seg(g, k, end, 13, corC);             // canela segue joelho→pé (dobra nativa)
+      if (motivo) motivo(g, a, k, end);
+      // bota no tornozelo
+      const [dx, dy] = dir(k, end);
+      g.moveTo(end[0] - dy * 7, end[1] + dx * 7).lineTo(end[0] + dy * 7, end[1] - dx * 7)
+        .stroke({ width: 4, color: OUT });
+    }
+    const a = T(sk.hip);
+    g.roundRect(a[0] - 11, a[1] - 5, 22, 5, 2.5).fill(0x111111).stroke({ width: 2, color: OUT });
+  },
+  perna_jade({ g, T, sk }, p) {
+    const esc = (g, a, k, end) => { // escamas de dragão
+      for (const [p0, p1] of [[a, k], [k, end]]) {
+        const [dx, dy] = dir(p0, p1); const px = -dy, py = dx;
+        for (let i = 1; i < 4; i++) { const t = i / 4;
+          const m = [p0[0] + (p1[0]-p0[0])*t, p0[1] + (p1[1]-p0[1])*t];
+          g.moveTo(m[0]-px*5, m[1]-py*5).quadraticCurveTo(m[0]+dx*3, m[1]+dy*3, m[0]+px*5, m[1]+py*5)
+            .stroke({ width: 1.6, color: 0x2f8f52, alpha: 0.7 }); } }
+    };
+    this._pernaBase(g, T, sk, C('#3fae6a'), C('#2f8f52'), esc);
+  },
+  perna_hannya({ g, T, sk }, p) {
+    const gelo = (g, a, k, end) => { // rachaduras de gelo
+      for (const [p0, p1] of [[a, k], [k, end]]) {
+        const [dx, dy] = dir(p0, p1); const px = -dy, py = dx;
+        const m = [(p0[0]+p1[0])/2, (p0[1]+p1[1])/2];
+        g.moveTo(m[0]-px*4, m[1]-py*4).lineTo(m[0]+dx*4, m[1]+dy*4).lineTo(m[0]+px*4, m[1]+py*4)
+          .stroke({ width: 1.4, color: 0xdff6ff, alpha: 0.75 }); }
+    };
+    this._pernaBase(g, T, sk, C('#7fd9ff'), C('#a8e8ff'), gelo);
+  },
+  perna_nove({ g, T, sk }, p) {
+    const trama = (g, a, k, end) => { // faixa dourada (hakama)
+      const [dx, dy] = dir(a, k); const px = -dy, py = dx;
+      g.moveTo(a[0]-px*8, a[1]-py*8).lineTo(a[0]+px*8, a[1]+py*8)
+        .stroke({ width: 2.5, color: 0xffd76a, alpha: 0.8 });
+    };
+    this._pernaBase(g, T, sk, C('#e0a10b'), C('#c98a08'), trama);
+  },
+  perna_tigre({ g, T, sk }, p) {
+    const listras = (g, a, k, end) => { // listras de tigre
+      for (const [p0, p1] of [[a, k], [k, end]]) {
+        const [dx, dy] = dir(p0, p1); const px = -dy, py = dx;
+        for (let i = 1; i < 4; i++) { const t = i / 4;
+          const m = [p0[0] + (p1[0]-p0[0])*t, p0[1] + (p1[1]-p0[1])*t];
+          g.moveTo(m[0]-px*5, m[1]-py*5).lineTo(m[0]+px*5, m[1]+py*5)
+            .stroke({ width: 2.2, color: 0x1a1a1a, alpha: 0.8 }); } }
+    };
+    this._pernaBase(g, T, sk, C('#d90429'), C('#b3031f'), listras);
+  },
+  perna_tengu({ g, T, sk }, p) {
+    const penas = (g, a, k, end) => { // penas descendo pela canela
+      const [dx, dy] = dir(k, end); const px = -dy, py = dx;
+      for (let i = 0; i < 3; i++) { const t = 0.2 + i * 0.3;
+        const m = [k[0] + (end[0]-k[0])*t, k[1] + (end[1]-k[1])*t];
+        g.moveTo(m[0], m[1]).lineTo(m[0]-dx*5+px*4, m[1]-dy*5+py*4)
+          .stroke({ width: 2, color: 0xb8a5ff, alpha: 0.7 }); }
+    };
+    this._pernaBase(g, T, sk, C('#4b3b8f'), C('#3a2d70'), penas);
+  },
   prisma_pants({ g, T, sk, elapsed }, p) {
     let li = 0;
     for (const [hip, kne, foot] of [[sk.hip, sk.kneB, sk.footB], [sk.hip, sk.kneF, sk.footF]]) {
