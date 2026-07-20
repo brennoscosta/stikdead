@@ -160,6 +160,12 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
   const ko = f.state === 'ko';
 
   g.clear();
+  // camada da frente: braço da frente + cabeça. Quando o caller fornece opts.gFront,
+  // os sprites de corpo (itemSprites) entram ENTRE g e gFront — a veste fica
+  // abraçada pelo braço da frente, igual ao vetor.
+  const gF = opts.gFront || g;
+  if (gF !== g) gF.clear();
+  let GT = g; // alvo atual dos helpers capsule/fist
 
   if (!opts.onlyArms) {
     const shW = ko ? 74 : 46 - Math.min(30, f.y * 0.08);
@@ -182,8 +188,8 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
   const capsule = (a, b, w, body, hi) => {
     const A = T(a), B = T(b);
     const [x1, y1] = A, [x2, y2] = B;
-    g.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: w + 5, color: OUTLINE, cap: 'round', join: 'round' });
-    g.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: w, color: body, cap: 'round', join: 'round' });
+    GT.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: w + 5, color: OUTLINE, cap: 'round', join: 'round' });
+    GT.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: w, color: body, cap: 'round', join: 'round' });
     if (ko) return;
     const ux = x2 - x1, uy = y2 - y1;
     const L = Math.hypot(ux, uy) || 1;
@@ -192,7 +198,7 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
     const faixa = (k, t0, t1, wd, color, alpha) => {
       const px = x1 + ux * t0, py = y1 + uy * t0;
       const qx = x1 + ux * t1, qy = y1 + uy * t1;
-      g.moveTo(px + nx * k, py + ny * k).lineTo(qx + nx * k, qy + ny * k)
+      GT.moveTo(px + nx * k, py + ny * k).lineTo(qx + nx * k, qy + ny * k)
         .stroke({ width: wd, color, alpha, cap: 'round' });
     };
     if (hi) {
@@ -209,13 +215,13 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
   // punho esférico (a referência tem mãos de bola, não membro que termina no pulso)
   const fist = (p, r, front) => {
     const [x, y] = T(p);
-    g.circle(x, y, r + 2.4).fill(OUTLINE);
-    g.circle(x, y, r).fill(front ? BODY : BODY_BACK);
+    GT.circle(x, y, r + 2.4).fill(OUTLINE);
+    GT.circle(x, y, r).fill(front ? BODY : BODY_BACK);
     if (!ko) {
-      g.ellipse(x + r * 0.16, y + r * 0.3, r * 0.72, r * 0.5).fill({ color: SHADE, alpha: front ? 0.5 : 0.4 });
+      GT.ellipse(x + r * 0.16, y + r * 0.3, r * 0.72, r * 0.5).fill({ color: SHADE, alpha: front ? 0.5 : 0.4 });
       if (front) {
-        g.ellipse(x - r * 0.3, y - r * 0.34, r * 0.44, r * 0.32).fill({ color: CORE, alpha: 0.85 });
-        g.ellipse(x - r * 0.36, y - r * 0.44, r * 0.18, r * 0.13).fill({ color: SPEC, alpha: 0.9 });
+        GT.ellipse(x - r * 0.3, y - r * 0.34, r * 0.44, r * 0.32).fill({ color: CORE, alpha: 0.85 });
+        GT.ellipse(x - r * 0.36, y - r * 0.44, r * 0.18, r * 0.13).fill({ color: SPEC, alpha: 0.9 });
       }
     }
   };
@@ -236,9 +242,11 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
     capsule(sk.neck, sk.elbB, RIG.wLimb, BODY_BACK, false);
     capsule(sk.elbB, sk.handB, RIG.wLimbLo, BODY_BACK, false);
     fist(sk.handB, RIG.wLimbLo * 0.68, false);
+    GT = gF;
     capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);
     capsule(sk.elbF, sk.handF, RIG.wLimbLo, BODY, true);
     fist(sk.handF, RIG.wLimbLo * 0.72, true);
+    GT = g;
     return null;
   }
 
@@ -256,38 +264,42 @@ export function drawFighter(g, f, moves, accent, elapsed, loadout = null, opts =
     capsule(sk.kneF, sk.footF, RIG.wShin, BODY, true);
     foot(sk.footF, true);
     if (loadout) drawItems(ctx, loadout, 'torso'); // armadura: cobre tronco e pernas, atrás do braço da frente
+    GT = gF; // braço da frente na camada da frente: abraça os sprites de corpo
     capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);
     capsule(sk.elbF, sk.handF, RIG.wLimbLo, BODY, true);
     fist(sk.handF, RIG.wLimbLo * 0.72, true);
+    GT = g;
   } else if (!opts.skipBridge) {
     // ponte: braço superior (o kit preto não tem essa peça)
     capsule(sk.neck, sk.elbB, RIG.wLimb, BODY_BACK, false);
+    GT = gF;
     capsule(sk.neck, sk.elbF, RIG.wLimb, BODY, true);
+    GT = g;
   }
 
-  if (loadout) drawItems(ctx, loadout, 'body');
+  if (loadout) drawItems({ ...ctx, g: gF }, loadout, 'body');
 
   const [hx, hy] = T(sk.head);
   const R = RIG.headR;
   if (!opts.skipHead) {
-    g.circle(hx, hy, R + 2.6).fill(OUTLINE);
-    g.circle(hx, hy, R).fill(BODY);
+    gF.circle(hx, hy, R + 2.6).fill(OUTLINE);
+    gF.circle(hx, hy, R).fill(BODY);
     if (!ko) {
       // esfera de verdade: sombra embaixo, rim light atrás, luz difusa em camadas e especular quente
-      g.ellipse(hx + R * 0.14, hy + R * 0.32, R * 0.8, R * 0.58).fill({ color: SHADE, alpha: 0.5 });
+      gF.ellipse(hx + R * 0.14, hy + R * 0.32, R * 0.8, R * 0.58).fill({ color: SHADE, alpha: 0.5 });
       const a0 = 0.25, a1 = 1.30;
-      g.moveTo(hx + Math.cos(a0) * R * 0.86, hy + Math.sin(a0) * R * 0.86)
+      gF.moveTo(hx + Math.cos(a0) * R * 0.86, hy + Math.sin(a0) * R * 0.86)
         .arc(hx, hy, R * 0.86, a0, a1)
         .stroke({ width: Math.max(2.5, R * 0.11), color: RIM, alpha: 0.35, cap: 'round' });
-      g.ellipse(hx - R * 0.32, hy - R * 0.38, R * 0.52, R * 0.4).fill({ color: CORE, alpha: 0.75 });
-      g.ellipse(hx - R * 0.36, hy - R * 0.44, R * 0.3, R * 0.22).fill({ color: CORE2, alpha: 0.8 });
-      g.ellipse(hx - R * 0.4, hy - R * 0.5, R * 0.15, R * 0.1).fill({ color: SPEC, alpha: 0.95 });
+      gF.ellipse(hx - R * 0.32, hy - R * 0.38, R * 0.52, R * 0.4).fill({ color: CORE, alpha: 0.75 });
+      gF.ellipse(hx - R * 0.36, hy - R * 0.44, R * 0.3, R * 0.22).fill({ color: CORE2, alpha: 0.8 });
+      gF.ellipse(hx - R * 0.4, hy - R * 0.5, R * 0.15, R * 0.1).fill({ color: SPEC, alpha: 0.95 });
     }
     const olhosCobertos = (loadout || []).some((it) => it.slot === 'face' && /eyes/.test(it.id || ''));
-    if (!olhosCobertos) drawEyes(g, f, hx, hy, face, ko, elapsed, R / 21);
+    if (!olhosCobertos) drawEyes(gF, f, hx, hy, face, ko, elapsed, R / 21);
   }
 
-  if (loadout) drawItems(ctx, loadout, 'front');
+  if (loadout) drawItems({ ...ctx, g: gF }, loadout, 'front');
 
   const TA = (p) => { let [x, y] = p; x = f.x + x * f.face; y = -y - f.y; return { x, y }; };
   return {

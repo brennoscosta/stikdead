@@ -98,9 +98,13 @@ export async function createRenderer(host, theme = 'dojo') {
   world.addChild(sisLayer);
   const gC = new Graphics();
   const gD = new Graphics();
-  sisLayer.addChild(gC, gD);
+  const gFC = new Graphics();
+  const gFD = new Graphics();
+  sisLayer.addChild(gC, gD, gFC, gFD);
   const gA = new Graphics();
   const gB = new Graphics();
+  const gFA = new Graphics(); // camada da frente (braço + cabeça) de cada lutador
+  const gFB = new Graphics();
   // P1: cabeças pintadas (opcional) + olhos vetoriais vivos por cima
   const headA = new Sprite(); headA.anchor.set(0.5); headA.visible = false;
   const headB = new Sprite(); headB.anchor.set(0.5); headB.visible = false;
@@ -111,12 +115,12 @@ export async function createRenderer(host, theme = 'dojo') {
   const partsB = createFighterParts(world);
   let partTexs = null;
   loadPartTextures().then((t) => { partTexs = t; });
-  world.addChild(gA, gB);
+  world.addChild(gA, gB, gFA, gFB);
     world.addChild(headA, eyesA, headB, eyesB);
-  const wsA = createWeaponSprite(world, gA);
-  const wsB = createWeaponSprite(world, gB);
-  const wsC = createWeaponSprite(sisLayer, gC);
-  const wsD = createWeaponSprite(sisLayer, gD);
+  const wsA = createWeaponSprite(world, gA, gFA);
+  const wsB = createWeaponSprite(world, gB, gFB);
+  const wsC = createWeaponSprite(sisLayer, gC, gFC);
+  const wsD = createWeaponSprite(sisLayer, gD, gFD);
   const fx = createFx(world);
   const fxRef = fx;
 
@@ -412,8 +416,8 @@ export async function createRenderer(host, theme = 'dojo') {
     const hasHeadTex = !!(headA.texture && headA.texture.width > 1);
     const hasBody = !!(partTexs && partTexs.torso);
     const optsF = { skipHead: hasHeadTex, skipBody: hasBody };
-    const poseA = drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA), optsF);
-    const poseB = drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB), optsF);
+    const poseA = drawFighter(gA, a, MOVES, 0xd90429, elapsed, filterForVector(loadouts[0], wsA), { ...optsF, gFront: gFA });
+    const poseB = drawFighter(gB, b, MOVES, 0x6e6e6e, elapsed, filterForVector(loadouts[1], wsB), { ...optsF, gFront: gFB });
     updateFighterParts(partsA, poseA, partTexs);
     updateFighterParts(partsB, poseB, partTexs);
     for (const [spr, eg, f, pose] of [[headA, eyesA, a, poseA], [headB, eyesB, b, poseB]]) {
@@ -440,8 +444,8 @@ export async function createRenderer(host, theme = 'dojo') {
     if (squad && match.fighters.length >= 4) {
       sisLayer.visible = true;
       const [, , c, d] = match.fighters;
-      const poseC2 = drawFighter(gC, c, MOVES, 0xe0a10b, elapsed, filterForVector(squad.loadouts[2], wsC), {});
-      const poseD2 = drawFighter(gD, d, MOVES, 0x5a7d9e, elapsed, filterForVector(squad.loadouts[3], wsD), {});
+      const poseC2 = drawFighter(gC, c, MOVES, 0xe0a10b, elapsed, filterForVector(squad.loadouts[2], wsC), { gFront: gFC });
+      const poseD2 = drawFighter(gD, d, MOVES, 0x5a7d9e, elapsed, filterForVector(squad.loadouts[3], wsD), { gFront: gFD });
       void poseC2; void poseD2;
       wsC.update(c, MOVES);
       wsD.update(d, MOVES);
@@ -466,8 +470,8 @@ export async function createRenderer(host, theme = 'dojo') {
         wsD.setLoadout(sis.lo?.[1] || []);
       }
       const [c, d] = sis.f;
-      const poseC = drawFighter(gC, c, MOVES, 0xe0a10b, elapsed, filterForVector(sis.lo?.[0], wsC), {});
-      const poseD = drawFighter(gD, d, MOVES, 0x5a7d9e, elapsed, filterForVector(sis.lo?.[1], wsD), {});
+      const poseC = drawFighter(gC, c, MOVES, 0xe0a10b, elapsed, filterForVector(sis.lo?.[0], wsC), { gFront: gFC });
+      const poseD = drawFighter(gD, d, MOVES, 0x5a7d9e, elapsed, filterForVector(sis.lo?.[1], wsD), { gFront: gFD });
       void poseC; void poseD;
       wsC.update(c, MOVES);
       wsD.update(d, MOVES);
@@ -478,7 +482,7 @@ export async function createRenderer(host, theme = 'dojo') {
       sisLayer.alpha = sis.over ? 0.45 : 0.95; // duelo irmão terminou? vira lembrança
     } else {
       sisLayer.visible = false;
-      gC.clear(); gD.clear();
+      gC.clear(); gD.clear(); gFC.clear(); gFD.clear();
     }
 
     fxStep(fx, dt);

@@ -90,7 +90,9 @@ export async function createPlaza(host, opts = {}) {
     const wrap = new Container();
     const g = new Graphics();
     wrap.addChild(g);
-    const ws = createWeaponSprite(wrap, g);
+    const gFront = new Graphics();
+    wrap.addChild(gFront);
+    const ws = createWeaponSprite(wrap, g, gFront);
     ws.setLoadout(p.loadout || []);
     const dourado = p.protagonista;
     const tag = new Text({
@@ -140,7 +142,7 @@ export async function createPlaza(host, opts = {}) {
       layer.addChild(clanTag);
     }
     return {
-      id: p.id, wrap, g, ws, tag, clanTag, name: p.name, away: !!p.away,
+      id: p.id, wrap, g, gFront, ws, tag, clanTag, name: p.name, away: !!p.away,
       protagonista: !!p.protagonista,
       loadout: p.loadout || [], bubble: null, bubbleUntil: 0,
       f: {
@@ -374,7 +376,7 @@ export async function createPlaza(host, opts = {}) {
       const s = a.protagonista ? scale * 1.32 : scale;
       a.wrap.position.set(0, H - 40);
       a.wrap.scale.set(s);
-      drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, filterForVector(a.loadout, a.ws));
+      drawFighter(a.g, a.f, MOVES, 0xd90429, elapsed, filterForVector(a.loadout, a.ws), { gFront: a.gFront });
       a.ws.update(a.f, MOVES);
       a.tag.position.set(a.f.x * scale, H - 40 - 158 * s);
       // o wrap desenha em coordenadas do lutador; corrige o x do protagonista (escala maior)

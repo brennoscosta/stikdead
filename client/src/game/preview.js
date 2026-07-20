@@ -14,7 +14,9 @@ export async function createPreview(host) {
   app.stage.addChild(stage);
   const g = new Graphics();
   stage.addChild(g);
-  const ws = createWeaponSprite(stage, g); // arma pintada na mesma transformação do boneco
+  const gFront = new Graphics(); // braço da frente + cabeça, acima dos sprites de corpo
+  stage.addChild(gFront);
+  const ws = createWeaponSprite(stage, g, gFront); // arma pintada na mesma transformação do boneco
 
   const fighter = { x: 0, y: 0, vx: 0, vy: 0, face: 1, hp: 100, state: 'idle', t: 0, hitstun: 0, combo: 0 };
   let loadout = [];
@@ -29,7 +31,7 @@ export async function createPreview(host) {
     const scale = Math.min(w / 220, h / 200);
     stage.position.set(w / 2, h * 0.9);
     stage.scale.set(scale);
-    drawFighter(g, fighter, MOVES, null, elapsed, filterForVector(loadout, ws));
+    drawFighter(g, fighter, MOVES, null, elapsed, filterForVector(loadout, ws), { gFront });
     ws.update(fighter, MOVES);
   });
 

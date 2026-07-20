@@ -173,7 +173,7 @@ const SPRITES_ENABLED = false;
 
 const SPRITE_SLOTS = new Set(['weapon', 'head', 'face', 'back', 'body', 'arms']);
 
-export function createWeaponSprite(container, behindOf = null) {
+export function createWeaponSprite(container, behindOf = null, frontOf = null) {
   const active = new Map(); // slot -> { spr, cfg, id }
   let dead = false;         // o dono morreu: cargas pendentes abortam
   let gen = 0;              // geração do loadout: cargas velhas abortam
@@ -212,6 +212,9 @@ export function createWeaponSprite(container, behindOf = null) {
           // torso e costas: entram ATRÁS do desenho do lutador
           if ((cfg.attach === 'torso' || cfg.attach === 'back') && behindOf && behindOf.parent === container) {
             container.addChildAt(spr, container.getChildIndex(behindOf));
+          } else if (cfg.attach === 'body' && frontOf && frontOf.parent === container) {
+            // corpo: entre o tronco e a camada da frente — o braço da frente abraça a veste
+            container.addChildAt(spr, container.getChildIndex(frontOf));
           } else {
             container.addChild(spr);
           }
