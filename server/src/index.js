@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import { createServer } from 'node:http';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import express from 'express';
 import { Server as SocketServer } from 'socket.io';
 import { attachOnline } from './online.js';
@@ -40,16 +42,32 @@ app.use('/api/matches', matchesRouter);
 app.use('/api', shopRouter);
 app.use('/api', missionsRouter);
 
-app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
+// API 404 explícito só para /api; o resto é o front (SPA)
+app.use('/api', (_req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: 'Erro interno. Tente novamente.' });
 });
 
+// client de produção: serve os assets buildados e faz fallback SPA
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDist = path.resolve(__dirname, '../../client/dist');
+app.use(express.static(clientDist, { maxAge: '30d', index: false }));
+app.get('*', (_req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+
 // migração idempotente: preferências de áudio por usuário
 try { await q('ALTER TABLE profiles ADD COLUMN IF NOT EXISTS audio_settings JSONB'); }
 catch (e) { console.error('migração audio_settings:', e.message); }
+
+// migrações automáticas no boot (idempotentes) — CapRover não roda comando à mão
+if (process.env.RUN_MIGRATIONS !== 'false') {
+  try {
+    const { runMigrations } = await import('../scripts/migrate.js');
+    const { pool } = await import('./db.js');
+    await runMigrations(pool); console.log('Migrações aplicadas.');
+  } catch (e) { console.error('Falha nas migrações no boot:', e.message); }
+}
 
 const port = Number(process.env.PORT) || 3001;
 const http = createServer(app);

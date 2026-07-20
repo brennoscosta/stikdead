@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/.env
+**/*.log
+.git
+01_BIBLE
+02_REFERENCIAS
+03_PROMPTS
+docs
+/*.webp
+tmp
